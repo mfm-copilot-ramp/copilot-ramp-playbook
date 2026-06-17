@@ -52,6 +52,9 @@ clear next step, and cut anything defensive. Don't change the facts.
 better" gives you generic results; specifying the audience is what makes the rewrite land.
 
 ## Step by step
+
+> **Microsoft how-to:** [Draft an email message with Copilot in Outlook](https://support.microsoft.com/en-us/office/draft-an-email-message-with-copilot-in-outlook-3eb1d053-89b8-491c-8a6e-746015238d9b) — the official step-by-step from Microsoft Support.
+
 1. **Open your draft and launch Copilot.** In Outlook, use the Copilot rewrite/coaching option; or paste
    the draft into the Copilot app.
 2. **Send the rewrite prompt.** Copilot returns a tightened version with the ask up front and the tone
@@ -82,11 +85,6 @@ One draft, many audiences:
 - **Match a house style.** "Make it sound like the way I usually write — short sentences, no jargon" —
   Copilot adapts to the voice you describe.
 
-> **📚 Learn more.** The in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts)
-> has ready-made Outlook rewrite and tone prompts, and the
-> [Prompt Gallery adoption guide](https://adoption.microsoft.com/en-us/copilot/prompt-gallery/) breaks
-> down the prompting principles behind a good rewrite.
-
 ## Watch out for
 - **You own the send.** Copilot polishes wording; the judgment about whether to send, and to whom, stays
   yours. Re-read before you hit send.
@@ -106,4 +104,5 @@ you in **Stage 2**.
 ## Related
 - [Chat → Turn a meeting into tracked follow-ups](../walkthroughs/chat-meeting-followups.md) — the Stage 1 flagship
 - [Chat → Catch up on a Teams thread you were @mentioned in](../walkthroughs/chat-catch-up-thread.md) — drafts a reply in place
-- Stage 1 Resources: see `RESOURCES.md` → Copilot Chat
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

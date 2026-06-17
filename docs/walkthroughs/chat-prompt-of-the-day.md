@@ -54,6 +54,9 @@ Order them easiest-win first so early tries succeed.
 lands. A team that wins on day one comes back on day two — that's the whole mechanism.
 
 ## Step by step
+
+> **Microsoft how-to:** [Get started writing prompts in Microsoft 365 Copilot](https://support.microsoft.com/en-us/topic/get-started-writing-prompts-in-microsoft-365-copilot-f6c3b467-f07c-4db1-ae54-ffac96184dd5) — the official step-by-step from Microsoft Support.
+
 1. **Pick the channel and the cadence.** Post where the team already looks, once a day, same time. A drip
    they have to go find is a drip they'll miss.
 2. **Lead with the win, not the prompt.** One line of "here's what this saves you," then the paste-ready
@@ -85,11 +88,6 @@ The drip compounds when you turn it into a system:
 - **Let the value data steer it.** Pair this with Workforce insights: where your team is underusing
   Copilot is exactly where next week's prompts should aim.
 
-> **📚 Learn more.** The [Copilot Prompt Gallery (adoption guide)](https://adoption.microsoft.com/en-us/copilot/prompt-gallery/)
-> and the in-product [Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts) are your bottomless
-> source of role-tested prompts, and the [Copilot Success Kit](https://adoption.microsoft.com/en-us/copilot/success-kit/)
-> has champion-ready enablement templates for running rituals like this.
-
 ## Watch out for
 - **Consistency beats cleverness.** A mediocre prompt posted every day builds more habit than a brilliant
   one posted sporadically. Protect the cadence above all.
@@ -108,4 +106,5 @@ already in their license that do more than a single prompt ever could.
 ## Related
 - [Copilot Chat → Turn a meeting into tracked follow-ups](../walkthroughs/chat-meeting-followups.md) — the flagship first win to drip
 - [First-Party → Find where Copilot is landing with Workforce insights](../walkthroughs/first-party-workforce-insights.md) — data to steer the drip
-- Stage 1 Resources: see `RESOURCES.md` → Copilot Chat
+
+> **📚 Learn more.** Grab role-tested prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), browse champion scenarios in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/), and run the ritual with the [Copilot Success Kit](https://adoption.microsoft.com/en-us/copilot/success-kit/).

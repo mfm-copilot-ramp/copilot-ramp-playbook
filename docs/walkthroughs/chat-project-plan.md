@@ -53,6 +53,9 @@ owners), a *concrete artifact* (a table), and asks Copilot to **surface its assu
 correct the premise before you build on it.
 
 ## Step by step
+
+> **Microsoft how-to:** [Get instant answers with Microsoft 365 Copilot Chat](https://support.microsoft.com/en-us/topic/get-instant-answers-with-microsoft-365-copilot-chat-fd8d88af-9492-48cd-8385-7e8615b42d80) — the official step-by-step from Microsoft Support.
+
 1. **Open Copilot and paste the prompt with your goal.** Copilot returns a structured plan: phases,
    a milestone table, owner roles, and a risk list.
 2. **Read the plan and the assumptions.** The assumptions line is gold — it tells you where Copilot
@@ -82,10 +85,6 @@ A plan is a living thing — keep steering:
 - **Turn it into a kickoff.** "Draft the kickoff email and a one-slide summary of this plan" — the plan
   becomes the communication, too.
 
-> **📚 Learn more.** The [Microsoft Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/)
-> has role-based planning and project scenarios with sample prompts, and the in-product
-> [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts) has planning prompts ready to paste.
-
 ## Watch out for
 - **It's a first draft, not a commitment.** Copilot doesn't know your org's real constraints, politics,
   or capacity. The plan is a scaffold you fill with reality, not a schedule to publish as-is.
@@ -105,4 +104,5 @@ hand-off.
 ## Related
 - [Chat → Draft a status update from your week's activity](../walkthroughs/chat-weekly-status.md) — sibling manager daily-driver
 - [Chat → Turn a meeting into tracked follow-ups](../walkthroughs/chat-meeting-followups.md) — the Stage 1 flagship
-- Stage 1 Resources: see `RESOURCES.md` → Copilot Chat
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

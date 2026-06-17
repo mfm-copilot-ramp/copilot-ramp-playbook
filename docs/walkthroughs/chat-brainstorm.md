@@ -48,6 +48,8 @@ Include at least one option I probably haven't considered.
 
 ## Step by step
 
+> **Microsoft how-to:** [Get instant answers with Microsoft 365 Copilot Chat](https://support.microsoft.com/en-us/topic/get-instant-answers-with-microsoft-365-copilot-chat-fd8d88af-9492-48cd-8385-7e8615b42d80) — the official step-by-step from Microsoft Support.
+
 1. **Write a tight problem statement.** The more specific you are, the better the options. Compare:
    - Vague: `"How do I improve team collaboration?"`
    - Better: `"My team misses deadlines because people don't know who owns what. How do I fix that?"`
@@ -104,3 +106,5 @@ Once you're running structured brainstorms regularly, you'll want the strongest 
 ## Related
 
 - [Build a first-draft project plan for your chosen approach](chat-project-plan.md)
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

@@ -46,6 +46,8 @@ They care most about [outcome — e.g., cost and risk / speed to market / compli
 
 ## Step by step
 
+> **Microsoft how-to:** [Draft and add content with Copilot in Word](https://support.microsoft.com/en-us/office/draft-and-add-content-with-copilot-in-word-069c91f0-9e42-4c9a-bbce-fddf5d581541) — the official step-by-step from Microsoft Support.
+
 1. **Paste the original content** into Microsoft 365 Copilot Chat or open it in Word and invoke Copilot.
 2. **Fill in the prompt.** The more specific the audience and outcome, the sharper the result.
    - Generic: `"for executives"`
@@ -95,3 +97,5 @@ Reframing the same content for each new audience by hand works, but you're re-de
 ## Related
 
 - [Rewrite an email for a tougher audience](chat-rewrite-email.md)
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

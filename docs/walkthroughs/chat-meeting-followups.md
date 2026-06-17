@@ -56,6 +56,9 @@ Format the action items as a table I can paste into an email.
 Specific asks + named format = dramatically better results.
 
 ## Step by step
+
+> **Microsoft how-to:** [Catch up on meetings with Microsoft 365 Copilot in Teams](https://support.microsoft.com/en-us/teams/copilot/catch-up-on-meetings-with-microsoft-365-copilot-in-teams) — the official step-by-step from Microsoft Support.
+
 1. **Open Copilot in Teams.** From the meeting's recap page, or the Copilot side panel, or
    Microsoft 365 Copilot Chat at office.com. You'll see the chat box.
 2. **Paste the prompt** (swap in your meeting name). Copilot reads the transcript and returns a
@@ -113,4 +116,5 @@ hand what an agent will soon do on autopilot.
 ## Related
 - [Chat → Catch up on a Teams thread you were @mentioned in](../walkthroughs/chat-catch-up-thread.md)
 - [Chat → Draft a status update from your week's activity](../walkthroughs/chat-weekly-status.md)
-- Stage 1 Resources: see `RESOURCES.md` → Copilot Chat
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

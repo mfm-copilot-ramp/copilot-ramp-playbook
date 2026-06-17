@@ -48,6 +48,8 @@ Total meeting time: [30 minutes].
 
 ## Step by step
 
+> **Microsoft how-to:** [Create a meeting agenda with Copilot in Outlook](https://support.microsoft.com/en-us/office/create-a-meeting-agenda-with-copilot-in-outlook-31a44dfa-62bb-4751-82c4-14327a26759f) — the official step-by-step from Microsoft Support.
+
 1. **Paste your context** into the chat — previous meeting notes, a project brief, or just a few bullet points of what needs to be discussed.
 2. **Run the prompt** with your meeting type, audience, and time filled in.
 3. **Adjust timing.** If an item feels over- or under-weighted, ask:
@@ -100,3 +102,5 @@ Building the agenda is the front half of a well-run meeting; the back half is th
 ## Related
 
 - [Turn the meeting into tracked follow-ups](chat-meeting-followups.md)
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

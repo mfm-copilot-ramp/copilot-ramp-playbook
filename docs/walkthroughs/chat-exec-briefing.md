@@ -44,6 +44,8 @@ Flag the one thing most likely to generate a question.
 
 ## Step by step
 
+> **Microsoft how-to:** [Get instant answers with Microsoft 365 Copilot Chat](https://support.microsoft.com/en-us/topic/get-instant-answers-with-microsoft-365-copilot-chat-fd8d88af-9492-48cd-8385-7e8615b42d80) — the official step-by-step from Microsoft Support.
+
 1. **Open the source material.** In Word (with the doc open) or paste the content into Microsoft 365 Copilot Chat. Multiple sources — a doc and some emails — can all go into the chat.
 2. **Paste the prompt** with your audience filled in. If it's a large doc, reference it by name; if it's an email thread, paste the thread directly.
 3. **Check the lead.** Is point 1 a business outcome, or is it an activity? If it starts with "We are implementing…" ask:
@@ -98,3 +100,5 @@ Hand-assembling a briefing from a pile of docs works for one meeting; doing it w
 ## Related
 
 - [Adapt the output for a different audience](chat-adapt-audience.md)
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

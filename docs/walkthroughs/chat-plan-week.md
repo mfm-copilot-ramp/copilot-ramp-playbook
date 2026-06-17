@@ -44,6 +44,8 @@ Look at my calendar and inbox for this week. Tell me:
 
 ## Step by step
 
+> **Microsoft how-to:** [Catch up on work quickly using Microsoft 365 Copilot Chat](https://support.microsoft.com/en-us/topic/catch-up-on-work-quickly-using-microsoft-365-copilot-chat-cffb11c2-bb06-4d5b-bd4b-9497895daff3) — the official step-by-step from Microsoft Support.
+
 1. **Open Microsoft 365 Copilot Chat** (office.com or the M365 Copilot app). It has access to your calendar and inbox.
 2. **Run the prompt on Monday morning** — or Sunday evening if you want to front-load your week.
 3. **Act on the prep items.** For each important commitment, ask:
@@ -82,3 +84,5 @@ Running your Monday planning prompt by hand is a solid ritual, but it still depe
 ## Related
 
 - [Draft a status update from your week's activity](chat-weekly-status.md)
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

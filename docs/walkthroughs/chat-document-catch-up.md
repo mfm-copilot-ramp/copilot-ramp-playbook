@@ -53,6 +53,9 @@ a customer commitment*) turn a flat summary into a filtered one. You're telling 
 document is signal for you and asking it to throw away the rest.
 
 ## Step by step
+
+> **Microsoft how-to:** [Catch up on work quickly using Microsoft 365 Copilot Chat](https://support.microsoft.com/en-us/topic/catch-up-on-work-quickly-using-microsoft-365-copilot-chat-cffb11c2-bb06-4d5b-bd4b-9497895daff3) — the official step-by-step from Microsoft Support.
+
 1. **Open the document and launch Copilot.** In Word, use the Copilot pane; elsewhere, reference the
    file from the Copilot app or Teams.
 2. **Paste the role-framed prompt.** Copilot reads the whole file and returns the role-specific
@@ -83,11 +86,6 @@ Same document, sharper asks:
 - **Translate the jargon.** "Explain section 4 like I'm not an expert in [domain]" — great for docs that
   cross into a team that isn't yours.
 
-> **📚 Learn more.** The in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts)
-> has summarize-and-extract prompts for Word and PDFs, and the
-> [M365 Copilot Mechanics playlist](https://www.youtube.com/playlist?list=PLXtHYVsvn_b8MTl8mD8FBJIB_cSGkEaT9)
-> shows these document moves in the product.
-
 ## Watch out for
 - **A summary is not the document.** For anything you'll sign, commit to, or be held to, read the actual
   clause — don't act on the summary alone.
@@ -107,4 +105,5 @@ summary.
 ## Related
 - [Chat → Turn a meeting into tracked follow-ups](../walkthroughs/chat-meeting-followups.md) — the Stage 1 flagship
 - [Chat → Prep for a 1:1 in two minutes](../walkthroughs/chat-prep-1on1.md) — sibling two-minute win
-- Stage 1 Resources: see `RESOURCES.md` → Copilot Chat
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

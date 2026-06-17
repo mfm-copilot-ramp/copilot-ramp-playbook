@@ -43,6 +43,8 @@ Summarize this email thread:
 
 ## Step by step
 
+> **Microsoft how-to:** [Chat with Copilot in Outlook](https://support.microsoft.com/en-us/topic/chat-with-copilot-in-outlook-8090e7b3-5b1d-4c6d-9b06-02edac062f58) — the official step-by-step from Microsoft Support.
+
 1. **Open the thread in Outlook.** Click the **Copilot** icon in the reading pane — it opens a summary panel automatically.
 2. **Type or paste the prompt.** In Microsoft 365 Copilot Chat, paste the thread body directly if you don't have Copilot in Outlook.
 3. **Read the summary.** Pay particular attention to "where things stand" — it often reveals the decision was already made without you realizing.
@@ -97,3 +99,5 @@ Summarizing each hot thread the moment you open it is a great habit — but you'
 ## Related
 
 - [Draft a reply or rewrite an email for a tougher audience](chat-rewrite-email.md)
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

@@ -53,6 +53,9 @@ the **structure** (shipped / in-progress / blocked), the **audience** (manager),
 (one-line bullets). A vague "summarize my week" gives you mush; this gives you something you can send.
 
 ## Step by step
+
+> **Microsoft how-to:** [Catch up on work quickly using Microsoft 365 Copilot Chat](https://support.microsoft.com/en-us/topic/catch-up-on-work-quickly-using-microsoft-365-copilot-chat-cffb11c2-bb06-4d5b-bd4b-9497895daff3) — the official step-by-step from Microsoft Support.
+
 1. **Open Copilot Chat and paste the prompt.** Use Microsoft 365 Copilot Chat at office.com or the
    Copilot app — anywhere it can see your work activity.
 2. **Let it pull your week.** Copilot reads across your recent mail, chats, and meetings and returns a
@@ -82,11 +85,6 @@ Once the basic draft is solid, sharpen it into something you'll reuse every week
 - `Tighten the window to just this project — ignore everything else.`
 - **Save the prompt.** Keep it in a note and paste it every Friday — the structure is the reusable part.
 
-> **📚 Learn more.** The in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts)
-> has paste-and-go prompts for Outlook and the other apps, and Microsoft's
-> [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/) bundles role-based prompt
-> sets with downloadable kits — both are first-party "borrow this" sources.
-
 ## Watch out for
 - **It only sees your M365 footprint.** Work that lived offline, in a side tool, or in your head won't
   appear. You own the completeness — read before you send.
@@ -106,4 +104,5 @@ Friday paste required.
 ## Related
 - [Chat → Turn a meeting into tracked follow-ups](../walkthroughs/chat-meeting-followups.md) — the Stage 1 flagship
 - [Chat → Catch up on a Teams thread you were @mentioned in](../walkthroughs/chat-catch-up-thread.md) — sibling daily-driver
-- Stage 1 Resources: see `RESOURCES.md` → Copilot Chat
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).

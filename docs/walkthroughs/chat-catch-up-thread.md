@@ -52,6 +52,9 @@ asked of me, by when"). That single shift turns a wall of text into a to-do with
 enough context to act on it.
 
 ## Step by step
+
+> **Microsoft how-to:** [Use Microsoft 365 Copilot in Teams chats and channels](https://support.microsoft.com/en-us/teams/copilot/how-to-use-microsoft-365-copilot-in-teams-chats-and-channels) — the official step-by-step from Microsoft Support.
+
 1. **Open the thread and launch Copilot in Teams.** Use the Copilot button on the chat/channel, or the
    "Summarize" option on a long thread.
 2. **Paste the prompt.** Copilot reads the whole thread and returns the gist, what's being asked of you,
@@ -88,11 +91,6 @@ Same thread, sharper questions:
 
 Each is a follow-up in the same chat — Copilot keeps the thread context across the conversation.
 
-> **📚 Learn more.** The in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts)
-> has ready-made Teams and Outlook prompts to paste, and the official
-> [M365 Copilot Mechanics playlist](https://www.youtube.com/playlist?list=PLXtHYVsvn_b8MTl8mD8FBJIB_cSGkEaT9)
-> shows these catch-up moves in the product.
-
 ## Watch out for
 - **It only reads the thread you're in.** Context that lives in a side DM, a linked doc, or someone's
   head won't be there. If the summary feels thin, the missing piece is probably elsewhere.
@@ -111,4 +109,5 @@ recap and the follow-ups on its own. You're learning by hand what an agent will 
 ## Related
 - [Chat → Turn a meeting into tracked follow-ups](../walkthroughs/chat-meeting-followups.md) — the Stage 1 flagship
 - [Chat → Draft a status update from your week's activity](../walkthroughs/chat-weekly-status.md) — sibling daily-driver
-- Stage 1 Resources: see `RESOURCES.md` → Copilot Chat
+
+> **📚 Learn more.** Grab paste-ready prompts in the in-product [Copilot Prompt Gallery](https://m365.cloud.microsoft/copilot-prompts), and browse role-based scenarios with downloadable kits in Microsoft's [Scenario Library](https://adoption.microsoft.com/en-us/scenario-library/).
