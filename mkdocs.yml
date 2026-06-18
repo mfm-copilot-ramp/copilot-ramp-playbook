@@ -1,16 +1,16 @@
-# ── Copilot Ramp Cookbook — MkDocs configuration ────────────────────────────
+# ── Copilot Ramp Playbook — MkDocs configuration ────────────────────────────
 # Unofficial, community-built. Not affiliated with or endorsed by Microsoft.
 #
 # Local preview:  mkdocs serve   (then open http://127.0.0.1:8000)
 # Build static:   mkdocs build   (outputs to ./site)
 # Deploy Pages:   mkdocs gh-deploy   (or use the GitHub Action in .github/workflows)
 
-site_name: Copilot Ramp Cookbook
+site_name: Copilot Ramp Playbook
 site_description: >-
   A grassroots ramp through the Microsoft Copilot maturity journey —
   from your first chat to building production agents in Copilot Studio.
   Unofficial and community-built.
-site_author: Copilot Ramp Cookbook contributors
+site_author: Copilot Ramp Playbook contributors
 
 # ⚠️ Replace <org-or-user> with your GitHub account when you create the repo.
 # These three lines drive the repo link, edit button, and Pages base path.

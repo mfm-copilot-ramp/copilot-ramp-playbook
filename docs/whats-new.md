@@ -5,7 +5,7 @@ hide: [toc]
 
 # What's New
 
-Updates to the Copilot Ramp Cookbook — new walkthroughs, improvements, and structural changes.
+Updates to the Copilot Ramp Playbook — new walkthroughs, improvements, and structural changes.
 
 ---
 
@@ -113,7 +113,7 @@ processing, support, NL-to-SQL, computer-use, voice/IVR, code review, and docume
   [A/B and shadow-deploy a model swap](walkthroughs/foundry-ab-shadow-deploy.md),
   [token-budgeting and cost optimization](walkthroughs/foundry-cost-optimization.md), and a
   [red-team / safety eval harness](walkthroughs/foundry-red-team-eval.md).
-- **Where it stands** — the cookbook now spans **95 walkthroughs** and **23 ready-to-adapt solution
+- **Where it stands** — the playbook now spans **95 walkthroughs** and **23 ready-to-adapt solution
   templates** across the six-stage ramp.
 
 ### Real product screenshots across the ramp
@@ -153,7 +153,7 @@ exactly what each step looks like, so you can match the product as you follow al
 ### Added 21 new walkthroughs across all 5 stages
 *June 3, 2026*
 
-The cookbook grew from 35 to 56 walkthroughs. New additions:
+The playbook grew from 35 to 56 walkthroughs. New additions:
 
 **Stage 1 · Chat (6 new)**
 
@@ -210,7 +210,7 @@ The cookbook grew from 35 to 56 walkthroughs. New additions:
 ### Initial launch: 35 walkthroughs across 5 stages
 *May 2026*
 
-First public release of the Copilot Ramp Cookbook on GitHub Pages.
+First public release of the Copilot Ramp Playbook on GitHub Pages.
 
 **Stage 1 · Chat (8 walkthroughs)** — meeting follow-ups, weekly status, 1:1 prep, document catch-up, thread catch-up, project plan, email rewrite, prompt of the day
 

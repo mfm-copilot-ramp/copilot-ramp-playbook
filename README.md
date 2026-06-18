@@ -1,4 +1,4 @@
-# Copilot Ramp Cookbook
+# Copilot Ramp Playbook
 
 > A public, community-built guide to getting started with Microsoft Copilot — and growing from your
 > first chat all the way to building production agents in Copilot Studio.
@@ -14,7 +14,7 @@
 Copilot Chat → First-Party Agents → Cowork → Agent Builder → Copilot Studio → Microsoft Foundry
 ```
 
-Most people stall at "I have Copilot — now what?" This cookbook lays out a natural, grassroots ramp:
+Most people stall at "I have Copilot — now what?" This playbook lays out a natural, grassroots ramp:
 start by *using* Copilot Chat, get comfortable letting prebuilt agents and Cowork do work for you,
 then take the leap from *using* agents to *building* them — first with Agent Builder, then Copilot
 Studio (the low-code maker destination), and finally Microsoft Foundry (the pro-code frontier).

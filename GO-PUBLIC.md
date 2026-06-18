@@ -1,4 +1,4 @@
-# Go Public — deploy the Copilot Ramp Cookbook to GitHub Pages
+# Go Public — deploy the Copilot Ramp Playbook to GitHub Pages
 
 > The whole site is plain Markdown in `docs/`. This runbook takes you from "files on disk" to
 > "live, public site" in about **30 minutes the first time**. Everything here is free — no domain
@@ -68,7 +68,7 @@ cd copilot-ramp-cookbook
 git init
 git branch -M main
 git add .
-git commit -m "Initial publish: Copilot Ramp Cookbook (walkthroughs + site scaffolding)"
+git commit -m "Initial publish: Copilot Ramp Playbook (walkthroughs + site scaffolding)"
 ```
 
 Then create an **empty** repo on GitHub named `copilot-ramp-cookbook` (no README, no .gitignore —

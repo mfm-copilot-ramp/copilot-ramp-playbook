@@ -1,0 +1,11 @@
+# Code owners for the Copilot Ramp Playbook.
+# GitHub auto-requests review from these owners when a PR touches matching paths.
+# Replace <your-org> with the real GitHub org after the repo transfer (see COLLABORATING.md).
+
+# Default: every change needs a maintainer review.
+*       @<your-org>/maintainers
+
+# Optional finer-grained routing once the team grows (uncomment + adjust):
+# docs/                @<your-org>/content-maintainers
+# tooling/             @<your-org>/tooling-maintainers
+# .github/             @<your-org>/maintainers

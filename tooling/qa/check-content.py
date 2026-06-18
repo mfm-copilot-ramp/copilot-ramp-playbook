@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Content QA guard for the Copilot Ramp Cookbook.
+"""Content QA guard for the Copilot Ramp Playbook.
 
 Stdlib-only. Run from the repo root:
 

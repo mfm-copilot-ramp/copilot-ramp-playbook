@@ -1,4 +1,4 @@
-"""MkDocs hooks for the Copilot Ramp Cookbook.
+"""MkDocs hooks for the Copilot Ramp Playbook.
 
 Registered via `hooks:` in mkdocs.yml. Regenerates the persona path catalog
 (docs/path-catalog.json) before every build/serve so the "Add to my path"

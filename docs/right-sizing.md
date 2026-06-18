@@ -5,7 +5,7 @@ hide: [toc]
 
 # When you've gone too far — dropping back down the ramp
 
-The rest of this cookbook points **up**: each stage unlocks the next. But the ramp runs both ways.
+The rest of this playbook points **up**: each stage unlocks the next. But the ramp runs both ways.
 The most expensive mistake in AI adoption isn't moving too slowly — it's solving a Stage 2 problem
 with a Stage 6 tool. A throwaway task built as a governed Studio agent. A single rewrite spun up as a
 Cowork project. Glue code in Foundry for something a connector already does.
