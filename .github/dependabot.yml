@@ -1,0 +1,45 @@
+# Weekly dependency updates. Dependabot opens PRs against main; the PR validation
+# workflow runs on each one, so updates are gated by the same QA + strict build.
+version: 2
+updates:
+  # Python build dependencies (MkDocs Material + plugins).
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "tooling"]
+    commit-message:
+      prefix: "deps(pip)"
+      include: scope
+
+  # Playwright screenshot tool (separate npm package).
+  - package-ecosystem: npm
+    directory: "/tooling/screenshots"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "tooling", "screenshots"]
+    commit-message:
+      prefix: "deps(npm)"
+      include: scope
+
+  # GitHub Actions used by deploy.yml, ci.yml, and linkcheck.yml.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "deps(actions)"
+      include: scope

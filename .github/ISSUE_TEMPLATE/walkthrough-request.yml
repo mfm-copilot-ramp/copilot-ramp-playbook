@@ -1,0 +1,76 @@
+name: 📘 Walkthrough request
+description: Suggest a new use case or expand an existing stub.
+title: "[walkthrough] "
+labels: ["walkthrough", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a walkthrough! These are the heart of the playbook. The more concrete you
+        can be about the user, the task, and what success looks like, the easier it is for someone to
+        pick this up and write it well.
+  - type: input
+    id: title
+    attributes:
+      label: Working title
+      description: A short, action-oriented title for the walkthrough.
+      placeholder: e.g., "Summarize a Teams meeting and draft follow-up actions"
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Which stage of the journey does this fit?
+      options:
+        - "Stage 1 — Copilot Chat"
+        - "Stage 2 — First-Party Agents"
+        - "Stage 3 — Cowork"
+        - "Stage 4 — Agent Builder"
+        - "Stage 5 — Autopilots"
+        - "Stage 6 — Copilot Studio"
+        - "Stage 7 — Microsoft Foundry"
+        - "Not sure / spans stages"
+    validations:
+      required: true
+  - type: checkboxes
+    id: roles
+    attributes:
+      label: Which roles is this for?
+      description: Pick all that apply.
+      options:
+        - label: End user
+        - label: Champion
+        - label: Manager / leader
+        - label: Maker / builder
+        - label: IT / admin
+        - label: Developer
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario — what's the user trying to do?
+      description: A few sentences in plain language. Why is this useful?
+      placeholder: |
+        e.g., "After a recurring 1:1, I want Copilot to read the meeting transcript and draft
+        a follow-up email summarizing decisions and next steps."
+    validations:
+      required: true
+  - type: textarea
+    id: prompts
+    attributes:
+      label: Sample prompts (optional)
+      description: If you've used Copilot for this and have prompts that work, drop them here.
+      render: text
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: Caveats, license/region constraints, related walkthroughs, links to docs.
+  - type: checkboxes
+    id: agreements
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked CATALOG.md and didn't find this already covered.
+          required: true
+        - label: I've read the [Code of Conduct](../../blob/main/CODE_OF_CONDUCT.md).
+          required: true
