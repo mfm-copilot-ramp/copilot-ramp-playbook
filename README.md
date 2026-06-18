@@ -44,6 +44,10 @@ planning, tooling, and config.
 | `CONTENT-MODEL.md` | The locked spec — frontmatter schema, the rich-walkthrough template, and authoring rules |
 | `tooling/screenshots/` | Playwright tool that drives the real product and captures numbered screenshots for the docs |
 | `mockup/` | A standalone HTML design mockup of the site look-and-feel (not part of the build) |
+| `LICENSE` · `LICENSE-CONTENT.md` | Dual license — **MIT** for code/tooling, **CC BY 4.0** for content under `docs/` |
+| `CONTRIBUTING.md` · `CODE_OF_CONDUCT.md` · `MAINTAINERS.md` · `SECURITY.md` | How to contribute, community standards, the maintainer roster, and how to privately report security issues |
+| `COLLABORATING.md` | Runbook for moving this repo into a community GitHub Organization (transfer, rename, team, branch protection) |
+| `.github/` | CODEOWNERS, PR + issue templates, PR-validation CI, deploy workflow, weekly link check, dependabot |
 
 ## Who it's for
 
@@ -69,9 +73,32 @@ Full publish steps (git init → push → enable Pages → automatic deploy) are
 
 ## How to contribute
 
-Content is plain Markdown with frontmatter (see `CONTENT-MODEL.md`). Add or expand a use case by
-following the template under `docs/walkthroughs/`, then open a pull request. Keep every prompt
-copy-pasteable and every page honest about limits.
+This repo lives in a community organization so a trusted core team can collaborate on **one shared
+playbook** — instead of everyone making their own copy. Issues, discussions, and pull requests are
+welcome.
+
+- **Read first:** [`CONTRIBUTING.md`](CONTRIBUTING.md) (setup, PR flow, required checks, and how to
+  add a walkthrough), [`CONTENT-MODEL.md`](CONTENT-MODEL.md) (frontmatter + walkthrough template),
+  and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+- **Big picture:** every page has an "Edit this page" pencil → quick fix becomes a one-click PR.
+  Larger work goes through branch → PR → review → merge → auto-deploy.
+- **Maintainers** are listed in [`MAINTAINERS.md`](MAINTAINERS.md). Becoming one is described there.
+- **Setting up a new org / transferring this repo:** see [`COLLABORATING.md`](COLLABORATING.md) — the
+  end-to-end runbook for creating the org, transferring + renaming the repo, granting Write to the
+  maintainers team, and locking `main` with branch protection.
+
+## License
+
+This project is **dual-licensed** so the code and the writing each carry the right license:
+
+- **Code & tooling** (`mkdocs.yml`, `overrides/`, `tooling/`, build config) — **MIT**, see
+  [`LICENSE`](LICENSE).
+- **Written content under `docs/`** (walkthroughs, stage overviews, solutions, catalog, resources,
+  about) — **CC BY 4.0**, see [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md).
+
+By contributing you agree to license your contribution under the matching license. The CC BY 4.0
+content license does **not** grant any rights in Microsoft trademarks, logos, product names, or
+screenshots — those remain the property of their owner.
 
 ---
 
