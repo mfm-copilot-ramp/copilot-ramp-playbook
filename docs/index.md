@@ -1,5 +1,5 @@
 ---
-title: Copilot Ramp Cookbook
+title: Copilot Ramp Playbook
 hide:
   - navigation
   - toc
@@ -13,7 +13,7 @@ hide:
 
 # Get started with Microsoft Copilot — then grow all the way to building agents.
 
-<p class="home-lede">Most people stall at "I have Copilot, now what?" This cookbook lays out a natural ramp: start by <em>using</em> Copilot, get comfortable letting agents do work for you, then take the leap to <em>building</em> your own — first in Agent Builder, then in Copilot Studio, and into Foundry when you need pro-code.</p>
+<p class="home-lede">Most people stall at "I have Copilot, now what?" This playbook lays out a natural ramp: start by <em>using</em> Copilot, get comfortable letting agents do work for you, then take the leap to <em>building</em> your own — first in Agent Builder, then in Copilot Studio, and into Foundry when you need pro-code.</p>
 
 <div class="journey">
   <a class="step" href="stages/stage-1-chat/"><span class="n">STAGE 1</span><span class="t">Copilot Chat</span><span class="d">A daily habit and a first "wow."</span></a>

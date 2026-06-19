@@ -1,4 +1,4 @@
-# Go Public — deploy the Copilot Ramp Cookbook to GitHub Pages
+# Go Public — deploy the Copilot Ramp Playbook to GitHub Pages
 
 > The whole site is plain Markdown in `docs/`. This runbook takes you from "files on disk" to
 > "live, public site" in about **30 minutes the first time**. Everything here is free — no domain
@@ -23,7 +23,7 @@ You do **not** need to install MkDocs globally or buy anything.
 This lets you see the site exactly as visitors will, before anything is public.
 
 ```bash
-cd copilot-ramp-cookbook
+cd copilot-ramp-playbook
 
 # Create an isolated Python environment and install the pinned build tools
 python -m venv .venv
@@ -45,15 +45,15 @@ Open **http://127.0.0.1:8000** in your browser. Edit any `.md` file in `docs/` a
 
 Open `mkdocs.yml` and replace **`<org-or-user>`** (it appears in `site_url`, `repo_url`, and the social link)
 with your actual GitHub account or org name. For example, if your repo will be
-`https://github.com/acme/copilot-ramp-cookbook`, then `<org-or-user>` → `acme`.
+`https://github.com/acme/copilot-ramp-playbook`, then `<org-or-user>` → `acme`.
 
 The resulting public URL will be:
 
 ```
-https://<org-or-user>.github.io/copilot-ramp-cookbook/
+https://<org-or-user>.github.io/copilot-ramp-playbook/
 ```
 
-(That trailing `/copilot-ramp-cookbook/` matters — keep the repo named `copilot-ramp-cookbook` unless
+(That trailing `/copilot-ramp-playbook/` matters — keep the repo named `copilot-ramp-playbook` unless
 you also change `site_url` and the repo name to match.)
 
 ---
@@ -63,19 +63,19 @@ you also change `site_url` and the repo name to match.)
 There is **no git repository yet**, so initialize one:
 
 ```bash
-cd copilot-ramp-cookbook
+cd copilot-ramp-playbook
 
 git init
 git branch -M main
 git add .
-git commit -m "Initial publish: Copilot Ramp Cookbook (walkthroughs + site scaffolding)"
+git commit -m "Initial publish: Copilot Ramp Playbook (walkthroughs + site scaffolding)"
 ```
 
-Then create an **empty** repo on GitHub named `copilot-ramp-cookbook` (no README, no .gitignore —
+Then create an **empty** repo on GitHub named `copilot-ramp-playbook` (no README, no .gitignore —
 you already have both), and connect it:
 
 ```bash
-git remote add origin https://github.com/<org-or-user>/copilot-ramp-cookbook.git
+git remote add origin https://github.com/<org-or-user>/copilot-ramp-playbook.git
 git push -u origin main
 ```
 
@@ -99,7 +99,7 @@ pushed `main` (or as soon as you flip the source), it will:
 3. Publish the result to Pages.
 
 Watch it run under the **Actions** tab. When the green check appears, your site is live at
-`https://<org-or-user>.github.io/copilot-ramp-cookbook/`.
+`https://<org-or-user>.github.io/copilot-ramp-playbook/`.
 
 From now on, **every push to `main` redeploys automatically.** Editing content = commit + push.
 
@@ -147,4 +147,4 @@ Revisit this once the site has traffic.
 | Publish a change | `git add . && git commit -m "…" && git push` |
 | Capture screenshots | `cd tooling/screenshots && npm install && npm run auth && npm run capture` |
 
-**Live URL:** `https://<org-or-user>.github.io/copilot-ramp-cookbook/`
+**Live URL:** `https://<org-or-user>.github.io/copilot-ramp-playbook/`

@@ -1,4 +1,4 @@
-# Build dependencies for the Copilot Ramp Cookbook (MkDocs Material).
+# Build dependencies for the Copilot Ramp Playbook (MkDocs Material).
 # Pinned so local builds and the GitHub Pages CI build match exactly.
 # Install locally with:  pip install -r requirements.txt
 

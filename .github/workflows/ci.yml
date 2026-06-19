@@ -1,0 +1,50 @@
+# Validate pull requests against main: run the same content-QA + strict build that deploy uses,
+# without touching Pages and without needing any secrets. Fork-safe (read-only token).
+# The job name "build" below is the one to wire into branch protection as a required status check.
+name: PR validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:   # lets a maintainer rerun the validation manually
+
+permissions:
+  contents: read       # read-only — this workflow does not deploy
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true   # newer pushes to the same PR cancel older runs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so git-revision-date can compute accurate "last updated"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Content QA guard
+        run: python tooling/qa/check-content.py   # fails fast on readiness regressions
+
+      - name: Build the site (strict)
+        run: mkdocs build --strict   # --strict fails the build on broken internal links
+
+      - name: Upload built site as a preview artifact
+        if: always()                  # upload even if a later step failed, when site/ exists
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: site
+          if-no-files-found: ignore
+          retention-days: 7

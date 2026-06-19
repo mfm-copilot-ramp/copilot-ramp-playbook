@@ -1,8 +1,8 @@
 {
-  "name": "copilot-ramp-cookbook-screenshots",
+  "name": "copilot-ramp-playbook-screenshots",
   "version": "0.1.0",
   "private": true,
-  "description": "Playwright screenshot-capture tool for the Copilot Ramp Cookbook walkthroughs. Run each scenario in the real product and save numbered PNGs for the docs.",
+  "description": "Playwright screenshot-capture tool for the Copilot Ramp Playbook walkthroughs. Run each scenario in the real product and save numbered PNGs for the docs.",
   "scripts": {
     "auth": "playwright test --project=setup --headed",
     "capture": "playwright test --project=capture --headed",

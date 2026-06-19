@@ -1,0 +1,52 @@
+name: ✏️ Content fix
+description: Report a typo, broken link, outdated screenshot, terminology drift, or unclear wording.
+title: "[content] "
+labels: ["content-fix", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for catching this! For tiny fixes (a typo, a single broken link), feel free to skip the
+        issue and open a PR directly — there's an "Edit this page" pencil on every published page.
+  - type: input
+    id: page
+    attributes:
+      label: Page or file
+      description: URL of the page on the published site, or path inside the repo.
+      placeholder: e.g., docs/walkthroughs/chat-meeting-followups.md
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of fix
+      options:
+        - Typo / grammar
+        - Broken or wrong link
+        - Outdated or wrong screenshot
+        - Terminology / product-name drift
+        - Inaccurate or stale information
+        - Unclear wording
+        - Formatting / rendering glitch
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong?
+      description: Quote the current text or describe the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix (optional)
+      description: If you already know what it should say, paste it here.
+  - type: checkboxes
+    id: agreements
+    attributes:
+      label: Before submitting
+      options:
+        - label: I've read the [Code of Conduct](../../blob/main/CODE_OF_CONDUCT.md).
+          required: true
