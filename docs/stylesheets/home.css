@@ -146,6 +146,21 @@
   font-weight: 700;
 }
 
+.journey .step.foundation::after {
+  content: "foundation";
+  position: absolute;
+  top: .5rem;
+  right: .65rem;
+  font-size: .55rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #4a5566;
+  background: color-mix(in srgb, #4a5566 10%, transparent);
+  padding: 2px 6px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
 .journey-legend {
   margin: .85rem 0 0;
   font-size: .8rem;
@@ -175,6 +190,10 @@
 }
 .journey-legend .jl-text {
   flex: 1 1 auto;
+}
+.journey-legend .jl-foundation {
+  color: #4a5566;
+  background: color-mix(in srgb, #4a5566 10%, transparent);
 }
 .journey-legend .jl-pioneer {
   color: #b26a00;
