@@ -8,11 +8,9 @@ project — not a Microsoft team.
 
 | Name | GitHub | Focus |
 |------|--------|-------|
-| _TBD — populate when the org is created_ | `@<your-handle>` | Overall stewardship |
-| _TBD_ | `@<your-handle>` | Content / walkthroughs |
-| _TBD_ | `@<your-handle>` | Tooling / build |
+| Maxwell Glass | [@MawellGlass](https://github.com/MawellGlass) | Founder, overall stewardship |
 
-The `@<your-org>/maintainers` GitHub team is the canonical list. CODEOWNERS routes review requests to
+The `@mfm-copilot-ramp/maintainers` GitHub team is the canonical list. CODEOWNERS routes review requests to
 that team.
 
 ## What maintainers do

@@ -36,7 +36,7 @@ If you're not sure where something fits, open an issue first and we'll point you
 You need **Python 3.12+** (and **Node 20+** if you're working on the screenshot tool).
 
 ```bash
-git clone https://github.com/<your-org>/copilot-ramp-playbook.git
+git clone https://github.com/mfm-copilot-ramp/copilot-ramp-playbook.git
 cd copilot-ramp-playbook
 
 pip install -r requirements.txt

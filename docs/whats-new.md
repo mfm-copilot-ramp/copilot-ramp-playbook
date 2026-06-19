@@ -224,4 +224,4 @@ First public release of the Copilot Ramp Playbook on GitHub Pages.
 
 ---
 
-> Want to be notified of new walkthroughs? Subscribe via RSS at `/feed_rss_created.xml` or watch the [GitHub repository](https://github.com/MawellGlass/copilot-ramp-cookbook).
+> Want to be notified of new walkthroughs? Subscribe via RSS at `/feed_rss_created.xml` or watch the [GitHub repository](https://github.com/mfm-copilot-ramp/copilot-ramp-playbook).

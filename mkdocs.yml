@@ -14,9 +14,9 @@ site_author: Copilot Ramp Playbook contributors
 
 # ⚠️ Replace <org-or-user> with your GitHub account when you create the repo.
 # These three lines drive the repo link, edit button, and Pages base path.
-site_url: https://MawellGlass.github.io/copilot-ramp-cookbook/
-repo_url: https://github.com/MawellGlass/copilot-ramp-cookbook
-repo_name: copilot-ramp-cookbook
+site_url: https://mfm-copilot-ramp.github.io/copilot-ramp-playbook/
+repo_url: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook
+repo_name: mfm-copilot-ramp/copilot-ramp-playbook
 edit_uri: edit/main/docs/
 
 # Markdown source lives in docs/ (walkthroughs, catalog, resources, stage pages).
@@ -119,7 +119,7 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/MawellGlass/copilot-ramp-cookbook
+      link: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook
   generator: false               # drop the "Made with Material for MkDocs" footer line
 
 # ── Navigation — journey-first (stages are the spine; role is a filter) ──────
