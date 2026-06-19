@@ -2,6 +2,6 @@
 # Pinned so local builds and the GitHub Pages CI build match exactly.
 # Install locally with:  pip install -r requirements.txt
 
-mkdocs-material==9.5.39
+mkdocs-material==9.7.6
 mkdocs-rss-plugin==1.19.0
 mkdocs-git-revision-date-localized-plugin==1.5.3
