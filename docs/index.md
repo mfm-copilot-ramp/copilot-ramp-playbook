@@ -16,13 +16,13 @@ hide:
 <p class="home-lede">Most people stall at "I have Copilot, now what?" This playbook lays out a natural ramp: start by <em>using</em> Copilot, get comfortable letting agents do work for you, then take the leap to <em>building</em> your own — first in Agent Builder, then in Copilot Studio, and into Foundry when you need pro-code.</p>
 
 <div class="journey">
-  <a class="step" href="stages/stage-1-chat/"><span class="n">STAGE 1</span><span class="t">Copilot Chat</span><span class="d">A daily habit and a first "wow."</span></a>
+  <a class="step foundation" href="stages/stage-1-chat/"><span class="n">STAGE 1</span><span class="t">Copilot Chat</span><span class="d">A daily habit and a first "wow."</span></a>
   <span class="arrow">→</span>
-  <a class="step" href="stages/stage-2-first-party/"><span class="n">STAGE 2</span><span class="t">First-Party Agents</span><span class="d">Delegate to what Microsoft already built.</span></a>
+  <a class="step foundation" href="stages/stage-2-first-party/"><span class="n">STAGE 2</span><span class="t">First-Party Agents</span><span class="d">Delegate to what Microsoft already built.</span></a>
   <span class="arrow">→</span>
-  <a class="step" href="stages/stage-3-cowork/"><span class="n">STAGE 3</span><span class="t">Cowork</span><span class="d">Hand off whole multi-step tasks.</span></a>
+  <a class="step foundation" href="stages/stage-3-cowork/"><span class="n">STAGE 3</span><span class="t">Cowork</span><span class="d">Hand off whole multi-step tasks.</span></a>
   <span class="arrow">→</span>
-  <a class="step" href="stages/stage-4-agent-builder/"><span class="n">STAGE 4</span><span class="t">Agent Builder</span><span class="d">Your first taste of <em>making</em>.</span></a>
+  <a class="step foundation" href="stages/stage-4-agent-builder/"><span class="n">STAGE 4</span><span class="t">Agent Builder</span><span class="d">Your first taste of <em>making</em>.</span></a>
   <span class="arrow">→</span>
   <a class="step pioneer" href="stages/stage-5-autopilots/"><span class="n">STAGE 5</span><span class="t">Autopilots</span><span class="d">Always-on agents — Microsoft Scout is the first. Frontier preview.</span></a>
   <span class="arrow">→</span>
@@ -32,6 +32,7 @@ hide:
 </div>
 
 <div class="journey-legend">
+  <p class="jl-row"><span class="jl-badge jl-foundation">Foundation</span><span class="jl-text">generally available today — the always-on starting tier any tenant can use right now.</span></p>
   <p class="jl-row"><span class="jl-badge jl-pioneer">Pioneer</span><span class="jl-text">a frontier capability that's real and worth adopting where you have it — but still in preview and not yet on every tenant.</span></p>
   <p class="jl-row"><span class="jl-badge jl-dest">Destination</span><span class="jl-text">a mature place to settle in and build — generally available and production-grade.</span></p>
 </div>
