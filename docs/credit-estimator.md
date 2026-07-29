@@ -8,12 +8,169 @@ hide: [toc]
 !!! warning "Still being worked on — use with caution"
     This estimator is still under active development. Numbers, defaults, and logic may change, so treat the results as directional rather than final and double-check anything you rely on for planning or budgeting.
 
-Estimate monthly M365 Copilot message-credit consumption for your org or team. Adjust the inputs and the prompt table — results update instantly.
+Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimation mode** to match where you are — describe the agent in plain words, build the credit profile by hand, or upload a finished agent for a component-level analysis. Everything runs in your browser; nothing is uploaded.
 
 !!! info "Official billing rates — [learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management)"
     Rates below are sourced from the **Microsoft Copilot Studio Billing rates and management** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
 
     **Key licensing rule:** When an agent is *embedded in Teams or the M365 Copilot app*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any other channel* (web widget, SharePoint, custom app, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle below to model the correct scenario.
+
+<div id="estimator-modes" markdown="0">
+
+<style>
+/* ── Mode selector + panels ── */
+.mode-selector { margin: 1.5rem 0 0.5rem; }
+.mode-selector > label {
+  display: block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--md-default-fg-color--light); margin-bottom: 0.4rem;
+}
+.em-select {
+  width: 100%; max-width: 460px; box-sizing: border-box; padding: 0.55rem 0.7rem;
+  border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px;
+  background: var(--md-code-bg-color); color: var(--md-default-fg-color);
+  font-size: 1rem; font-family: inherit; cursor: pointer;
+}
+#mode-desc {
+  font-size: 0.85rem; color: var(--md-default-fg-color--light);
+  margin: 0.6rem 0 0; line-height: 1.5; max-width: 68ch;
+}
+.mode-panel { margin-top: 1.25rem; }
+.em-hidden { display: none !important; }
+#panel-quick .hint, #panel-complex .hint { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); }
+
+/* generic controls */
+.em-textarea {
+  width: 100%; box-sizing: border-box; min-height: 120px; resize: vertical;
+  padding: 0.7rem 0.85rem; border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 6px; background: var(--md-code-bg-color);
+  color: var(--md-default-fg-color); font-size: 0.95rem; font-family: inherit; line-height: 1.5;
+}
+.em-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; align-items: center; }
+.em-chip {
+  cursor: pointer; padding: 0.3rem 0.7rem; border-radius: 20px;
+  border: 1px solid var(--md-default-fg-color--lighter); background: transparent;
+  color: var(--md-default-fg-color--light); font-size: 0.78rem; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.em-chip:hover { border-color: var(--md-primary-fg-color); color: var(--md-primary-fg-color); }
+.em-btn {
+  cursor: pointer; padding: 0.5rem 1.2rem; border-radius: 6px; border: none;
+  background: var(--md-primary-fg-color); color: var(--md-primary-bg-color);
+  font-size: 0.9rem; font-weight: 600; font-family: inherit; transition: opacity 0.15s;
+}
+.em-btn:hover { opacity: 0.88; }
+.em-btn.secondary { background: transparent; color: var(--md-primary-fg-color); border: 1.5px solid var(--md-primary-fg-color); }
+.em-btn.secondary:hover { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); opacity: 1; }
+
+/* t-shirt badge */
+.em-tshirt { display: flex; gap: 1rem; align-items: stretch; margin: 1rem 0; border-radius: 8px; padding: 1rem 1.2rem; border: 1px solid var(--md-default-fg-color--lightest); background: var(--md-code-bg-color); }
+.em-tshirt .sz { font-size: 2.4rem; font-weight: 800; line-height: 1; align-self: center; min-width: 2.4ch; text-align: center; }
+.em-tshirt .meta { font-size: 0.85rem; line-height: 1.5; }
+.em-tshirt .meta b { font-size: 0.95rem; }
+.em-tshirt .meta > div { color: var(--md-default-fg-color--light); }
+.em-tshirt-XS { border-left: 5px solid #43a047; } .em-tshirt-XS .sz { color: #43a047; }
+.em-tshirt-S  { border-left: 5px solid #7cb342; } .em-tshirt-S  .sz { color: #7cb342; }
+.em-tshirt-M  { border-left: 5px solid #fb8c00; } .em-tshirt-M  .sz { color: #fb8c00; }
+.em-tshirt-L  { border-left: 5px solid #f4511e; } .em-tshirt-L  .sz { color: #f4511e; }
+.em-tshirt-XL { border-left: 5px solid #e53935; } .em-tshirt-XL .sz { color: #e53935; }
+
+/* build list */
+.em-build-list { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.em-build-list li { padding: 0.5rem 0 0.5rem 1.4rem; position: relative; border-bottom: 1px solid var(--md-default-fg-color--lightest); font-size: 0.9rem; line-height: 1.5; }
+.em-build-list li:before { content: "\25B8"; position: absolute; left: 0.2rem; color: var(--md-primary-fg-color); }
+.em-build-list li b { display: block; }
+.em-build-list li span { color: var(--md-default-fg-color--light); font-size: 0.85rem; }
+
+/* profile table */
+.em-profile { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.5rem 0; }
+.em-profile th { text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--md-default-fg-color--light); padding: 0.5rem 0.6rem; border-bottom: 2px solid var(--md-default-fg-color--lightest); }
+.em-profile td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--md-default-fg-color--lightest); vertical-align: top; }
+.em-profile th.num, .em-profile td.num { text-align: right; }
+.em-profile tfoot td { font-weight: 700; border-top: 2px solid var(--md-default-fg-color--lightest); border-bottom: none; }
+.em-profile .pcredit { color: var(--md-primary-fg-color); }
+.em-profile input[type=number] { width: 84px; box-sizing: border-box; padding: 0.3rem 0.4rem; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 4px; background: var(--md-code-bg-color); color: var(--md-default-fg-color); font-size: 0.9rem; text-align: right; font-family: inherit; }
+
+/* findings grid */
+.em-findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+.em-find { background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); border-radius: 6px; padding: 0.7rem 0.5rem; text-align: center; }
+.em-find .v { font-size: 1.5rem; font-weight: 700; color: var(--md-primary-fg-color); line-height: 1.1; }
+.em-find .k { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--md-default-fg-color--light); margin-top: 0.25rem; }
+.em-find.off { opacity: 0.5; }
+.em-find.off .v { color: var(--md-default-fg-color--light); }
+
+/* cost cards */
+.em-cost { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 0.75rem 0; }
+.em-cost .card { background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); border-radius: 6px; padding: 1rem 1.25rem; }
+.em-cost .card .v { font-size: 1.6rem; font-weight: 700; color: var(--md-primary-fg-color); }
+.em-cost .card .sub { font-size: 0.72rem; color: var(--md-default-fg-color--light); margin-top: 0.2rem; }
+.em-range { font-size: 0.8rem; color: var(--md-default-fg-color--light); margin: 0.5rem 0; line-height: 1.5; }
+
+/* upload drop zone */
+.sp-drop { border: 2px dashed var(--md-default-fg-color--lighter); border-radius: 10px; padding: 2rem 1.5rem; text-align: center; transition: border-color 0.15s, background 0.15s; cursor: pointer; }
+.sp-drop.dragover { border-color: var(--md-primary-fg-color); background: var(--md-code-bg-color); }
+.sp-drop .big { font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem; }
+.sp-drop .small { font-size: 0.82rem; color: var(--md-default-fg-color--light); }
+.sp-status { font-size: 0.85rem; color: var(--md-default-fg-color--light); margin: 0.75rem 0; }
+.sp-status.sp-error { color: #e53935; }
+
+/* details / inventory */
+.em-details { margin: 1.25rem 0; font-size: 0.85rem; }
+.em-details summary { cursor: pointer; font-weight: 600; color: var(--md-primary-fg-color); }
+.em-complist { white-space: pre; overflow-x: auto; font-family: var(--md-code-font-family, monospace); font-size: 0.8rem; background: var(--md-code-bg-color); border-radius: 6px; padding: 0.75rem 1rem; margin-top: 0.5rem; line-height: 1.5; }
+</style>
+
+<div class="mode-selector">
+  <label for="mode-select">Estimation mode</label>
+  <select id="mode-select" class="em-select" onchange="setEstimatorMode(this.value)">
+    <option value="quick">Quick — describe it in words (early / low effort)</option>
+    <option value="detailed" selected>Detailed — build the credit profile by hand (default)</option>
+    <option value="complex">Solution package — upload a built agent (thorough)</option>
+  </select>
+  <p id="mode-desc"></p>
+</div>
+
+<!-- ── QUICK (natural language) ── -->
+<div class="mode-panel em-hidden" id="panel-quick">
+  <div class="section-label">Describe what you want the agent to do</div>
+  <textarea id="qe-input" class="em-textarea" placeholder="e.g. An internal HR assistant that answers benefits and leave questions from our SharePoint policies for all employees, and opens a case in our HR system when it can't answer. Used a few times a month in Teams."></textarea>
+  <div class="em-chips">
+    <span class="hint">Try an example:</span>
+    <button type="button" class="em-chip" onclick="qeExample('hr')">HR assistant</button>
+    <button type="button" class="em-chip" onclick="qeExample('it')">IT helpdesk</button>
+    <button type="button" class="em-chip" onclick="qeExample('sales')">Sales enablement</button>
+    <button type="button" class="em-chip" onclick="qeExample('support')">Customer voice bot</button>
+    <button type="button" class="em-chip" onclick="qeExample('finance')">Invoice processing</button>
+  </div>
+  <button type="button" class="em-btn" onclick="qeAnalyze()">Analyze &rarr;</button>
+  <div id="qe-results" class="em-hidden"></div>
+  <p class="hint" style="margin-top:1rem">This reads keywords in your description to guess the Studio build and a credit profile — it's a directional starting point, not a real LLM analysis. Refine anything, then open it in the Detailed estimator.</p>
+</div>
+
+<!-- ── COMPLEX (solution package upload) ── -->
+<div class="mode-panel em-hidden" id="panel-complex">
+  <div class="section-label">Upload a Copilot Studio solution export</div>
+  <p class="em-range">Export your agent from Power Apps as a <strong>solution</strong> (<code>.zip</code>), then drop it below. The file is parsed entirely in your browser — <strong>nothing is uploaded to any server</strong>.</p>
+  <div class="sp-drop" id="sp-drop" onclick="document.getElementById('sp-file').click()">
+    <div class="big">Drop your solution .zip here</div>
+    <div class="small">or click to choose a file</div>
+    <input type="file" id="sp-file" accept=".zip,application/zip" style="display:none">
+  </div>
+  <div id="sp-status" class="sp-status"></div>
+  <details class="em-details">
+    <summary>How do I export my agent as a solution?</summary>
+    <div style="font-size:0.85rem; line-height:1.7; margin-top:0.5rem">
+      1. Go to <strong>make.powerapps.com</strong> &rarr; <strong>Solutions</strong>.<br>
+      2. Create a solution (or open an existing one) and <strong>add your Copilot Studio agent</strong> — plus its flows and connection references.<br>
+      3. Choose <strong>Export solution</strong> &rarr; Unmanaged or Managed &rarr; download the <code>.zip</code>.<br>
+      4. Drop that <code>.zip</code> above. We read the agent/topic YAML and workflow JSON to inventory components.
+    </div>
+  </details>
+  <div id="sp-results" class="em-hidden"></div>
+</div>
+
+</div>
+
+<div class="mode-panel" id="panel-detailed" markdown="1">
 
 !!! tip "How to use this estimator"
     1. **Set your org scope** — enter the number of users you're modelling and the proportion with an M365 Copilot license.
@@ -450,6 +607,8 @@ function applyScenario(key, evt) {
 defaultRows.forEach(function(r){ addRow(r.name, r.count, r.credits, false); });
 recalc();
 </script>
+
+</div>
 
 </div>
 
