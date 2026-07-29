@@ -9,6 +9,29 @@ Updates to the Copilot Ramp Playbook — new walkthroughs, improvements, and str
 
 ---
 
+## July 2026
+
+### Credit Estimator gains three modes — Quick, Detailed, and Solution package
+*July 29, 2026*
+
+The [Copilot Credit Estimator](credit-estimator.md) now offers **three ways to estimate**, chosen
+from a dropdown, so it fits wherever you are in the journey:
+
+- **Quick (low-effort)** — describe what you want the agent to do in plain language and get an
+  instant read on how it'd be built in Copilot Studio, a **T-shirt size**, and a rough
+  **credit/cost range**. Built for early ideas, or anyone who doesn't yet know how to size an agent.
+- **Detailed (default)** — the original feature-by-feature calculator, unchanged. For people who
+  know the tooling and want to model an agent they haven't built yet.
+- **Solution package (complex)** — export a finished Copilot Studio agent as a solution **`.zip`**
+  and upload it; the estimator inventories topics, triggers, knowledge, actions, flows, and AI
+  tools **entirely in your browser** (nothing leaves the page) to produce a grounded estimate. For
+  agents that are built and close to production.
+
+All three run **100% client-side**, and the Quick and Solution modes can **feed their assumptions
+into the Detailed calculator** so you can fine-tune from any starting point.
+
+---
+
 ## June 2026
 
 ### New Stage 5 · Autopilots — always-on agents (Scout), with a skills lens
