@@ -28,8 +28,10 @@
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function clone(o) { var c = {}; for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) c[k] = o[k]; return c; }
   function setText(id, t) { var e = document.getElementById(id); if (e) e.textContent = t; }
+  function setHtml(id, h) { var e = document.getElementById(id); if (e) e.innerHTML = h; }
   function setVal(id, v) { var e = document.getElementById(id); if (e) e.value = v; }
   function getVal(id) { var e = document.getElementById(id); return e ? e.value : 0; }
+  function chk(id) { var e = document.getElementById(id); return e ? e.checked : false; }
 
   var MODE_DESC = {
     quick: "Best when you're early or unsure — describe the agent in plain words and get a rough size, a Studio build outline, and a credit/cost range. No build knowledge needed.",
@@ -38,11 +40,11 @@
   };
 
   var QE_EXAMPLES = {
-    hr: "An internal HR assistant that answers benefits, leave, and policy questions from our SharePoint HR handbook for all employees. If it can't answer, it opens a case in our HR system. Used a few times a month, in Teams.",
+    email: "Every time a new email arrives in our shared support inbox, the agent should read it, categorize it by topic and urgency, and route it to the correct SME team. It handles about 100 emails a month.",
     it: "An IT helpdesk agent in Teams that answers common support questions from our knowledge base and can reset passwords and create tickets in ServiceNow. Escalates to a live agent when it can't help. Used weekly by staff.",
     sales: "A sales enablement agent that drafts proposals and summarizes product docs for our sellers, grounded on our SharePoint sales library. Used daily by the sales team.",
     support: "A customer-facing voice agent on our website and phone line that answers product questions and creates support tickets in Salesforce, used constantly by thousands of customers.",
-    finance: "A finance agent that extracts fields from scanned invoices and receipts, validates them, and runs a Power Automate approval workflow for the finance department."
+    finance: "Whenever an invoice is submitted, the agent extracts the fields from the scanned document, validates them, and runs a Power Automate approval workflow. About 800 invoices per month for the finance department."
   };
 
   // ── mode switching ────────────────────────────────────────────────────────
@@ -58,11 +60,14 @@
   }
 
   // ── shared render helpers ─────────────────────────────────────────────────
-  function tshirtHtml(t) {
+  function tshirtHtml(t, drivers) {
     var i = EC.SIZE_INFO[t];
+    var why = (drivers && drivers.length)
+      ? '<div class="em-why"><strong>Why ' + t + ':</strong> ' + drivers.map(esc).join(" · ") + '</div>'
+      : "";
     return '<div class="em-tshirt em-tshirt-' + t + '"><div class="sz">' + t + '</div>' +
       '<div class="meta"><b>' + esc(i.name) + ' build</b>' +
-      '<div>' + esc(i.desc) + '</div>' +
+      '<div>' + esc(i.desc) + '</div>' + why +
       '<div><strong>Effort:</strong> ' + esc(i.effort) + '</div>' +
       '<div><strong>Governance:</strong> ' + esc(i.govern) + '</div></div></div>';
   }
@@ -205,10 +210,167 @@
   }
 
   // ── Quick (natural language) ──────────────────────────────────────────────
+  var KNOW_LABEL = { none: "None", docs: "Documents / KB", tenantGraph: "M365 tenant graph" };
+
   function qeExample(k) {
     var t = document.getElementById("qe-input");
     if (t) { t.value = QE_EXAMPLES[k] || ""; qeAnalyze(); }
   }
+
+  function selField(id, label, opts, val, hint) {
+    var o = opts.map(function (op) {
+      return '<option value="' + op[0] + '"' + (op[0] === val ? " selected" : "") + ">" + esc(op[1]) + "</option>";
+    }).join("");
+    return '<div class="calc-field"><label>' + esc(label) + "</label>" +
+      '<select id="' + id + '" onchange="qeRebuild()">' + o + "</select>" +
+      (hint ? '<div class="hint">' + esc(hint) + "</div>" : "") + "</div>";
+  }
+  function numField(id, label, val, hint, step) {
+    return '<div class="calc-field"><label>' + esc(label) + "</label>" +
+      '<input type="number" min="0" ' + (step ? 'step="' + step + '" ' : "") + 'id="' + id + '" value="' + val + '" oninput="qeRebuild()">' +
+      '<div class="hint">' + esc(hint || "") + "</div></div>";
+  }
+  function chkField(id, label, checked) {
+    return '<label class="em-chk"><input type="checkbox" id="' + id + '"' + (checked ? " checked" : "") +
+      ' onchange="qeRebuild()"> ' + esc(label) + "</label>";
+  }
+
+  function qeQuizHtml(v, why) {
+    why = why || {};
+    return '<div class="em-quiz"><div class="calc-grid">' +
+        selField("qe-archetype", "Agent type", [["interactive", "User-driven (someone chats / calls)"], ["autonomous", "Autonomous (fires on events)"]], v.archetype, why.volume || why.users || "") +
+        selField("qe-channel", "Channel", [["chat", "Chat / text"], ["voice", "Voice / phone"]], v.channel, "") +
+        selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
+        selField("qe-know", "Knowledge grounding", [["none", "None"], ["docs", "Documents / KB"], ["tenantGraph", "M365 tenant graph"]], v.knowledge, why.knowledge || "") +
+        numField("qe-actions", "# system actions / run", v.actionsCount, "Connector calls: route, create, update, notify…") +
+        numField("qe-systems", "# systems touched", v.systemsCount, "Distinct back-end systems.") +
+      "</div>" +
+      '<div id="qe-vol-interactive" class="calc-grid"' + (v.archetype === "autonomous" ? ' style="display:none"' : "") + ">" +
+        numField("qe-users", "Users in scope", v.users != null ? v.users : 500, why.users || "") +
+        numField("qe-interactions", "Interactions / user / month", v.interactions != null ? v.interactions : 10, why.interactions || "", "0.5") +
+        selField("qe-deploy", "Deployment", [["embedded", "Embedded (Teams / M365)"], ["standalone", "Standalone / external"]], v.deployment || "embedded", why.deployment || "") +
+        numField("qe-lic", "% with M365 Copilot license", v.licensePct != null ? v.licensePct : 0, "Embedded: licensed users accrue 0 credits.") +
+      "</div>" +
+      '<div id="qe-vol-autonomous" class="calc-grid"' + (v.archetype === "autonomous" ? "" : ' style="display:none"') + ">" +
+        numField("qe-events", "Events / month", v.events != null ? v.events : 500, why.volume || ("How many " + (v.eventUnit || "event") + "s the agent processes monthly.")) +
+        numField("qe-genanswers", "Generative steps / event", v.genAnswers != null ? v.genAnswers : 1, "Classify / summarize / answer operations per run.") +
+      "</div>" +
+      '<div class="em-toggles">' +
+        chkField("qe-content", "Document processing (extract fields)", v.hasContent) +
+        chkField("qe-ai", "Generative content tool (draft / summarize)", v.hasAI) +
+        chkField("qe-flow", "Approval / multi-step flow", v.hasFlow) +
+        chkField("qe-esc", "Escalates to a human", v.hasEscalation) +
+      "</div></div>";
+  }
+
+  function qeReadVars() {
+    var base = (state.qe && state.qe.vars) || {};
+    var arche = getVal("qe-archetype") || "interactive";
+    var v = {
+      archetype: arche,
+      channel: getVal("qe-channel") || "chat",
+      orchestration: getVal("qe-orch") || "generative",
+      knowledge: getVal("qe-know") || "none",
+      actionsCount: Math.max(0, parseInt(getVal("qe-actions"), 10) || 0),
+      systemsCount: Math.max(0, parseInt(getVal("qe-systems"), 10) || 0),
+      hasContent: chk("qe-content"), hasAI: chk("qe-ai"),
+      hasFlow: chk("qe-flow"), hasEscalation: chk("qe-esc"),
+      pagesPerDoc: base.pagesPerDoc || 1,
+      flowActionsPerRun: base.flowActionsPerRun || 5,
+      eventUnit: base.eventUnit || "event"
+    };
+    v.answerType = (v.knowledge !== "none" || v.hasAI || v.orchestration === "generative") ? "generative" : "classic";
+    v.escalation = v.hasEscalation ? (base.escalation || 15) : 0;
+    v.escalationCredits = v.hasEscalation ? EC.CREDIT.action : 0;
+    if (arche === "autonomous") {
+      v.events = Math.max(0, parseInt(getVal("qe-events"), 10) || 0);
+      v.genAnswers = Math.max(0, parseInt(getVal("qe-genanswers"), 10) || 0);
+      v.deployment = "standalone"; v.licensePct = 0;
+    } else {
+      v.users = Math.max(0, parseFloat(getVal("qe-users")) || 0);
+      v.interactions = Math.max(0, parseFloat(getVal("qe-interactions")) || 0);
+      v.deployment = getVal("qe-deploy") || "embedded";
+      v.licensePct = Math.min(100, Math.max(0, parseFloat(getVal("qe-lic")) || 0));
+      v.genAnswers = 1;
+    }
+    return v;
+  }
+
+  function qeOutlineHeadHtml(v, outline) {
+    var chips =
+      '<span class="em-tag em-tag-' + (v.archetype === "autonomous" ? "auto" : "user") + '">' +
+        (v.archetype === "autonomous" ? "⚡ Autonomous" : "💬 User-driven") + "</span>" +
+      '<span class="em-tag">' + (v.channel === "voice" ? "Voice" : "Chat") + "</span>" +
+      '<span class="em-tag">' + (v.orchestration === "generative" ? "Generative orchestration" : "Classic orchestration") + "</span>" +
+      '<span class="em-tag">Knowledge: ' + esc(KNOW_LABEL[v.knowledge] || "None") + "</span>";
+    var trig = outline && outline.trigger ? outline.trigger : { label: "", note: "" };
+    return '<div class="em-flowline">' + chips + "</div>" +
+      '<p class="hint">' + esc(trig.label + (trig.note ? " — " + trig.note : "")) + "</p>";
+  }
+
+  function qeRenderSize(sizing) { setHtml("qe-size", tshirtHtml(sizing.size, sizing.drivers)); }
+
+  function qeRenderProfile(profile, v) {
+    var per = EC.perInteractionCredits(profile);
+    var unit = v.archetype === "autonomous" ? "event" : "interaction";
+    var rows = profile.map(function (r) {
+      return "<tr><td>" + esc(r.name) + (r.note ? ' <span class="hint" style="display:block">' + esc(r.note) + "</span>" : "") + "</td>" +
+        '<td class="num">' + fmtDec(r.uses) + "</td>" +
+        '<td class="num">' + fmtDec(r.credits) + "</td>" +
+        '<td class="num">' + fmtDec(r.uses * r.credits) + "</td></tr>";
+    }).join("");
+    setHtml("qe-profile",
+      '<div class="section-label" style="margin-top:1.25rem">Credit profile — per ' + unit + "</div>" +
+      '<table class="em-profile"><thead><tr><th>Feature</th><th class="num">Uses / ' + unit + '</th><th class="num">Credits / use</th><th class="num">Credits</th></tr></thead>' +
+      "<tbody>" + rows + "</tbody>" +
+      '<tfoot><tr><td>Credits / ' + unit + '</td><td></td><td></td><td class="num">' + fmtDec(per) + "</td></tr></tfoot></table>" +
+      '<p class="hint">Derived from the settings above — adjust the quiz to change these.</p>');
+  }
+
+  function qeCard(v, l) { return '<div class="result-card"><div class="val">' + v + '</div><div class="lbl">' + l + "</div></div>"; }
+
+  function qeRenderEstimate(est, v) {
+    var rng = EC.creditRange(est.monthly);
+    var cost = EC.costUSD(est.monthly);
+    var cards;
+    if (v.archetype === "autonomous") {
+      cards = qeCard(fmt(est.units), "Events / month") +
+        qeCard(fmtDec(est.perUnit), "Credits / event") +
+        qeCard(fmt(est.monthly), "Credits / month");
+    } else {
+      cards = qeCard(fmt(est.billed), "Billed users") +
+        qeCard(fmt(est.monthly), "Credits / month") +
+        qeCard(fmtDec((v.interactions || 0) * est.perUnit), "Credits / user / month");
+    }
+    setHtml("qe-estimate",
+      '<div class="section-label" style="margin-top:1.25rem">Estimated monthly consumption</div>' +
+      '<div class="results-grid">' + cards + "</div>" +
+      '<div class="em-range">Range: ' + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month (directional ±40%).</div>" +
+      '<div class="section-label" style="margin-top:1.25rem">Estimated cost</div>' +
+      '<div class="em-cost">' +
+        '<div class="card"><div class="v">' + money(cost.payg) + '</div><div class="sub">/ month · pay-as-you-go ($0.01 / credit)</div></div>' +
+        '<div class="card"><div class="v">' + money(cost.prepaid) + '</div><div class="sub">/ month · prepaid pack ($0.008 / credit)</div></div>' +
+      "</div>" +
+      '<div class="em-range">Copilot credits only — excludes M365 Copilot license fees. Autonomous triggers are billed even for licensed users.</div>' +
+      '<div style="margin-top:1.25rem"><button class="em-btn secondary" type="button" onclick="qeToDetailed()">Open this in the Detailed estimator →</button></div>');
+  }
+
+  function qeRebuild() {
+    if (!state.qe) return;
+    var v = qeReadVars();
+    state.qe.vars = v;
+    var iv = document.getElementById("qe-vol-interactive");
+    var av = document.getElementById("qe-vol-autonomous");
+    if (iv) iv.style.display = v.archetype === "autonomous" ? "none" : "";
+    if (av) av.style.display = v.archetype === "autonomous" ? "" : "none";
+    var profile = EC.deriveQuick(v);
+    state.qe.profile = profile;
+    qeRenderSize(EC.sizeFromDrivers(v));
+    setHtml("qe-outline-head", qeOutlineHeadHtml(v, state.qe.outline));
+    qeRenderProfile(profile, v);
+    qeRenderEstimate(EC.computeQuick(profile, v), v);
+  }
+
   function qeAnalyze() {
     var input = document.getElementById("qe-input");
     var txt = input ? input.value.trim() : "";
@@ -220,26 +382,32 @@
       return;
     }
     var a = EC.analyzeText(txt);
-    state.qe = { profile: a.profile.map(clone), scale: a.scale, escalation: a.escalation, tshirt: a.tshirt };
-    var buildItems = a.matched.filter(function (c) { return !!c.build; }).map(function (c) {
-      return '<li><b>' + esc(c.label) + '</b><span>' + esc(c.build) + '</span></li>';
+    state.qe = { vars: clone(a.vars), why: a.why, outline: a.outline, profile: a.profile.map(clone) };
+    var steps = a.outline.steps.map(function (s, i) {
+      return "<li><b>" + (i + 1) + ". " + esc(s.label) + "</b><span>" + esc(s.build) + "</span></li>";
     }).join("");
-    if (a.escalation) {
-      buildItems += '<li><b>Escalation path</b><span>~' + a.escalation + '% of interactions hand off to a human — modelled as an escalation rate in the detailed view.</span></li>';
-    }
     res.innerHTML =
-      tshirtHtml(a.tshirt) +
+      '<div id="qe-size"></div>' +
       '<div class="section-label" style="margin-top:1.25rem">How this would be built in Copilot Studio</div>' +
-      '<ul class="em-build-list">' + buildItems + "</ul>" +
-      assumptionsHtml("qe", a.scale, a.scaleWhy) +
-      profileTableHtml("qe", state.qe.profile) +
-      '<p class="hint">These are starting-point features and uses inferred from your words — edit anything that doesn\'t match.</p>' +
-      estimateHtml("qe");
+      '<div id="qe-outline"><div id="qe-outline-head"></div><ul class="em-build-list">' + steps + "</ul>" +
+        '<p class="hint">These build steps are inferred from your words. Refine the details below to sharpen the estimate.</p></div>' +
+      '<div class="section-label" style="margin-top:1.25rem">Refine the scenario <span style="text-transform:none;font-weight:400">— pre-filled from your description; edit anything that doesn\'t match</span></div>' +
+      qeQuizHtml(a.vars, a.why) +
+      '<div id="qe-profile"></div>' +
+      '<div id="qe-estimate"></div>';
     res.classList.remove("em-hidden");
-    recompute("qe");
+    qeRebuild();
   }
-  function qeRecompute() { recompute("qe"); }
-  function qeToDetailed() { var st = state.qe; if (st) seedDetailed(st.profile, readScale("qe"), st.escalation); }
+  function qeRecompute() { qeRebuild(); }
+  function qeToDetailed() {
+    var st = state.qe; if (!st) return;
+    var v = st.vars;
+    var profile = EC.deriveQuick(v);
+    var scale = v.archetype === "autonomous"
+      ? { users: 1, interactions: v.events || 0, deployment: "standalone", licensePct: 0 }
+      : { users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
+    seedDetailed(profile, scale, v.escalation || 0);
+  }
 
   // ── Solution package (upload) ─────────────────────────────────────────────
   function componentSummary(f) {
@@ -340,6 +508,7 @@
     window.qeAnalyze = qeAnalyze;
     window.qeExample = qeExample;
     window.qeRecompute = qeRecompute;
+    window.qeRebuild = qeRebuild;
     window.qeToDetailed = qeToDetailed;
     window.spRecompute = spRecompute;
     window.spToDetailed = spToDetailed;
