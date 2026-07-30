@@ -117,6 +117,18 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 .em-details { margin: 1.25rem 0; font-size: 0.85rem; }
 .em-details summary { cursor: pointer; font-weight: 600; color: var(--md-primary-fg-color); }
 .em-complist { white-space: pre; overflow-x: auto; font-family: var(--md-code-font-family, monospace); font-size: 0.8rem; background: var(--md-code-bg-color); border-radius: 6px; padding: 0.75rem 1rem; margin-top: 0.5rem; line-height: 1.5; }
+
+/* quick: why-this-size, build outline header, quiz */
+.em-why { margin: 0.4rem 0; padding: 0.35rem 0.6rem; border-radius: 5px; background: var(--md-default-fg-color--lightest); font-size: 0.82rem; color: var(--md-default-fg-color); }
+.em-flowline { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.25rem 0 0.5rem; }
+.em-tag { display: inline-block; padding: 0.22rem 0.6rem; border-radius: 5px; font-size: 0.74rem; font-weight: 600; background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); color: var(--md-default-fg-color--light); }
+.em-tag-user { background: rgba(66,165,245,0.14); border-color: rgba(66,165,245,0.4); color: #1e88e5; }
+.em-tag-auto { background: rgba(251,140,0,0.16); border-color: rgba(251,140,0,0.45); color: #fb8c00; }
+.em-quiz { margin: 0.5rem 0 0; }
+.em-quiz .calc-grid { margin-top: 0.5rem; }
+.em-toggles { display: flex; flex-wrap: wrap; gap: 0.9rem; margin: 0.85rem 0 0.25rem; }
+.em-chk { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; color: var(--md-default-fg-color--light); cursor: pointer; }
+.em-chk input { cursor: pointer; }
 </style>
 
 <div class="mode-selector">
@@ -132,10 +144,10 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 <!-- ── QUICK (natural language) ── -->
 <div class="mode-panel em-hidden" id="panel-quick">
   <div class="section-label">Describe what you want the agent to do</div>
-  <textarea id="qe-input" class="em-textarea" placeholder="e.g. An internal HR assistant that answers benefits and leave questions from our SharePoint policies for all employees, and opens a case in our HR system when it can't answer. Used a few times a month in Teams."></textarea>
+  <textarea id="qe-input" class="em-textarea" placeholder="e.g. Every time a new email lands in our shared support inbox, categorize it and route it to the right SME team — about 100 emails a month. Or: an HR assistant that answers benefits questions from our SharePoint policies for all employees in Teams."></textarea>
   <div class="em-chips">
     <span class="hint">Try an example:</span>
-    <button type="button" class="em-chip" onclick="qeExample('hr')">HR assistant</button>
+    <button type="button" class="em-chip" onclick="qeExample('email')">Email router (autonomous)</button>
     <button type="button" class="em-chip" onclick="qeExample('it')">IT helpdesk</button>
     <button type="button" class="em-chip" onclick="qeExample('sales')">Sales enablement</button>
     <button type="button" class="em-chip" onclick="qeExample('support')">Customer voice bot</button>

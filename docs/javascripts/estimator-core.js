@@ -28,28 +28,30 @@
   };
 
   // ── T-shirt sizing ────────────────────────────────────────────────────────
+  // Size measures BUILD COMPLEXITY / effort — not credit cost (shown separately).
   var SIZE_INFO = {
     XS: { label: "XS", name: "Extra small",
-      desc: "A single-purpose Q&A agent — one knowledge source, no actions.",
+      desc: "Single-purpose Q&A — one knowledge source, no actions, classic routing.",
       effort: "Hours to stand up. One maker, no pro-dev.",
       govern: "Minimal — publish and monitor occasionally." },
     S: { label: "S", name: "Small",
-      desc: "Grounded Q&A with a couple of topics; maybe one lookup.",
+      desc: "Generative Q&A with a few topics and one action or one flow.",
       effort: "A few days. One maker.",
       govern: "Light — a shared environment and basic analytics." },
     M: { label: "M", name: "Medium",
-      desc: "Grounded answers plus real actions/flows into 1–2 systems.",
+      desc: "Generative orchestration with 2–4 actions across 1–2 systems (or a simple autonomous agent).",
       effort: "1–3 weeks. Maker + occasional pro-dev for connectors.",
       govern: "Moderate — ALM, connection references, DLP review." },
     L: { label: "L", name: "Large",
-      desc: "Multi-system actions, workflows, generative orchestration.",
+      desc: "5+ actions across 3+ systems, multiple flows, autonomous triggers or document processing.",
       effort: "1–2 months. Maker + pro-dev + reviewer.",
       govern: "Serious — managed solutions, environments, monitoring, DLP." },
     XL: { label: "XL", name: "Extra large",
-      desc: "Voice, tenant-graph grounding, many actions, high volume.",
+      desc: "Voice, tenant-graph grounding, autonomous/multi-agent, many actions, high volume.",
       effort: "Multi-month program with a dedicated team.",
       govern: "Full ALM, security review, capacity planning, SRE-style ops." }
   };
+  // Retained for the Solution-package (Complex) mode.
   function sizeForScore(score, opts) {
     opts = opts || {};
     var s = score <= 1 ? "XS" : score <= 3 ? "S" : score <= 6 ? "M" : score <= 9 ? "L" : "XL";
@@ -58,6 +60,39 @@
       s = ({ XS: "S", S: "M", M: "L", L: "XL", XL: "XL" })[s];
     }
     return s;
+  }
+  var SIZE_ORDER = ["XS", "S", "M", "L", "XL"];
+  // Driver-based sizing for the Quick mode. Returns {size, drivers:[...why]}.
+  function sizeFromDrivers(v) {
+    var score = 0, drivers = [];
+    function add(pts, why) { score += pts; if (why) drivers.push({ pts: pts, why: why }); }
+    var a = Math.max(0, v.actionsCount || 0);
+    if (a >= 5) add(3, a + " actions");
+    else if (a >= 2) add(2, a + " actions");
+    else if (a === 1) add(1, "1 action");
+    var sys = Math.max(0, v.systemsCount || 0);
+    if (sys >= 3) add(2, sys + " systems");
+    else if (sys === 2) add(1, "2 systems");
+    if (v.orchestration === "generative") add(1, "generative orchestration");
+    if (v.knowledge === "tenantGraph") add(2, "tenant-graph grounding");
+    else if (v.knowledge === "docs") add(1, "knowledge grounding");
+    if (v.channel === "voice") add(3, "voice channel");
+    if (v.archetype === "autonomous") add(2, "autonomous / event-driven");
+    if (v.hasFlow) add(1, "workflow / approval flow");
+    if (v.hasContent) add(2, "document processing");
+    if (v.hasAI) add(1, "generative content tool");
+    // Volume tier (build/ops complexity grows with scale).
+    var vol = v.archetype === "autonomous"
+      ? (v.events || 0)
+      : Math.round((v.users || 0) * (v.interactions || 0));
+    var volThresh = v.archetype === "autonomous" ? [2000, 20000] : [20000, 250000];
+    if (vol >= volThresh[1]) add(2, "high volume");
+    else if (vol >= volThresh[0]) add(1, "meaningful volume");
+
+    var size = score <= 1 ? "XS" : score <= 2 ? "S" : score <= 5 ? "M" : score <= 8 ? "L" : "XL";
+    if (v.channel === "voice" && SIZE_ORDER.indexOf(size) < SIZE_ORDER.indexOf("L")) size = "L";
+    drivers.sort(function (x, y) { return y.pts - x.pts; });
+    return { size: size, score: score, drivers: drivers.slice(0, 3).map(function (d) { return d.why; }) };
   }
 
   // ── Shared math ───────────────────────────────────────────────────────────
@@ -82,6 +117,22 @@
   function costUSD(credits) {
     return { payg: credits * RATE_PAYG, prepaid: credits * RATE_PREPAID };
   }
+  // Regime-aware monthly consumption for the Quick mode.
+  // interactive: billedUsers × interactions/user/month × perUnit (embedded licensing applies).
+  // autonomous:  events/month × perUnit (billed regardless of licensing — no discount).
+  function computeQuick(profile, v) {
+    var per = perInteractionCredits(profile);
+    if (v.archetype === "autonomous") {
+      var events = Math.max(0, Math.round(v.events || 0));
+      return { regime: "autonomous", perUnit: per, units: events, billed: null, monthly: events * per };
+    }
+    var scale = { deployment: v.deployment, users: v.users, licensePct: v.licensePct };
+    var billed = billedUsers(scale);
+    var interactions = Math.max(0, v.interactions || 0);
+    var escExtra = ((v.escalation || 0) / 100) * (v.escalationCredits || 0);
+    var monthly = billed * interactions * (per + escExtra);
+    return { regime: "interactive", perUnit: per, units: billed * interactions, billed: billed, monthly: monthly };
+  }
 
   // ── Number/scale parsing for the Quick mode ───────────────────────────────
   function parseCount(numStr, suffix) {
@@ -95,6 +146,8 @@
   function detectUsers(t) {
     var m = t.match(/([\d][\d,\.]*)\s*(k|thousand|million|m)?\s*\+?\s*(users|employees|people|staff|agents|reps|representatives|customers|callers|associates|workers|seats|members|clients|advisors)/);
     if (m) { var v = parseCount(m[1], m[2]); if (v) return { value: v, why: "from “" + m[0].trim() + "”" }; }
+    var wn = t.match(/\b(dozens|hundreds|thousands|millions)\s+of\s+(users|employees|people|staff|agents|reps|representatives|customers|callers|associates|workers|seats|members|clients|advisors)/);
+    if (wn) { var wv = { dozens: 50, hundreds: 500, thousands: 5000, millions: 1000000 }[wn[1]]; return { value: wv, why: "“" + wn[0].trim() + "”" }; }
     if (/\b(entire|whole|across the|company[- ]wide|enterprise[- ]wide|all employees|everyone|global)\b/.test(t) &&
         /\b(company|organi[sz]ation|org|enterprise|firm|business|workforce)\b/.test(t))
       return { value: 5000, why: "company-wide language" };
@@ -107,7 +160,7 @@
     if (/\b(constantly|all day|high[- ]volume|hundreds of times|many times a day|around the clock|24\/7)\b/.test(t)) return { value: 40, why: "very high frequency" };
     if (/\b(daily|every day|each day|throughout the day|per day)\b/.test(t)) return { value: 20, why: "daily use" };
     if (/\b(several times a week|few times a week|weekly|each week|every week|per week)\b/.test(t)) return { value: 6, why: "weekly use" };
-    if (/\b(monthly|once a month|occasional|occasionally|rarely|now and then|infrequent|seldom)\b/.test(t)) return { value: 1, why: "occasional use" };
+    if (/\b(monthly|once a month|per month|a month|occasional|occasionally|rarely|now and then|infrequent|seldom)\b/.test(t)) return { value: 1, why: "occasional use" };
     return { value: 10, why: "default assumption" };
   }
   function detectDeployment(t) {
@@ -118,106 +171,281 @@
     return { value: "embedded", why: "default assumption" };
   }
 
-  // ── Quick capability catalog ──────────────────────────────────────────────
-  // build = how it's realised in Studio; row = per-interaction credit contribution.
-  var QUICK_CAPS = [
-    { id: "gen_answer", label: "Answer questions from your content",
+  // ── Archetype + autonomous-volume detection (Quick mode) ──────────────────
+  var EVENT_NOUNS = "e-?mails?|messages?|orders?|tickets?|cases?|requests?|invoices?|receipts?|documents?|forms?|records?|transactions?|leads?|applications?|submissions?|files?|alerts?|claims?|inquir(?:y|ies)|reviews?|posts?|entries";
+  // Strong autonomous cues — an event or schedule fires the agent (no human per run).
+  var AUTO_STRONG = new RegExp(
+    "\\b(every ?time|each ?time|whenever|any ?time|as soon as|on (?:a |an |each |every )?new\\b|" +
+    "when\\b[^.]{0,30}?(?:comes? in|arrives?|is (?:received|submitted|created|added|logged|raised|placed|opened|uploaded|filed)|are (?:received|submitted|created|added|logged))|" +
+    "incoming|arrives?\\b|nightly|hourly|scheduled|daily batch|\\bbatch\\b|unattended|in the background|behind the scenes|" +
+    "trigger(?:ed|s)? (?:by|when|on|whenever)|for each (?:" + EVENT_NOUNS + "))\\b");
+  // Weak cues — only autonomous when NO interactive signal is present.
+  var AUTO_WEAK = /\b(automatically|autonomous(?:ly)?|monitors?|watch(?:es|ing)?|scans?|listens? for|polls?)\b/;
+  var INTERACTIVE_CUE = new RegExp(
+    "\\b(answers?|ask(?:s|ed|ing)?|questions?|q ?& ?a|chat ?bot|chats? with|in teams|self[- ]serve|" +
+    "conversation|talk to|speak (?:to|with)|help(?:s)? (?:employees|staff|users|customers|people|sellers|agents|reps|callers)|" +
+    "respond to (?:users|employees|customers|questions|people))\\b");
+  var VOICE_RE = /\b(voice|call ?cent(?:er|re)|contact ?cent(?:er|re)|\bphone\b|\bivr\b|telephony|spoken|speech|hotline|over the phone)\b/;
+
+  function detectArchetype(t) {
+    if (AUTO_STRONG.test(t)) return "autonomous";
+    if (AUTO_WEAK.test(t) && !INTERACTIVE_CUE.test(t)) return "autonomous";
+    return "interactive";
+  }
+
+  function detectEventVolume(t) {
+    // Allow up to two adjective words between the number and the event noun
+    // ("5000 loan applications"). The (?![a-z]) guard stops the "m" million
+    // suffix from eating the start of a word like "monthly".
+    var gap = "(?:[a-z][a-z-]*\\s+){0,2}?";
+    var re = new RegExp("([\\d][\\d,\\.]*)\\s*(k|thousand|million|m)?(?![a-z])\\s*\\+?\\s*" + gap + "(" + EVENT_NOUNS + ")\\b[\\s\\S]{0,24}?(?:per|a|each|every|/)\\s*(day|week|month|quarter|year|hour)");
+    var m = t.match(re);
+    var unit, period, value = null, why;
+    if (m) {
+      value = parseCount(m[1], m[2]);
+      unit = m[3].replace(/s$/, "").replace("e-mail", "email");
+      period = m[4];
+      why = "from “" + m[0].trim().replace(/\s+/g, " ") + "”";
+    } else {
+      // number + event-noun without an explicit period, e.g. "100 emails"
+      var re2 = new RegExp("([\\d][\\d,\\.]*)\\s*(k|thousand|million|m)?(?![a-z])\\s*\\+?\\s*" + gap + "(" + EVENT_NOUNS + ")\\b");
+      var m2 = t.match(re2);
+      if (m2) {
+        value = parseCount(m2[1], m2[2]);
+        unit = m2[3].replace(/s$/, "").replace("e-mail", "email");
+        period = /\b(per|a|each|every)\s*(day|week|month|year|hour)\b/.test(t) ? (t.match(/\b(?:per|a|each|every)\s*(day|week|month|year|hour)\b/) || [])[1] : "month";
+        why = "from “" + m2[0].trim() + "” (assumed per " + period + ")";
+      }
+    }
+    if (value == null) {
+      // word-number volumes, e.g. "thousands of tickets a day" or
+      // "thousands of loan applications each month" (adjective between).
+      var wnGap = "(?:[a-z][a-z-]*\\s+){0,2}?";
+      var wn = t.match(new RegExp("(dozens|hundreds|thousands|millions)\\s+of\\s+" + wnGap + "(" + EVENT_NOUNS + ")"));
+      if (wn) {
+        value = { dozens: 50, hundreds: 500, thousands: 5000, millions: 1000000 }[wn[1]];
+        unit = wn[2].replace(/s$/, "").replace("e-mail", "email");
+        period = (t.match(/\b(?:per|a|each|every)\s*(day|week|month|year|hour)\b/) || [null, "month"])[1];
+        why = "from “" + wn[0].trim().replace(/\s+/g, " ") + "” (assumed per " + period + ")";
+      } else {
+        // bare rate not adjacent to the noun, e.g. "…support tickets…, 5000/month".
+        var nm0 = t.match(new RegExp("\\b(" + EVENT_NOUNS + ")\\b"));
+        var br = t.match(/([\d][\d,\.]*)\s*(k|thousand|million|m)?(?![a-z])\s*(?:per|\/|a |each |every )\s*(day|week|month|quarter|year|hour)/);
+        if (nm0 && br) {
+          value = parseCount(br[1], br[2]);
+          unit = nm0[1].replace(/s$/, "").replace("e-mail", "email");
+          period = br[3];
+          why = "from “" + br[0].trim() + "” (" + unit + "s)";
+        } else {
+          // find the most likely event noun for labelling even without a number
+          unit = nm0 ? nm0[1].replace(/s$/, "").replace("e-mail", "email") : "event";
+          return { value: 500, unit: unit, why: "default assumption (per month)" };
+        }
+      }
+    }
+    var toMonth = { hour: 730, day: 30, week: 4.33, month: 1, quarter: 1 / 3, year: 1 / 12 };
+    var mult = toMonth[period] != null ? toMonth[period] : 1;
+    return { value: Math.max(1, Math.round(value * mult)), unit: unit, why: why };
+  }
+
+  // ── Quick build-step catalog ──────────────────────────────────────────────
+  // Each detector maps description language to a concrete Studio build step.
+  // category drives how the step is counted for cost + sizing:
+  //   answer_gen · action · content · ai · flow
+  var STEP_CATALOG = [
+    { id: "classify", category: "answer_gen",
+      label: "Classify / categorize the item",
+      build: "A generative answer (or prompt tool) reads the item and assigns a category, priority, or intent.",
+      kws: [/\bcategori[sz]/, /\bclassif/, /\btag(s|ged|ging)?\b/, /\blabel(s|led|ling)?\b/, /\btriage/, /\bsort(s|ing)? (into|by|the)/, /\bidentif(y|ies) (the )?(type|category|intent|topic)/, /\bdetermine (the )?(type|category|priority|intent)/, /\bprioriti[sz]/] },
+    { id: "answer", category: "answer_gen",
+      label: "Answer questions from your content",
       build: "Generative answers grounded on your knowledge (SearchAndSummarizeContent).",
-      row: { key: "generative", match: ROW.generative, uses: 1, credits: CREDIT.generative },
-      weight: 1,
-      kws: [/\banswer/, /\bquestion/, /\bfaq/, /\bask(s|ed|ing)?\b/, /\bexplain/, /\bguidance/, /\bhelp (with|me|employees|users|customers|staff)/, /\brespond/, /\binquir/, /\blook ?up/, /\bclarif/, /\bwhat (is|are|does)/, /\bhow (do|to|can)/, /\bq ?& ?a\b/, /\bself[- ]serve/] },
-    { id: "knowledge", label: "Search internal documents / knowledge base",
-      build: "Add knowledge sources (SharePoint, files, public website, Dataverse) and Search & Summarize.",
-      weight: 1, forces: "gen_answer",
-      kws: [/\bdocument/, /\bpolic(y|ies)/, /\bknowledge ?base/, /\bsharepoint/, /\bpdf/, /\bmanual/, /\bhandbook/, /\bwiki\b/, /\barticle/, /\bour files/, /\binternal doc/, /\bprocedure/, /\bguideline/, /\bknowledge/] },
-    { id: "tenant_graph", label: "Ground on Microsoft 365 tenant data",
-      build: "Tenant graph grounding pulls M365 data (people, chats, mail, files) — 10 credits per message.",
-      row: { key: "tenantGraph", match: ROW.tenantGraph, uses: 1, credits: CREDIT.tenantGraph },
-      weight: 2,
-      kws: [/\bmicrosoft 365\b/, /\bm365\b/, /\bacross (the|our) tenant/, /\borg chart/, /\bemployee directory/, /\bpeople data/, /\bteams messages/, /\btheir emails?/, /\btheir calendar/, /\bgraph\b/, /\benterprise data/, /\bcompany data across/] },
-    { id: "action", label: "Take actions in other systems",
-      build: "Call connectors / custom actions (InvokeConnectorAction) to read or write records — ServiceNow, Salesforce, Dynamics, SAP, etc.",
-      row: { key: "action", match: ROW.action, uses: 1, credits: CREDIT.action },
-      weight: 2,
-      kws: [/\bcreate (a|an)? ?(ticket|case|record|incident|request|order)/, /\bopen (a|an)? ?(ticket|case)/, /\blog (a|an)? ?(case|ticket|request)/, /\braise (a|an)? ?(ticket|request)/, /\bupdate\b/, /\bsubmit/, /\bfile (a|an)/, /\breset (the )?password/, /\bprovision/, /\bplace (an )?order/, /\bbook(ing|s)?\b/, /\bservicenow/, /\bsalesforce/, /\bdynamics/, /\bsap\b/, /\bcrm\b/, /\bcheck (the )?status/, /\bcancel/, /\bschedule/, /\bsend (an )?email/, /\bworkday/, /\bjira\b/] },
-    { id: "flow", label: "Run multi-step workflows / approvals",
-      build: "Use agent flows (Power Automate) for multi-step automation, approvals and routing.",
-      row: { key: "flow", match: ROW.flow, uses: 5, credits: CREDIT.flowAction },
-      weight: 2,
-      kws: [/\bworkflow/, /\bautomat(e|ion)/, /\bapproval/, /\broute (to|the)/, /\bmulti[- ]step/, /\borchestrat/, /\bpipeline/, /\bkick off/, /\btrigger (a|the) (process|flow)/, /\bnotify/, /\bassign (to|it)/, /\bhand ?off/] },
-    { id: "content", label: "Extract data from documents",
-      build: "Content processing / prompt tools extract and classify document data — ~8 credits per page.",
-      row: { key: "content", match: ROW.content, uses: 1, credits: CREDIT.contentPage },
-      weight: 2,
-      kws: [/\binvoice/, /\breceipt/, /\bextract (from|data|fields)/, /\bparse/, /\bocr\b/, /\bscanned/, /\bread the document/, /\bfields? from/, /\bprocess forms?/, /\bclassify (the )?document/, /\bcontract (review|analysis)/, /\bstatements?\b/] },
-    { id: "gen_tool", label: "Generate / draft content",
-      build: "A prompt (GPT) tool drafts and rewrites text — standard generation ~1.5 credits per 10 responses.",
-      row: { key: "aiStandard", match: ROW.aiStandard, uses: 1, credits: CREDIT.aiStandard },
-      weight: 1,
-      kws: [/\bdraft/, /\bwrite (a|an|up|me)/, /\bcompose/, /\brewrite/, /\btranslate/, /\bsummari[sz]e/, /\bbrainstorm/, /\bgenerate (a|an|content|text|copy)/, /\bproposal/, /\bemail draft/, /\bmarketing copy/, /\bcreate content/] },
-    { id: "voice", label: "Voice / phone channel",
-      build: "Voice channel with generative orchestration — high per-turn cost (35 credits standard, 75 real-time).",
-      row: { key: "voiceStandard", match: ROW.voiceStandard, uses: 1, credits: CREDIT.voiceStandard },
-      weight: 3,
-      kws: [/\bvoice\b/, /\bcall ?cent(er|re)/, /\bcontact ?cent(er|re)/, /\bphone/, /\bivr\b/, /\btelephony/, /\bspoken/, /\bspeech/, /\bhotline/, /\bover the phone/] },
-    { id: "orchestration", label: "Agent decides which tools to use",
-      build: "Generative orchestration lets the agent choose topics/tools dynamically (vs classic routing).",
-      weight: 2,
-      kws: [/\bautonomous/, /\bdecide(s)? which/, /\bfigure out/, /\breason (over|about|through)/, /\bchoose(s)?\b/, /\bmultiple systems/, /\bdepending on/, /\bcomplex requests/, /\bintelligently/] },
-    { id: "escalation", label: "Escalate to a human",
-      build: "An escalation topic hands off to a live agent (Teams, Omnichannel).",
-      weight: 1, escalation: 15,
-      kws: [/\bescalat/, /\bhuman (agent|being|rep)/, /\blive (agent|person|rep)/, /\bhand ?off to/, /\btransfer to (a|an|the)/, /\bspeak to (a|someone|an agent)/, /\breal person/] }
+      kws: [/\banswer/, /\bquestion/, /\bfaq/, /\bask(s|ed|ing)?\b/, /\bexplain/, /\bguidance/, /\bhelp (with|me|employees|users|customers|staff|resolve|answer)/, /\brespond to/, /\binquir/, /\bclarif/, /\bwhat (is|are|does)/, /\bhow (do|to|can)/, /\bq ?& ?a\b/, /\bself[- ]serve/] },
+    { id: "route", category: "action",
+      label: "Route / assign to the right owner",
+      build: "A connector action routes or assigns the item to the correct queue, team, or person.",
+      kws: [/\broutes?\b/, /\brouting/, /\bassign/, /\bforward/, /\bdispatch/, /\bhand(s|ed)? ?off/, /\bhand(s|ed)? it (to|over)/, /\bdirect(s|ed)? (it|them|the) to/, /\bdeliver(s|ed)? (it|them|the) to/, /\bsend(s|ing)? (it|them|the) to (the )?(right|correct|appropriate|relevant)/] },
+    { id: "create", category: "action",
+      label: "Create a record (ticket / case / order)",
+      build: "A connector action writes a record — ServiceNow, Salesforce, Dynamics, Jira, SAP, etc.",
+      kws: [/\bcreates? (a|an)? ?(ticket|case|record|incident|request|order|entry|item|lead)/, /\bopens? (a|an)? ?(ticket|case|incident|request|record)/, /\blogs? (a|an)? ?(case|ticket|request)/, /\braises? (a|an)? ?(ticket|request)/, /\bfiles? (a|an)? ?(ticket|case|claim)/, /\bplac(?:e|es|ing) (an? )?order/, /\bgenerates? (a|an)? ?(ticket|case|record|order|incident)/] },
+    { id: "update", category: "action",
+      label: "Look up / update a record",
+      build: "A connector action reads or updates a record in a line-of-business system.",
+      kws: [/\bupdate(s|d)?\b/, /\blooks? ?up/, /\bretriev/, /\bfetch/, /\bgets? (the )?(status|details|record|data|info)/, /\bchecks? (the )?(status|inventory|stock|availability|balance|account|order|details|record)/, /\bpulls? (the )?(record|data|details)/, /\bmodif(y|ies)/, /\bsets? (the )?status/, /\bcross[- ]?reference/, /\bverif(y|ies)/, /\bvalidat(e|es|ing|ion)/, /\breconcil(e|es|ing|iation)/, /\bconfirm(s|ed|ing)?\b/, /\bflag(s|ged|ging)?\b/] },
+    { id: "notify", category: "action",
+      label: "Send a notification / email",
+      build: "A connector action sends an email, Teams message, or notification.",
+      kws: [/\bnotif(y|ies|ication)/, /\bsend(s|ing)? (an? )?(email|e-?mail|message|reply|notification|alert|summary|confirmation|response|acknowledg|note|update)/, /\bemail(s)? (the|them|back|to|it)/, /\breplies?\b/, /\bpost(s|ing)? (to|a|in) (teams|slack|channel)/, /\balert(s)? (the|them|when)/, /\backnowledg/] },
+    { id: "provision", category: "action",
+      label: "Perform a system action (reset / provision / book)",
+      build: "A connector action performs an operation — reset password, provision access, book, cancel.",
+      kws: [/\breset (the )?password/, /\bprovision/, /\bgrant (access|permission)/, /\bbook(ing|s)?\b/, /\bcancel/, /\breschedul/, /\bunlock/, /\bonboard/] },
+    { id: "extract", category: "content",
+      label: "Extract data from documents",
+      build: "Content-processing / prompt tools extract and validate fields — ~8 credits per page.",
+      kws: [/\binvoice/, /\breceipt/, /\bextract (from|data|fields|the)/, /\bocr\b/, /\bscanned (document|form|image)/, /\bread the document/, /\bfields? from/, /\bprocess forms?/, /\bcontract (review|analysis)/, /\bparse (the )?(document|pdf|invoice|form)/] },
+    { id: "draft", category: "ai",
+      label: "Generate / draft content",
+      build: "A prompt (GPT) tool drafts, rewrites, translates, or summarizes text.",
+      kws: [/\bdraft/, /\bwrite (a|an|up|me)/, /\bcompose/, /\brewrite/, /\btranslate/, /\bsummari[sz]e/, /\bbrainstorm/, /\bgenerate (a|an|content|text|copy|summary|response)/, /\bproposal/, /\bmarketing copy/] },
+    { id: "approve", category: "flow",
+      label: "Run an approval / multi-step flow",
+      build: "An agent flow (Power Automate) runs a multi-step approval or automated sequence.",
+      kws: [/\bapprovals?\b/, /\bapprove/, /\bmulti[- ]step/, /\bworkflow/, /\bpipeline/, /\bautomat(e|es|ed|ion) (the )?(process|steps|sequence)/, /\bkick off (a )?(process|flow)/, /\bsign[- ]?off/] }
   ];
+
+  var SYSTEM_PATTERNS = [
+    [/servicenow/, "ServiceNow"], [/salesforce|\bsfdc\b/, "Salesforce"], [/dynamics|\bd365\b/, "Dynamics 365"],
+    [/\bsap\b/, "SAP"], [/\bjira\b/, "Jira"], [/workday/, "Workday"], [/zendesk/, "Zendesk"],
+    [/oracle/, "Oracle"], [/\bsql\b|database/, "database"], [/sharepoint/, "SharePoint"],
+    [/outlook|exchange|\bmail\b|inbox/, "Outlook / Exchange"], [/\bteams\b/, "Teams"],
+    [/power ?bi/, "Power BI"], [/\bcrm\b/, "CRM"], [/\berp\b/, "ERP"], [/confluence/, "Confluence"]
+  ];
+  function detectSystems(t) {
+    var found = [];
+    SYSTEM_PATTERNS.forEach(function (p) { if (p[0].test(t) && found.indexOf(p[1]) < 0) found.push(p[1]); });
+    return found;
+  }
+  function detectKnowledge(t) {
+    if (/\b(microsoft 365|m365|tenant graph|across (the|our) tenant|org chart|employee directory|people data|teams messages|their (emails?|calendar)|enterprise data|company data across)\b/.test(t))
+      return { type: "tenantGraph", label: "Microsoft 365 tenant graph", why: "M365 tenant data referenced" };
+    if (/\b(document|polic(y|ies)|knowledge ?base|sharepoint|pdf|manual|handbook|wiki|articles?|our files|internal docs?|procedure|guideline|knowledge|catalog|product (docs|info|details|manuals?))\b/.test(t))
+      return { type: "docs", label: "Documents / knowledge base", why: "document knowledge referenced" };
+    return { type: "none", label: "None", why: "no knowledge source detected" };
+  }
+  function extractSteps(t) {
+    var steps = [];
+    STEP_CATALOG.forEach(function (s) {
+      if (s.kws.some(function (re) { return re.test(t); })) steps.push(s);
+    });
+    return steps;
+  }
+
+  function row(key, name, uses, credits, note) {
+    return { key: key, name: name, uses: uses, credits: credits, note: note };
+  }
+
+  // Build the per-unit credit profile from the (editable) variables.
+  function deriveQuick(v) {
+    var profile = [];
+    var auto = v.archetype === "autonomous";
+    var actionsCount = Math.max(0, v.actionsCount || 0);
+    var genAnswers = Math.max(0, v.genAnswers || 0);
+
+    if (v.channel === "voice") {
+      profile.push(row("voiceStandard", ROW.voiceStandard, 1, CREDIT.voiceStandard, "voice turn (generative orchestration)"));
+    } else if (!auto) {
+      if (v.answerType === "generative")
+        profile.push(row("generative", ROW.generative, Math.max(1, genAnswers), CREDIT.generative, "generative answer"));
+      else
+        profile.push(row("classic", ROW.classic, 1, CREDIT.classic, "classic answer"));
+    } else if (genAnswers > 0) {
+      profile.push(row("generative", ROW.generative, genAnswers, CREDIT.generative, genAnswers + " generative step(s)"));
+    }
+
+    if (v.knowledge === "tenantGraph")
+      profile.push(row("tenantGraph", ROW.tenantGraph, 1, CREDIT.tenantGraph, "tenant-graph grounding"));
+
+    var actionUses = (auto ? 1 : 0) + actionsCount;
+    if (actionUses > 0)
+      profile.push(row("action", ROW.action, actionUses, CREDIT.action,
+        actionUses + " agent action(s)" + (auto ? " incl. autonomous trigger" : "")));
+
+    if (v.hasContent)
+      profile.push(row("content", ROW.content, Math.max(1, v.pagesPerDoc || 1), CREDIT.contentPage, "document processing (per page)"));
+    if (v.hasAI)
+      profile.push(row("aiStandard", ROW.aiStandard, 1, CREDIT.aiStandard, "generative content tool"));
+    if (v.hasFlow)
+      profile.push(row("flow", ROW.flow, Math.max(1, v.flowActionsPerRun || 5), CREDIT.flowAction, "agent flow actions"));
+
+    return profile;
+  }
 
   function analyzeText(raw) {
     var t = " " + String(raw || "").toLowerCase() + " ";
-    var matched = [];
-    var byId = {};
-    QUICK_CAPS.forEach(function (cap) {
-      var hit = cap.kws.some(function (re) { return re.test(t); });
-      if (hit) { matched.push(cap); byId[cap.id] = true; }
-    });
-    // knowledge implies a generative answer even if phrasing didn't trigger gen_answer
-    matched.forEach(function (cap) {
-      if (cap.forces && !byId[cap.forces]) {
-        var forced = QUICK_CAPS.filter(function (c) { return c.id === cap.forces; })[0];
-        if (forced) { matched.push(forced); byId[forced.id] = true; }
-      }
-    });
-    // Guarantee at least one conversational turn.
-    var hasAnswerRow = byId.gen_answer || byId.gen_tool || byId.action;
-    var profile = [];
-    var seen = {};
-    if (!hasAnswerRow) {
-      profile.push({ key: "classic", name: ROW.classic, uses: 1, credits: CREDIT.classic });
-      seen.classic = true;
-    }
-    matched.forEach(function (cap) {
-      if (!cap.row) return;
-      if (seen[cap.row.key]) return;
-      seen[cap.row.key] = true;
-      profile.push({ key: cap.row.key, name: cap.row.match, uses: cap.row.uses, credits: cap.row.credits });
-    });
+    var steps = extractSteps(t);
+    var systems = detectSystems(t);
+    var know = detectKnowledge(t);
+    var autonomous = detectArchetype(t);
+    autonomous = autonomous === "autonomous";
+    var voice = VOICE_RE.test(t);
+    var hasEscalation = /\b(escalat|human (agent|being|rep)|live (agent|person|rep)|hand ?off to (a|an|the)? ?(human|agent|person)|transfer to (a|an|the)|speak to (a|someone|an agent)|real person)\b/.test(t);
 
-    var users = detectUsers(t), interactions = detectInteractions(t), deploy = detectDeployment(t);
-    var licensePct = deploy.value === "embedded" ? 60 : 0;
-    var scale = {
-      users: users.value, interactions: interactions.value,
-      deployment: deploy.value, licensePct: licensePct
+    var actionsCount = steps.filter(function (s) { return s.category === "action"; }).length;
+    var answerGenSteps = steps.filter(function (s) { return s.category === "answer_gen"; }).length;
+    var hasContent = steps.some(function (s) { return s.category === "content"; });
+    var hasAI = steps.some(function (s) { return s.category === "ai"; });
+    var hasFlow = steps.some(function (s) { return s.category === "flow"; });
+
+    var orchestration = (autonomous || actionsCount >= 1 || hasFlow || steps.length >= 2 ||
+      /\b(decide(s)? which|figure out|reason (over|about|through)|autonomous|intelligently|depending on|complex requests?|multiple systems|which (tool|system|action))\b/.test(t))
+      ? "generative" : "classic";
+    var answerType = (know.type !== "none" || answerGenSteps > 0 || hasAI || orchestration === "generative")
+      ? "generative" : "classic";
+
+    var systemsCount = systems.length || (actionsCount > 0 ? 1 : 0);
+    var genAnswers = autonomous ? answerGenSteps : Math.max(answerGenSteps, 1);
+
+    var v = {
+      archetype: autonomous ? "autonomous" : "interactive",
+      channel: voice ? "voice" : "chat",
+      orchestration: orchestration,
+      answerType: answerType,
+      knowledge: know.type,
+      actionsCount: actionsCount,
+      systemsCount: systemsCount,
+      genAnswers: genAnswers,
+      hasContent: hasContent, hasAI: hasAI, hasFlow: hasFlow,
+      hasEscalation: hasEscalation, escalation: hasEscalation ? 15 : 0,
+      escalationCredits: hasEscalation ? CREDIT.action : 0,
+      pagesPerDoc: 1, flowActionsPerRun: 5
     };
 
-    var score = matched.reduce(function (s, c) { return s + (c.weight || 0); }, 0);
-    if (scale.users >= 10000) score += 2; else if (scale.users >= 2000) score += 1;
-    var escalation = 0;
-    matched.forEach(function (c) { if (c.escalation) escalation = Math.max(escalation, c.escalation); });
-    var tshirt = sizeForScore(score, { voice: !!byId.voice, users: scale.users });
+    // Volume — regime-specific.
+    var why = { knowledge: know.why };
+    if (autonomous) {
+      var ev = detectEventVolume(t);
+      v.events = ev.value; v.eventUnit = ev.unit;
+      v.deployment = "standalone"; v.licensePct = 0;
+      why.volume = ev.why;
+    } else {
+      var users = detectUsers(t), interactions = detectInteractions(t), deploy = detectDeployment(t);
+      v.users = users.value; v.interactions = interactions.value;
+      v.deployment = deploy.value; v.licensePct = deploy.value === "embedded" ? 60 : 0;
+      why.users = users.why; why.interactions = interactions.why; why.deployment = deploy.why;
+    }
+
+    var profile = deriveQuick(v);
+    var sizing = sizeFromDrivers(v);
+    var estimate = computeQuick(profile, v);
+
+    // Build outline (qualitative "how it would be built").
+    var outline = {
+      archetype: v.archetype,
+      trigger: autonomous
+        ? { label: "Autonomous trigger — fires on each new " + (v.eventUnit || "event"),
+            note: "Billed as an agent action every run, regardless of user licensing." }
+        : { label: "User message" + (voice ? " (voice channel)" : " (chat)"),
+            note: "A person starts each conversation." },
+      channel: voice ? "Voice / phone" : "Chat",
+      orchestration: orchestration === "generative" ? "Generative orchestration" : "Classic (topic) orchestration",
+      knowledge: know.label,
+      steps: steps.map(function (s) { return { id: s.id, label: s.label, build: s.build, category: s.category }; }),
+      systems: systems
+    };
+    if (hasEscalation) outline.steps.push({ id: "escalation", label: "Escalate to a human", build: "An escalation topic hands off to a live agent (Teams / Omnichannel).", category: "action" });
+    if (outline.steps.length === 0) {
+      outline.steps.push(autonomous
+        ? { id: "process", label: "Process the incoming " + (v.eventUnit || "item"), build: "The agent reads each event and acts on it with generative orchestration.", category: "answer_gen" }
+        : { id: "respond", label: "Answer / respond to the user", build: "A " + (answerType === "generative" ? "generative answer" : "classic topic") + " handles each request.", category: "answer_gen" });
+    }
 
     return {
-      matched: matched, profile: profile, scale: scale,
-      score: score, tshirt: tshirt, escalation: escalation,
-      scaleWhy: { users: users.why, interactions: interactions.why, deployment: deploy.why },
-      estimate: computeEstimate(profile, scale)
+      vars: v, outline: outline, profile: profile,
+      perUnit: perInteractionCredits(profile),
+      size: sizing.size, sizeDrivers: sizing.drivers, sizeInfo: SIZE_INFO[sizing.size],
+      estimate: estimate, why: why
     };
   }
 
@@ -298,11 +526,14 @@
 
   var api = {
     CREDIT: CREDIT, RATE_PAYG: RATE_PAYG, RATE_PREPAID: RATE_PREPAID, ROW: ROW,
-    SIZE_INFO: SIZE_INFO, sizeForScore: sizeForScore,
+    SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
-    computeEstimate: computeEstimate, creditRange: creditRange, costUSD: costUSD,
+    computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
     detectUsers: detectUsers, detectInteractions: detectInteractions, detectDeployment: detectDeployment,
-    QUICK_CAPS: QUICK_CAPS, analyzeText: analyzeText, analyzeSolution: analyzeSolution
+    detectEventVolume: detectEventVolume, detectArchetype: detectArchetype,
+    detectKnowledge: detectKnowledge, detectSystems: detectSystems,
+    extractSteps: extractSteps, deriveQuick: deriveQuick,
+    STEP_CATALOG: STEP_CATALOG, analyzeText: analyzeText, analyzeSolution: analyzeSolution
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.EstimatorCore = api;
