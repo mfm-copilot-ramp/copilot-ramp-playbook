@@ -600,6 +600,258 @@
       applies: function (v) { return v.archetype !== "autonomous"; } }
   ];
 
+  // ── Quick + Import: batch scenario schema + analysis ──────────────────────
+  // Column schema for the downloadable template. Each entry maps one spreadsheet
+  // column to a `vars` field. `applies` narrows a column to a regime; `def` is
+  // the fallback when the cell is blank. Enum aliases make hand-editing forgiving.
+  var IMPORT_SCHEMA = [
+    { key: "name", header: "Scenario name", type: "text", applies: "all",
+      hint: "A short label for this agent scenario." },
+    { key: "archetype", header: "Agent type", type: "enum", applies: "all", def: "interactive",
+      enum: { interactive: ["interactive", "user", "user-led", "userled", "chat", "person", "reactive", "attended"],
+              autonomous: ["autonomous", "auto", "event", "event-driven", "eventdriven", "unattended", "trigger", "triggered", "batch", "background"] },
+      hint: "Interactive = a person drives it. Autonomous = it fires on each event, no user." },
+    { key: "channel", header: "Channel", type: "enum", applies: "interactive", def: "chat",
+      enum: { chat: ["chat", "text", "teams", "web", "message", "messaging"], voice: ["voice", "phone", "call", "telephony", "ivr"] },
+      hint: "Interactive only. Voice turns cost more and add build effort." },
+    { key: "knowledge", header: "Knowledge grounding", type: "enum", applies: "all", def: "none",
+      enum: { none: ["none", "no", "na", "n/a", ""], docs: ["docs", "documents", "document", "kb", "knowledge", "sharepoint", "website", "web", "files", "file"],
+              tenantGraph: ["tenantgraph", "tenant graph", "tenant-graph", "graph", "m365", "copilot connectors", "enterprise search", "graph connector"] },
+      hint: "Documents/KB = free per run. Tenant graph = +10 credits per run." },
+    { key: "actionsCount", header: "System actions (#)", type: "int", applies: "all", def: 0,
+      hint: "How many connector/HTTP actions the agent performs (look up, create, notify, route…)." },
+    { key: "systemsCount", header: "Back-end systems (#)", type: "int", applies: "all",
+      hint: "How many distinct back-end systems those actions touch. Blank = 1 if any actions." },
+    { key: "hasContent", header: "Document processing?", type: "bool", applies: "all",
+      hint: "Yes if it extracts fields from scanned docs / images (8 credits per page)." },
+    { key: "hasAI", header: "Draft / summarize content?", type: "bool", applies: "all",
+      hint: "Yes if it uses a generative content tool to draft or summarize." },
+    { key: "hasFlow", header: "Approval / automation flow?", type: "bool", applies: "all",
+      hint: "Yes if it runs a Power Automate / approval flow." },
+    { key: "hasEscalation", header: "Human escalation?", type: "bool", applies: "all",
+      hint: "Yes if it can hand off to a live person." },
+    { key: "users", header: "Users in scope", type: "int", applies: "interactive",
+      hint: "Interactive only. People who use the agent." },
+    { key: "interactions", header: "Interactions / user / month", type: "num", applies: "interactive",
+      hint: "Interactive only. Conversations per user per month." },
+    { key: "deployment", header: "Deployment", type: "enum", applies: "interactive", def: "embedded",
+      enum: { embedded: ["embedded", "teams", "m365", "copilot", "in-app"], standalone: ["standalone", "other", "external", "web", "custom", "channel"] },
+      hint: "Interactive only. Embedded = M365-licensed users are free." },
+    { key: "licensePct", header: "% with M365 Copilot license", type: "int", applies: "interactive",
+      hint: "Interactive + embedded only. Licensed users accrue zero credits." },
+    { key: "events", header: "Events / month", type: "int", applies: "autonomous",
+      hint: "Autonomous only. Trigger events processed each month (every event is billed)." },
+    { key: "genAnswers", header: "Generative steps / event", type: "int", applies: "autonomous",
+      hint: "Autonomous only. Generative reasoning steps per event. Blank = 1." },
+    { key: "description", header: "Description (optional)", type: "text", applies: "all",
+      hint: "Optional free text. If Agent type is blank, this is analyzed instead." }
+  ];
+
+  // Example rows shown on the template's Examples sheet (and reused in tests).
+  var IMPORT_EXAMPLES = [
+    { name: "IT helpdesk (Teams)", archetype: "Interactive", channel: "Chat", knowledge: "Documents",
+      actionsCount: 2, systemsCount: 1, hasContent: "No", hasAI: "No", hasFlow: "No", hasEscalation: "Yes",
+      users: 800, interactions: 6, deployment: "Embedded", licensePct: 60, events: "", genAnswers: "",
+      description: "Answers IT questions from the KB, resets passwords and creates ServiceNow tickets; escalates to a live agent." },
+    { name: "Autonomous email router", archetype: "Autonomous", channel: "", knowledge: "None",
+      actionsCount: 1, systemsCount: 1, hasContent: "No", hasAI: "No", hasFlow: "No", hasEscalation: "No",
+      users: "", interactions: "", deployment: "", licensePct: "", events: 2000, genAnswers: 1,
+      description: "Categorizes each new support email and routes it to the right SME team." },
+    { name: "Customer voice bot", archetype: "Interactive", channel: "Voice", knowledge: "Tenant graph",
+      actionsCount: 1, systemsCount: 1, hasContent: "No", hasAI: "No", hasFlow: "No", hasEscalation: "Yes",
+      users: 5000, interactions: 2, deployment: "Standalone", licensePct: 0, events: "", genAnswers: "",
+      description: "Phone + web voice agent that answers product questions and creates Salesforce cases." },
+    { name: "Invoice processing", archetype: "Autonomous", channel: "", knowledge: "None",
+      actionsCount: 1, systemsCount: 2, hasContent: "Yes", hasAI: "No", hasFlow: "Yes", hasEscalation: "No",
+      users: "", interactions: "", deployment: "", licensePct: "", events: 800, genAnswers: 1,
+      description: "Extracts fields from scanned invoices, validates them and runs a Power Automate approval flow." }
+  ];
+
+  function impText(s) { return String(s == null ? "" : s).trim(); }
+  function impKey(s) { return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9]/g, ""); }
+  function impBool(s) { var x = impKey(s); return x === "yes" || x === "y" || x === "true" || x === "1" || x === "x" || x === "on"; }
+  function impNum(s) {
+    if (s == null || impText(s) === "") return null;
+    var n = parseFloat(String(s).replace(/[,$%\s]/g, ""));
+    return isFinite(n) ? n : null;
+  }
+  function impEnum(col, raw) {
+    var x = impKey(raw);
+    for (var val in col.enum) {
+      if (!Object.prototype.hasOwnProperty.call(col.enum, val)) continue;
+      if (impKey(val) === x) return val;
+      var aliases = col.enum[val];
+      for (var i = 0; i < aliases.length; i++) if (impKey(aliases[i]) === x) return val;
+    }
+    return null;
+  }
+  var IMPORT_COL_BY_KEY = {};
+  IMPORT_SCHEMA.forEach(function (c) { IMPORT_COL_BY_KEY[c.key] = c; });
+
+  function buildHeaderMap(headerRow) {
+    var norm = (headerRow || []).map(impKey);
+    var map = {};
+    IMPORT_SCHEMA.forEach(function (col) {
+      var target = impKey(col.header);
+      var idx = norm.indexOf(target);
+      if (idx < 0) {
+        for (var i = 0; i < norm.length; i++) {
+          if (norm[i] && (norm[i].indexOf(target) === 0 || target.indexOf(norm[i]) === 0)) { idx = i; break; }
+        }
+      }
+      if (idx >= 0) map[col.key] = idx;
+    });
+    return map;
+  }
+
+  // matrix = array of rows (array of cells). First non-empty row is the header.
+  function matrixToObjects(matrix) {
+    var rows = (matrix || []).filter(function (r) {
+      return r && r.some(function (c) { return impText(c) !== ""; });
+    });
+    if (!rows.length) return { headers: [], objects: [], headerMap: {}, warnings: ["No rows found in the file."] };
+    var header = rows[0];
+    var map = buildHeaderMap(header);
+    var warnings = [];
+    if (Object.keys(map).length === 0) warnings.push("No recognized column headers — is this the downloaded template?");
+    var objects = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i], o = {};
+      IMPORT_SCHEMA.forEach(function (col) {
+        var idx = map[col.key];
+        o[col.key] = (idx != null) ? r[idx] : undefined;
+      });
+      objects.push(o);
+    }
+    return { headers: header, objects: objects, headerMap: map, warnings: warnings };
+  }
+
+  // A single spreadsheet row (keyed by schema key) → a normalized `vars` object.
+  function rowToVars(obj) {
+    var warnings = [];
+    function raw(k) { return obj ? obj[k] : undefined; }
+    function enumOf(k) {
+      var col = IMPORT_COL_BY_KEY[k], val = raw(k);
+      if (impText(val) === "") return col.def != null ? col.def : null;
+      var got = impEnum(col, val);
+      if (got == null) {
+        warnings.push("Unrecognized " + col.header + " “" + impText(val) + "”" + (col.def != null ? " — using " + col.def : ""));
+        return col.def != null ? col.def : null;
+      }
+      return got;
+    }
+    function intOf(k, dflt) {
+      var v = impNum(raw(k));
+      if (v == null) { if (impText(raw(k)) !== "") warnings.push("Non-numeric " + IMPORT_COL_BY_KEY[k].header + " “" + impText(raw(k)) + "”"); return dflt; }
+      return v;
+    }
+
+    var archetype = enumOf("archetype") || "interactive";
+    var auto = archetype === "autonomous";
+    var channel = auto ? "chat" : (enumOf("channel") || "chat");
+    if (auto && /voice|phone|call/i.test(impText(raw("channel")))) warnings.push("Autonomous agents have no voice channel — Channel ignored.");
+
+    var knowledge = enumOf("knowledge") || "none";
+    var actionsCount = Math.max(0, intOf("actionsCount", 0) || 0);
+    var sysRaw = intOf("systemsCount", null);
+    var systemsCount = sysRaw == null ? (actionsCount > 0 ? 1 : 0) : Math.max(0, sysRaw);
+    var hasContent = impBool(raw("hasContent")), hasAI = impBool(raw("hasAI"));
+    var hasFlow = impBool(raw("hasFlow")), hasEscalation = impBool(raw("hasEscalation"));
+
+    var orchestration = (auto || actionsCount >= 1 || hasFlow || hasContent || hasAI) ? "generative" : "classic";
+    var answerType = (knowledge !== "none" || hasAI || orchestration === "generative") ? "generative" : "classic";
+
+    var v = {
+      archetype: archetype, channel: channel, orchestration: orchestration, answerType: answerType,
+      knowledge: knowledge, actionsCount: actionsCount, systemsCount: systemsCount,
+      hasContent: hasContent, hasAI: hasAI, hasFlow: hasFlow, hasEscalation: hasEscalation,
+      escalation: hasEscalation ? 15 : 0, escalationCredits: hasEscalation ? CREDIT.action : 0,
+      pagesPerDoc: 1, flowActionsPerRun: 5
+    };
+
+    if (auto) {
+      var events = Math.max(0, intOf("events", 0) || 0);
+      var gen = intOf("genAnswers", null); gen = gen == null ? 1 : Math.max(0, gen);
+      v.events = events; v.eventUnit = "event"; v.genAnswers = gen;
+      v.deployment = "standalone"; v.licensePct = 0;
+      if (events <= 0) warnings.push("No Events / month — monthly credits will be 0.");
+    } else {
+      var users = Math.max(0, intOf("users", 0) || 0);
+      var interactions = Math.max(0, intOf("interactions", 0) || 0);
+      var deployment = enumOf("deployment") || "embedded";
+      var licRaw = intOf("licensePct", null);
+      var licensePct = licRaw == null ? (deployment === "embedded" ? 60 : 0) : Math.min(100, Math.max(0, licRaw));
+      v.users = users; v.interactions = interactions; v.deployment = deployment; v.licensePct = licensePct;
+      v.genAnswers = 1;
+      if (users <= 0) warnings.push("No Users in scope — monthly credits will be 0.");
+      if (interactions <= 0) warnings.push("No Interactions / user / month — monthly credits will be 0.");
+    }
+    return { vars: v, warnings: warnings };
+  }
+
+  function scenarioCapabilities(v) {
+    var out = [];
+    if (v.channel === "voice") out.push("Voice channel (generative voice turns, 35 credits/turn)");
+    else if (v.answerType === "generative")
+      out.push("Generative answer" + (v.knowledge !== "none" ? " grounded on " + (v.knowledge === "tenantGraph" ? "the M365 tenant graph" : "documents / KB") : ""));
+    else out.push("Classic (topic) answer");
+    if (v.knowledge === "tenantGraph") out.push("Tenant-graph grounding (+10 credits/run)");
+    if (v.actionsCount > 0) out.push(v.actionsCount + " system action" + (v.actionsCount > 1 ? "s" : "") +
+      (v.systemsCount ? " across " + v.systemsCount + " system" + (v.systemsCount > 1 ? "s" : "") : ""));
+    if (v.archetype === "autonomous") out.push("Autonomous trigger — billed as an action each run");
+    if (v.hasContent) out.push("Document processing (8 credits/page)");
+    if (v.hasAI) out.push("Generative content tool");
+    if (v.hasFlow) out.push("Workflow / approval flow");
+    if (v.hasEscalation) out.push("Human escalation / handoff");
+    return out;
+  }
+  function descName(d) {
+    d = impText(d); if (!d) return "";
+    var s = d.split(/[.;\n]/)[0].trim();
+    return s.length > 48 ? s.slice(0, 45) + "…" : s;
+  }
+
+  // One spreadsheet row (keyed obj) → full analysis. If Agent type is blank but a
+  // Description is present, the free-text analyzer is used instead (a bridge to Quick).
+  function analyzeScenarioRow(obj) {
+    var warnings = [];
+    var hasStructured = impText(obj && obj.archetype) !== "";
+    var vars, source;
+    if (!hasStructured && impText(obj && obj.description) !== "") {
+      vars = analyzeText(obj.description).vars; source = "description";
+      warnings.push("Read from the free-text description (no Agent type filled in).");
+    } else {
+      var rv = rowToVars(obj); vars = rv.vars; warnings = rv.warnings; source = "structured";
+    }
+    var name = impText(obj && obj.name) || descName(obj && obj.description) || "Untitled scenario";
+    var profile = deriveQuick(vars);
+    var sizing = sizeFromDrivers(vars);
+    var estimate = computeQuick(profile, vars);
+    return {
+      name: name, source: source, vars: vars, profile: profile,
+      perUnit: estimate.perUnit, size: sizing.size, sizeInfo: SIZE_INFO[sizing.size], sizeDrivers: sizing.drivers,
+      estimate: estimate, range: creditRange(estimate.monthly), cost: costUSD(estimate.monthly),
+      costDrivers: costDrivers(profile, vars), capabilities: scenarioCapabilities(vars), warnings: warnings
+    };
+  }
+
+  // Full batch: parsed matrix → per-scenario analyses + portfolio totals.
+  function analyzeImport(matrix) {
+    var parsed = matrixToObjects(matrix);
+    var scenarios = parsed.objects.map(analyzeScenarioRow);
+    var totals = { count: scenarios.length, monthly: 0, payg: 0, prepaid: 0,
+      autonomous: 0, interactive: 0, sizes: { XS: 0, S: 0, M: 0, L: 0, XL: 0 }, flagged: 0 };
+    scenarios.forEach(function (s) {
+      totals.monthly += s.estimate.monthly;
+      totals.payg += s.cost.payg; totals.prepaid += s.cost.prepaid;
+      if (s.vars.archetype === "autonomous") totals.autonomous++; else totals.interactive++;
+      if (totals.sizes[s.size] != null) totals.sizes[s.size]++;
+      if (s.warnings && s.warnings.length) totals.flagged++;
+    });
+    totals.range = creditRange(totals.monthly);
+    return { scenarios: scenarios, totals: totals, headers: parsed.headers, headerMap: parsed.headerMap, headerWarnings: parsed.warnings };
+  }
+
   var api = {
     CREDIT: CREDIT, RATE_PAYG: RATE_PAYG, RATE_PREPAID: RATE_PREPAID, ROW: ROW,
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
@@ -610,7 +862,10 @@
     detectEventVolume: detectEventVolume, detectArchetype: detectArchetype,
     detectKnowledge: detectKnowledge, detectSystems: detectSystems,
     extractSteps: extractSteps, deriveQuick: deriveQuick,
-    STEP_CATALOG: STEP_CATALOG, analyzeText: analyzeText, analyzeSolution: analyzeSolution
+    STEP_CATALOG: STEP_CATALOG, analyzeText: analyzeText, analyzeSolution: analyzeSolution,
+    IMPORT_SCHEMA: IMPORT_SCHEMA, IMPORT_EXAMPLES: IMPORT_EXAMPLES,
+    buildHeaderMap: buildHeaderMap, matrixToObjects: matrixToObjects,
+    rowToVars: rowToVars, analyzeScenarioRow: analyzeScenarioRow, analyzeImport: analyzeImport
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.EstimatorCore = api;

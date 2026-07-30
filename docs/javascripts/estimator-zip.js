@@ -6,7 +6,7 @@
 (function (root) {
   "use strict";
 
-  var TEXT_EXT = /\.(xml|yaml|yml|json|txt|config|cdsproj|csv|md|resx)$/i;
+  var TEXT_EXT = /\.(xml|yaml|yml|json|txt|config|cdsproj|csv|md|resx|rels)$/i;
   var MAX_ENTRY = 8 * 1024 * 1024;     // skip any single entry bigger than 8 MB
   var MAX_TOTAL = 64 * 1024 * 1024;    // stop after 64 MB decompressed
 
