@@ -110,12 +110,14 @@
       '<tfoot><tr><td>Effective credits / interaction</td><td></td><td></td><td class="num pcredit" id="' + p + '-per">—</td></tr></tfoot></table>';
   }
 
-  function estimateHtml(p) {
+  function estimateHtml(p, auto) {
+    var c1 = auto ? "Runs / month" : "Billed users";
+    var c3 = auto ? "Credits / run" : "Credits / user / month";
     return '<div class="section-label" style="margin-top:1.25rem">Estimated monthly consumption</div>' +
       '<div class="results-grid">' +
-        '<div class="result-card"><div class="val" id="' + p + '-billed">—</div><div class="lbl">Billed users</div></div>' +
+        '<div class="result-card"><div class="val" id="' + p + '-billed">—</div><div class="lbl">' + c1 + '</div></div>' +
         '<div class="result-card"><div class="val" id="' + p + '-credits">—</div><div class="lbl">Credits / month</div></div>' +
-        '<div class="result-card"><div class="val" id="' + p + '-peruser">—</div><div class="lbl">Credits / user / month</div></div>' +
+        '<div class="result-card"><div class="val" id="' + p + '-peruser">—</div><div class="lbl">' + c3 + '</div></div>' +
       '</div>' +
       '<div class="em-range" id="' + p + '-range"></div>' +
       '<div class="section-label" style="margin-top:1.25rem">Estimated cost</div>' +
@@ -123,14 +125,32 @@
         '<div class="card"><div class="v" id="' + p + '-cost-payg">—</div><div class="sub">/ month · pay-as-you-go ($0.01 / credit)</div></div>' +
         '<div class="card"><div class="v" id="' + p + '-cost-pre">—</div><div class="sub">/ month · prepaid pack ($0.008 / credit)</div></div>' +
       '</div>' +
-      '<div class="em-range">Credit range is a directional ±40% band around the midpoint. Cost is Copilot credits only — it excludes M365 Copilot license fees.</div>' +
+      '<div class="em-range">Credit range is a directional ±40% band around the midpoint. Cost is Copilot credits only — it excludes M365 Copilot license fees' + (auto ? ' and any Power Platform / premium-connector licensing' : '') + '.</div>' +
       '<div style="margin-top:1.25rem"><button class="em-btn secondary" type="button" onclick="' + p + 'ToDetailed()">Open this in the Detailed estimator →</button></div>';
   }
 
+  // Single "runs / month" driver for autonomous / flow packages.
+  function assumptionsAutonomousHtml(p, scale, why) {
+    why = why || {};
+    return '' +
+      '<div class="section-label" style="margin-top:1.25rem">Assumptions <span style="text-transform:none;font-weight:400">— tune to your workload</span></div>' +
+      '<div class="calc-grid">' +
+        '<div class="calc-field"><label>Runs / month</label>' +
+          '<input type="number" min="0" id="' + p + '-runs" value="' + scale.runs + '" oninput="' + p + 'Recompute()">' +
+          '<div class="hint">' + esc(why.runs || "How many times this flow / autonomous agent fires per month. This is the master cost multiplier — no per-user licensing discount applies.") + '</div></div>' +
+      '</div>';
+  }
+
   function readScale(p) {
+    var st = state[p];
+    if (st && st.regime === "autonomous") {
+      var runs = Math.max(0, parseFloat(getVal(p + "-runs")) || 0);
+      return { regime: "autonomous", archetype: "autonomous", runs: runs, events: runs };
+    }
     var std = document.getElementById(p + "-dep-standalone");
     var dep = std && std.classList.contains("active") ? "standalone" : "embedded";
     return {
+      regime: "interactive",
       users: Math.max(0, parseFloat(getVal(p + "-users")) || 0),
       interactions: Math.max(0, parseFloat(getVal(p + "-interactions")) || 0),
       deployment: dep,
@@ -147,8 +167,6 @@
     });
     var scale = readScale(p);
     st.scale = scale;
-    var lf = document.getElementById(p + "-lic-field");
-    if (lf) lf.style.opacity = scale.deployment === "standalone" ? "0.45" : "1";
 
     var per = 0;
     st.profile.forEach(function (r, i) {
@@ -158,6 +176,21 @@
     });
     setText(p + "-per", fmtDec(per));
 
+    if (scale.regime === "autonomous") {
+      var monthly = scale.runs * per;
+      var rngA = EC.creditRange(monthly);
+      var costA = EC.costUSD(monthly);
+      setText(p + "-billed", fmt(scale.runs));
+      setText(p + "-credits", fmt(monthly));
+      setText(p + "-peruser", fmtDec(per));
+      setText(p + "-range", "Range: " + fmt(rngA.low) + " – " + fmt(rngA.high) + " credits / month");
+      setText(p + "-cost-payg", money(costA.payg));
+      setText(p + "-cost-pre", money(costA.prepaid));
+      return;
+    }
+
+    var lf = document.getElementById(p + "-lic-field");
+    if (lf) lf.style.opacity = scale.deployment === "standalone" ? "0.45" : "1";
     var est = EC.computeEstimate(st.profile, scale);
     var rng = EC.creditRange(est.monthly);
     var cost = EC.costUSD(est.monthly);
@@ -666,68 +699,133 @@
   // ── Solution package (upload) ─────────────────────────────────────────────
   function componentSummary(f) {
     var k = f.knowledgeTypes.length ? f.knowledgeTypes.join(", ") : "none identified";
-    return [
+    var lines = [
+      "Regime:                         " + (f.regime === "autonomous" ? "autonomous (per-run)" : "interactive (per-user)"),
       "Topics (AdaptiveDialog):        " + f.topics,
       "Triggers:                       " + f.triggers,
       "Generative answer nodes:        " + f.genAnswers,
       "Knowledge search nodes:         " + f.knowledgeSearch,
       "Knowledge source components:    " + f.knowledgeComps,
+      "Knowledge sources (total):      " + f.knowledgeCount,
       "Knowledge source types:         " + k,
-      "Action nodes (connectors/HTTP): " + f.actionNodes,
-      "Flow nodes / workflow files:    " + f.flowNodes + " / " + f.workflowFiles,
+      "Agent action nodes:             " + f.actionNodes,
+      "Flow files parsed:              " + f.flowCount,
+      "Flow actions (total):           " + f.flowActions,
+      "  · connector actions:          " + f.flowConnectorActions,
+      "  · HTTP actions:               " + f.flowHttp,
+      "  · loops:                      " + f.flowLoops,
+      "AI Builder prompts (flow):      " + f.aiPrompts + " (" + f.aiPromptCalls + " call(s)/run)",
+      "Prompt / AI nodes (total):      " + f.aiNodes,
+      "InvokeFlowAction / workflows:   " + f.flowNodes + " / " + f.workflowFiles,
+      "Connectors:                     " + (f.connectors.length ? f.connectors.join(", ") : "none"),
+      "Premium / unknown connectors:   " + (f.premiumConnectors.length ? f.premiumConnectors.join(", ") : "none"),
       "Connection references:          " + f.connectionRefs,
-      "Prompt / AI Builder nodes:      " + f.aiNodes,
+      "Agents:                         " + f.agentCount + " (connected: " + f.connectedAgents + ")",
+      "Human escalation / guardrail:   " + (f.hasEscalation ? "yes" : "no"),
       "Computer-use action:            " + (f.computerUse ? "yes" : "no"),
       "Tenant-graph grounding:         " + (f.tenantGraph ? "yes" : "no"),
       "Generative orchestration:       " + (f.genOrch ? "yes" : "no"),
       "Content processing:             " + (f.contentProc ? "yes" : "no"),
       "Voice channel:                  " + (f.voice ? "yes" : "no"),
-      "Files scanned:                  " + f.fileCount
-    ].join("\n");
+      "Build-spec bundle:              " + (f.specBundle ? "yes" : "no"),
+      "Files scanned:                  " + f.fileCount + " (" + f.binaryFiles + " binary)"
+    ];
+    return lines.join("\n");
   }
 
   function findCard(v, k, off) {
     return '<div class="em-find' + (off ? " off" : "") + '"><div class="v">' + v + '</div><div class="k">' + k + '</div></div>';
   }
 
+  function spWarningsHtml(a) {
+    if (!a.warnings || !a.warnings.length) return "";
+    return '<div class="sp-warnings">' +
+      a.warnings.map(function (w) { return '<div class="sp-warn">' + esc(w) + '</div>'; }).join("") +
+      '</div>';
+  }
+
+  function spInventoryHtml(a) {
+    var f = a.findings, out = [];
+    if (a.flows && a.flows.length) {
+      out.push('<div class="section-label" style="margin-top:1.25rem">Flows detected</div>');
+      out.push('<table class="em-profile"><thead><tr><th>Trigger</th><th class="num">Actions</th><th class="num">AI prompts</th><th class="num">Loops</th><th>Connectors</th></tr></thead><tbody>' +
+        a.flows.map(function (fl) {
+          return '<tr><td>' + esc(fl.trigger) + (fl.automated ? ' <span class="hint" style="display:inline">(automated)</span>' : "") + '</td>' +
+            '<td class="num">' + fl.actions + '</td><td class="num">' + fl.aiPrompts + '</td><td class="num">' + fl.loops + '</td>' +
+            '<td>' + esc(fl.connectors.join(", ") || "—") + '</td></tr>';
+        }).join("") + '</tbody></table>');
+    }
+    if (a.connectors && a.connectors.length) {
+      var chips = a.connectors.map(function (c) {
+        var prem = (a.premiumConnectors || []).indexOf(c) >= 0;
+        return '<span class="sp-chip' + (prem ? " prem" : "") + '">' + esc(c) + (prem ? " · premium" : "") + '</span>';
+      }).join("");
+      out.push('<div class="section-label" style="margin-top:1.25rem">Connectors</div><div class="sp-chips">' + chips + '</div>');
+    }
+    return out.join("");
+  }
+
   function spRender(a) {
+    var auto = a.regime === "autonomous";
     state.sp = {
       profile: a.profile.map(clone),
-      scale: { users: 500, interactions: 10, deployment: "embedded", licensePct: 60 },
+      regime: a.regime,
+      scale: auto
+        ? { regime: "autonomous", runs: a.runsPerMonthDefault || 1000 }
+        : { regime: "interactive", users: 500, interactions: 10, deployment: "embedded", licensePct: 60 },
       escalation: 0, tshirt: a.tshirt
     };
     var f = a.findings;
-    var grid =
-      findCard(f.topics, "Topics", f.topics === 0) +
-      findCard(f.genAnswers, "Generative answers", f.genAnswers === 0) +
-      findCard(f.knowledgeCount, "Knowledge sources", f.knowledgeCount === 0) +
-      findCard(f.actionNodes, "Action nodes", f.actionNodes === 0) +
-      findCard(f.flowNodes + f.workflowFiles, "Agent flows", (f.flowNodes + f.workflowFiles) === 0) +
-      findCard(f.aiNodes, "Prompt / AI nodes", f.aiNodes === 0) +
-      findCard(f.tenantGraph ? "Yes" : "No", "Tenant graph", !f.tenantGraph) +
-      findCard(f.voice ? "Yes" : "No", "Voice channel", !f.voice);
+    var grid = auto
+      ? (findCard(f.aiPrompts, "AI Builder prompts", f.aiPrompts === 0) +
+         findCard(f.flowConnectorActions + f.flowHttp, "Flow actions", (f.flowConnectorActions + f.flowHttp) === 0) +
+         findCard(f.flowLoops, "Loops", f.flowLoops === 0) +
+         findCard(f.connectors.length, "Connectors", f.connectors.length === 0) +
+         findCard(f.premiumConnectors.length, "Premium conn.", f.premiumConnectors.length === 0) +
+         findCard(f.flowCount, "Flows", f.flowCount === 0) +
+         findCard(f.contentProc ? "Yes" : "No", "Doc processing", !f.contentProc) +
+         findCard(f.triggers, "Triggers", f.triggers === 0))
+      : (findCard(f.topics, "Topics", f.topics === 0) +
+         findCard(f.genAnswers, "Generative answers", f.genAnswers === 0) +
+         findCard(f.knowledgeCount, "Knowledge sources", f.knowledgeCount === 0) +
+         findCard(f.actionNodes, "Action nodes", f.actionNodes === 0) +
+         findCard(f.flowNodes + f.workflowFiles + f.flowCount, "Agent flows", (f.flowNodes + f.workflowFiles + f.flowCount) === 0) +
+         findCard(f.agentCount, "Agents", f.agentCount <= 1) +
+         findCard(f.tenantGraph ? "Yes" : "No", "Tenant graph", !f.tenantGraph) +
+         findCard(f.hasEscalation ? "Yes" : "No", "Escalation", !f.hasEscalation));
     var kt = f.knowledgeTypes.length ? " (" + f.knowledgeTypes.join(", ") + ")" : "";
     var res = document.getElementById("sp-results");
+    var regimeBadge = '<span class="sp-regime sp-regime-' + a.regime + '">' + (auto ? "Autonomous · per-run" : "Interactive · per-user") + '</span>';
     res.innerHTML =
-      '<div class="section-label">What we found in your solution</div>' +
+      '<div class="section-label">What we found in your solution ' + regimeBadge + '</div>' +
       '<div class="em-findings">' + grid + "</div>" +
-      '<p class="hint" style="margin-top:0.5rem">' + f.fileCount + " files scanned · " + f.triggers + " trigger(s) · knowledge" + esc(kt) +
-        (f.genOrch ? " · generative orchestration on" : "") + (f.computerUse ? " · computer-use action" : "") + ".</p>" +
+      '<p class="hint" style="margin-top:0.5rem">' + f.fileCount + " files scanned (" + f.binaryFiles + " binary) · " + f.triggers + " trigger(s) · knowledge" + esc(kt) +
+        (f.genOrch ? " · generative orchestration on" : "") + (f.computerUse ? " · computer-use action" : "") +
+        (f.specBundle ? " · build-spec bundle" : "") + ".</p>" +
+      spWarningsHtml(a) +
       tshirtHtml(a.tshirt) +
-      assumptionsHtml("sp", state.sp.scale, {
-        users: "The package doesn't reveal volume — set your expected reach.",
-        interactions: "How often each user will interact per month.",
-        deployment: "Where the agent is published."
-      }) +
+      spInventoryHtml(a) +
+      (auto
+        ? assumptionsAutonomousHtml("sp", state.sp.scale, {})
+        : assumptionsHtml("sp", state.sp.scale, {
+            users: "The package doesn't reveal volume — set your expected reach.",
+            interactions: "How often each user will interact per month.",
+            deployment: "Where the agent is published."
+          })) +
       profileTableHtml("sp", state.sp.profile) +
-      '<p class="hint">Per-interaction <em>uses</em> are assumptions — a solution shows which capabilities <em>exist</em>, not how often each fires per conversation. Tune them to your real flows.</p>' +
-      estimateHtml("sp") +
+      '<p class="hint">Per-' + (auto ? "run" : "interaction") + ' <em>uses</em> are assumptions — a solution shows which capabilities <em>exist</em>, not how often each fires. Tune them to your real ' + (auto ? "runs" : "flows") + '.</p>' +
+      estimateHtml("sp", auto) +
       '<details class="em-details"><summary>Component inventory (full transparency)</summary><div class="em-complist">' + esc(componentSummary(f)) + "</div></details>";
     res.classList.remove("em-hidden");
     recompute("sp");
   }
   function spRecompute() { recompute("sp"); }
-  function spToDetailed() { var st = state.sp; if (st) seedDetailed(st.profile, readScale("sp"), st.escalation); }
+  function spToDetailed() {
+    var st = state.sp; if (!st) return;
+    var scale = readScale("sp");
+    if (scale.regime === "autonomous") seedDetailed(st.profile, { archetype: "autonomous", events: scale.runs }, st.escalation);
+    else seedDetailed(st.profile, scale, st.escalation);
+  }
 
   function spHandleFile(file) {
     var status = document.getElementById("sp-status");

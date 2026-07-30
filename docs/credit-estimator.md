@@ -112,6 +112,15 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 .sp-drop .small { font-size: 0.82rem; color: var(--md-default-fg-color--light); }
 .sp-status { font-size: 0.85rem; color: var(--md-default-fg-color--light); margin: 0.75rem 0; }
 .sp-status.sp-error { color: #e53935; }
+.sp-regime { display: inline-block; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.12rem 0.5rem; border-radius: 999px; margin-left: 0.5rem; vertical-align: middle; color: #fff; }
+.sp-regime-interactive { background: #3f51b5; }
+.sp-regime-autonomous { background: #6a1b9a; }
+.sp-warnings { margin: 1rem 0 0.5rem; display: grid; gap: 0.5rem; }
+.sp-warn { font-size: 0.8rem; line-height: 1.55; color: #7a4a00; background: rgba(255, 171, 0, 0.1); border-left: 3px solid #e6a100; border-radius: 0 6px 6px 0; padding: 0.5rem 0.75rem; }
+[data-md-color-scheme="slate"] .sp-warn { color: #ffcc66; }
+.sp-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0; }
+.sp-chip { font-size: 0.76rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lighter); color: var(--md-default-fg-color--light); }
+.sp-chip.prem { border-color: #e6a100; color: #b26a00; background: rgba(255, 171, 0, 0.08); }
 
 /* details / inventory */
 .em-details { margin: 1.25rem 0; font-size: 0.85rem; }
@@ -220,21 +229,24 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 
 <!-- ── COMPLEX (solution package upload) ── -->
 <div class="mode-panel em-hidden" id="panel-complex">
-  <div class="section-label">Upload a Copilot Studio solution export</div>
-  <p class="em-range">Export your agent from Power Apps as a <strong>solution</strong> (<code>.zip</code>), then drop it below. The file is parsed entirely in your browser — <strong>nothing is uploaded to any server</strong>.</p>
+  <div class="section-label">Upload a built agent or flow package</div>
+  <p class="em-range">Drop a Dataverse <strong>solution</strong> export (<code>.zip</code>) — a Copilot Studio agent, a Power Automate cloud flow, or both — or a curated <strong>agent build-spec bundle</strong>. We inventory topics, knowledge, actions, flows (with AI Builder prompts, loops and connectors), and multi-agent orchestration, then size it and estimate credits. The file is parsed entirely in your browser — <strong>nothing is uploaded to any server</strong>.</p>
   <div class="sp-drop" id="sp-drop" onclick="document.getElementById('sp-file').click()">
-    <div class="big">Drop your solution .zip here</div>
+    <div class="big">Drop your solution / package .zip here</div>
     <div class="small">or click to choose a file</div>
     <input type="file" id="sp-file" accept=".zip,application/zip" style="display:none">
   </div>
   <div id="sp-status" class="sp-status"></div>
   <details class="em-details">
-    <summary>How do I export my agent as a solution?</summary>
+    <summary>What can I upload?</summary>
     <div style="font-size:0.85rem; line-height:1.7; margin-top:0.5rem">
+      <strong>A. Dataverse solution export</strong> (most accurate):<br>
       1. Go to <strong>make.powerapps.com</strong> &rarr; <strong>Solutions</strong>.<br>
-      2. Create a solution (or open an existing one) and <strong>add your Copilot Studio agent</strong> — plus its flows and connection references.<br>
+      2. Create a solution (or open an existing one) and <strong>add your Copilot Studio agent</strong> and/or <strong>Power Automate flows</strong> — plus their connection references.<br>
       3. Choose <strong>Export solution</strong> &rarr; Unmanaged or Managed &rarr; download the <code>.zip</code>.<br>
-      4. Drop that <code>.zip</code> above. We read the agent/topic YAML and workflow JSON to inventory components.
+      4. Drop that <code>.zip</code> above. We read the agent/topic YAML and workflow JSON to inventory components.<br><br>
+      <strong>B. Power Automate flow only</strong>: export just the flow's solution — we parse its trigger, actions, AI Builder prompts, loops and connectors, and treat it as an autonomous (per-run) workload.<br><br>
+      <strong>C. Agent build-spec bundle</strong>: a folder of build docs (<code>.md</code>) + knowledge files (<code>.docx</code>/<code>.pdf</code>) zipped together — we infer knowledge sources, actions, orchestration and guardrails from the spec.
     </div>
   </details>
   <div id="sp-results" class="em-hidden"></div>

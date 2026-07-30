@@ -10,7 +10,8 @@
   var CREDIT = {
     classic: 1, generative: 2, action: 5, tenantGraph: 10, flowAction: 0.13,
     aiBasic: 0.1, aiStandard: 1.5, aiPremium: 10, contentPage: 8,
-    voiceBasic: 10, voiceStandard: 35, voicePremium: 75
+    voiceBasic: 10, voiceStandard: 35, voicePremium: 75,
+    autonomousTrigger: 25
   };
   var RATE_PAYG = 0.01;      // $/credit, pay-as-you-go
   var RATE_PREPAID = 0.008;  // $/credit, $200 / 25,000 prepaid pack
@@ -24,7 +25,8 @@
     flow: "Agent flow actions",
     aiStandard: "Text/generative standard",
     content: "Content processing",
-    voiceStandard: "Voice — Standard"
+    voiceStandard: "Voice — Standard",
+    autonomous: "Autonomous trigger"
   };
 
   // ── T-shirt sizing ────────────────────────────────────────────────────────
@@ -500,76 +502,392 @@
   // ── Solution-package analysis (Complex mode) ──────────────────────────────
   function countAll(text, re) { var m = text.match(re); return m ? m.length : 0; }
 
+  // Connector catalog — label + licensing tier. Premium connectors bill via
+  // Power Platform / Power Automate licensing, NOT Copilot Credits (governance
+  // flag). Standard connectors are covered by Copilot agent-flow action credits.
+  var CONNECTOR_CATALOG = {
+    shared_teams: { label: "Microsoft Teams", premium: false },
+    shared_sharepointonline: { label: "SharePoint", premium: false },
+    shared_commondataserviceforapps: { label: "Dataverse", premium: false },
+    shared_commondataservice: { label: "Dataverse (legacy)", premium: false },
+    shared_office365: { label: "Office 365 Outlook", premium: false },
+    shared_office365users: { label: "Office 365 Users", premium: false },
+    shared_onedriveforbusiness: { label: "OneDrive for Business", premium: false },
+    shared_excelonlinebusiness: { label: "Excel Online (Business)", premium: false },
+    shared_microsoftforms: { label: "Microsoft Forms", premium: false },
+    shared_approvals: { label: "Approvals", premium: false },
+    shared_flowpush: { label: "Notifications", premium: false },
+    shared_outlook: { label: "Outlook.com", premium: false },
+    shared_planner: { label: "Planner", premium: false },
+    shared_todo: { label: "To Do", premium: false },
+    shared_azuread: { label: "Azure AD", premium: false },
+    shared_sql: { label: "SQL Server", premium: true },
+    shared_salesforce: { label: "Salesforce", premium: true },
+    shared_servicenow: { label: "ServiceNow", premium: true },
+    shared_azureblob: { label: "Azure Blob Storage", premium: true },
+    shared_documentdb: { label: "Azure Cosmos DB", premium: true },
+    shared_azurequeues: { label: "Azure Queues", premium: true },
+    shared_azureeventgrid: { label: "Azure Event Grid", premium: true },
+    shared_http: { label: "HTTP", premium: true },
+    shared_webcontents: { label: "HTTP with Entra ID", premium: true },
+    shared_sftpwithssh: { label: "SFTP", premium: true },
+    shared_ftp: { label: "FTP", premium: true },
+    shared_azureopenai: { label: "Azure OpenAI", premium: true },
+    shared_cognitiveservices: { label: "Cognitive Services", premium: true }
+  };
+  function connectorInfo(id) {
+    if (!id) return { label: "", premium: false, known: false, key: "" };
+    var norm = String(id).toLowerCase();
+    var m = norm.match(/shared_[a-z0-9]+/);
+    var key = m ? m[0] : norm;
+    if (CONNECTOR_CATALOG[key]) {
+      return { label: CONNECTOR_CATALOG[key].label, premium: CONNECTOR_CATALOG[key].premium, known: true, key: key };
+    }
+    var label = key.replace(/^shared_/, "").replace(/[_-]+/g, " ").trim();
+    label = label ? label.charAt(0).toUpperCase() + label.slice(1) : "";
+    // Unknown connectors → flag as premium (conservative for governance).
+    return { label: label, premium: true, known: false, key: key };
+  }
+
+  var AI_OP_RE = /aibuilder|customprompt|runaprompt|run_?a_?prompt|predict|gptmodel|azureopenai|createchatcompletion|openai/i;
+  var CONTROL_TYPE_RE = /^(foreach|scope|if|switch|until|do_until|initializevariable|setvariable|incrementvariable|decrementvariable|appendtoarrayvariable|appendtostringvariable|compose|parsejson|select|table|join|query|response|terminate|wait|expression|xmlvalidation|csvtable|htmltable)$/;
+
+  // Classify a single Power Automate / Logic Apps action node.
+  function classifyFlowAction(name, a) {
+    a = a || {};
+    var type = String(a.type || "").toLowerCase();
+    var inputs = a.inputs || {};
+    var host = inputs.host || {};
+    var op = String(host.operationId || host.operationName || host.apiOperation || "").toLowerCase();
+    var apiId = String(host.apiId || host.api || "").toLowerCase();
+    var conn = String(host.connectionName || host.connection || host.connectionReferenceName || "").toLowerCase();
+    if (AI_OP_RE.test(op) || /aibuilder|openai|cognitiveservices/.test(apiId) || /aibuilder|openai/.test(conn)) {
+      return { kind: "aiPrompt", label: "AI Builder prompt" };
+    }
+    if (type === "openapiconnection" || type === "openapiconnectionwebhook" || type === "apiconnection" ||
+        type === "apiconnectionwebhook" || host.apiId || host.connectionName || host.connectionReferenceName) {
+      var info = connectorInfo(apiId || conn);
+      return { kind: "connector", label: info.label, premium: info.premium, known: info.known, connKey: info.key };
+    }
+    if (type === "http" || type === "httpwebhook" || /^https?:/.test(String(inputs.uri || ""))) {
+      return { kind: "http", label: "HTTP", premium: true };
+    }
+    if (type === "workflow" || /invokeworkflow|runchildflow|invokeflow/.test(op)) {
+      return { kind: "childflow", label: "Child flow" };
+    }
+    if (CONTROL_TYPE_RE.test(type)) return { kind: "control", label: type };
+    return { kind: "other", label: type || "action" };
+  }
+
+  var FLOW_LOOP_ITERS = 10;   // documented assumption: iterations per loop
+
+  // Parse a Power Automate / Logic Apps flow definition (recursively, expanding
+  // loop bodies by FLOW_LOOP_ITERS). Returns null if the text isn't a flow.
+  function parseFlowDefinition(text) {
+    var def;
+    try {
+      var obj = JSON.parse(text);
+      def = (obj && obj.properties && obj.properties.definition) || (obj && obj.definition) || obj;
+    } catch (e) { return null; }
+    if (!def || typeof def !== "object" || (!def.actions && !def.triggers)) return null;
+
+    var triggers = def.triggers || {};
+    var tKeys = Object.keys(triggers);
+    var automated = false, trigLabel = "manual";
+    tKeys.forEach(function (k) {
+      var t = triggers[k] || {};
+      var tt = String(t.type || "").toLowerCase();
+      var kind = String(t.kind || "").toLowerCase();
+      if (tt === "request" || kind === "button" || kind === "powerappsv2") { trigLabel = "manual/button"; }
+      else if (/recurrence/.test(tt)) { automated = true; trigLabel = "scheduled"; }
+      else if (/webhook|http|event|apiconnection/.test(tt)) { automated = true; trigLabel = "event/automated"; }
+      else if (tt) { automated = true; trigLabel = tt; }
+    });
+
+    var counts = { aiPrompts: 0, aiPromptCalls: 0, connectors: 0, connectorCalls: 0,
+      http: 0, httpCalls: 0, control: 0, loops: 0, childFlows: 0, other: 0, actions: 0 };
+    var connectorLabels = {}, premiumSet = {}, actionsList = [];
+    function walk(actionMap, multiplier) {
+      Object.keys(actionMap || {}).forEach(function (nm) {
+        var a = actionMap[nm] || {};
+        var type = String(a.type || "").toLowerCase();
+        var cls = classifyFlowAction(nm, a);
+        if (cls.kind === "aiPrompt") {
+          counts.aiPrompts++; counts.aiPromptCalls += multiplier;
+          actionsList.push({ name: nm, kind: "aiPrompt", label: cls.label, inLoop: multiplier > 1 });
+        } else if (cls.kind === "connector") {
+          counts.connectors++; counts.connectorCalls += multiplier;
+          if (cls.label) { connectorLabels[cls.label] = true; if (cls.premium) premiumSet[cls.label] = true; }
+          actionsList.push({ name: nm, kind: "connector", label: cls.label, premium: !!cls.premium, inLoop: multiplier > 1 });
+        } else if (cls.kind === "http") {
+          counts.http++; counts.httpCalls += multiplier; premiumSet["HTTP"] = true;
+          actionsList.push({ name: nm, kind: "http", label: "HTTP", premium: true, inLoop: multiplier > 1 });
+        } else if (cls.kind === "childflow") {
+          counts.childFlows++; counts.connectorCalls += multiplier;
+          actionsList.push({ name: nm, kind: "childflow", label: cls.label, inLoop: multiplier > 1 });
+        } else if (cls.kind === "control") {
+          counts.control++;
+        } else { counts.other++; }
+        counts.actions++;
+        var childMult = multiplier;
+        if (type === "foreach" || type === "until" || type === "do_until") { counts.loops++; childMult = multiplier * FLOW_LOOP_ITERS; }
+        if (a.actions) walk(a.actions, childMult);
+        if (a.else && a.else.actions) walk(a.else.actions, multiplier);
+        if (a.cases) Object.keys(a.cases).forEach(function (c) { if (a.cases[c] && a.cases[c].actions) walk(a.cases[c].actions, multiplier); });
+        if (a.default && a.default.actions) walk(a.default.actions, multiplier);
+      });
+    }
+    walk(def.actions || {}, 1);
+    return {
+      triggerLabel: trigLabel, automated: automated, triggerCount: tKeys.length,
+      counts: counts, connectors: Object.keys(connectorLabels), premiumConnectors: Object.keys(premiumSet),
+      actions: actionsList
+    };
+  }
+
+  // Parse a curated agent build-spec bundle (build-spec .md + knowledge docs +
+  // guides). Distinct from a Dataverse solution export — these have no runtime
+  // component YAML, so signals are inferred from the spec prose + file manifest.
+  function parseAgentSpec(all, names, manifest) {
+    manifest = manifest || [];
+    var joinedNames = names.join(" ");
+    var hasSolutionXml = names.some(function (n) { return /(^|\/)solution\.xml$/.test(n) || /customizations\.xml$/.test(n); });
+    var hasMd = /\.md$/.test(joinedNames) || manifest.some(function (m) { return /\.md$/i.test(m.name || ""); });
+    var specLike = /agent (build )?spec|build[- ]spec|rebuild guide|enablement (guide|bundle|pack)|system prompt|agent instructions/i.test(all)
+      || (hasMd && /(knowledge|grounding)/i.test(all) && /(action|flow|orchestrat|connected agent)/i.test(all));
+    var isSpec = !hasSolutionXml && (hasMd || manifest.length > 0) && specLike;
+
+    var knowledgeExt = /\.(docx?|pdf|md|txt|pptx?|html?)$/i;
+    var kFromNames = names.filter(function (n) { return /knowledge\//.test(n) && knowledgeExt.test(n); }).length;
+    var kFromManifest = manifest.filter(function (m) { return /knowledge\//i.test(m.name || "") && knowledgeExt.test(m.name || ""); }).length;
+    var knowledgeDocs = Math.max(kFromNames, kFromManifest);
+    var km = all.match(/(\d+)\s+knowledge (?:source|doc|file|document)/i)
+      || all.match(/attach (?:all )?(\d+)\s+(?:knowledge|doc|file)/i);
+    if (km) knowledgeDocs = Math.max(knowledgeDocs, parseInt(km[1], 10) || 0);
+
+    var connectedAgent = /(connected agent|child agent|sub-?agent|helpdesk (assistant|child)|multi-?agent|agent orchestrat)/i.test(all);
+    var agentCount = 1 + (connectedAgent ? 1 : 0);
+
+    var actionCount = 0;
+    if (/incident intake|add a new row|create (a )?(record|row|item|ticket|case)|write to dataverse|dataverse (row|record|write)/i.test(all)) actionCount++;
+    if (/restock|replenish|inventory (update|adjustment)|update stock/i.test(all)) actionCount++;
+    if (/(send|post) (an? )?(email|notification|teams message|adaptive card)|notify (the )?(team|manager|staff)/i.test(all)) actionCount++;
+    if (/approval (flow|request|step)/i.test(all) && actionCount < 4) actionCount++;
+
+    var hasFlow = /power automate|cloud flow|\bagent flow\b|\bflow\b/i.test(all);
+    var dataverse = /dataverse|mg_[a-z]+|system of record|custom table/i.test(all);
+    var hasEscalation = /(severity ?1|sev ?1|escalat|guardrail|human (in the loop|handoff|hand-off)|safety (protocol|rail)|do not (answer|attempt))/i.test(all);
+    var autonomousTrigger = /(autonomous (agent|trigger|mode)|event-driven|triggers? (itself|automatically)|runs on a schedule|scheduled (run|trigger))/i.test(all);
+    var generative = /(generative|new experience|new-experience|\bgpt\b|\bllm\b|orchestrat|reason over)/i.test(all);
+    var voice = /(voice channel|telephony|\bivr\b|phone channel|speech|spoken|contact cent(er|re))/i.test(all);
+
+    return {
+      isSpec: isSpec, knowledgeDocs: knowledgeDocs, connectedAgent: connectedAgent,
+      agentCount: agentCount, actionCount: actionCount, hasFlow: hasFlow, dataverse: dataverse,
+      hasEscalation: hasEscalation, autonomousTrigger: autonomousTrigger, generative: generative, voice: voice
+    };
+  }
+
+  // Analyze an uploaded solution/agent package. Merges THREE signal sources:
+  //   1. Copilot Studio bot component YAML (regex over concatenated text)
+  //   2. Power Automate / Logic Apps flow JSON (structured recursive parse)
+  //   3. Curated agent build-spec bundle (spec prose + knowledge-doc manifest)
+  // Produces a regime (interactive vs autonomous), a credit profile, a t-shirt
+  // size, a component inventory, and governance warnings.
   function analyzeSolution(files) {
-    var texts = files.map(function (f) { return f.text || ""; });
-    var all = texts.join("\n");
+    files = files || [];
+    var textFiles = files.filter(function (f) { return !f.binary; });
+    var manifest = files.filter(function (f) { return f.binary; });
+    var all = textFiles.map(function (f) { return f.text || ""; }).join("\n");
     var names = files.map(function (f) { return (f.name || "").toLowerCase(); });
 
+    // ── 1. Copilot Studio bot component signals ──
     var topics = countAll(all, /kind:\s*AdaptiveDialog/gi);
-    var triggers = countAll(all, /kind:\s*On(RecognizedIntent|UnknownIntent|ConversationStart|EventActivity|DialogEvent|KnowledgeRequested|Activity|ToolSelected)/gi);
+    var botTriggers = countAll(all, /kind:\s*On(RecognizedIntent|UnknownIntent|ConversationStart|EventActivity|DialogEvent|KnowledgeRequested|Activity|ToolSelected)/gi);
     var genAnswers = countAll(all, /SearchAndSummarizeContent/gi);
     var knowledgeSearch = countAll(all, /SearchKnowledgeSources/gi);
     var knowledgeComps = countAll(all, /KnowledgeSourceComponent/gi);
-    var actionNodes = countAll(all, /(InvokeConnectorAction|InvokeConnectorTaskAction|HttpRequestAction|InvokeExternalAgentTaskAction|InvokeConnectedAgentTaskAction|InvokeComputerUseAction)\b/gi);
-    var flowNodes = countAll(all, /InvokeFlowAction/gi);
+    var botActionNodes = countAll(all, /(InvokeConnectorAction|InvokeConnectorTaskAction|HttpRequestAction|InvokeExternalAgentTaskAction|InvokeComputerUseAction)\b/gi);
+    var botFlowNodes = countAll(all, /InvokeFlowAction/gi);
     var workflowFiles = names.filter(function (n) { return /(^|\/)workflows?\/.+\.json$/.test(n) || /workflow[^\/]*\.json$/.test(n); }).length;
-    var aiNodes = countAll(all, /(GptComponent|InvokeAIBuilderModelAction|PromptDialog)/gi);
-    var connectionRefs = names.filter(function (n) { return /connectionreference/.test(n); }).length
-      || countAll(all, /connectionreference/gi);
+    var botAiNodes = countAll(all, /(GptComponent|InvokeAIBuilderModelAction|PromptDialog)/gi);
     var computerUse = /InvokeComputerUseAction/i.test(all);
-    var voice = /(telephony|\bdtmf\b|speechrecognizer|azure ?speech|contact ?cent(er|re)|"?enableVoice"?\s*:\s*true|voiceConfiguration)/i.test(all);
+    var connectedAgents = countAll(all, /(InvokeConnectedAgentTaskAction|connectedAgent)/gi);
     var tenantGraph = /(graphgrounding|tenant ?graph|enterprise ?search|graph ?connector|sharepointonlinesearch|m365 ?index|microsoftgraph)/i.test(all);
     var genOrch = /(generativeactionsenabled|generative ?orchestration|"?orchestration"?\s*:\s*"?generative|generativemodeenabled|"?aIGenerativeMode)/i.test(all);
-    var contentProc = /(prebuilt.*document|documentprocessing|invoiceprocessing|receiptprocessing|content ?understanding|documentextraction)/i.test(all);
+    var contentProc = /(prebuilt.*document|documentprocessing|invoiceprocessing|receiptprocessing|content ?understanding|documentextraction|extract .*from .*(invoice|receipt|document))/i.test(all);
 
-    var knowledgeTypes = {};
-    if (/sharepoint/i.test(all)) knowledgeTypes.SharePoint = true;
-    if (/(publicwebsource|websource|public ?website|"?url"?\s*:)/i.test(all) && /knowledge/i.test(all)) knowledgeTypes.Website = true;
-    if (/dataversesearch|dataverse ?search|msdyn_/i.test(all)) knowledgeTypes.Dataverse = true;
-    if (/fileknowledge|fileattachment|uploaded ?file|documentknowledge/i.test(all)) knowledgeTypes.Files = true;
-
-    var knowledgeCount = knowledgeComps || knowledgeSearch || Object.keys(knowledgeTypes).length;
-    var isGenerative = genAnswers > 0 || genOrch;
-
-    // Build a per-interaction credit profile (uses are tunable assumptions).
-    var profile = [];
-    if (voice) {
-      profile.push({ key: "voiceStandard", name: ROW.voiceStandard, uses: 1, credits: CREDIT.voiceStandard, note: "voice channel detected" });
-    } else if (isGenerative) {
-      profile.push({ key: "generative", name: ROW.generative, uses: 1, credits: CREDIT.generative, note: genAnswers + " generative-answer node(s)" });
-    } else {
-      profile.push({ key: "classic", name: ROW.classic, uses: 1, credits: CREDIT.classic, note: "no generative-answer nodes found" });
+    // ── 2. Structured Power Automate / Logic Apps flow parse ──
+    var flowResults = [];
+    textFiles.forEach(function (f) {
+      var nm = (f.name || "").toLowerCase();
+      var txt = f.text || "";
+      var looksFlow = /workflow.*\.json$/.test(nm) ||
+        (/\.json$/.test(nm) && /"definition"\s*:/.test(txt) && /"actions"\s*:/.test(txt));
+      if (!looksFlow) return;
+      var pr = parseFlowDefinition(txt);
+      if (pr) flowResults.push(pr);
+    });
+    var flow = { aiPrompts: 0, aiPromptCalls: 0, connectorActions: 0, connectorCalls: 0,
+      http: 0, httpCalls: 0, loops: 0, childFlows: 0, actions: 0, automated: false };
+    var connectorSet = {}, premiumSet = {}, flowList = [];
+    flowResults.forEach(function (r) {
+      flow.aiPrompts += r.counts.aiPrompts; flow.aiPromptCalls += r.counts.aiPromptCalls;
+      flow.connectorActions += r.counts.connectors; flow.connectorCalls += r.counts.connectorCalls;
+      flow.http += r.counts.http; flow.httpCalls += r.counts.httpCalls;
+      flow.loops += r.counts.loops; flow.childFlows += r.counts.childFlows; flow.actions += r.counts.actions;
+      if (r.automated) flow.automated = true;
+      r.connectors.forEach(function (c) { connectorSet[c] = true; });
+      r.premiumConnectors.forEach(function (c) { premiumSet[c] = true; });
+      flowList.push({ trigger: r.triggerLabel, automated: r.automated, actions: r.counts.actions,
+        aiPrompts: r.counts.aiPrompts, connectors: r.connectors.slice(), loops: r.counts.loops });
+    });
+    var flowCount = flowResults.length;
+    // Connector references from customizations.xml (connectorid="…/shared_xxx").
+    (all.match(/connectorid="[^"]*?shared_[a-z0-9]+/gi) || []).forEach(function (mm) {
+      var m = mm.match(/shared_[a-z0-9]+/i); if (!m) return;
+      var info = connectorInfo(m[0]);
+      if (info.label) { connectorSet[info.label] = true; if (info.premium) premiumSet[info.label] = true; }
+    });
+    var connectionRefs = countAll(all, /<connectionreference\b/gi)
+      || names.filter(function (n) { return /connectionreference/.test(n); }).length;
+    if (!connectionRefs) {
+      var crset = {};
+      (all.match(/connectionreferencelogicalname"\s*:\s*"([^"]+)"/gi) || []).forEach(function (x) { crset[x.toLowerCase()] = true; });
+      connectionRefs = Object.keys(crset).length;
     }
-    if (tenantGraph) profile.push({ key: "tenantGraph", name: ROW.tenantGraph, uses: 1, credits: CREDIT.tenantGraph, note: "tenant-graph grounding" });
-    if (actionNodes > 0) profile.push({ key: "action", name: ROW.action, uses: 1, credits: CREDIT.action, note: actionNodes + " action node(s) defined" });
-    if (flowNodes > 0 || workflowFiles > 0) profile.push({ key: "flow", name: ROW.flow, uses: 5, credits: CREDIT.flowAction, note: (flowNodes + workflowFiles) + " flow(s)" });
-    if (contentProc) profile.push({ key: "content", name: ROW.content, uses: 1, credits: CREDIT.contentPage, note: "document processing" });
-    if (aiNodes > 0) profile.push({ key: "aiStandard", name: ROW.aiStandard, uses: 1, credits: CREDIT.aiStandard, note: aiNodes + " prompt/AI node(s)" });
 
-    // Complexity score → t-shirt.
+    // ── 3. Curated agent build-spec bundle ──
+    var spec = parseAgentSpec(all, names, manifest);
+    if (spec.connectedAgent && connectedAgents === 0) connectedAgents = 1;
+
+    // ── Merge + reconcile ──
+    var knowledgeCtx = knowledgeComps > 0 || knowledgeSearch > 0 || genAnswers > 0 ||
+      /knowledgesource|grounding|search and summarize|searchandsummarize/i.test(all);
+    var knowledgeTypes = {};
+    if (/sharepointsource/i.test(all) || (knowledgeComps > 0 && /sharepoint/i.test(all))) knowledgeTypes.SharePoint = true;
+    if (/(publicwebsource|websource|"kind"\s*:\s*"?public ?website)/i.test(all) && knowledgeCtx) knowledgeTypes.Website = true;
+    if (/(dataversesearch|dataverse ?search)/i.test(all) && knowledgeCtx) knowledgeTypes.Dataverse = true;
+    if ((/(fileknowledge|fileattachment|documentknowledge|uploaded ?file)/i.test(all) && knowledgeCtx) ||
+        (spec.isSpec && spec.knowledgeDocs > 0)) knowledgeTypes.Files = true;
+    var knowledgeCount = Math.max(knowledgeComps, knowledgeSearch, Object.keys(knowledgeTypes).length, spec.knowledgeDocs || 0);
+
+    var agentActions = botActionNodes + spec.actionCount;
+    var flowsTotal = flowCount || botFlowNodes || workflowFiles || (spec.hasFlow ? 1 : 0);
+    var aiNodes = botAiNodes + flow.aiPrompts;
+    var agentCount = Math.max(1, spec.agentCount, connectedAgents > 0 ? connectedAgents + 1 : 1);
+    var hasEscalation = spec.hasEscalation ||
+      /(escalate to (a )?(human|agent|person)|human handoff|transfer to (a )?agent|OnEscalate)/i.test(all);
+    var voice = /(telephony|\bdtmf\b|speechrecognizer|azure ?speech|contact ?cent(er|re)|"?enableVoice"?\s*:\s*true|voiceConfiguration|voice channel|\bivr\b)/i.test(all) ||
+      (spec.isSpec && spec.voice);
+    var isGenerative = genAnswers > 0 || genOrch || flow.aiPrompts > 0 || botAiNodes > 0 || (spec.isSpec && spec.generative);
+    var triggers = botTriggers + flowResults.reduce(function (s, r) { return s + (r.triggerCount || 0); }, 0);
+
+    // ── Regime: interactive (users×interactions) vs autonomous (runs/month) ──
+    var interactiveSignal = topics > 0 || genAnswers > 0 || knowledgeSearch > 0 ||
+      knowledgeComps > 0 || spec.isSpec || spec.connectedAgent || botActionNodes > 0;
+    var autonomous = (flowCount > 0 && !interactiveSignal) || (spec.autonomousTrigger && topics === 0 && !spec.connectedAgent);
+    var regime = autonomous ? "autonomous" : "interactive";
+
+    var premiumConnectors = Object.keys(premiumSet);
+    var connectors = Object.keys(connectorSet);
+
+    // ── Credit profile (per interaction = per turn OR per run) ──
+    var profile = [];
     var score = 1;
-    if (isGenerative) score += 1;
-    if (knowledgeCount > 0) score += 1;
-    if (tenantGraph) score += 2;
-    if (actionNodes > 0) score += Math.min(3, actionNodes);
-    if (flowNodes > 0 || workflowFiles > 0) score += 2;
-    if (contentProc) score += 2;
-    if (aiNodes > 0) score += 1;
-    if (topics >= 10) score += 2; else if (topics >= 5) score += 1;
-    if (genOrch) score += 1;
-    if (computerUse) score += 2;
+    if (regime === "autonomous") {
+      var tokK = 2;   // assumed 2K tokens per AI Builder prompt call (standard tier)
+      if (flow.aiPrompts > 0) {
+        profile.push({ key: "aiStandard", name: ROW.aiStandard,
+          uses: Math.max(1, Math.round(flow.aiPromptCalls * tokK)), credits: CREDIT.aiStandard,
+          note: flow.aiPrompts + " AI Builder prompt(s) · ~" + tokK + "K tokens/call · " + flow.aiPromptCalls + " call(s)/run" });
+      }
+      var flowActionCalls = flow.connectorCalls + flow.httpCalls;
+      if (flowActionCalls > 0) {
+        profile.push({ key: "flow", name: ROW.flow, uses: Math.round(flowActionCalls), credits: CREDIT.flowAction,
+          note: flow.connectorActions + " connector + " + flow.http + " HTTP action(s) · " + flowActionCalls + " call(s)/run" + (flow.loops ? " (loops ×" + FLOW_LOOP_ITERS + ")" : "") });
+      }
+      if (spec.autonomousTrigger) {
+        profile.push({ key: "autonomous", name: ROW.autonomous, uses: 1, credits: CREDIT.autonomousTrigger, note: "autonomous agent self-trigger" });
+      }
+      if (contentProc) profile.push({ key: "content", name: ROW.content, uses: 1, credits: CREDIT.contentPage, note: "document processing" });
+      if (profile.length === 0) profile.push({ key: "classic", name: ROW.classic, uses: 1, credits: CREDIT.classic, note: "no billable AI/flow actions found" });
+
+      if (isGenerative) score += 1;
+      var flowScore = 0;
+      flowScore += Math.min(3, flow.connectorActions + flow.http);
+      flowScore += Math.min(3, flow.aiPrompts * 2);
+      if (flow.loops > 0) flowScore += 1;
+      if (premiumConnectors.length > 0) flowScore += 1;
+      if (flowCount > 1) flowScore += 2;
+      if (spec.autonomousTrigger) flowScore += 1;
+      score += Math.min(7, flowScore);
+      if (contentProc) score += 1;
+    } else {
+      if (voice) {
+        profile.push({ key: "voiceStandard", name: ROW.voiceStandard, uses: 1, credits: CREDIT.voiceStandard, note: "voice channel detected" });
+      } else if (isGenerative) {
+        profile.push({ key: "generative", name: ROW.generative, uses: 1, credits: CREDIT.generative, note: (genAnswers || aiNodes || 1) + " generative node(s)" });
+      } else {
+        profile.push({ key: "classic", name: ROW.classic, uses: 1, credits: CREDIT.classic, note: "no generative-answer nodes found" });
+      }
+      if (tenantGraph) profile.push({ key: "tenantGraph", name: ROW.tenantGraph, uses: 1, credits: CREDIT.tenantGraph, note: "tenant-graph grounding" });
+      if (agentActions > 0) profile.push({ key: "action", name: ROW.action, uses: 1, credits: CREDIT.action, note: agentActions + " agent action(s)" });
+      if (flowsTotal > 0) profile.push({ key: "flow", name: ROW.flow,
+        uses: Math.max(1, Math.min(20, (flow.connectorActions + flow.http) || 5)), credits: CREDIT.flowAction,
+        note: flowsTotal + " agent flow(s)" });
+      if (contentProc) profile.push({ key: "content", name: ROW.content, uses: 1, credits: CREDIT.contentPage, note: "document processing" });
+      if (aiNodes > 0 && !isGenerative) profile.push({ key: "aiStandard", name: ROW.aiStandard, uses: 1, credits: CREDIT.aiStandard, note: aiNodes + " prompt/AI node(s)" });
+
+      if (isGenerative) score += 1;
+      if (tenantGraph) score += 2; else if (knowledgeCount >= 5) score += 1;
+      if (agentActions > 0) score += Math.min(3, agentActions);
+      if (flowsTotal > 0) score += 1;
+      if (connectedAgents > 0 || genOrch) score += 2;
+      if (agentCount > 2) score += 1;
+      if (contentProc) score += 2;
+      if (botAiNodes > 0) score += 1;
+      if (hasEscalation) score += 1;
+      if (topics >= 10) score += 2; else if (topics >= 5) score += 1;
+      if (computerUse) score += 2;
+    }
     var tshirt = sizeForScore(score, { voice: voice, users: 0 });
+
+    // ── Governance warnings ──
+    var warnings = [];
+    if (regime === "autonomous") warnings.push("Autonomous / flow package — cost scales with RUNS PER MONTH, not users. Set your expected run volume below.");
+    if (flow.aiPrompts > 0) warnings.push(flow.aiPrompts + " AI Builder prompt(s) are token-metered; the estimate assumes ~2K tokens per call. Long inputs (e.g. transcripts, documents) can be far larger — tune token size and per-run call counts to your data.");
+    if ((flow.connectorActions + flow.http) > 0 && regime === "autonomous") warnings.push("Flow actions are priced here at the Copilot agent-flow rate (0.13 credits each), which applies ONLY when a Copilot Studio agent invokes the flow. If it runs standalone in Power Automate, those connector actions consume Power Platform requests (licensed separately) and only the AI Builder prompt(s) bill Copilot Credits — drop the agent-flow line in that case.");
+    if (flow.loops > 0) warnings.push(flow.loops + " loop(s) detected — per-run action counts assume ~" + FLOW_LOOP_ITERS + " iterations each. Set your real batch size.");
+    if (premiumConnectors.length > 0) warnings.push("Premium/unknown connector(s): " + premiumConnectors.join(", ") + ". These bill via Power Platform / Power Automate licensing, NOT Copilot Credits — budget separately.");
+    if (spec.isSpec) warnings.push("Analyzed from an agent build-spec bundle (documents), not a Dataverse solution export — counts are inferred from the spec + knowledge files, not runtime components.");
+    if (connectedAgents > 0) warnings.push("Multi-agent orchestration detected (" + agentCount + " agents) — each connected-agent hop adds latency and its own component budget.");
+    if (aiNodes === 0 && agentActions === 0 && flowsTotal === 0 && topics === 0 && !spec.isSpec)
+      warnings.push("Very few components detected — is this a full unmanaged solution export or agent bundle?");
 
     var findings = {
       topics: topics, triggers: triggers, genAnswers: genAnswers,
       knowledgeSearch: knowledgeSearch, knowledgeComps: knowledgeComps,
       knowledgeTypes: Object.keys(knowledgeTypes), knowledgeCount: knowledgeCount,
-      actionNodes: actionNodes, flowNodes: flowNodes, workflowFiles: workflowFiles,
+      actionNodes: agentActions + flow.connectorActions + flow.http,
+      flowNodes: botFlowNodes, workflowFiles: workflowFiles,
       aiNodes: aiNodes, connectionRefs: connectionRefs, computerUse: computerUse,
       voice: voice, tenantGraph: tenantGraph, genOrch: genOrch, contentProc: contentProc,
-      isGenerative: isGenerative, fileCount: files.length
+      isGenerative: isGenerative, fileCount: files.length,
+      // v4 additions
+      regime: regime, autonomous: autonomous, flowCount: flowCount, flowActions: flow.actions,
+      aiPrompts: flow.aiPrompts, aiPromptCalls: flow.aiPromptCalls,
+      flowConnectorActions: flow.connectorActions, flowHttp: flow.http, flowLoops: flow.loops,
+      connectors: connectors, premiumConnectors: premiumConnectors,
+      agentCount: agentCount, connectedAgents: connectedAgents, hasEscalation: hasEscalation,
+      specBundle: spec.isSpec, binaryFiles: manifest.length
     };
-    return { findings: findings, profile: profile, score: score, tshirt: tshirt };
+    return {
+      findings: findings, profile: profile, score: score, tshirt: tshirt,
+      regime: regime, autonomous: autonomous, flows: flowList,
+      connectors: connectors, premiumConnectors: premiumConnectors,
+      warnings: warnings, agentCount: agentCount, runsPerMonthDefault: 1000
+    };
   }
 
   // ── Quick-mode guided wizard spec ─────────────────────────────────────────
@@ -863,6 +1181,8 @@
     detectKnowledge: detectKnowledge, detectSystems: detectSystems,
     extractSteps: extractSteps, deriveQuick: deriveQuick,
     STEP_CATALOG: STEP_CATALOG, analyzeText: analyzeText, analyzeSolution: analyzeSolution,
+    parseFlowDefinition: parseFlowDefinition, classifyFlowAction: classifyFlowAction,
+    connectorInfo: connectorInfo, parseAgentSpec: parseAgentSpec, CONNECTOR_CATALOG: CONNECTOR_CATALOG,
     IMPORT_SCHEMA: IMPORT_SCHEMA, IMPORT_EXAMPLES: IMPORT_EXAMPLES,
     buildHeaderMap: buildHeaderMap, matrixToObjects: matrixToObjects,
     rowToVars: rowToVars, analyzeScenarioRow: analyzeScenarioRow, analyzeImport: analyzeImport

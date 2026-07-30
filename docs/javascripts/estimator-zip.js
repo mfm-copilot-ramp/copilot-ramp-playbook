@@ -62,7 +62,10 @@
 
       var isText = TEXT_EXT.test(name);
       var isDir = /\/$/.test(name);
-      if (isDir || !isText) continue;
+      if (isDir) continue;
+      // Non-text entries (docx, pptx, png, …) are recorded name-only so the
+      // analyzer can still count knowledge docs / decks / assets without inflating them.
+      if (!isText) { out.push({ name: name, text: "", binary: true, size: uncompSize }); continue; }
       if (uncompSize > MAX_ENTRY || decompressed > MAX_TOTAL) continue;
 
       // Local header: recompute data offset (its name/extra lengths can differ).
@@ -82,7 +85,7 @@
       decompressed += content.length;
       out.push({ name: name, text: decoder.decode(content) });
     }
-    if (!out.length) throw new Error("No readable text files found inside the archive. Is this a Copilot Studio solution export?");
+    if (!out.length) throw new Error("No files found inside the archive. Is this a valid solution export or agent package (.zip)?");
     return out;
   }
 
