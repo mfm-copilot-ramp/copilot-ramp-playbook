@@ -29,25 +29,29 @@
 
   // ── T-shirt sizing ────────────────────────────────────────────────────────
   // Size measures BUILD COMPLEXITY / effort — not credit cost (shown separately).
+  // Difficulty is driven by INTEGRATION SURFACE, AUTONOMY and CHANNEL — not by
+  // knowledge grounding (pointing at documents is near-trivial) and not by run
+  // cost. Run cost (credits × volume) is reported separately; the two axes move
+  // independently (e.g. document grounding is easy to build AND free per run).
   var SIZE_INFO = {
     XS: { label: "XS", name: "Extra small",
-      desc: "Single-purpose Q&A — one knowledge source, no actions, classic routing.",
+      desc: "Answering only — a grounded Q&A with no system actions. Documents/KB grounding is fine here.",
       effort: "Hours to stand up. One maker, no pro-dev.",
       govern: "Minimal — publish and monitor occasionally." },
     S: { label: "S", name: "Small",
-      desc: "Generative Q&A with a few topics and one action or one flow.",
+      desc: "Q&A plus one system action or a single approval flow, touching one back-end system.",
       effort: "A few days. One maker.",
       govern: "Light — a shared environment and basic analytics." },
     M: { label: "M", name: "Medium",
-      desc: "Generative orchestration with 2–4 actions across 1–2 systems (or a simple autonomous agent).",
+      desc: "Generative orchestration over 2–4 actions across 1–2 systems, or a simple autonomous agent.",
       effort: "1–3 weeks. Maker + occasional pro-dev for connectors.",
       govern: "Moderate — ALM, connection references, DLP review." },
     L: { label: "L", name: "Large",
-      desc: "5+ actions across 3+ systems, multiple flows, autonomous triggers or document processing.",
+      desc: "5+ actions across 3+ systems, multi-step flows, autonomous triggers, or document processing.",
       effort: "1–2 months. Maker + pro-dev + reviewer.",
       govern: "Serious — managed solutions, environments, monitoring, DLP." },
     XL: { label: "XL", name: "Extra large",
-      desc: "Voice, tenant-graph grounding, autonomous/multi-agent, many actions, high volume.",
+      desc: "Voice or multi-agent, many actions across several systems, autonomous at high volume.",
       effort: "Multi-month program with a dedicated team.",
       govern: "Full ALM, security review, capacity planning, SRE-style ops." }
   };
@@ -63,29 +67,39 @@
   }
   var SIZE_ORDER = ["XS", "S", "M", "L", "XL"];
   // Driver-based sizing for the Quick mode. Returns {size, drivers:[...why]}.
+  // Size = effort to DESIGN + STAND UP in Studio, driven by integration surface,
+  // autonomy and channel. Knowledge grounding barely moves it (docs +0, tenant
+  // graph +1) because it's near-trivial to configure — its RUN COST is modelled
+  // separately in deriveQuick. Thresholds are calibrated so a single low-effort
+  // capability never crosses a whole tier on its own.
   function sizeFromDrivers(v) {
     var score = 0, drivers = [];
     function add(pts, why) { score += pts; if (why) drivers.push({ pts: pts, why: why }); }
+    var auto = v.archetype === "autonomous";
     var a = Math.max(0, v.actionsCount || 0);
     if (a >= 5) add(3, a + " actions");
     else if (a >= 2) add(2, a + " actions");
     else if (a === 1) add(1, "1 action");
     var sys = Math.max(0, v.systemsCount || 0);
-    if (sys >= 3) add(2, sys + " systems");
-    else if (sys === 2) add(1, "2 systems");
-    if (v.orchestration === "generative") add(1, "generative orchestration");
-    if (v.knowledge === "tenantGraph") add(2, "tenant-graph grounding");
-    else if (v.knowledge === "docs") add(1, "knowledge grounding");
+    if (sys >= 3) add(2, sys + " back-end systems");
+    else if (sys === 2) add(1, "2 back-end systems");
+    // Generative orchestration only adds effort when there's something to
+    // orchestrate (actions, an autonomous trigger, or a flow) — a plain
+    // generative Q&A is not a "complex" build.
+    if (v.orchestration === "generative" && (a >= 1 || auto || v.hasFlow))
+      add(1, "generative orchestration");
+    // Knowledge: docs/website/file grounding is near-zero build effort (0);
+    // tenant-graph grounding needs Graph permissions + config (1).
+    if (v.knowledge === "tenantGraph") add(1, "tenant-graph grounding");
     if (v.channel === "voice") add(3, "voice channel");
-    if (v.archetype === "autonomous") add(2, "autonomous / event-driven");
+    if (auto) add(2, "autonomous / event-driven");
     if (v.hasFlow) add(1, "workflow / approval flow");
     if (v.hasContent) add(2, "document processing");
     if (v.hasAI) add(1, "generative content tool");
+    if (v.hasEscalation) add(1, "human escalation / handoff");
     // Volume tier (build/ops complexity grows with scale).
-    var vol = v.archetype === "autonomous"
-      ? (v.events || 0)
-      : Math.round((v.users || 0) * (v.interactions || 0));
-    var volThresh = v.archetype === "autonomous" ? [2000, 20000] : [20000, 250000];
+    var vol = auto ? (v.events || 0) : Math.round((v.users || 0) * (v.interactions || 0));
+    var volThresh = auto ? [2000, 20000] : [20000, 250000];
     if (vol >= volThresh[1]) add(2, "high volume");
     else if (vol >= volThresh[0]) add(1, "meaningful volume");
 
@@ -132,6 +146,30 @@
     var escExtra = ((v.escalation || 0) / 100) * (v.escalationCredits || 0);
     var monthly = billed * interactions * (per + escExtra);
     return { regime: "interactive", perUnit: per, units: billed * interactions, billed: billed, monthly: monthly };
+  }
+
+  // "Why this cost" — structured drivers ranked by monthly-credit impact. Volume
+  // is the master multiplier (led first); then the biggest per-run credit lines.
+  // Returns plain data; the UI formats it (keeps this engine DOM-free).
+  function costDrivers(profile, v) {
+    var auto = v.archetype === "autonomous";
+    var out = [];
+    if (auto) {
+      out.push({ kind: "volume", label: "events / month",
+        value: Math.max(0, Math.round(v.events || 0)), unit: (v.eventUnit || "event") });
+    } else {
+      var billed = billedUsers({ deployment: v.deployment, users: v.users, licensePct: v.licensePct });
+      out.push({ kind: "volume", label: "reach", value: billed, unit: "billed user",
+        per: Math.max(0, v.interactions || 0) });
+    }
+    (profile || []).map(function (r) { return { name: r.name, credits: (r.uses || 0) * (r.credits || 0) }; })
+      .filter(function (r) { return r.credits > 0; })
+      .sort(function (a, b) { return b.credits - a.credits; })
+      .slice(0, 3)
+      .forEach(function (r) {
+        out.push({ kind: "line", label: r.name, value: r.credits, unit: auto ? "cr/run" : "cr/turn" });
+      });
+    return out;
   }
 
   // ── Number/scale parsing for the Quick mode ───────────────────────────────
@@ -404,6 +442,16 @@
 
     // Volume — regime-specific.
     var why = { knowledge: know.why };
+    why.archetype = autonomous
+      ? "Event / schedule language detected — it runs itself, with no person per run."
+      : "A person chats with or calls the agent each time.";
+    why.channel = voice
+      ? "Voice / phone language detected."
+      : "Assumed chat / text — switch this if it's a voice agent.";
+    why.actions = actionsCount > 0
+      ? ("Detected " + actionsCount + " system action" + (actionsCount > 1 ? "s" : "") +
+         (systems.length ? " across " + systems.join(", ") : "") + ".")
+      : "No system actions detected — the agent only answers.";
     if (autonomous) {
       var ev = detectEventVolume(t);
       v.events = ev.value; v.eventUnit = ev.unit;
@@ -524,11 +572,40 @@
     return { findings: findings, profile: profile, score: score, tshirt: tshirt };
   }
 
+  // ── Quick-mode guided wizard spec ─────────────────────────────────────────
+  // Ordered, adaptive steps the UI renders one at a time. applies(v) decides
+  // visibility from the (live) variable set; the UI supplies the controls and
+  // pre-fills each answer from analyzeText's inference + why strings.
+  var QUICK_WIZARD = [
+    { id: "trigger", title: "How does the agent start working?", short: "Trigger",
+      help: "Sets whether people drive it (billed per user) or it runs itself on events (billed per run).",
+      applies: function () { return true; } },
+    { id: "channel", title: "Chat or voice?", short: "Channel",
+      help: "Voice / telephony changes both the build effort and the per-turn credit rate.",
+      applies: function (v) { return v.archetype !== "autonomous"; } },
+    { id: "volume-interactive", title: "Who uses it, and how often?", short: "Volume",
+      help: "Reach × frequency is the single biggest driver of monthly credits.",
+      applies: function (v) { return v.archetype !== "autonomous"; } },
+    { id: "volume-autonomous", title: "How much work will it handle?", short: "Volume",
+      help: "Autonomous agents are billed for every event they process.",
+      applies: function (v) { return v.archetype === "autonomous"; } },
+    { id: "actions", title: "What does it actually do?", short: "Actions",
+      help: "Each system action (look up, create, notify, route…) adds build effort and ~5 credits per run.",
+      applies: function () { return true; } },
+    { id: "knowledge", title: "Does it use your content or company data?", short: "Knowledge",
+      help: "Documents / KB grounding is easy and free per run; Microsoft 365 tenant-graph grounding adds setup and ~10 credits per run.",
+      applies: function () { return true; } },
+    { id: "handoff", title: "Does it hand off to a person?", short: "Handoff",
+      help: "A human-escalation path adds a little build effort (and one more action).",
+      applies: function (v) { return v.archetype !== "autonomous"; } }
+  ];
+
   var api = {
     CREDIT: CREDIT, RATE_PAYG: RATE_PAYG, RATE_PREPAID: RATE_PREPAID, ROW: ROW,
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
     computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
+    costDrivers: costDrivers, QUICK_WIZARD: QUICK_WIZARD,
     detectUsers: detectUsers, detectInteractions: detectInteractions, detectDeployment: detectDeployment,
     detectEventVolume: detectEventVolume, detectArchetype: detectArchetype,
     detectKnowledge: detectKnowledge, detectSystems: detectSystems,

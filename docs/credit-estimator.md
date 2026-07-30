@@ -129,6 +129,40 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 .em-toggles { display: flex; flex-wrap: wrap; gap: 0.9rem; margin: 0.85rem 0 0.25rem; }
 .em-chk { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; color: var(--md-default-fg-color--light); cursor: pointer; }
 .em-chk input { cursor: pointer; }
+
+/* quick v2: guided wizard */
+.qe-wizard { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-top: 0.5rem; }
+@media (min-width: 760px) { .qe-wizard { grid-template-columns: 1fr 260px; align-items: start; } }
+.qe-progress { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+.qe-progress .st { font-size: 0.68rem; padding: 0.18rem 0.55rem; border-radius: 20px; background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); color: var(--md-default-fg-color--light); white-space: nowrap; }
+.qe-progress .st.cur { background: var(--md-primary-fg-color); border-color: var(--md-primary-fg-color); color: #fff; font-weight: 600; }
+.qe-progress .st.done { color: var(--md-primary-fg-color); border-color: var(--md-primary-fg-color); }
+.qe-step-title { font-size: 1.05rem; font-weight: 700; color: var(--md-default-fg-color); }
+.qe-step-help { font-size: 0.85rem; color: var(--md-default-fg-color--light); margin: 0.2rem 0 0.9rem; line-height: 1.5; }
+.qe-cards { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+.qe-cards.two { grid-template-columns: 1fr 1fr; }
+.qe-cards.three { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 560px) { .qe-cards.two, .qe-cards.three { grid-template-columns: 1fr; } }
+.qe-opt { text-align: left; padding: 0.75rem 0.9rem; border-radius: 8px; border: 1.5px solid var(--md-default-fg-color--lighter); background: var(--md-default-bg-color); cursor: pointer; transition: border-color 0.12s, background 0.12s; }
+.qe-opt:hover { border-color: var(--md-primary-fg-color); }
+.qe-opt.sel { border-color: var(--md-primary-fg-color); background: rgba(66,165,245,0.08); }
+.qe-opt b { display: block; font-size: 0.9rem; color: var(--md-default-fg-color); }
+.qe-opt span { display: block; font-size: 0.76rem; color: var(--md-default-fg-color--light); margin-top: 0.2rem; line-height: 1.45; }
+.qe-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0.5rem 0 0; }
+.qe-preset { font-size: 0.74rem; padding: 0.25rem 0.6rem; border-radius: 5px; border: 1px solid var(--md-default-fg-color--lighter); background: var(--md-code-bg-color); color: var(--md-default-fg-color--light); cursor: pointer; }
+.qe-preset:hover { border-color: var(--md-primary-fg-color); color: var(--md-primary-fg-color); }
+.qe-inferred { margin: 0.7rem 0 0; padding: 0.4rem 0.65rem; border-left: 3px solid var(--md-primary-fg-color); background: var(--md-default-fg-color--lightest); border-radius: 0 5px 5px 0; font-size: 0.78rem; color: var(--md-default-fg-color--light); line-height: 1.5; }
+.qe-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-top: 1.1rem; }
+.qe-nav .spacer { flex: 1 1 auto; }
+.qe-preview { position: sticky; top: 4rem; background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 1rem 1.1rem; }
+.qe-preview .lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--md-default-fg-color--light); font-weight: 700; }
+.qe-preview .big { font-size: 1.7rem; font-weight: 700; color: var(--md-primary-fg-color); line-height: 1.1; }
+.qe-mini-tshirt { display: inline-block; min-width: 1.9rem; text-align: center; padding: 0.1rem 0.45rem; border-radius: 6px; font-weight: 800; font-size: 0.85rem; }
+.qe-note { font-size: 0.78rem; color: var(--md-default-fg-color--light); background: var(--md-default-fg-color--lightest); border-radius: 6px; padding: 0.5rem 0.7rem; line-height: 1.55; margin: 0.6rem 0; }
+.qe-axes { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 0.75rem 0; }
+@media (min-width: 680px) { .qe-axes { grid-template-columns: 1fr 1fr; } }
+.qe-axis { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 0.9rem 1rem; }
+.qe-axis h4 { margin: 0 0 0.6rem; font-size: 0.9rem; }
 </style>
 
 <div class="mode-selector">
@@ -153,9 +187,9 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
     <button type="button" class="em-chip" onclick="qeExample('support')">Customer voice bot</button>
     <button type="button" class="em-chip" onclick="qeExample('finance')">Invoice processing</button>
   </div>
-  <button type="button" class="em-btn" onclick="qeAnalyze()">Analyze &rarr;</button>
+  <button type="button" class="em-btn" onclick="qeAnalyze()">Build my estimate &rarr;</button>
   <div id="qe-results" class="em-hidden"></div>
-  <p class="hint" style="margin-top:1rem">This reads keywords in your description to guess the Studio build and a credit profile — it's a directional starting point, not a real LLM analysis. Refine anything, then open it in the Detailed estimator.</p>
+  <p class="hint" style="margin-top:1rem">We read your description to pre-fill a short guided assessment, then estimate the Studio build effort and a credit/cost profile — a directional starting point, not a real LLM analysis. Answer the questions, then open it in the Detailed estimator.</p>
 </div>
 
 <!-- ── COMPLEX (solution package upload) ── -->
