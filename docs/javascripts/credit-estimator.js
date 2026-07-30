@@ -8,8 +8,8 @@
 (function () {
   "use strict";
 
-  var EC = null, EZ = null;
-  var state = { qe: null, sp: null };
+  var EC = null, EZ = null, EX = null;
+  var state = { qe: null, sp: null, qi: null };
 
   // ── formatting ────────────────────────────────────────────────────────────
   function fmt(n) {
@@ -35,6 +35,7 @@
 
   var MODE_DESC = {
     quick: "Best when you're early or unsure — describe the agent in plain words and get a rough size, a Studio build outline, and a credit/cost range. No build knowledge needed.",
+    import: "Best for sizing many agents at once — download the Excel template, fill in one row per scenario, and import it back for a portfolio-wide size + credit/cost roll-up. Runs entirely in your browser.",
     detailed: "Best when you know the building blocks but haven't built yet — set your org scope and dial in exactly which features each conversation uses.",
     complex: "Best when the agent is built — export it as a Power Platform solution (.zip) and upload it for a component-level analysis. Everything is parsed locally in your browser."
   };
@@ -49,7 +50,7 @@
 
   // ── mode switching ────────────────────────────────────────────────────────
   function setEstimatorMode(mode) {
-    var ids = { quick: "panel-quick", detailed: "panel-detailed", complex: "panel-complex" };
+    var ids = { quick: "panel-quick", import: "panel-import", detailed: "panel-detailed", complex: "panel-complex" };
     Object.keys(ids).forEach(function (k) {
       var el = document.getElementById(ids[k]);
       if (el) el.classList.toggle("em-hidden", k !== mode);
@@ -179,13 +180,21 @@
   // ── feed-forward into the Detailed estimator ──────────────────────────────
   function seedDetailed(profile, scale, escalation) {
     setEstimatorMode("detailed");
-    setVal("totalUsers", scale.users);
-    setVal("avgInteractions", scale.interactions);
-    setVal("licensePct", scale.licensePct);
-    setVal("licensePctSlider", scale.licensePct);
+    var auto = scale && scale.archetype === "autonomous";
+    if (typeof window.setDetailedAgentType === "function") {
+      window.setDetailedAgentType(auto ? "autonomous" : "interactive");
+    }
+    if (auto) {
+      setVal("eventsPerMonth", scale.events || 0);
+    } else {
+      setVal("totalUsers", scale.users);
+      setVal("avgInteractions", scale.interactions);
+      setVal("licensePct", scale.licensePct);
+      setVal("licensePctSlider", scale.licensePct);
+      if (typeof window.setDeployMode === "function") window.setDeployMode(scale.deployment);
+    }
     setVal("escalationRate", escalation || 0);
     setVal("escalationRateSlider", escalation || 0);
-    if (typeof window.setDeployMode === "function") window.setDeployMode(scale.deployment);
 
     document.querySelectorAll("#normal-tbody tr").forEach(function (tr) {
       var ins = tr.querySelectorAll(".pt-num");
@@ -649,8 +658,8 @@
     var v = st.vars;
     var profile = EC.deriveQuick(v);
     var scale = v.archetype === "autonomous"
-      ? { users: 1, interactions: v.events || 0, deployment: "standalone", licensePct: 0 }
-      : { users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
+      ? { archetype: "autonomous", events: v.events || 0 }
+      : { archetype: "interactive", users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
     seedDetailed(profile, scale, v.escalation || 0);
   }
 
@@ -741,12 +750,189 @@
       });
   }
 
+  // ── Quick + Import (batch Excel) ──────────────────────────────────────────
+  var QI_SIZE_COLOR = { XS: "#2e7d32", S: "#4e8a1f", M: "#d98200", L: "#e65100", XL: "#c62828" };
+  function sizeColor(s) { return QI_SIZE_COLOR[s] || "#616161"; }
+
+  function downloadBlob(data, filename, mime) {
+    if (typeof Blob === "undefined" || !window.URL || !window.URL.createObjectURL) return false;
+    var blob = data instanceof Blob ? data : new Blob([data], { type: mime || "application/octet-stream" });
+    var url = window.URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); window.URL.revokeObjectURL(url); }, 0);
+    return true;
+  }
+
+  function qiStatus(msg, err) {
+    var st = document.getElementById("qi-status");
+    if (st) { st.className = "sp-status" + (err ? " sp-error" : ""); st.textContent = msg; }
+  }
+
+  function qiDownloadTemplate() {
+    if (!EX || !EC) { qiStatus("Template builder isn't loaded — try refreshing the page.", true); return; }
+    try {
+      var bytes = EX.buildTemplate(EC.IMPORT_SCHEMA, EC.IMPORT_EXAMPLES);
+      var ok = downloadBlob(bytes, "copilot-credit-estimator-template.xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      if (ok) qiStatus("Template downloaded — fill in the Scenarios sheet, then import it below.");
+    } catch (e) { qiStatus("Couldn't build the template: " + (e && e.message ? e.message : e), true); }
+  }
+
+  function qiDownloadCsv() {
+    if (!EX || !EC) { qiStatus("Template builder isn't loaded — try refreshing the page.", true); return; }
+    var keys = EC.IMPORT_SCHEMA.map(function (c) { return c.key; });
+    var rows = [EC.IMPORT_SCHEMA.map(function (c) { return c.header; })];
+    EC.IMPORT_EXAMPLES.forEach(function (ex) {
+      rows.push(keys.map(function (k) { return ex[k] == null ? "" : ex[k]; }));
+    });
+    var ok = downloadBlob("\uFEFF" + EX.buildCsv(rows), "copilot-credit-estimator-template.csv", "text/csv;charset=utf-8");
+    if (ok) qiStatus("CSV template downloaded — fill it in and import it below.");
+  }
+
+  function qiCard(v, k, s) {
+    return '<div class="qi-card"><div class="k">' + esc(k) + '</div><div class="v">' + esc(String(v)) + "</div>" +
+      (s ? '<div class="s">' + esc(s) + "</div>" : "") + "</div>";
+  }
+  function qiVolume(s) {
+    var v = s.vars;
+    if (v.archetype === "autonomous") return fmt(v.events || 0) + " events";
+    return fmt((v.users || 0) * (v.interactions || 0)) + " conv";
+  }
+  function qiCostDriverText(d) {
+    if (!d || typeof d !== "object") return esc(String(d));
+    if (d.kind === "volume") {
+      var t = esc(d.label) + " \u2014 " + fmt(d.value) + " " + esc(d.unit) + (d.value === 1 ? "" : "s");
+      if (d.per != null) t += " \u00d7 " + fmtDec(d.per) + " / mo";
+      return t;
+    }
+    return esc(d.label) + " \u2014 " + fmtDec(d.value) + " " + esc(d.unit || "");
+  }
+  function qiRowDetailHtml(s, i) {
+    var caps = (s.capabilities || []).map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("");
+    var costs = (s.costDrivers || []).map(function (c) { return "<li>" + qiCostDriverText(c) + "</li>"; }).join("");
+    var sizeWhy = (s.sizeDrivers || []).map(esc).join(" · ");
+    var warns = (s.warnings || []).map(function (w) { return '<li class="qi-warn">' + esc(w) + "</li>"; }).join("");
+    var unit = s.vars.archetype === "autonomous" ? "event" : "interaction";
+    return '<div class="qi-detail">' +
+      "<strong>" + esc(s.sizeInfo.name) + " build (" + s.size + ")</strong> — " + esc(s.sizeInfo.desc) +
+      (sizeWhy ? '<div class="hint"><strong>Why ' + s.size + ":</strong> " + sizeWhy + "</div>" : "") +
+      "<div><strong>What it does</strong><ul>" + caps + "</ul></div>" +
+      (costs ? "<div><strong>Cost drivers</strong> (" + fmtDec(s.perUnit) + " credits / " + unit + ")<ul>" + costs + "</ul></div>" : "") +
+      '<div class="hint">≈ ' + fmt(s.range.low) + "–" + fmt(s.range.high) + " credits / mo · " + money(s.cost.payg) + " PAYG · " + money(s.cost.prepaid) + " prepaid.</div>" +
+      (warns ? "<div><strong>Needs attention</strong><ul>" + warns + "</ul></div>" : "") +
+      '<div class="qi-open"><button type="button" class="em-btn" onclick="qiRowToDetailed(' + i + ')">Open in Detailed estimator &rarr;</button></div>' +
+      "</div>";
+  }
+  function qiRowHtml(s, i) {
+    var warn = !!(s.warnings && s.warnings.length);
+    var typeLabel = s.vars.archetype === "autonomous"
+      ? "Autonomous" : (s.vars.channel === "voice" ? "Interactive · voice" : "Interactive");
+    var badge = '<span class="qi-size" style="background:' + sizeColor(s.size) + '">' + s.size + "</span>";
+    var flag = warn ? '<span class="qi-flag" title="Needs attention">&#9888;</span>' : "";
+    return '<tr class="qi-main' + (warn ? " qi-warn-row" : "") + '">' +
+      '<td><button type="button" class="qi-name-btn" onclick="qiToggleDetail(' + i + ')">' + esc(s.name) + "</button>" + flag + "</td>" +
+      "<td>" + esc(typeLabel) + "</td><td>" + badge + "</td>" +
+      '<td class="qi-num">' + qiVolume(s) + "</td>" +
+      '<td class="qi-num">' + fmt(s.estimate.monthly) + "</td>" +
+      '<td class="qi-num">' + money(s.cost.payg) + "</td></tr>" +
+      '<tr class="qi-detail-row" id="qi-detail-' + i + '" style="display:none"><td class="qi-detail-cell" colspan="6">' +
+      qiRowDetailHtml(s, i) + "</td></tr>";
+  }
+
+  function qiRender(res, srcName) {
+    var el = document.getElementById("qi-results");
+    if (!el) return;
+    state.qi = { scenarios: res.scenarios };
+    if (!res.scenarios.length) {
+      var hw = (res.headerWarnings && res.headerWarnings.length) ? " " + res.headerWarnings.join(" ") : "";
+      el.innerHTML = '<p class="hint">No scenarios found in <strong>' + esc(srcName || "the file") +
+        "</strong>. Fill in at least one row on the <strong>Scenarios</strong> sheet (copy a row from <strong>Examples</strong> to start)." + esc(hw) + "</p>";
+      el.classList.remove("em-hidden");
+      return;
+    }
+    var t = res.totals;
+    var cards =
+      qiCard(fmt(t.monthly), "Credits / month", "\u2248 " + fmt(t.range.low) + "\u2013" + fmt(t.range.high) + " range") +
+      qiCard(money(t.payg), "PAYG $ / month", "or " + money(t.prepaid) + " prepaid") +
+      qiCard(t.count, "Scenarios", t.interactive + " interactive \u00b7 " + t.autonomous + " autonomous") +
+      qiCard(money(t.payg * 12), "PAYG $ / year", fmt(t.monthly * 12) + " credits / yr");
+    var sizesBar = EC.SIZE_ORDER.map(function (sz) {
+      return t.sizes[sz] ? '<span class="qi-flag" style="color:' + sizeColor(sz) + '">' + t.sizes[sz] + "\u00d7 " + sz + "</span>" : "";
+    }).filter(Boolean).join(" ");
+    var rows = res.scenarios.map(qiRowHtml).join("");
+    el.innerHTML =
+      '<div class="section-label">Portfolio estimate</div>' +
+      '<div class="qi-cards">' + cards + "</div>" +
+      (sizesBar ? '<p class="hint">Size mix: ' + sizesBar +
+        (t.flagged ? ' \u00b7 <span class="qi-warn">' + t.flagged + " scenario(s) need attention</span>" : "") + "</p>" : "") +
+      '<table class="qi-table"><thead><tr><th>Scenario</th><th>Type</th><th>Size</th>' +
+      '<th class="qi-num">Volume</th><th class="qi-num">Credits/mo</th><th class="qi-num">$/mo</th></tr></thead><tbody>' +
+      rows + "</tbody></table>" +
+      '<p class="hint">Click a scenario name for its build read-out and cost drivers, or open it in the Detailed estimator to fine-tune. $ shown is pay-as-you-go; prepaid is ~20% less.</p>';
+    el.classList.remove("em-hidden");
+  }
+
+  function qiAnalyzeMatrix(matrix, srcName) {
+    var res = EC.analyzeImport(matrix);
+    qiRender(res, srcName);
+    var n = res.scenarios.length;
+    qiStatus("Analyzed " + (srcName || "file") + " — " + n + " scenario" + (n === 1 ? "" : "s") +
+      (res.totals.flagged ? " (" + res.totals.flagged + " need attention)" : "") + ".");
+    return res;
+  }
+  function qiToggleDetail(i) {
+    var r = document.getElementById("qi-detail-" + i);
+    if (r) r.style.display = r.style.display === "none" ? "" : "none";
+  }
+  function qiRowToDetailed(i) {
+    var st = state.qi; if (!st || !st.scenarios[i]) return;
+    var v = st.scenarios[i].vars;
+    var profile = EC.deriveQuick(v);
+    var scale = v.archetype === "autonomous"
+      ? { archetype: "autonomous", events: v.events || 0 }
+      : { archetype: "interactive", users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
+    seedDetailed(profile, scale, v.escalation || 0);
+  }
+
+  function qiHandleFile(file) {
+    if (!file) return;
+    if (!EX) { qiStatus("Import isn't loaded — try refreshing the page.", true); return; }
+    var isXlsx = /\.xlsx$/i.test(file.name), isCsv = /\.csv$/i.test(file.name);
+    if (!isXlsx && !isCsv) { qiStatus("Please choose a .xlsx or .csv file.", true); return; }
+    qiStatus("Reading " + file.name + " \u2026");
+    var fail = function (err) {
+      qiStatus("Could not read this file: " + (err && err.message ? err.message : err), true);
+      var r = document.getElementById("qi-results"); if (r) r.classList.add("em-hidden");
+    };
+    try {
+      if (isCsv) {
+        file.text().then(function (txt) { qiAnalyzeMatrix(EX.parseCsv(txt), file.name); }).catch(fail);
+      } else {
+        file.arrayBuffer()
+          .then(function (ab) { return EZ.readZip(ab); })
+          .then(function (entries) { qiAnalyzeMatrix(EX.parseXlsx(entries).matrix, file.name); })
+          .catch(fail);
+      }
+    } catch (e) { fail(e); }
+  }
+
+  function qiSchemaHelpHtml() {
+    var rows = EC.IMPORT_SCHEMA.map(function (c) {
+      return "<tr><td><strong>" + esc(c.header) + "</strong></td><td>" + esc(c.applies) + "</td><td>" + esc(c.hint || "") + "</td></tr>";
+    }).join("");
+    return '<table class="qi-table"><thead><tr><th>Column</th><th>Applies</th><th>What to enter</th></tr></thead><tbody>' +
+      rows + "</tbody></table>";
+  }
+
   // ── init (only on the estimator page) ─────────────────────────────────────
   function init() {
     var sel = document.getElementById("mode-select");
     if (!sel) return;
     EC = window.EstimatorCore;
     EZ = window.EstimatorZip;
+    EX = window.EstimatorXlsx || null;
     if (!EC || !EZ) return;
 
     window.setEstimatorMode = setEstimatorMode;
@@ -766,6 +952,11 @@
     window.spRecompute = spRecompute;
     window.spToDetailed = spToDetailed;
     window.emSetDeploy = emSetDeploy;
+    window.qiDownloadTemplate = qiDownloadTemplate;
+    window.qiDownloadCsv = qiDownloadCsv;
+    window.qiToggleDetail = qiToggleDetail;
+    window.qiRowToDetailed = qiRowToDetailed;
+    window.qiAnalyzeMatrix = qiAnalyzeMatrix;
 
     var fileInput = document.getElementById("sp-file");
     if (fileInput && !fileInput.dataset.bound) {
@@ -787,6 +978,29 @@
         spHandleFile(f);
       });
     }
+
+    var qiFile = document.getElementById("qi-file");
+    if (qiFile && !qiFile.dataset.bound) {
+      qiFile.dataset.bound = "1";
+      qiFile.addEventListener("change", function () { qiHandleFile(this.files && this.files[0]); });
+    }
+    var qiDrop = document.getElementById("qi-drop");
+    if (qiDrop && !qiDrop.dataset.bound) {
+      qiDrop.dataset.bound = "1";
+      ["dragover", "dragenter"].forEach(function (ev) {
+        qiDrop.addEventListener(ev, function (e) { e.preventDefault(); qiDrop.classList.add("dragover"); });
+      });
+      ["dragleave", "dragend", "drop"].forEach(function (ev) {
+        qiDrop.addEventListener(ev, function () { qiDrop.classList.remove("dragover"); });
+      });
+      qiDrop.addEventListener("drop", function (e) {
+        e.preventDefault();
+        var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        qiHandleFile(f);
+      });
+    }
+    var qiHelp = document.getElementById("qi-schema-help");
+    if (qiHelp && !qiHelp.dataset.filled) { qiHelp.dataset.filled = "1"; qiHelp.innerHTML = qiSchemaHelpHtml(); }
 
     setEstimatorMode(sel.value || "detailed");
   }

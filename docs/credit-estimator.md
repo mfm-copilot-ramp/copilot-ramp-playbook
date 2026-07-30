@@ -163,12 +163,38 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 @media (min-width: 680px) { .qe-axes { grid-template-columns: 1fr 1fr; } }
 .qe-axis { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 0.9rem 1rem; }
 .qe-axis h4 { margin: 0 0 0.6rem; font-size: 0.9rem; }
+
+/* Quick + Import (batch portfolio) */
+.qi-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.5rem 0 0.25rem; }
+.qi-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin: 1rem 0; }
+@media (min-width: 680px) { .qi-cards { grid-template-columns: repeat(4, 1fr); } }
+.qi-card { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 0.8rem 0.9rem; }
+.qi-card .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--md-default-fg-color--light); }
+.qi-card .v { font-size: 1.35rem; font-weight: 800; margin-top: 0.2rem; line-height: 1.1; }
+.qi-card .s { font-size: 0.75rem; color: var(--md-default-fg-color--light); margin-top: 0.15rem; }
+.qi-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.5rem 0; }
+.qi-table th, .qi-table td { text-align: left; padding: 0.45rem 0.55rem; border-bottom: 1px solid var(--md-default-fg-color--lightest); vertical-align: top; }
+.qi-table th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--md-default-fg-color--light); white-space: nowrap; }
+.qi-table tbody tr.qi-main:hover { background: var(--md-default-fg-color--lightest); }
+.qi-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.qi-size { display: inline-block; min-width: 1.8rem; text-align: center; padding: 0.08rem 0.4rem; border-radius: 6px; font-weight: 800; font-size: 0.8rem; color: #fff; }
+.qi-name-btn { background: none; border: none; padding: 0; color: var(--md-typeset-a-color, #3f51b5); font-weight: 600; cursor: pointer; text-align: left; font-size: 0.85rem; font-family: inherit; }
+.qi-name-btn:hover { text-decoration: underline; }
+.qi-detail-cell { padding: 0 !important; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+.qi-detail { background: var(--md-default-fg-color--lightest); border-radius: 8px; padding: 0.7rem 0.9rem; margin: 0.2rem 0.4rem 0.6rem; font-size: 0.82rem; line-height: 1.6; }
+.qi-detail ul { margin: 0.3rem 0 0.3rem 1.1rem; padding: 0; }
+.qi-detail .qi-open { margin-top: 0.5rem; }
+.qi-warn { color: #b26a00; }
+.qi-warn-row td { background: rgba(255, 171, 0, 0.08); }
+.qi-err-row td { background: rgba(198, 40, 40, 0.07); color: #b3261e; }
+.qi-flag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #b26a00; margin-left: 0.35rem; }
 </style>
 
 <div class="mode-selector">
   <label for="mode-select">Estimation mode</label>
   <select id="mode-select" class="em-select" onchange="setEstimatorMode(this.value)">
     <option value="quick">Quick — describe it in words (early / low effort)</option>
+    <option value="import">Quick + Import — batch-size many scenarios from Excel (portfolio)</option>
     <option value="detailed" selected>Detailed — build the credit profile by hand (default)</option>
     <option value="complex">Solution package — upload a built agent (thorough)</option>
   </select>
@@ -212,6 +238,28 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
     </div>
   </details>
   <div id="sp-results" class="em-hidden"></div>
+</div>
+
+<!-- ── QUICK + IMPORT (batch Excel) ── -->
+<div class="mode-panel em-hidden" id="panel-import">
+  <div class="section-label">1 &middot; Download the template</div>
+  <p class="em-range">Grab the workbook, fill in <strong>one row per scenario</strong> on the <strong>Scenarios</strong> sheet (the <strong>Examples</strong> sheet is prefilled to copy from), then bring it back here. Every scenario gets a T-shirt size, a credit/cost estimate and a build read-out, plus a portfolio roll-up. Everything runs <strong>in your browser</strong> — nothing is uploaded.</p>
+  <div class="qi-toolbar">
+    <button type="button" class="em-btn" onclick="qiDownloadTemplate()">&darr; Download Excel template (.xlsx)</button>
+    <button type="button" class="em-chip" onclick="qiDownloadCsv()">or download a .csv</button>
+  </div>
+  <div class="section-label">2 &middot; Import your filled-in workbook</div>
+  <div class="sp-drop" id="qi-drop" onclick="document.getElementById('qi-file').click()">
+    <div class="big">Drop your filled-in .xlsx or .csv here</div>
+    <div class="small">or click to choose a file</div>
+    <input type="file" id="qi-file" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" style="display:none">
+  </div>
+  <div id="qi-status" class="sp-status"></div>
+  <details class="em-details">
+    <summary>What do the columns mean?</summary>
+    <div id="qi-schema-help" style="font-size:0.83rem; line-height:1.7; margin-top:0.5rem"></div>
+  </details>
+  <div id="qi-results" class="em-hidden"></div>
 </div>
 
 </div>
@@ -380,8 +428,18 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color--lightest); margin: 1.5rem 0; }
 </style>
 
+<!-- ── Agent type ── -->
+<div class="section-label">Agent type</div>
+<div class="deploy-toggle">
+  <button id="agent-interactive" class="deploy-btn active" onclick="setDetailedAgentType('interactive')">Interactive — user-led (chat / voice)</button>
+  <button id="agent-autonomous" class="deploy-btn" onclick="setDetailedAgentType('autonomous')">Autonomous — event-driven (no user)</button>
+</div>
+<p id="agent-type-hint" class="deploy-hint">Interactive agents are driven by people — a user sends a message or makes a call. Credits scale with <em>users × interactions / month</em>, and M365 Copilot–licensed users can accrue zero credits in embedded mode.</p>
+
+<hr class="calc-divider">
+
 <!-- ── Presets ── -->
-<div class="scenario-bar">
+<div class="scenario-bar" id="interactive-presets">
   <div class="section-label">Quick presets</div>
   <div class="scenario-pills">
     <button class="scenario-pill" onclick="applyScenario('pilot',event)">Pilot team (50 users)</button>
@@ -390,10 +448,19 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
     <button class="scenario-pill" onclick="applyScenario('enterprise',event)">Enterprise (25,000 users)</button>
   </div>
 </div>
+<div class="scenario-bar em-hidden" id="autonomous-presets">
+  <div class="section-label">Quick presets</div>
+  <div class="scenario-pills">
+    <button class="scenario-pill" onclick="applyAutoScenario('low',event)">Low volume (10K events / mo)</button>
+    <button class="scenario-pill" onclick="applyAutoScenario('medium',event)">Medium (100K events / mo)</button>
+    <button class="scenario-pill" onclick="applyAutoScenario('high',event)">High (1M events / mo)</button>
+  </div>
+</div>
 
 <hr class="calc-divider">
 
 <!-- ── Deployment type toggle ── -->
+<div id="deploy-section">
 <div class="section-label">Deployment type</div>
 <div class="deploy-toggle">
   <button id="toggle-embedded" class="deploy-btn active" onclick="setDeployMode('embedded')">Embedded in Teams / M365 Copilot</button>
@@ -402,11 +469,12 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
 <p id="deploy-hint" class="deploy-hint">M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
 
 <hr class="calc-divider">
+</div>
 
 <!-- ── Org inputs ── -->
-<div class="section-label">Organization</div>
+<div class="section-label" id="org-section-label">Organization</div>
 <div class="calc-grid">
-  <div class="calc-field">
+  <div class="calc-field" id="field-users">
     <label for="totalUsers">Total users in scope</label>
     <input type="number" id="totalUsers" min="1" value="500" oninput="recalc()">
     <div class="hint">Employees, contractors, or team members you're modelling</div>
@@ -420,10 +488,15 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
     </div>
     <div class="hint" id="license-hint">Embedded mode: licensed users accrue zero credits — only unlicensed users are billed. Pilots typically 10–20 %; full rollouts 60–100 %</div>
   </div>
-  <div class="calc-field">
+  <div class="calc-field" id="field-interactions">
     <label for="avgInteractions">Avg interactions / user / month</label>
     <input type="number" id="avgInteractions" min="0" step="0.5" value="10" oninput="recalc()">
     <div class="hint">How many times does a typical active user interact with this agent each month</div>
+  </div>
+  <div class="calc-field em-hidden" id="field-events">
+    <label for="eventsPerMonth">Events / month</label>
+    <input type="number" id="eventsPerMonth" min="0" step="1" value="10000" oninput="recalc()">
+    <div class="hint">How many trigger events the agent processes each month — inbound emails, uploaded documents, queue items, records, etc. Every event is billed (no per-user licensing discount).</div>
   </div>
   <div class="calc-field">
     <label>Escalation rate</label>
@@ -432,7 +505,7 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
       <input type="number" id="escalationRate" min="0" max="100" value="0" oninput="syncRange('escalationRateSlider','escalationRate');recalc()">
       <span>%</span>
     </div>
-    <div class="hint">% of interactions that require additional handling beyond the normal path</div>
+    <div class="hint" id="esc-field-hint">% of interactions that require additional handling beyond the normal path</div>
   </div>
 </div>
 
@@ -446,7 +519,7 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
     <thead>
       <tr>
         <th>Agent feature / interaction type</th>
-        <th class="col-num">Uses / interaction</th>
+        <th class="col-num" id="th-uses">Uses / interaction</th>
         <th class="col-num">Credits / use</th>
         <th class="col-num">Credits / interaction</th>
         <th></th>
@@ -455,12 +528,12 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
     <tbody id="normal-tbody"></tbody>
     <tbody id="escalation-tbody">
       <tr class="section-divider-row">
-        <td colspan="5">Escalation path — <span id="esc-pct-label">0</span>% of interactions trigger these additional steps</td>
+        <td colspan="5">Escalation path — <span id="esc-pct-label">0</span>% of <span id="esc-noun">interactions</span> trigger these additional steps</td>
       </tr>
     </tbody>
     <tfoot>
       <tr>
-        <td class="foot-label">Effective credits / interaction</td>
+        <td class="foot-label" id="foot-label-cell">Effective credits / interaction</td>
         <td></td>
         <td></td>
         <td class="foot-val" id="foot-credits" style="text-align:right">—</td>
@@ -481,9 +554,9 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
 <div class="section-label">Estimated monthly consumption</div>
 <div class="results-grid">
   <div class="result-card"><div class="val" id="res-licensed">—</div><div class="lbl"><span id="lbl-billed">Unlicensed users (billed)</span></div></div>
-  <div class="result-card"><div class="val" id="res-monthly-prompts">—</div><div class="lbl">Total interactions / month</div></div>
-  <div class="result-card"><div class="val" id="res-credits">—</div><div class="lbl">Credits / month (org)</div></div>
-  <div class="result-card"><div class="val" id="res-per-user">—</div><div class="lbl">Credits / user / month</div></div>
+  <div class="result-card"><div class="val" id="res-monthly-prompts">—</div><div class="lbl"><span id="lbl-interactions">Total interactions / month</span></div></div>
+  <div class="result-card"><div class="val" id="res-credits">—</div><div class="lbl"><span id="lbl-credits-month">Credits / month (org)</span></div></div>
+  <div class="result-card"><div class="val" id="res-per-user">—</div><div class="lbl"><span id="lbl-per-user">Credits / user / month</span></div></div>
 </div>
 
 <hr class="calc-divider">
@@ -558,18 +631,21 @@ function removeRow(id) {
   tr.remove(); recalc();
 }
 
+var detailedAgentType = 'interactive';
+
+function detToggleHidden(id, hidden) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('em-hidden', !!hidden);
+}
+function detSetText(id, txt) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = txt;
+}
+
 function recalc() {
-  var total    = parseFloat(document.getElementById('totalUsers').value)   || 0;
-  var licPct   = Math.min(100, Math.max(0, parseFloat(document.getElementById('licensePct').value)   || 0));
-  var avgInt   = Math.max(0, parseFloat(document.getElementById('avgInteractions').value) || 0);
-  var escPct   = Math.min(100, Math.max(0, parseFloat(document.getElementById('escalationRate').value)  || 0));
+  var escPct = Math.min(100, Math.max(0, parseFloat(document.getElementById('escalationRate').value) || 0));
 
-  var embedded   = document.getElementById('toggle-embedded').classList.contains('active');
-  var licensed   = Math.round(total * licPct / 100);
-  var unlicensed = total - licensed;
-  var billedBase = embedded ? unlicensed : total;
-  var active     = billedBase;
-
+  // ── Shared: per-interaction / per-event credit total from the rows ──
   var totalCpud = 0;
   document.querySelectorAll('#normal-tbody tr').forEach(function(tr) {
     var ins = tr.querySelectorAll('.pt-num');
@@ -594,17 +670,50 @@ function recalc() {
   var escLabel = document.getElementById('esc-pct-label');
   if (escLabel) escLabel.textContent = Math.round(escPct);
 
-  var monthlyP = active * avgInt;
-  var monthlyC = active * avgInt * totalCpud;
-  var perUser  = avgInt * totalCpud;
+  var autonomous = detailedAgentType === 'autonomous';
+  var monthlyC, reduceHint;
 
-  var lblBilled = document.getElementById('lbl-billed');
-  if (lblBilled) lblBilled.textContent = embedded ? 'Unlicensed users (billed)' : 'Total users (all billed)';
+  if (autonomous) {
+    // ── Autonomous: events × credits/event, every event billed, no licensing ──
+    var events = Math.max(0, parseFloat(document.getElementById('eventsPerMonth').value) || 0);
+    monthlyC = events * totalCpud;
 
-  document.getElementById('res-licensed').textContent        = fmt(billedBase);
-  document.getElementById('res-monthly-prompts').textContent = fmt(monthlyP);
-  document.getElementById('res-credits').textContent         = fmt(monthlyC);
-  document.getElementById('res-per-user').textContent        = fmt(perUser);
+    detSetText('lbl-billed', 'Events / month');
+    detSetText('lbl-interactions', 'Credits / event');
+    detSetText('lbl-credits-month', 'Credits / month');
+    detSetText('lbl-per-user', 'Credits / year');
+
+    document.getElementById('res-licensed').textContent        = fmt(events);
+    document.getElementById('res-monthly-prompts').textContent = fmtDec(totalCpud);
+    document.getElementById('res-credits').textContent         = fmt(monthlyC);
+    document.getElementById('res-per-user').textContent        = fmt(monthlyC * 12);
+    reduceHint = 'Reduce events per month, escalation rate, or the credit mix.';
+  } else {
+    // ── Interactive: users × interactions × credits/interaction, licensing applies ──
+    var total    = parseFloat(document.getElementById('totalUsers').value)   || 0;
+    var licPct   = Math.min(100, Math.max(0, parseFloat(document.getElementById('licensePct').value)   || 0));
+    var avgInt   = Math.max(0, parseFloat(document.getElementById('avgInteractions').value) || 0);
+    var embedded   = document.getElementById('toggle-embedded').classList.contains('active');
+    var licensed   = Math.round(total * licPct / 100);
+    var unlicensed = total - licensed;
+    var billedBase = embedded ? unlicensed : total;
+    var active     = billedBase;
+
+    var monthlyP = active * avgInt;
+    monthlyC = active * avgInt * totalCpud;
+    var perUser  = avgInt * totalCpud;
+
+    detSetText('lbl-billed', embedded ? 'Unlicensed users (billed)' : 'Total users (all billed)');
+    detSetText('lbl-interactions', 'Total interactions / month');
+    detSetText('lbl-credits-month', 'Credits / month (org)');
+    detSetText('lbl-per-user', 'Credits / user / month');
+
+    document.getElementById('res-licensed').textContent        = fmt(billedBase);
+    document.getElementById('res-monthly-prompts').textContent = fmt(monthlyP);
+    document.getElementById('res-credits').textContent         = fmt(monthlyC);
+    document.getElementById('res-per-user').textContent        = fmt(perUser);
+    reduceHint = 'Reduce interactions per user, escalation rate, or the credit mix.';
+  }
 
   var budget   = parseFloat(document.getElementById('creditBudget').value);
   var resultEl = document.getElementById('budget-result');
@@ -613,9 +722,38 @@ function recalc() {
     if (ratio <= 1) {
       resultEl.innerHTML = '✅ Estimate of <strong>'+fmt(monthlyC)+' credits/month</strong> fits within budget — <strong>'+fmt(budget-monthlyC)+' credits headroom</strong> ('+Math.round((1-ratio)*100)+'% spare).';
     } else {
-      resultEl.innerHTML = '⚠️ Estimate of <strong>'+fmt(monthlyC)+' credits/month</strong> exceeds budget by <strong>'+fmt(monthlyC-budget)+' credits</strong> ('+Math.round((ratio-1)*100)+'% over). Reduce interactions per user, escalation rate, or the credit mix.';
+      resultEl.innerHTML = '⚠️ Estimate of <strong>'+fmt(monthlyC)+' credits/month</strong> exceeds budget by <strong>'+fmt(monthlyC-budget)+' credits</strong> ('+Math.round((ratio-1)*100)+'% over). '+reduceHint;
     }
   } else { resultEl.innerHTML = ''; }
+}
+
+function setDetailedAgentType(mode) {
+  detailedAgentType = (mode === 'autonomous') ? 'autonomous' : 'interactive';
+  var auto = detailedAgentType === 'autonomous';
+
+  document.getElementById('agent-interactive').classList.toggle('active', !auto);
+  document.getElementById('agent-autonomous').classList.toggle('active', auto);
+  document.getElementById('agent-type-hint').innerHTML = auto
+    ? 'Autonomous agents run without a person in the loop — each trigger event (an inbound email, a document, a queue item) is processed on its own. Credits scale with <em>events × credits per event</em>. There is <strong>no per-user licensing discount</strong>: every event is billed.'
+    : 'Interactive agents are driven by people — a user sends a message or makes a call. Credits scale with <em>users × interactions / month</em>, and M365 Copilot–licensed users can accrue zero credits in embedded mode.';
+
+  detToggleHidden('deploy-section', auto);
+  detToggleHidden('interactive-presets', auto);
+  detToggleHidden('autonomous-presets', !auto);
+  detToggleHidden('field-users', auto);
+  detToggleHidden('license-field', auto);
+  detToggleHidden('field-interactions', auto);
+  detToggleHidden('field-events', !auto);
+
+  detSetText('org-section-label', auto ? 'Event volume' : 'Organization');
+  detSetText('th-uses', auto ? 'Uses / event' : 'Uses / interaction');
+  detSetText('foot-label-cell', auto ? 'Effective credits / event' : 'Effective credits / interaction');
+  detSetText('esc-noun', auto ? 'events' : 'interactions');
+  detSetText('esc-field-hint', auto
+    ? '% of events that require additional handling beyond the normal path'
+    : '% of interactions that require additional handling beyond the normal path');
+
+  recalc();
 }
 
 function setDeployMode(mode) {
@@ -645,7 +783,25 @@ function applyScenario(key, evt) {
   document.getElementById('avgInteractions').value      = s.avgInteractions;
   document.getElementById('escalationRate').value       = s.escalationRate;
   document.getElementById('escalationRateSlider').value = s.escalationRate;
-  document.querySelectorAll('.scenario-pill').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('#interactive-presets .scenario-pill').forEach(function(el){ el.classList.remove('active'); });
+  if (evt && evt.target) evt.target.classList.add('active');
+  recalc();
+}
+
+var autoScenarios = {
+  low:    { events:   10000, escalationRate: 10 },
+  medium: { events:  100000, escalationRate: 15 },
+  high:   { events: 1000000, escalationRate: 20 },
+};
+
+function applyAutoScenario(key, evt) {
+  var s = autoScenarios[key];
+  if (!s) return;
+  var e = document.getElementById('eventsPerMonth');
+  if (e) e.value = s.events;
+  document.getElementById('escalationRate').value       = s.escalationRate;
+  document.getElementById('escalationRateSlider').value = s.escalationRate;
+  document.querySelectorAll('#autonomous-presets .scenario-pill').forEach(function(el){ el.classList.remove('active'); });
   if (evt && evt.target) evt.target.classList.add('active');
   recalc();
 }
