@@ -24,21 +24,114 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 
     **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
 
+## How to use this estimator
+
+First, pick **what you're estimating** — *Copilot Studio agents* today; *Microsoft 365 Copilot (Cowork)* is coming soon — then choose **how you want to estimate** using the cards below. Every mode runs locally in your browser; nothing is uploaded.
+
+| Mode | Best when… | What you provide | What you get |
+|------|-----------|------------------|--------------|
+| **Quick** | You're early or unsure and just want a ballpark. | A plain-English description of the agent (or an example chip). | A T-shirt size, a Studio build outline, and a credit/cost range. |
+| **Quick + Import** | You're sizing many agents — a whole portfolio — at once. | An Excel workbook with one row per scenario. | Per-scenario sizes and credits, plus a portfolio roll-up. |
+| **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each conversation uses. | Credits per month and per user, ready for finance or IT. |
+| **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
+
+=== "Quick"
+
+    1. Select the **Quick** card.
+    2. Type a plain-English description — what it does, who uses it, how often, and where it runs — or click an **example** chip.
+    3. Click **Build my estimate →**.
+    4. Answer the short guided follow-ups.
+    5. Review the size, build outline, and credit/cost range.
+    6. Optionally open it in the **Detailed** estimator to refine.
+
+=== "Quick + Import"
+
+    1. Select the **Quick + Import** card.
+    2. Click **↓ Download Excel template (.xlsx)**.
+    3. Fill the **Scenarios** sheet — one row per agent or use-case (the **Examples** sheet is prefilled to copy from).
+    4. Drop the completed workbook back on the page.
+    5. Review each scenario's size and credits, plus the portfolio roll-up.
+
+    !!! tip "Let Copilot fill the spreadsheet for you"
+        You don't have to fill the **Scenarios** sheet by hand. Ask **Microsoft 365 Copilot** (Copilot Chat / Cowork, or Copilot in Excel) to populate it from a plain-English list of your agents — one row each — then re-upload.
+
+        Give Copilot the column meanings from the panel's **"What do the columns mean?"** section and point it at the prefilled **Examples** sheet as the pattern, so it can infer each column (agent type, channel, knowledge, number of actions, users, interactions per month, deployment, % licensed, voice minutes, and so on) and leave unknowns blank. A ready-to-paste prompt:
+
+            You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator
+            workbook. Use the 'Examples' sheet as the pattern and the column definitions below.
+            Create one row per agent from my list, inferring each column from my descriptions;
+            leave a cell blank if it isn't implied. Column definitions: [paste the 'What do the
+            columns mean?' text]. My agents: 1) <name — what it does, who uses it, how often,
+            channel, knowledge, actions>; 2) …
+
+        Copilot's inferences are a starting point — sanity-check the enum and number columns before importing.
+
+=== "Detailed"
+
+    1. Select the **Detailed** card (the default).
+    2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-conversation feature rows**, add an optional **escalation path**, then read the **results**.
+
+=== "Solution package"
+
+    1. Select the **Solution package** card.
+    2. In **make.powerapps.com**, add your Copilot Studio agent — plus any Power Automate flows and connection references — to a solution and **Export** it as an unmanaged `.zip`.
+    3. Drop the `.zip` on the page.
+    4. Review the component inventory, size, and credit estimate.
+    5. See the panel's **"What can I upload?"** note for the A / B / C upload options.
+
 <div id="estimator-modes" markdown="0">
 
 <style>
 /* ── Mode selector + panels ── */
-.mode-selector { margin: 1.5rem 0 0.5rem; }
-.mode-selector > label {
+/* hidden state element — keeps #mode-select in the DOM for the init() page guard + card sync */
+.em-visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+/* top-level "what are you estimating" switcher (reserves the layout for a future Cowork estimator) */
+.est-switcher { margin: 1.5rem 0 0.9rem; }
+.est-switcher-label {
   display: block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.05em; color: var(--md-default-fg-color--light); margin-bottom: 0.4rem;
+  letter-spacing: 0.05em; color: var(--md-default-fg-color--light); margin-bottom: 0.45rem;
 }
-.em-select {
-  width: 100%; max-width: 460px; box-sizing: border-box; padding: 0.55rem 0.7rem;
-  border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px;
-  background: var(--md-code-bg-color); color: var(--md-default-fg-color);
-  font-size: 1rem; font-family: inherit; cursor: pointer;
+.est-switcher-tabs {
+  display: inline-flex; flex-wrap: wrap; gap: 0.3rem; padding: 0.25rem;
+  border: 1px solid var(--md-default-fg-color--lighter); border-radius: 8px;
+  background: var(--md-code-bg-color);
 }
+.est-tab {
+  font: inherit; font-size: 0.86rem; cursor: pointer; padding: 0.4rem 0.85rem;
+  border: 1px solid transparent; border-radius: 6px; background: transparent;
+  color: var(--md-default-fg-color); display: inline-flex; align-items: center; gap: 0.45rem;
+}
+.est-tab--active { background: var(--md-primary-fg-color); color: #fff; font-weight: 600; }
+.est-tab--soon { color: var(--md-default-fg-color--light); cursor: not-allowed; opacity: 0.8; }
+.est-soon-badge {
+  font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 0.1rem 0.42rem; border-radius: 10px;
+  background: var(--md-default-fg-color--lightest); color: var(--md-default-fg-color--light);
+}
+/* mode card selector (replaces the dropdown) */
+.mode-cards {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem;
+  margin: 0.25rem 0 0.4rem; max-width: 760px;
+}
+@media (max-width: 559px) { .mode-cards { grid-template-columns: 1fr; } }
+.mode-card {
+  font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column;
+  gap: 0.12rem; padding: 0.8rem 0.9rem; border-radius: 8px;
+  border: 1px solid var(--md-default-fg-color--lighter); background: var(--md-code-bg-color);
+  color: var(--md-default-fg-color); transition: border-color .12s, box-shadow .12s;
+}
+.mode-card:hover { border-color: var(--md-primary-fg-color); }
+.mode-card:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
+.mode-card--active {
+  border-color: var(--md-primary-fg-color); box-shadow: inset 0 0 0 2px var(--md-primary-fg-color);
+}
+.mode-card--active .mode-card-title { color: var(--md-primary-fg-color); }
+.mode-card-title { font-size: 0.95rem; font-weight: 700; }
+.mode-card-sub { font-size: 0.82rem; color: var(--md-default-fg-color--light); }
+.mode-card-best { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); margin-top: 0.15rem; }
 #mode-desc {
   font-size: 0.85rem; color: var(--md-default-fg-color--light);
   margin: 0.6rem 0 0; line-height: 1.5; max-width: 68ch;
@@ -208,16 +301,53 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 .qi-flag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #b26a00; margin-left: 0.35rem; }
 </style>
 
-<div class="mode-selector">
-  <label for="mode-select">Estimation mode</label>
-  <select id="mode-select" class="em-select" onchange="setEstimatorMode(this.value)">
-    <option value="quick">Quick — describe it in words (early / low effort)</option>
-    <option value="import">Quick + Import — batch-size many scenarios from Excel (portfolio)</option>
-    <option value="detailed" selected>Detailed — build the credit profile by hand (default)</option>
-    <option value="complex">Solution package — upload a built agent (thorough)</option>
-  </select>
-  <p id="mode-desc"></p>
+<div id="estimator-studio">
+
+<div class="est-switcher">
+  <span class="est-switcher-label" id="est-switch-label">What are you estimating?</span>
+  <div class="est-switcher-tabs" role="tablist" aria-labelledby="est-switch-label">
+    <button type="button" class="est-tab est-tab--active" role="tab" aria-selected="true" aria-controls="estimator-studio">Copilot Studio agents</button>
+    <button type="button" class="est-tab est-tab--soon" role="tab" aria-selected="false" aria-disabled="true" disabled tabindex="-1" title="Coming soon">Microsoft 365 Copilot (Cowork)<span class="est-soon-badge">Coming soon</span></button>
+  </div>
 </div>
+
+<!-- Hidden single source of truth for the active mode. credit-estimator.js init() guards the page
+     on #mode-select and keeps its .value in sync; the cards below drive setEstimatorMode(). -->
+<select id="mode-select" class="em-visually-hidden" tabindex="-1" aria-hidden="true" onchange="setEstimatorMode(this.value)">
+  <option value="quick">Quick</option>
+  <option value="import">Quick + Import</option>
+  <option value="detailed" selected>Detailed</option>
+  <option value="complex">Solution package</option>
+</select>
+
+<div class="mode-cards" role="radiogroup" aria-label="Choose how you want to estimate">
+  <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="quick" onclick="setEstimatorMode('quick')">
+    <span class="mode-card-title">Quick</span>
+    <span class="mode-card-sub">Describe it in words</span>
+    <span class="mode-card-best">Best when you're early or unsure</span>
+  </button>
+  <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="import" onclick="setEstimatorMode('import')">
+    <span class="mode-card-title">Quick + Import</span>
+    <span class="mode-card-sub">Batch-size many from Excel</span>
+    <span class="mode-card-best">Best for sizing a whole portfolio</span>
+  </button>
+  <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="detailed" onclick="setEstimatorMode('detailed')">
+    <span class="mode-card-title">Detailed</span>
+    <span class="mode-card-sub">Build the profile by hand</span>
+    <span class="mode-card-best">Best when you know the building blocks &middot; default</span>
+  </button>
+  <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="complex" onclick="setEstimatorMode('complex')">
+    <span class="mode-card-title">Solution package</span>
+    <span class="mode-card-sub">Upload a built agent</span>
+    <span class="mode-card-best">Best when the agent is already built</span>
+  </button>
+</div>
+
+<p id="mode-desc"></p>
+
+<!-- Future roadmap: a sibling <div id="estimator-cowork"> will host the Microsoft 365 Copilot
+     (Cowork) estimator, shown when the disabled switcher tab above is enabled. -->
+
 
 <!-- ── QUICK (natural language) ── -->
 <div class="mode-panel em-hidden" id="panel-quick">
@@ -265,6 +395,11 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 <div class="mode-panel em-hidden" id="panel-import">
   <div class="section-label">1 &middot; Download the template</div>
   <p class="em-range">Grab the workbook, fill in <strong>one row per scenario</strong> on the <strong>Scenarios</strong> sheet (the <strong>Examples</strong> sheet is prefilled to copy from), then bring it back here. Every scenario gets a T-shirt size, a credit/cost estimate and a build read-out, plus a portfolio roll-up. Everything runs <strong>in your browser</strong> — nothing is uploaded.</p>
+  <div class="em-range" style="border-left:3px solid var(--md-primary-fg-color); padding:0.55rem 0.8rem; margin:0.7rem 0; background:var(--md-code-bg-color); border-radius:0 6px 6px 0;">
+    <strong>Tip — let Copilot fill the sheet for you.</strong> You don't have to fill the <strong>Scenarios</strong> sheet by hand. Ask <strong>Microsoft 365 Copilot</strong> (Copilot Chat / Cowork, or Copilot in Excel) to populate it from a plain-English list of your agents — one row each — then re-upload. Give Copilot the column meanings from <em>&ldquo;What do the columns mean?&rdquo;</em> below and the prefilled <strong>Examples</strong> sheet as the pattern; let it infer each column (agent type, channel, knowledge, number of actions, users, interactions/month, deployment, % licensed, voice minutes) and leave unknowns blank. Example prompt:
+    <pre style="white-space:pre-wrap; font-size:0.76rem; margin:0.5rem 0 0.3rem; padding:0.5rem 0.65rem; background:var(--md-default-bg-color); border:1px solid var(--md-default-fg-color--lightest); border-radius:4px;">You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator workbook. Use the 'Examples' sheet as the pattern and the column definitions below. Create one row per agent from my list, inferring each column from my descriptions; leave a cell blank if it isn't implied. Column definitions: [paste the "What do the columns mean?" text]. My agents: 1) &lt;name &mdash; what it does, who uses it, how often, channel, knowledge, actions&gt;; 2) &hellip;</pre>
+    <span class="hint">Copilot's inferences are a starting point — sanity-check the enum/number columns before importing.</span>
+  </div>
   <div class="qi-toolbar">
     <button type="button" class="em-btn" onclick="qiDownloadTemplate()">&darr; Download Excel template (.xlsx)</button>
     <button type="button" class="em-chip" onclick="qiDownloadCsv()">or download a .csv</button>
@@ -282,6 +417,8 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
   </details>
   <div id="qi-results" class="em-hidden"></div>
 </div>
+
+</div><!-- /#estimator-studio -->
 
 </div>
 

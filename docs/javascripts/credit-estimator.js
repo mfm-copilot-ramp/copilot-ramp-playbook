@@ -57,6 +57,12 @@
     });
     var sel = document.getElementById("mode-select");
     if (sel && sel.value !== mode) sel.value = mode;
+    var cards = document.querySelectorAll(".mode-card[data-mode]");
+    for (var i = 0; i < cards.length; i++) {
+      var on = cards[i].getAttribute("data-mode") === mode;
+      cards[i].classList.toggle("mode-card--active", on);
+      cards[i].setAttribute("aria-checked", on ? "true" : "false");
+    }
     setText("mode-desc", MODE_DESC[mode] || "");
   }
 
