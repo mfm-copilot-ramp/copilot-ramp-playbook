@@ -1,7 +1,9 @@
 /* Copilot Credit Estimator — shared analysis engine.
  * Pure, DOM-free logic shared by the Quick (natural-language) and
- * Solution-package (upload) modes. Node-testable; the same block is embedded
- * verbatim into docs/credit-estimator.md (minus the module.exports footer).
+ * Solution-package (upload) modes. Node-testable; loaded on the page as an
+ * external asset via mkdocs.yml `extra_javascript` (not inlined into the .md).
+ * Rates and per-turn math are benchmarked against Microsoft's public Copilot
+ * Studio agent usage estimator + the Learn billing-rates doc (see CREDIT).
  */
 (function (root) {
   "use strict";
@@ -11,8 +13,21 @@
     classic: 1, generative: 2, action: 5, tenantGraph: 10, flowAction: 0.13,
     aiBasic: 0.1, aiStandard: 1.5, aiPremium: 10, contentPage: 8,
     voiceBasic: 10, voiceStandard: 35, voicePremium: 75,
-    autonomousTrigger: 25
+    // Autonomous trigger = one agent action (5). It is NOT a flat surcharge:
+    // Microsoft's official estimator retired its old 25-credit "autonomous
+    // action" weight ("triggers themselves are not charged — only the actions
+    // they invoke"), and the Learn billing doc prices an autonomous run as the
+    // agent actions it performs (e.g. 4 actions × 5 = 20). The downstream
+    // flow / connector / answer steps are billed separately in the profile.
+    autonomousTrigger: 5,
+    // Reasoning-model premium — Learn billing meter "Text and generative AI
+    // tools (premium)" = 10 Copilot Credits per 1K tokens, charged ON TOP of
+    // the feature rate when an agent uses a reasoning-capable model. (The
+    // official estimator's bundled "deep reasoning task" weight is ~50.)
+    // Applied only when a reasoning model is detected; assumes REASON_TOKENS_K.
+    reasoningPremium: 10
   };
+  var REASON_TOKENS_K = 2;   // assumed premium tokens (×1K) per reasoning step
   var RATE_PAYG = 0.01;      // $/credit, pay-as-you-go
   var RATE_PREPAID = 0.008;  // $/credit, $200 / 25,000 prepaid pack
 
@@ -26,7 +41,8 @@
     aiStandard: "Text/generative standard",
     content: "Content processing",
     voiceStandard: "Voice — Standard",
-    autonomous: "Autonomous trigger"
+    autonomous: "Autonomous trigger",
+    reasoning: "Reasoning-model premium"
   };
 
   // ── T-shirt sizing ────────────────────────────────────────────────────────
@@ -680,11 +696,13 @@
     var autonomousTrigger = /(autonomous (agent|trigger|mode)|event-driven|triggers? (itself|automatically)|runs on a schedule|scheduled (run|trigger))/i.test(all);
     var generative = /(generative|new experience|new-experience|\bgpt\b|\bllm\b|orchestrat|reason over)/i.test(all);
     var voice = /(voice channel|telephony|\bivr\b|phone channel|speech|spoken|contact cent(er|re))/i.test(all);
+    var reasoningModel = /(reasoning[- ]?(model|capable)|deep reasoning|advanced reasoning|multi-?step (inference|reasoning)|chain[- ]of[- ]thought|\bo1\b|\bo1-(mini|preview)\b|\bo3\b|\bo3-mini\b|\bo4-mini\b)/i.test(all);
 
     return {
       isSpec: isSpec, knowledgeDocs: knowledgeDocs, connectedAgent: connectedAgent,
       agentCount: agentCount, actionCount: actionCount, hasFlow: hasFlow, dataverse: dataverse,
-      hasEscalation: hasEscalation, autonomousTrigger: autonomousTrigger, generative: generative, voice: voice
+      hasEscalation: hasEscalation, autonomousTrigger: autonomousTrigger, generative: generative,
+      voice: voice, reasoningModel: reasoningModel
     };
   }
 
@@ -808,7 +826,12 @@
           note: flow.connectorActions + " connector + " + flow.http + " HTTP action(s) · " + flowActionCalls + " call(s)/run" + (flow.loops ? " (loops ×" + FLOW_LOOP_ITERS + ")" : "") });
       }
       if (spec.autonomousTrigger) {
-        profile.push({ key: "autonomous", name: ROW.autonomous, uses: 1, credits: CREDIT.autonomousTrigger, note: "autonomous agent self-trigger" });
+        profile.push({ key: "autonomous", name: ROW.autonomous, uses: 1, credits: CREDIT.autonomousTrigger,
+          note: "billed as one agent action per run — the flow/connector/answer steps it invokes are billed separately below" });
+      }
+      if (spec.reasoningModel) {
+        profile.push({ key: "reasoning", name: ROW.reasoning, uses: REASON_TOKENS_K, credits: CREDIT.reasoningPremium,
+          note: "reasoning model — premium AI meter (10 credits/1K tokens) on top of the feature rate · assumes ~" + REASON_TOKENS_K + "K tokens/run" });
       }
       if (contentProc) profile.push({ key: "content", name: ROW.content, uses: 1, credits: CREDIT.contentPage, note: "document processing" });
       if (profile.length === 0) profile.push({ key: "classic", name: ROW.classic, uses: 1, credits: CREDIT.classic, note: "no billable AI/flow actions found" });
@@ -838,6 +861,8 @@
         note: flowsTotal + " agent flow(s)" });
       if (contentProc) profile.push({ key: "content", name: ROW.content, uses: 1, credits: CREDIT.contentPage, note: "document processing" });
       if (aiNodes > 0 && !isGenerative) profile.push({ key: "aiStandard", name: ROW.aiStandard, uses: 1, credits: CREDIT.aiStandard, note: aiNodes + " prompt/AI node(s)" });
+      if (spec.reasoningModel) profile.push({ key: "reasoning", name: ROW.reasoning, uses: REASON_TOKENS_K, credits: CREDIT.reasoningPremium,
+        note: "reasoning model — premium AI meter (10 credits/1K tokens) on top of the feature rate · assumes ~" + REASON_TOKENS_K + "K tokens/turn" });
 
       if (isGenerative) score += 1;
       if (tenantGraph) score += 2; else if (knowledgeCount >= 5) score += 1;
@@ -851,6 +876,7 @@
       if (topics >= 10) score += 2; else if (topics >= 5) score += 1;
       if (computerUse) score += 2;
     }
+    if (spec.reasoningModel) score += 1;
     var tshirt = sizeForScore(score, { voice: voice, users: 0 });
 
     // ── Governance warnings ──
@@ -861,6 +887,7 @@
     if (flow.loops > 0) warnings.push(flow.loops + " loop(s) detected — per-run action counts assume ~" + FLOW_LOOP_ITERS + " iterations each. Set your real batch size.");
     if (premiumConnectors.length > 0) warnings.push("Premium/unknown connector(s): " + premiumConnectors.join(", ") + ". These bill via Power Platform / Power Automate licensing, NOT Copilot Credits — budget separately.");
     if (spec.isSpec) warnings.push("Analyzed from an agent build-spec bundle (documents), not a Dataverse solution export — counts are inferred from the spec + knowledge files, not runtime components.");
+    if (spec.reasoningModel) warnings.push("Reasoning-capable model detected — Microsoft bills a premium \u201CText and generative AI tools (premium)\u201D meter at 10 credits per 1K tokens ON TOP of the feature rate for each reasoning step. This estimate assumes ~" + REASON_TOKENS_K + "K premium tokens per run; tune it to your prompt/response size, or drop the reasoning line if the agent uses a standard (non-reasoning) model.");
     if (connectedAgents > 0) warnings.push("Multi-agent orchestration detected (" + agentCount + " agents) — each connected-agent hop adds latency and its own component budget.");
     if (aiNodes === 0 && agentActions === 0 && flowsTotal === 0 && topics === 0 && !spec.isSpec)
       warnings.push("Very few components detected — is this a full unmanaged solution export or agent bundle?");
@@ -880,7 +907,7 @@
       flowConnectorActions: flow.connectorActions, flowHttp: flow.http, flowLoops: flow.loops,
       connectors: connectors, premiumConnectors: premiumConnectors,
       agentCount: agentCount, connectedAgents: connectedAgents, hasEscalation: hasEscalation,
-      specBundle: spec.isSpec, binaryFiles: manifest.length
+      specBundle: spec.isSpec, binaryFiles: manifest.length, reasoningModel: spec.reasoningModel
     };
     return {
       findings: findings, profile: profile, score: score, tshirt: tshirt,
