@@ -743,6 +743,20 @@
     var botFlowNodes = countAll(all, /InvokeFlowAction/gi);
     var workflowFiles = names.filter(function (n) { return /(^|\/)workflows?\/.+\.json$/.test(n) || /workflow[^\/]*\.json$/.test(n); }).length;
     var botAiNodes = countAll(all, /(GptComponent|InvokeAIBuilderModelAction|PromptDialog)/gi);
+    // Prompt / AI-Builder tools bill their OWN "Text and generative AI tools" meter. Exclude the
+    // agent's default GPT orchestration component (schema name *.gpt.default / kind
+    // GptComponentMetadata) — that's generative orchestration, already priced as the
+    // generative-answer line, and must NOT create a spurious AI-tool line. Custom prompt tools
+    // are matched by component name (*.gpt.<name>, *.prompt.<name>, *.customprompt.<name>);
+    // PromptDialog and InvokeAIBuilderModelAction are unambiguous prompt-tool nodes.
+    var promptToolSet = {};
+    names.forEach(function (n) {
+      var m = n.match(/\.(gpt|prompt|customprompt)\.([a-z0-9_-]+)/i);
+      if (!m) return;
+      if (/^gpt$/i.test(m[1]) && /^default$/i.test(m[2])) return;
+      promptToolSet[(m[1] + "." + m[2]).toLowerCase()] = true;
+    });
+    var promptToolNodes = Object.keys(promptToolSet).length + countAll(all, /(InvokeAIBuilderModelAction|PromptDialog)/gi);
     var computerUse = /InvokeComputerUseAction/i.test(all);
     var connectedAgents = countAll(all, /(InvokeConnectedAgentTaskAction|connectedAgent)/gi);
     var tenantGraph = /(graphgrounding|tenant ?graph|enterprise ?search|graph ?connector|sharepointonlinesearch|m365 ?index|microsoftgraph)/i.test(all);
@@ -807,6 +821,7 @@
     var agentActions = botActionNodes + spec.actionCount;
     var flowsTotal = flowCount || botFlowNodes || workflowFiles || (spec.hasFlow ? 1 : 0);
     var aiNodes = botAiNodes + flow.aiPrompts;
+    var promptTools = promptToolNodes + flow.aiPrompts;
     var agentCount = Math.max(1, spec.agentCount, connectedAgents > 0 ? connectedAgents + 1 : 1);
     var hasEscalation = spec.hasEscalation ||
       /(escalate to (a )?(human|agent|person)|human handoff|transfer to (a )?agent|OnEscalate)/i.test(all);
@@ -874,7 +889,7 @@
         uses: Math.max(1, Math.min(20, (flow.connectorActions + flow.http) || 5)), credits: CREDIT.flowAction,
         note: flowsTotal + " agent flow(s)" });
       if (contentProc) profile.push({ key: "content", name: ROW.content, uses: 1, credits: CREDIT.contentPage, note: "document processing" });
-      if (aiNodes > 0 && !isGenerative) profile.push({ key: "aiStandard", name: ROW.aiStandard, uses: 1, credits: CREDIT.aiStandard, note: aiNodes + " prompt/AI node(s)" });
+      if (promptTools > 0 && !spec.reasoningModel) profile.push({ key: "aiStandard", name: ROW.aiStandard, uses: promptTools, credits: CREDIT.aiStandard, note: promptTools + " prompt / AI tool(s) — Text/generative standard (1.5 cr per response; ~2K tokens assumed)" });
       if (spec.reasoningModel) profile.push({ key: "reasoning", name: ROW.reasoning, uses: REASON_TOKENS_K, credits: CREDIT.reasoningPremium,
         note: "reasoning model — premium AI meter (10 credits/1K tokens) on top of the feature rate · assumes ~" + REASON_TOKENS_K + "K tokens/turn" });
 
@@ -885,7 +900,7 @@
       if (connectedAgents > 0 || genOrch) score += 2;
       if (agentCount > 2) score += 1;
       if (contentProc) score += 2;
-      if (botAiNodes > 0) score += 1;
+      if (promptTools > 0) score += 1;
       if (hasEscalation) score += 1;
       if (topics >= 10) score += 2; else if (topics >= 5) score += 1;
       if (computerUse) score += 2;
@@ -897,6 +912,7 @@
     var warnings = [];
     if (regime === "autonomous") warnings.push("Autonomous / flow package — cost scales with RUNS PER MONTH, not users. Set your expected run volume below.");
     if (flow.aiPrompts > 0) warnings.push(flow.aiPrompts + " AI Builder prompt(s) are token-metered; the estimate assumes ~2K tokens per call. Long inputs (e.g. transcripts, documents) can be far larger — tune token size and per-run call counts to your data.");
+    if (promptTools > 0 && !spec.reasoningModel) warnings.push(promptTools + " prompt / AI tool(s) detected — billed as Text/generative AI tools (assumed Standard tier, 1.5 credits per response / ~2K tokens). Basic-tier prompts bill 0.1 and premium/reasoning-tier bill 10 credits per 1K tokens — adjust the tier to match your prompt's model.");
     if ((flow.connectorActions + flow.http) > 0 && regime === "autonomous") warnings.push("Flow actions are priced here at the Copilot agent-flow rate (0.13 credits each), which applies ONLY when a Copilot Studio agent invokes the flow. If it runs standalone in Power Automate, those connector actions consume Power Platform requests (licensed separately) and only the AI Builder prompt(s) bill Copilot Credits — drop the agent-flow line in that case.");
     if (flow.loops > 0) warnings.push(flow.loops + " loop(s) detected — per-run action counts assume ~" + FLOW_LOOP_ITERS + " iterations each. Set your real batch size.");
     if (premiumConnectors.length > 0) warnings.push("Premium/unknown connector(s): " + premiumConnectors.join(", ") + ". These bill via Power Platform / Power Automate licensing, NOT Copilot Credits — budget separately.");
@@ -913,7 +929,7 @@
       knowledgeTypes: Object.keys(knowledgeTypes), knowledgeCount: knowledgeCount,
       actionNodes: agentActions + flow.connectorActions + flow.http,
       flowNodes: botFlowNodes, workflowFiles: workflowFiles,
-      aiNodes: aiNodes, connectionRefs: connectionRefs, computerUse: computerUse,
+      aiNodes: aiNodes, promptTools: promptTools, connectionRefs: connectionRefs, computerUse: computerUse,
       voice: voice, tenantGraph: tenantGraph, genOrch: genOrch, contentProc: contentProc,
       isGenerative: isGenerative, fileCount: files.length,
       // v4 additions
