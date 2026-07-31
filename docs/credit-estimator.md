@@ -8,21 +8,7 @@ hide: [toc]
 !!! warning "Still being worked on — use with caution"
     This estimator is still under active development. Numbers, defaults, and logic may change, so treat the results as directional rather than final and double-check anything you rely on for planning or budgeting.
 
-Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimation mode** to match where you are — describe the agent in plain words, build the credit profile by hand, or upload a finished agent for a component-level analysis. Everything runs in your browser; nothing is uploaded.
-
-!!! info "Official billing rates — [learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management)"
-    Rates below are sourced from the **Microsoft Copilot Studio Billing rates and management** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
-
-    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle below to model the correct scenario.
-
-    ??? note "Zero-rating exceptions"
-        A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
-
-        - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
-        - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
-        - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
-
-    **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
+Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio agents — pick an **estimation mode** below to match where you are: describe the agent in plain words, build the credit profile by hand, batch-size a portfolio from Excel, or upload a finished agent for a component-level analysis. Everything runs in your browser; nothing is uploaded. New to credit billing? See [**How Copilot Credits are billed**](#billing-details) for the official rates and licensing rules.
 
 ## How to use this estimator
 
@@ -37,7 +23,7 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
 
 === "Quick"
 
-    1. Select the **Quick** card.
+    1. Select the **Quick** card (the default).
     2. Type a plain-English description — what it does, who uses it, how often, and where it runs — or click an **example** chip.
     3. Click **Build my estimate →**.
     4. Answer the short guided follow-ups.
@@ -68,7 +54,7 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
 
 === "Detailed"
 
-    1. Select the **Detailed** card (the default).
+    1. Select the **Detailed** card.
     2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-conversation feature rows**, add an optional **escalation path**, then read the **results**.
 
 === "Solution package"
@@ -117,6 +103,9 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
   margin: 0.25rem 0 0.4rem; max-width: 760px;
 }
 @media (max-width: 559px) { .mode-cards { grid-template-columns: 1fr; } }
+.em-export { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 1rem 0 0.25rem; }
+.em-export-btn { margin: 0; }
+.em-export-status { font-size: 0.82rem; color: var(--md-default-fg-color--light); min-height: 1.1em; }
 .mode-card {
   font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column;
   gap: 0.12rem; padding: 0.8rem 0.9rem; border-radius: 8px;
@@ -314,17 +303,17 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
 <!-- Hidden single source of truth for the active mode. credit-estimator.js init() guards the page
      on #mode-select and keeps its .value in sync; the cards below drive setEstimatorMode(). -->
 <select id="mode-select" class="em-visually-hidden" tabindex="-1" aria-hidden="true" onchange="setEstimatorMode(this.value)">
-  <option value="quick">Quick</option>
+  <option value="quick" selected>Quick</option>
   <option value="import">Quick + Import</option>
-  <option value="detailed" selected>Detailed</option>
+  <option value="detailed">Detailed</option>
   <option value="complex">Solution package</option>
 </select>
 
 <div class="mode-cards" role="radiogroup" aria-label="Choose how you want to estimate">
-  <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="quick" onclick="setEstimatorMode('quick')">
+  <button type="button" class="mode-card mode-card--active" role="radio" aria-checked="true" data-mode="quick" onclick="setEstimatorMode('quick')">
     <span class="mode-card-title">Quick</span>
     <span class="mode-card-sub">Describe it in words</span>
-    <span class="mode-card-best">Best when you're early or unsure</span>
+    <span class="mode-card-best">Best when you're early or unsure &middot; default</span>
   </button>
   <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="import" onclick="setEstimatorMode('import')">
     <span class="mode-card-title">Quick + Import</span>
@@ -334,7 +323,7 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
   <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="detailed" onclick="setEstimatorMode('detailed')">
     <span class="mode-card-title">Detailed</span>
     <span class="mode-card-sub">Build the profile by hand</span>
-    <span class="mode-card-best">Best when you know the building blocks &middot; default</span>
+    <span class="mode-card-best">Best when you know the building blocks</span>
   </button>
   <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="complex" onclick="setEstimatorMode('complex')">
     <span class="mode-card-title">Solution package</span>
@@ -350,7 +339,7 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
 
 
 <!-- ── QUICK (natural language) ── -->
-<div class="mode-panel em-hidden" id="panel-quick">
+<div class="mode-panel" id="panel-quick">
   <div class="section-label">Describe what you want the agent to do</div>
   <textarea id="qe-input" class="em-textarea" placeholder="e.g. Every time a new email lands in our shared support inbox, categorize it and route it to the right SME team — about 100 emails a month. Or: an HR assistant that answers benefits questions from our SharePoint policies for all employees in Teams."></textarea>
   <div class="em-chips">
@@ -422,7 +411,7 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
 
 </div>
 
-<div class="mode-panel" id="panel-detailed" markdown="1">
+<div class="mode-panel em-hidden" id="panel-detailed" markdown="1">
 
 !!! tip "How to use this estimator"
     1. **Set your org scope** — enter the number of users you're modelling and the proportion with an M365 Copilot license.
@@ -719,6 +708,14 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <div class="result-card"><div class="val" id="res-per-user">—</div><div class="lbl"><span id="lbl-per-user">Credits / user / month</span></div></div>
 </div>
 
+<div class="em-export" role="group" aria-label="Export or share this Detailed estimate">
+  <button type="button" class="em-btn secondary em-export-btn" onclick="emCopySummary('detailed')" aria-label="Copy a plain-text summary of this estimate to the clipboard">Copy summary</button>
+  <button type="button" class="em-btn secondary em-export-btn" onclick="emDownloadSummary('detailed')" aria-label="Download this estimate as a Markdown file">Download .md</button>
+  <button type="button" class="em-btn secondary em-export-btn" onclick="emDownloadCsv('detailed')" aria-label="Download the line items as a CSV file">Download .csv</button>
+  <button type="button" class="em-btn secondary em-export-btn" onclick="emCopyLink()" aria-label="Copy a shareable link that reproduces this estimate">Copy link</button>
+  <span class="em-export-status" id="em-export-status-detailed" role="status" aria-live="polite"></span>
+</div>
+
 <hr class="calc-divider">
 
 <!-- ── Budget check ── -->
@@ -981,3 +978,20 @@ recalc();
     - **Adoption benchmarking** — as real usage data comes in from the admin center, compare actuals to this estimate to see whether adoption is ahead or behind plan.
     - **Scenario planning** — run the estimator at 3 adoption-rate levels (conservative / target / optimistic) to bracket your credit spend.
 
+---
+
+<a id="billing-details"></a>
+
+??? info "How Copilot Credits are billed — rates & licensing ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management))"
+    Rates are sourced from the **Microsoft Copilot Studio Billing rates and management** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
+
+    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario.
+
+    ??? note "Zero-rating exceptions"
+        A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
+
+        - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
+        - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
+        - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
+
+    **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).

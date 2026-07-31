@@ -131,7 +131,7 @@
         '<div class="card"><div class="v" id="' + p + '-cost-payg">—</div><div class="sub">/ month · pay-as-you-go ($0.01 / credit)</div></div>' +
         '<div class="card"><div class="v" id="' + p + '-cost-pre">—</div><div class="sub">/ month · prepaid pack ($0.008 / credit)</div></div>' +
       '</div>' +
-      '<div class="em-range">Credit range is a directional ±40% band around the midpoint. Cost is Copilot credits only — it excludes M365 Copilot license fees' + (auto ? ' and any Power Platform / premium-connector licensing' : '') + '.</div>' +
+      '<div class="em-range">Credit range is a directional band, roughly 0.6× to 1.6× the midpoint (not a hard min/max). Cost is Copilot Credits only — it excludes M365 Copilot license fees' + (auto ? ' and any Power Platform / premium-connector licensing' : '') + '.</div>' +
       '<div style="margin-top:1.25rem"><button class="em-btn secondary" type="button" onclick="' + p + 'ToDetailed()">Open this in the Detailed estimator →</button></div>';
   }
 
@@ -542,9 +542,9 @@
         '<div class="hint" style="margin-top:0.2rem">' + esc(sizing.drivers[0] || "low integration") + "</div>" +
       "</div>" +
       '<div class="lbl">Credits / month</div><div class="big">' + fmt(est.monthly) + "</div>" +
-      '<div class="hint">' + fmt(rng.low) + " – " + fmt(rng.high) + " range</div>" +
+      '<div class="hint" title="Directional band, roughly 0.6× to 1.6× the midpoint — not a hard min/max">' + fmt(rng.low) + " – " + fmt(rng.high) + " range</div>" +
       '<div class="lbl" style="margin-top:0.7rem">Cost / month</div>' +
-      "<div>" + money(cost.payg) + ' <span class="hint">PAYG</span></div>' +
+      "<div>" + money(cost.payg) + ' <span class="hint">PAYG</span> &middot; ' + money(cost.prepaid) + ' <span class="hint">prepaid</span></div>' +
       '<div class="qe-note" style="margin-top:0.85rem">Size = build effort. Cost = credits × volume. They move independently.</div>';
   }
 
@@ -577,7 +577,7 @@
       : qeCard(fmt(est.billed), "Billed users") + qeCard(fmt(est.monthly), "Credits / mo") + qeCard(fmtDec((v.interactions || 0) * est.perUnit), "Cr / user / mo");
     var drivers = EC.costDrivers(profile, v).map(qeFmtCostDriver);
     return '<div class="results-grid">' + cards + "</div>" +
-      '<div class="em-range">Range: ' + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month (±40%).</div>" +
+      '<div class="em-range">Range: ' + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month (directional band, ~0.6×–1.6× the midpoint).</div>" +
       '<div class="em-cost">' +
         '<div class="card"><div class="v">' + money(cost.payg) + '</div><div class="sub">/ mo · PAYG ($0.01)</div></div>' +
         '<div class="card"><div class="v">' + money(cost.prepaid) + '</div><div class="sub">/ mo · prepaid ($0.008)</div></div>' +
@@ -593,6 +593,7 @@
       return "<li><b>" + (i + 1) + ". " + esc(s.label) + "</b><span>" + esc(s.build) + "</span></li>";
     }).join("");
     return '<div id="qe-results-full">' +
+      exportBarHtml("quick", {}) +
       (adv ? ('<div class="section-label">Edit all variables <span style="text-transform:none;font-weight:400">— every inference, in one place</span></div>' + qeQuizHtml(v, state.qe.why || {})) : "") +
       '<div class="section-label"' + (adv ? ' style="margin-top:1.25rem"' : "") + ">How this would be built in Copilot Studio</div>" +
       '<div id="qe-outline-head"></div>' +
@@ -697,6 +698,7 @@
       view: "wizard", step: 0
     };
     qeRender();
+    scrollToResults("qe-results");
   }
   function qeRecompute() { qeRebuild(); }
   function qeToDetailed() {
@@ -830,9 +832,11 @@
       profileTableHtml("sp", state.sp.profile) +
       '<p class="hint">Per-' + (auto ? "run" : "interaction") + ' <em>uses</em> are assumptions — a solution shows which capabilities <em>exist</em>, not how often each fires. Tune them to your real ' + (auto ? "runs" : "flows") + '.</p>' +
       estimateHtml("sp", auto) +
+      exportBarHtml("complex", {}) +
       '<details class="em-details"><summary>Component inventory (full transparency)</summary><div class="em-complist">' + esc(componentSummary(f)) + "</div></details>";
     res.classList.remove("em-hidden");
     recompute("sp");
+    scrollToResults("sp-results");
   }
   function spRecompute() { recompute("sp"); }
   function spToDetailed() {
@@ -957,7 +961,7 @@
   function qiRender(res, srcName) {
     var el = document.getElementById("qi-results");
     if (!el) return;
-    state.qi = { scenarios: res.scenarios };
+    state.qi = { scenarios: res.scenarios, totals: res.totals, src: srcName };
     if (!res.scenarios.length) {
       var hw = (res.headerWarnings && res.headerWarnings.length) ? " " + res.headerWarnings.join(" ") : "";
       el.innerHTML = '<p class="hint">No scenarios found in <strong>' + esc(srcName || "the file") +
@@ -983,6 +987,7 @@
       '<table class="qi-table"><thead><tr><th>Scenario</th><th>Type</th><th>Size</th>' +
       '<th class="qi-num">Volume</th><th class="qi-num">Credits/mo</th><th class="qi-num">$/mo</th></tr></thead><tbody>' +
       rows + "</tbody></table>" +
+      exportBarHtml("import", { csv: true }) +
       '<p class="hint">Click a scenario name for its build read-out and cost drivers, or open it in the Detailed estimator to fine-tune. $ shown is pay-as-you-go; prepaid is ~20% less.</p>';
     el.classList.remove("em-hidden");
   }
@@ -990,6 +995,7 @@
   function qiAnalyzeMatrix(matrix, srcName) {
     var res = EC.analyzeImport(matrix);
     qiRender(res, srcName);
+    scrollToResults("qi-results");
     var n = res.scenarios.length;
     qiStatus("Analyzed " + (srcName || "file") + " — " + n + " scenario" + (n === 1 ? "" : "s") +
       (res.totals.flagged ? " (" + res.totals.flagged + " need attention)" : "") + ".");
@@ -1037,6 +1043,209 @@
     }).join("");
     return '<table class="qi-table"><thead><tr><th>Column</th><th>Applies</th><th>What to enter</th></tr></thead><tbody>' +
       rows + "</tbody></table>";
+  }
+
+  // ── Export / share (Copy summary · Download · Detailed share link) ─────────
+  function pageUrl() { return location.origin + location.pathname; }
+  function scrollToResults(id) {
+    var el = document.getElementById(id);
+    if (el && el.scrollIntoView) { try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { el.scrollIntoView(); } }
+  }
+  function txt(id) { var e = document.getElementById(id); return e ? (e.textContent || "").trim() : ""; }
+  function numFromText(t) { var n = parseFloat(String(t == null ? "" : t).replace(/[^0-9.\-]/g, "")); return isFinite(n) ? n : 0; }
+  function depLabel(dep) { return dep === "standalone" ? "Standalone / external channel" : "Microsoft 365 (Teams \u00b7 Copilot Chat \u00b7 SharePoint)"; }
+  function isArr(x) { return Object.prototype.toString.call(x) === "[object Array]"; }
+  function num0(x) { var n = parseFloat(x); return isFinite(n) ? n : 0; }
+  function clamp0100(x, d) { var n = parseFloat(x); if (!isFinite(n)) n = d; return Math.min(100, Math.max(0, n)); }
+  function safeCell(s) { return String(s == null ? "" : s).replace(/\r?\n/g, " ").replace(/\|/g, "/").trim() || "(unnamed)"; }
+  function mdRow(cells) { return "| " + cells.join(" | ") + " |"; }
+  function round2(n) { return Math.round((parseFloat(n) || 0) * 100) / 100; }
+
+  function detIsAutonomous() { var b = document.getElementById("agent-autonomous"); return !!(b && b.classList.contains("active")); }
+  function detIsEmbedded() { var b = document.getElementById("toggle-embedded"); return !b || b.classList.contains("active"); }
+  function detReadRows() {
+    var out = [];
+    function grab(sel, isEsc) {
+      document.querySelectorAll(sel).forEach(function (tr) {
+        var nm = tr.querySelector(".pt-name"); var ins = tr.querySelectorAll(".pt-num");
+        if (!nm || ins.length < 2) return;
+        out.push({ name: (nm.textContent || "").trim(), uses: parseFloat(ins[0].value) || 0, credits: parseFloat(ins[1].value) || 0, type: isEsc ? "escalation" : "normal" });
+      });
+    }
+    grab("#normal-tbody tr", false);
+    grab("#escalation-tbody tr:not(.section-divider-row)", true);
+    return out;
+  }
+
+  function scenType(s) { return s.vars.archetype === "autonomous" ? "Autonomous" : (s.vars.channel === "voice" ? "Interactive \u00b7 voice" : "Interactive"); }
+  function plainVolume(s) { var v = s.vars; return v.archetype === "autonomous" ? (fmt(v.events || 0) + " events/mo") : (fmt((v.users || 0) * (v.interactions || 0)) + " conv/mo"); }
+
+  // Normalized estimate snapshot used by the summary / CSV builders for Quick, Detailed, and Solution-package modes.
+  function collectEstimate(mode) {
+    if (!EC) return null;
+    if (mode === "quick") {
+      if (!state.qe) return null;
+      var v = state.qe.vars, profile = state.qe.profile || EC.deriveQuick(v), est = EC.computeQuick(profile, v);
+      var auto = v.archetype === "autonomous", sizing = EC.sizeFromDrivers(v);
+      var scale = auto
+        ? [["Agent type", "Autonomous (event-driven)"], ["Runs / month", fmt(est.units)]]
+        : [["Agent type", "Interactive (user-led)"], ["Billed users", fmt(est.billed)], ["Interactions / user / month", fmtDec(v.interactions || 0)], ["Deployment", depLabel(v.deployment)], ["% M365 Copilot licensed", (v.licensePct || 0) + "%"]];
+      if (v.escalation) scale.push(["Escalation rate", v.escalation + "%"]);
+      return { label: "Quick (plain-language)", unit: auto ? "run" : "turn", size: sizing.size, sizeName: (EC.SIZE_INFO[sizing.size] || {}).name || "", scale: scale, profile: profile.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits, type: "normal" }; }), monthly: est.monthly, metric: auto ? ["Credits / event", fmtDec(est.perUnit)] : ["Credits / user / month", fmtDec((v.interactions || 0) * est.perUnit)] };
+    }
+    if (mode === "complex") {
+      if (!state.sp) return null;
+      var st = state.sp, sc = readScale("sp"), autoc = sc.regime === "autonomous", per = EC.perInteractionCredits(st.profile), monthly, metric, lines;
+      if (autoc) { monthly = sc.runs * per; lines = [["Agent type", "Autonomous (per-run)"], ["Runs / month", fmt(sc.runs)]]; metric = ["Credits / run", fmtDec(per)]; }
+      else { var e2 = EC.computeEstimate(st.profile, sc); monthly = e2.monthly; lines = [["Agent type", "Interactive (per-user)"], ["Billed users", fmt(e2.billed)], ["Interactions / user / month", fmtDec(sc.interactions)], ["Deployment", depLabel(sc.deployment)], ["% M365 Copilot licensed", (sc.licensePct || 0) + "%"]]; metric = ["Credits / user / month", fmtDec(sc.interactions * per)]; }
+      return { label: "Solution package (upload)", unit: autoc ? "run" : "interaction", size: st.tshirt || null, sizeName: (st.tshirt && EC.SIZE_INFO[st.tshirt]) ? EC.SIZE_INFO[st.tshirt].name : "", scale: lines, profile: st.profile.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits, type: "normal" }; }), monthly: monthly, metric: metric };
+    }
+    if (mode === "detailed") {
+      var autod = detIsAutonomous(), monthlyD = numFromText(txt("res-credits")), rows = detReadRows();
+      var sc2 = autod
+        ? [["Agent type", "Autonomous (event-driven)"], ["Events / month", getVal("eventsPerMonth")]]
+        : [["Agent type", "Interactive (user-led)"], ["Total users", getVal("totalUsers")], ["Interactions / user / month", getVal("avgInteractions")], ["Deployment", detIsEmbedded() ? depLabel("embedded") : depLabel("standalone")], ["% M365 Copilot licensed", getVal("licensePct") + "%"], ["Billed users", txt("res-licensed")]];
+      var er = parseFloat(getVal("escalationRate")) || 0;
+      if (er) sc2.push(["Escalation rate", er + "%"]);
+      return { label: "Detailed (manual profile)", unit: autod ? "event" : "interaction", size: null, sizeName: "", scale: sc2, profile: rows, monthly: monthlyD, metric: [txt("lbl-per-user") || "Credits / user / month", txt("res-per-user")] };
+    }
+    return null;
+  }
+
+  function buildSummaryText(mode) {
+    if (mode === "import") return buildPortfolioSummary();
+    var d = collectEstimate(mode);
+    if (!d) return null;
+    var rng = EC.creditRange(d.monthly), cost = EC.costUSD(d.monthly), L = [];
+    L.push("# Copilot Credit Estimate \u2014 " + d.label, "");
+    if (d.size) L.push("**T-shirt size:** " + d.size + (d.sizeName ? " (" + d.sizeName + " build)" : ""), "");
+    L.push("## Volume & assumptions");
+    d.scale.forEach(function (kv) { L.push("- " + kv[0] + ": " + kv[1]); });
+    L.push("", "## Per-" + d.unit + " credit profile", mdRow(["Feature", "Uses / " + d.unit, "Credits / use", "Credits"]), mdRow(["---", "--:", "--:", "--:"]));
+    d.profile.forEach(function (r) { L.push(mdRow([(r.type === "escalation" ? "\u21b3 " : "") + safeCell(r.name), fmtDec(r.uses), fmtDec(r.credits), fmtDec(r.uses * r.credits)])); });
+    L.push("", "## Monthly estimate", "- **Credits / month:** " + fmt(d.monthly));
+    if (d.metric && d.metric[1] && d.metric[1] !== "\u2014") L.push("- **" + d.metric[0] + ":** " + d.metric[1]);
+    L.push("- **Credit range (directional band, ~0.6\u00d7\u20131.6\u00d7 the midpoint \u2014 not a hard min/max):** " + fmt(rng.low) + " \u2013 " + fmt(rng.high) + " credits / month");
+    L.push("- **Cost / month:** " + money(cost.payg) + " pay-as-you-go ($0.01/credit) \u00b7 " + money(cost.prepaid) + " prepaid ($0.008/credit)", "");
+    L.push("_Directional estimate from the Copilot Credit Estimator \u2014 " + pageUrl() + "_");
+    return L.join("\n");
+  }
+
+  function buildPortfolioSummary() {
+    if (!state.qi || !state.qi.scenarios || !state.qi.scenarios.length) return null;
+    var t = state.qi.totals || {}, L = [];
+    L.push("# Copilot Credit Estimate \u2014 Portfolio (Quick + Import)", "", "## Portfolio totals");
+    if (t.count != null) L.push("- Scenarios: " + t.count + " (" + (t.interactive || 0) + " interactive \u00b7 " + (t.autonomous || 0) + " autonomous)");
+    if (t.monthly != null) L.push("- Credits / month: " + fmt(t.monthly) + (t.range ? " (range " + fmt(t.range.low) + " \u2013 " + fmt(t.range.high) + ")" : ""));
+    if (t.payg != null) L.push("- Cost / month: " + money(t.payg) + " pay-as-you-go \u00b7 " + money(t.prepaid) + " prepaid");
+    var mix = t.sizes ? EC.SIZE_ORDER.filter(function (s) { return t.sizes[s]; }).map(function (s) { return t.sizes[s] + "\u00d7 " + s; }).join(", ") : "";
+    if (mix) L.push("- Size mix: " + mix);
+    L.push("", "## Scenarios", mdRow(["Scenario", "Type", "Size", "Volume / mo", "Credits / mo", "$ / mo (PAYG)"]), mdRow(["---", "---", "---", "--:", "--:", "--:"]));
+    state.qi.scenarios.forEach(function (s) { L.push(mdRow([safeCell(s.name), scenType(s), s.size, plainVolume(s), fmt(s.estimate.monthly), money(s.cost.payg)])); });
+    L.push("", "_Directional estimate from the Copilot Credit Estimator \u2014 " + pageUrl() + "_");
+    return L.join("\n");
+  }
+
+  function buildCsvText(mode) {
+    var out = [];
+    if (mode === "detailed") {
+      var d = collectEstimate("detailed"); if (!d) return null;
+      out.push(["Feature", "Type", "Uses per " + d.unit, "Credits per use", "Subtotal credits"]);
+      d.profile.forEach(function (r) { out.push([r.name, r.type, r.uses, r.credits, round2(r.uses * r.credits)]); });
+    } else if (mode === "import") {
+      if (!state.qi || !state.qi.scenarios || !state.qi.scenarios.length) return null;
+      out.push(["Scenario", "Type", "Size", "Volume per month", "Credits per month", "PAYG $ / month", "Prepaid $ / month"]);
+      state.qi.scenarios.forEach(function (s) { out.push([s.name, scenType(s), s.size, plainVolume(s), Math.round(s.estimate.monthly), round2(s.cost.payg), round2(s.cost.prepaid)]); });
+    } else { return null; }
+    return out.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n");
+  }
+  function csvCell(v) { var s = String(v == null ? "" : v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+
+  function flashStatus(mode, msg) {
+    var el = document.getElementById("em-export-status-" + mode);
+    if (!el) return;
+    el.textContent = msg;
+    if (el._t) clearTimeout(el._t);
+    el._t = setTimeout(function () { el.textContent = ""; }, 2600);
+  }
+  function copyText(text, mode, okMsg) {
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "absolute"; ta.style.left = "-9999px";
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand && document.execCommand("copy");
+        document.body.removeChild(ta);
+        flashStatus(mode, ok ? (okMsg || "Copied \u2713") : "Copy failed \u2014 select the text and copy manually.");
+      } catch (e) { flashStatus(mode, "Copy failed \u2014 select the text and copy manually."); }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { flashStatus(mode, okMsg || "Copied \u2713"); }, fallback);
+    } else { fallback(); }
+  }
+  function emCopySummary(mode) {
+    var s = buildSummaryText(mode);
+    if (s == null) { flashStatus(mode, "Generate an estimate first."); return; }
+    copyText(s, mode, "Summary copied \u2713");
+  }
+  function emDownloadSummary(mode) {
+    var s = buildSummaryText(mode);
+    if (s == null) { flashStatus(mode, "Generate an estimate first."); return; }
+    var ok = downloadBlob(s, "copilot-credit-estimate-" + mode + ".md", "text/markdown;charset=utf-8");
+    flashStatus(mode, ok ? "Downloaded .md \u2713" : "Download not supported in this browser.");
+  }
+  function emDownloadCsv(mode) {
+    var c = buildCsvText(mode);
+    if (c == null) { flashStatus(mode, "No line items to export yet."); return; }
+    var ok = downloadBlob("\uFEFF" + c, "copilot-credit-estimate-" + mode + ".csv", "text/csv;charset=utf-8");
+    flashStatus(mode, ok ? "Downloaded .csv \u2713" : "Download not supported in this browser.");
+  }
+  function exportBarHtml(mode, opts) {
+    opts = opts || {};
+    var b = '<div class="em-export" role="group" aria-label="Export or share this estimate">';
+    b += '<button type="button" class="em-btn secondary em-export-btn" onclick="emCopySummary(\'' + mode + '\')" aria-label="Copy a plain-text summary of this estimate to the clipboard">Copy summary</button>';
+    b += '<button type="button" class="em-btn secondary em-export-btn" onclick="emDownloadSummary(\'' + mode + '\')" aria-label="Download this estimate as a Markdown file">Download .md</button>';
+    if (opts.csv) b += '<button type="button" class="em-btn secondary em-export-btn" onclick="emDownloadCsv(\'' + mode + '\')" aria-label="Download the line items as a CSV file">Download .csv</button>';
+    if (opts.link) b += '<button type="button" class="em-btn secondary em-export-btn" onclick="emCopyLink()" aria-label="Copy a shareable link that reproduces this estimate">Copy link</button>';
+    b += '<span class="em-export-status" id="em-export-status-' + mode + '" role="status" aria-live="polite"></span>';
+    return b + "</div>";
+  }
+
+  // Detailed share link — compact base64url(JSON) of the Detailed inputs in the URL hash (#d=...).
+  // payload: { v:1, at:'i'|'a', dep:'e'|'s', u,i,ev,lp,er (numbers), r:[[name,uses,credits,esc0/1],...] }
+  function b64urlEncode(str) { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  function b64urlDecode(s) { s = String(s).replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return decodeURIComponent(escape(atob(s))); }
+  function detCollectPayload() {
+    var auto = detIsAutonomous();
+    return { v: 1, at: auto ? "a" : "i", dep: detIsEmbedded() ? "e" : "s", u: num0(getVal("totalUsers")), i: num0(getVal("avgInteractions")), ev: num0(getVal("eventsPerMonth")), lp: num0(getVal("licensePct")), er: num0(getVal("escalationRate")), r: detReadRows().map(function (r) { return [r.name, r.uses, r.credits, r.type === "escalation" ? 1 : 0]; }) };
+  }
+  function emCopyLink() {
+    var json; try { json = JSON.stringify(detCollectPayload()); } catch (e) { flashStatus("detailed", "Could not build a link."); return; }
+    var hash = "#d=" + b64urlEncode(json);
+    try { if (window.history && history.replaceState) history.replaceState(null, "", location.pathname + location.search + hash); else location.hash = hash; } catch (e2) { location.hash = hash; }
+    copyText(pageUrl() + hash, "detailed", "Link copied \u2713");
+  }
+  function clearDetailRows() {
+    document.querySelectorAll("#normal-tbody tr").forEach(function (tr) { tr.remove(); });
+    document.querySelectorAll("#escalation-tbody tr:not(.section-divider-row)").forEach(function (tr) { tr.remove(); });
+  }
+  function rehydrateDetailedFromHash() {
+    var m = /(?:^#|[#&])d=([^&]+)/.exec(location.hash || "");
+    if (!m) return false;
+    var data; try { data = JSON.parse(b64urlDecode(m[1])); } catch (e) { return false; }
+    if (!data || data.v !== 1 || !isArr(data.r)) return false;
+    try {
+      setEstimatorMode("detailed");
+      if (typeof window.setDetailedAgentType === "function") window.setDetailedAgentType(data.at === "a" ? "autonomous" : "interactive");
+      setVal("totalUsers", num0(data.u)); setVal("avgInteractions", num0(data.i)); setVal("eventsPerMonth", num0(data.ev));
+      setVal("licensePct", clamp0100(data.lp, 0)); setVal("licensePctSlider", clamp0100(data.lp, 0));
+      setVal("escalationRate", clamp0100(data.er, 0)); setVal("escalationRateSlider", clamp0100(data.er, 0));
+      if (data.at !== "a" && typeof window.setDeployMode === "function") window.setDeployMode(data.dep === "s" ? "standalone" : "embedded");
+      clearDetailRows();
+      data.r.forEach(function (row) { if (isArr(row) && typeof window.addRow === "function") window.addRow(String(row[0] || ""), num0(row[1]), num0(row[2]), row[3] === 1 || row[3] === true); });
+      if (typeof window.recalc === "function") window.recalc();
+      return true;
+    } catch (e3) { return false; }
   }
 
   // ── init (only on the estimator page) ─────────────────────────────────────
@@ -1115,7 +1324,14 @@
     var qiHelp = document.getElementById("qi-schema-help");
     if (qiHelp && !qiHelp.dataset.filled) { qiHelp.dataset.filled = "1"; qiHelp.innerHTML = qiSchemaHelpHtml(); }
 
-    setEstimatorMode(sel.value || "detailed");
+    window.emCopySummary = emCopySummary;
+    window.emDownloadSummary = emDownloadSummary;
+    window.emDownloadCsv = emDownloadCsv;
+    window.emCopyLink = emCopyLink;
+
+    var hydrated = false;
+    try { hydrated = rehydrateDetailedFromHash(); } catch (e) { hydrated = false; }
+    if (!hydrated) setEstimatorMode(sel.value || "quick");
   }
 
   if (window.document$ && typeof window.document$.subscribe === "function") window.document$.subscribe(init);
