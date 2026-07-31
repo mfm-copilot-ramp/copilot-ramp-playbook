@@ -60,7 +60,7 @@
       var name = decoder.decode(bytes.subarray(p + 46, p + 46 + nameLen));
       p += 46 + nameLen + extraLen + commentLen;
 
-      var isText = TEXT_EXT.test(name);
+      var isText = TEXT_EXT.test(name) || (/(^|\/)(botcomponents|bots)\/.+/i.test(name) && !/\.[a-z0-9]+$/i.test(name));
       var isDir = /\/$/.test(name);
       if (isDir) continue;
       // Non-text entries (docx, pptx, png, …) are recorded name-only so the
