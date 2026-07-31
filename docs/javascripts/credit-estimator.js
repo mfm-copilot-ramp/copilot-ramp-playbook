@@ -282,6 +282,7 @@
     return '<div class="em-quiz"><div class="calc-grid">' +
         selField("qe-archetype", "Agent type", [["interactive", "User-driven (someone chats / calls)"], ["autonomous", "Autonomous (fires on events)"]], v.archetype, why.volume || why.users || "") +
         selField("qe-channel", "Channel", [["chat", "Chat / text"], ["voice", "Voice / phone"]], v.channel, "") +
+        (v.channel === "voice" ? numField("qe-voicemin", "Avg voice minutes / conversation", v.voiceMinutes != null ? v.voiceMinutes : 5, "Voice is billed per minute; core answer/action activity during the call is included.") : "") +
         selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
         selField("qe-know", "Knowledge grounding", [["none", "None"], ["docs", "Documents / KB"], ["tenantGraph", "M365 tenant graph"]], v.knowledge, why.knowledge || "") +
         numField("qe-actions", "# system actions / run", v.actionsCount, "Connector calls: route, create, update, notify…") +
@@ -336,6 +337,7 @@
     if (el("qe-lic")) v.licensePct = Math.min(100, Math.max(0, parseFloat(el("qe-lic").value) || 0));
     if (el("qe-events")) v.events = Math.max(0, Math.round(parseFloat(el("qe-events").value) || 0));
     if (el("qe-genanswers")) v.genAnswers = Math.max(0, Math.round(parseFloat(el("qe-genanswers").value) || 0));
+    if (el("qe-voicemin")) v.voiceMinutes = Math.max(1, parseFloat(el("qe-voicemin").value) || 5);
     return v;
   }
 
@@ -424,7 +426,12 @@
       '<div class="calc-grid" style="margin-top:0.7rem">' +
         selField("qe-deploy", "Where does it run?", [["embedded", "Embedded in Teams / M365"], ["standalone", "Standalone / external site"]], v.deployment || "embedded", why.deployment || "") +
         numField("qe-lic", "% of users with an M365 Copilot license", v.licensePct != null ? v.licensePct : 0, "Embedded + licensed users accrue 0 credits.") +
-      "</div>";
+      "</div>" +
+      (v.channel === "voice"
+        ? '<div class="calc-grid" style="margin-top:0.7rem">' +
+            numField("qe-voicemin", "Avg voice minutes / conversation", v.voiceMinutes != null ? v.voiceMinutes : 5, "Voice is billed per minute — credits = minutes × 35. Core answer/action activity during the call is included.") +
+          "</div>"
+        : "");
   }
   function qeVolumeAutonomous(v, why) {
     var unit = v.eventUnit || "event";
@@ -465,7 +472,7 @@
       ], v.archetype) + qeInferred(why.archetype);
     if (id === "channel") return qeCards("channel", [
         ["chat", "💬 Chat / text", "Teams, web chat, or an app."],
-        ["voice", "📞 Voice / phone", "Telephony or spoken — higher per-turn credits and more setup."]
+        ["voice", "📞 Voice / phone", "Telephony or spoken — billed per minute (core answer/action activity during the call is included) and more setup."]
       ], v.channel) + qeInferred(why.channel);
     if (id === "volume-interactive") return qeVolumeInteractive(v, why);
     if (id === "volume-autonomous") return qeVolumeAutonomous(v, why);
