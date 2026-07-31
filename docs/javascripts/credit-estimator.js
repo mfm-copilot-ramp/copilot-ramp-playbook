@@ -723,6 +723,7 @@
       "  · loops:                      " + f.flowLoops,
       "AI Builder prompts (flow):      " + f.aiPrompts + " (" + f.aiPromptCalls + " call(s)/run)",
       "Prompt / AI nodes (total):      " + f.aiNodes,
+      "Prompt / AI tools (billable):   " + (f.promptTools != null ? f.promptTools : f.aiNodes),
       "InvokeFlowAction / workflows:   " + f.flowNodes + " / " + f.workflowFiles,
       "Connectors:                     " + (f.connectors.length ? f.connectors.join(", ") : "none"),
       "Premium / unknown connectors:   " + (f.premiumConnectors.length ? f.premiumConnectors.join(", ") : "none"),
@@ -794,6 +795,7 @@
          findCard(f.triggers, "Triggers", f.triggers === 0))
       : (findCard(f.topics, "Topics", f.topics === 0) +
          findCard(f.genAnswers, "Generative answers", f.genAnswers === 0) +
+         findCard(f.promptTools != null ? f.promptTools : 0, "Prompt / AI tools", !f.promptTools) +
          findCard(f.knowledgeCount, "Knowledge sources", f.knowledgeCount === 0) +
          findCard(f.actionNodes, "Action nodes", f.actionNodes === 0) +
          findCard(f.flowNodes + f.workflowFiles + f.flowCount, "Agent flows", (f.flowNodes + f.workflowFiles + f.flowCount) === 0) +
