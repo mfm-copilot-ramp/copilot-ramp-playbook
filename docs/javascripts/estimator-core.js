@@ -734,6 +734,11 @@
     var genAnswers = countAll(all, /SearchAndSummarizeContent/gi);
     var knowledgeSearch = countAll(all, /SearchKnowledgeSources/gi);
     var knowledgeComps = countAll(all, /KnowledgeSourceComponent/gi);
+    // Real Copilot Studio unmanaged exports describe knowledge via KnowledgeSourceConfiguration
+    // components whose inner source kind is one of the *SearchSource types below.
+    var knowledgeConfigs = countAll(all, /KnowledgeSourceConfiguration/gi);
+    var knowledgeKinds = all.match(/\b(PublicSiteSearchSource|SharePointSearchSource|DataverseSearchSource|AzureAISearchSource)\b/gi) || [];
+    var knowledgeSources = Math.max(knowledgeKinds.length, knowledgeConfigs);
     var botActionNodes = countAll(all, /(InvokeConnectorAction|InvokeConnectorTaskAction|HttpRequestAction|InvokeExternalAgentTaskAction|InvokeComputerUseAction)\b/gi);
     var botFlowNodes = countAll(all, /InvokeFlowAction/gi);
     var workflowFiles = names.filter(function (n) { return /(^|\/)workflows?\/.+\.json$/.test(n) || /workflow[^\/]*\.json$/.test(n); }).length;
@@ -789,15 +794,15 @@
     if (spec.connectedAgent && connectedAgents === 0) connectedAgents = 1;
 
     // ── Merge + reconcile ──
-    var knowledgeCtx = knowledgeComps > 0 || knowledgeSearch > 0 || genAnswers > 0 ||
+    var knowledgeCtx = knowledgeComps > 0 || knowledgeSearch > 0 || genAnswers > 0 || knowledgeSources > 0 ||
       /knowledgesource|grounding|search and summarize|searchandsummarize/i.test(all);
     var knowledgeTypes = {};
-    if (/sharepointsource/i.test(all) || (knowledgeComps > 0 && /sharepoint/i.test(all))) knowledgeTypes.SharePoint = true;
-    if (/(publicwebsource|websource|"kind"\s*:\s*"?public ?website)/i.test(all) && knowledgeCtx) knowledgeTypes.Website = true;
-    if (/(dataversesearch|dataverse ?search)/i.test(all) && knowledgeCtx) knowledgeTypes.Dataverse = true;
-    if ((/(fileknowledge|fileattachment|documentknowledge|uploaded ?file)/i.test(all) && knowledgeCtx) ||
+    if (/(sharepointsource|sharepointsearchsource)/i.test(all) || (knowledgeComps > 0 && /sharepoint/i.test(all))) knowledgeTypes.SharePoint = true;
+    if (/(publicwebsource|publicsitesearchsource|websource|"kind"\s*:\s*"?public ?website)/i.test(all) && knowledgeCtx) knowledgeTypes.Website = true;
+    if (/(dataversesearch|dataversesearchsource|dataverse ?search)/i.test(all) && knowledgeCtx) knowledgeTypes.Dataverse = true;
+    if ((/(fileknowledge|fileattachment|documentknowledge|uploaded ?file|azureaisearchsource)/i.test(all) && knowledgeCtx) ||
         (spec.isSpec && spec.knowledgeDocs > 0)) knowledgeTypes.Files = true;
-    var knowledgeCount = Math.max(knowledgeComps, knowledgeSearch, Object.keys(knowledgeTypes).length, spec.knowledgeDocs || 0);
+    var knowledgeCount = Math.max(knowledgeComps, knowledgeSearch, knowledgeSources, Object.keys(knowledgeTypes).length, spec.knowledgeDocs || 0);
 
     var agentActions = botActionNodes + spec.actionCount;
     var flowsTotal = flowCount || botFlowNodes || workflowFiles || (spec.hasFlow ? 1 : 0);
