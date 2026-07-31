@@ -10,60 +10,46 @@ hide: [toc]
 
 Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio agents — pick an **estimation mode** below to match where you are: describe the agent in plain words, build the credit profile by hand, batch-size a portfolio from Excel, or upload a finished agent for a component-level analysis. Everything runs in your browser; nothing is uploaded. New to credit billing? See [**How Copilot Credits are billed**](#billing-details) for the official rates and licensing rules.
 
-## How to use this estimator
+??? note "New here? How to use this estimator"
 
-First, pick **what you're estimating** — *Copilot Studio agents* today; *Microsoft 365 Copilot (Cowork)* is coming soon — then choose **how you want to estimate** using the cards below. Every mode runs locally in your browser; nothing is uploaded.
+    First, pick **what you're estimating** — *Copilot Studio agents* today; *Microsoft 365 Copilot (Cowork)* is coming soon — then choose **how you want to estimate** using the cards below. Every mode runs locally in your browser; nothing is uploaded.
 
-| Mode | Best when… | What you provide | What you get |
-|------|-----------|------------------|--------------|
-| **Quick** | You're early or unsure and just want a ballpark. | A plain-English description of the agent (or an example chip). | A T-shirt size, a Studio build outline, and a credit/cost range. |
-| **Quick + Import** | You're sizing many agents — a whole portfolio — at once. | An Excel workbook with one row per scenario. | Per-scenario sizes and credits, plus a portfolio roll-up. |
-| **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each conversation uses. | Credits per month and per user, ready for finance or IT. |
-| **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
+    | Mode | Best when… | What you provide | What you get |
+    |------|-----------|------------------|--------------|
+    | **Quick** | You're early or unsure and just want a ballpark. | A plain-English description of the agent (or an example chip). | A T-shirt size, a Studio build outline, and a credit/cost range. |
+    | **Quick + Import** | You're sizing many agents — a whole portfolio — at once. | An Excel workbook with one row per scenario. | Per-scenario sizes and credits, plus a portfolio roll-up. |
+    | **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each conversation uses. | Credits per month and per user, ready for finance or IT. |
+    | **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
 
-=== "Quick"
+    === "Quick"
 
-    1. Select the **Quick** card (the default).
-    2. Type a plain-English description — what it does, who uses it, how often, and where it runs — or click an **example** chip.
-    3. Click **Build my estimate →**.
-    4. Answer the short guided follow-ups.
-    5. Review the size, build outline, and credit/cost range.
-    6. Optionally open it in the **Detailed** estimator to refine.
+        1. Select the **Quick** card (the default).
+        2. Type a plain-English description — what it does, who uses it, how often, and where it runs — or click an **example** chip.
+        3. Click **Build my estimate →**.
+        4. Answer the short guided follow-ups.
+        5. Review the size, build outline, and credit/cost range.
+        6. Optionally open it in the **Detailed** estimator to refine.
 
-=== "Quick + Import"
+    === "Quick + Import"
 
-    1. Select the **Quick + Import** card.
-    2. Click **↓ Download Excel template (.xlsx)**.
-    3. Fill the **Scenarios** sheet — one row per agent or use-case (the **Examples** sheet is prefilled to copy from).
-    4. Drop the completed workbook back on the page.
-    5. Review each scenario's size and credits, plus the portfolio roll-up.
+        1. Select the **Quick + Import** card.
+        2. Click **↓ Download Excel template (.xlsx)**.
+        3. Fill the **Scenarios** sheet — one row per agent or use-case (the **Examples** sheet is prefilled to copy from).
+        4. Drop the completed workbook back on the page.
+        5. Review each scenario's size and credits, plus the portfolio roll-up.
 
-    !!! tip "Let Copilot fill the spreadsheet for you"
-        You don't have to fill the **Scenarios** sheet by hand. Ask **Microsoft 365 Copilot** (Copilot Chat / Cowork, or Copilot in Excel) to populate it from a plain-English list of your agents — one row each — then re-upload.
+    === "Detailed"
 
-        Give Copilot the column meanings from the panel's **"What do the columns mean?"** section and point it at the prefilled **Examples** sheet as the pattern, so it can infer each column (agent type, channel, knowledge, number of actions, users, interactions per month, deployment, % licensed, voice minutes, and so on) and leave unknowns blank. A ready-to-paste prompt:
+        1. Select the **Detailed** card.
+        2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-conversation feature rows**, add an optional **escalation path**, then read the **results**.
 
-            You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator
-            workbook. Use the 'Examples' sheet as the pattern and the column definitions below.
-            Create one row per agent from my list, inferring each column from my descriptions;
-            leave a cell blank if it isn't implied. Column definitions: [paste the 'What do the
-            columns mean?' text]. My agents: 1) <name — what it does, who uses it, how often,
-            channel, knowledge, actions>; 2) …
+    === "Solution package"
 
-        Copilot's inferences are a starting point — sanity-check the enum and number columns before importing.
-
-=== "Detailed"
-
-    1. Select the **Detailed** card.
-    2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-conversation feature rows**, add an optional **escalation path**, then read the **results**.
-
-=== "Solution package"
-
-    1. Select the **Solution package** card.
-    2. In **make.powerapps.com**, add your Copilot Studio agent — plus any Power Automate flows and connection references — to a solution and **Export** it as an unmanaged `.zip`.
-    3. Drop the `.zip` on the page.
-    4. Review the component inventory, size, and credit estimate.
-    5. See the panel's **"What can I upload?"** note for the A / B / C upload options.
+        1. Select the **Solution package** card.
+        2. In **make.powerapps.com**, add your Copilot Studio agent — plus any Power Automate flows and connection references — to a solution and **Export** it as an unmanaged `.zip`.
+        3. Drop the `.zip` on the page.
+        4. Review the component inventory, size, and credit estimate.
+        5. See the panel's **"What can I upload?"** note for the A / B / C upload options.
 
 <div id="estimator-modes" markdown="0">
 
@@ -99,28 +85,39 @@ First, pick **what you're estimating** — *Copilot Studio agents* today; *Micro
 }
 /* mode card selector (replaces the dropdown) */
 .mode-cards {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem;
-  margin: 0.25rem 0 0.4rem; max-width: 760px;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; align-items: stretch;
+  margin: 0.25rem 0 0.4rem; max-width: 960px;
 }
+@media (max-width: 720px) { .mode-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 559px) { .mode-cards { grid-template-columns: 1fr; } }
 .em-export { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 1rem 0 0.25rem; }
 .em-export-btn { margin: 0; }
 .em-export-status { font-size: 0.82rem; color: var(--md-default-fg-color--light); min-height: 1.1em; }
 .mode-card {
   font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column;
-  gap: 0.12rem; padding: 0.8rem 0.9rem; border-radius: 8px;
+  gap: 0.12rem; padding: 0.8rem 0.9rem; border-radius: 8px; position: relative;
   border: 1px solid var(--md-default-fg-color--lighter); background: var(--md-code-bg-color);
   color: var(--md-default-fg-color); transition: border-color .12s, box-shadow .12s;
 }
 .mode-card:hover { border-color: var(--md-primary-fg-color); }
 .mode-card:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
 .mode-card--active {
-  border-color: var(--md-primary-fg-color); box-shadow: inset 0 0 0 2px var(--md-primary-fg-color);
+  border: 2px solid var(--md-primary-fg-color);
+  padding: calc(0.8rem - 1px) calc(0.9rem - 1px);
+  background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent);
+  box-shadow: none;
 }
-.mode-card--active .mode-card-title { color: var(--md-primary-fg-color); }
-.mode-card-title { font-size: 0.95rem; font-weight: 700; }
+.mode-card--active .mode-card-title { color: var(--md-primary-fg-color); font-weight: 800; }
+.mode-card--active::after {
+  content: "✓ Selected";
+  position: absolute; top: 0.4rem; right: 0.5rem;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.02em; line-height: 1;
+  padding: 0.12rem 0.4rem; border-radius: 10px;
+  background: var(--md-primary-fg-color); color: var(--md-primary-bg-color);
+}
+.mode-card-title { font-size: 0.95rem; font-weight: 700; padding-right: 4.3rem; }
 .mode-card-sub { font-size: 0.82rem; color: var(--md-default-fg-color--light); }
-.mode-card-best { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); margin-top: 0.15rem; }
+.mode-card-best { font-size: 0.7rem; line-height: 1.3; color: var(--md-default-fg-color--lighter); margin-top: auto; padding-top: 0.3rem; }
 #mode-desc {
   font-size: 0.85rem; color: var(--md-default-fg-color--light);
   margin: 0.6rem 0 0; line-height: 1.5; max-width: 68ch;
