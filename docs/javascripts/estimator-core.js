@@ -28,6 +28,10 @@
     reasoningPremium: 10
   };
   var REASON_TOKENS_K = 2;   // assumed premium tokens (×1K) per reasoning step
+  // Voice is billed PER MINUTE (Learn "Voice billing rate/minute": 10 / 35 / 75). This is
+  // an editable planning assumption for the average voice minutes per conversation — NOT a
+  // Microsoft-published figure. Tune it to your average handle time.
+  var VOICE_MIN_PER_CONVO = 5;
   var RATE_PAYG = 0.01;      // $/credit, pay-as-you-go
   var RATE_PREPAID = 0.008;  // $/credit, $200 / 25,000 prepaid pack
 
@@ -390,7 +394,10 @@
     var genAnswers = Math.max(0, v.genAnswers || 0);
 
     if (v.channel === "voice") {
-      profile.push(row("voiceStandard", ROW.voiceStandard, 1, CREDIT.voiceStandard, "voice turn (generative orchestration)"));
+      // Voice is billed per minute; the per-minute rate already INCLUDES the classic /
+      // generative answer and agent actions during the call, so those rows are suppressed.
+      var voiceMin = Math.max(1, v.voiceMinutes || VOICE_MIN_PER_CONVO);
+      profile.push(row("voiceStandard", ROW.voiceStandard, voiceMin, CREDIT.voiceStandard, "voice — per minute (generative orchestration)"));
     } else if (!auto) {
       if (v.answerType === "generative")
         profile.push(row("generative", ROW.generative, Math.max(1, genAnswers), CREDIT.generative, "generative answer"));
@@ -404,7 +411,9 @@
       profile.push(row("tenantGraph", ROW.tenantGraph, 1, CREDIT.tenantGraph, "tenant-graph grounding"));
 
     var actionUses = (auto ? 1 : 0) + actionsCount;
-    if (actionUses > 0)
+    // Voice inclusion rule: agent actions during a voice call are already covered by the
+    // per-minute voice rate — don't stack them on top.
+    if (actionUses > 0 && v.channel !== "voice")
       profile.push(row("action", ROW.action, actionUses, CREDIT.action,
         actionUses + " agent action(s)" + (auto ? " incl. autonomous trigger" : "")));
 
@@ -848,14 +857,14 @@
       if (contentProc) score += 1;
     } else {
       if (voice) {
-        profile.push({ key: "voiceStandard", name: ROW.voiceStandard, uses: 1, credits: CREDIT.voiceStandard, note: "voice channel detected" });
+        profile.push({ key: "voiceStandard", name: ROW.voiceStandard, uses: VOICE_MIN_PER_CONVO, credits: CREDIT.voiceStandard, note: "voice channel detected · assumes ~" + VOICE_MIN_PER_CONVO + " min/call — tune to your average handle time" });
       } else if (isGenerative) {
         profile.push({ key: "generative", name: ROW.generative, uses: 1, credits: CREDIT.generative, note: (genAnswers || aiNodes || 1) + " generative node(s)" });
       } else {
         profile.push({ key: "classic", name: ROW.classic, uses: 1, credits: CREDIT.classic, note: "no generative-answer nodes found" });
       }
       if (tenantGraph) profile.push({ key: "tenantGraph", name: ROW.tenantGraph, uses: 1, credits: CREDIT.tenantGraph, note: "tenant-graph grounding" });
-      if (agentActions > 0) profile.push({ key: "action", name: ROW.action, uses: 1, credits: CREDIT.action, note: agentActions + " agent action(s)" });
+      if (agentActions > 0 && !voice) profile.push({ key: "action", name: ROW.action, uses: 1, credits: CREDIT.action, note: agentActions + " agent action(s)" });
       if (flowsTotal > 0) profile.push({ key: "flow", name: ROW.flow,
         uses: Math.max(1, Math.min(20, (flow.connectorActions + flow.http) || 5)), credits: CREDIT.flowAction,
         note: flowsTotal + " agent flow(s)" });
@@ -888,6 +897,7 @@
     if (premiumConnectors.length > 0) warnings.push("Premium/unknown connector(s): " + premiumConnectors.join(", ") + ". These bill via Power Platform / Power Automate licensing, NOT Copilot Credits — budget separately.");
     if (spec.isSpec) warnings.push("Analyzed from an agent build-spec bundle (documents), not a Dataverse solution export — counts are inferred from the spec + knowledge files, not runtime components.");
     if (spec.reasoningModel) warnings.push("Reasoning-capable model detected — Microsoft bills a premium \u201CText and generative AI tools (premium)\u201D meter at 10 credits per 1K tokens ON TOP of the feature rate for each reasoning step. This estimate assumes ~" + REASON_TOKENS_K + "K premium tokens per run; tune it to your prompt/response size, or drop the reasoning line if the agent uses a standard (non-reasoning) model.");
+    if (computerUse) warnings.push("Computer-Using Agent (CUA) actions detected \u2014 these are NOT covered by the Microsoft 365 Copilot license and bill at the agent-action rate (5 credits) even for licensed users, so the embedded (Teams / Copilot Chat / SharePoint) zero-rating does not fully apply to this agent.");
     if (connectedAgents > 0) warnings.push("Multi-agent orchestration detected (" + agentCount + " agents) — each connected-agent hop adds latency and its own component budget.");
     if (aiNodes === 0 && agentActions === 0 && flowsTotal === 0 && topics === 0 && !spec.isSpec)
       warnings.push("Very few components detected — is this a full unmanaged solution export or agent bundle?");
@@ -959,6 +969,8 @@
     { key: "channel", header: "Channel", type: "enum", applies: "interactive", def: "chat",
       enum: { chat: ["chat", "text", "teams", "web", "message", "messaging"], voice: ["voice", "phone", "call", "telephony", "ivr"] },
       hint: "Interactive only. Voice turns cost more and add build effort." },
+    { key: "voiceMinutes", header: "Voice minutes / conversation", type: "int", applies: "interactive", def: VOICE_MIN_PER_CONVO,
+      hint: "Voice only. Avg voice minutes per conversation (billed per minute; core answer/action activity is included). Blank = " + VOICE_MIN_PER_CONVO + "." },
     { key: "knowledge", header: "Knowledge grounding", type: "enum", applies: "all", def: "none",
       enum: { none: ["none", "no", "na", "n/a", ""], docs: ["docs", "documents", "document", "kb", "knowledge", "sharepoint", "website", "web", "files", "file"],
               tenantGraph: ["tenantgraph", "tenant graph", "tenant-graph", "graph", "m365", "copilot connectors", "enterprise search", "graph connector"] },
@@ -980,7 +992,7 @@
     { key: "interactions", header: "Interactions / user / month", type: "num", applies: "interactive",
       hint: "Interactive only. Conversations per user per month." },
     { key: "deployment", header: "Deployment", type: "enum", applies: "interactive", def: "embedded",
-      enum: { embedded: ["embedded", "teams", "m365", "copilot", "in-app"], standalone: ["standalone", "other", "external", "web", "custom", "channel"] },
+      enum: { embedded: ["embedded", "teams", "m365", "copilot", "copilot chat", "chat", "sharepoint", "in-app"], standalone: ["standalone", "other", "external", "external app", "web", "web widget", "widget", "website", "web chat", "portal", "public", "public website", "custom", "custom app", "custom website", "channel", "internet", "anonymous", "consumer", "customer facing"] },
       hint: "Interactive only. Embedded = M365-licensed users are free." },
     { key: "licensePct", header: "% with M365 Copilot license", type: "int", applies: "interactive",
       hint: "Interactive + embedded only. Licensed users accrue zero credits." },
@@ -1111,7 +1123,8 @@
       knowledge: knowledge, actionsCount: actionsCount, systemsCount: systemsCount,
       hasContent: hasContent, hasAI: hasAI, hasFlow: hasFlow, hasEscalation: hasEscalation,
       escalation: hasEscalation ? 15 : 0, escalationCredits: hasEscalation ? CREDIT.action : 0,
-      pagesPerDoc: 1, flowActionsPerRun: 5
+      pagesPerDoc: 1, flowActionsPerRun: 5,
+      voiceMinutes: channel === "voice" ? Math.max(1, intOf("voiceMinutes", VOICE_MIN_PER_CONVO) || VOICE_MIN_PER_CONVO) : VOICE_MIN_PER_CONVO
     };
 
     if (auto) {
@@ -1136,7 +1149,7 @@
 
   function scenarioCapabilities(v) {
     var out = [];
-    if (v.channel === "voice") out.push("Voice channel (generative voice turns, 35 credits/turn)");
+    if (v.channel === "voice") out.push("Voice channel (generative voice, 35 credits/minute — core answer/action activity during the call is included)");
     else if (v.answerType === "generative")
       out.push("Generative answer" + (v.knowledge !== "none" ? " grounded on " + (v.knowledge === "tenantGraph" ? "the M365 tenant graph" : "documents / KB") : ""));
     else out.push("Classic (topic) answer");

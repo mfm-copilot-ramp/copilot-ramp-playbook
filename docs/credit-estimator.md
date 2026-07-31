@@ -13,9 +13,16 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 !!! info "Official billing rates — [learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management)"
     Rates below are sourced from the **Microsoft Copilot Studio Billing rates and management** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
 
-    **Key licensing rule:** When an agent is *embedded in Teams or the M365 Copilot app*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any other channel* (web widget, SharePoint, custom app, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle below to model the correct scenario.
+    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle below to model the correct scenario.
 
-    **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 12/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples. Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
+    ??? note "Zero-rating exceptions"
+        A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
+
+        - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
+        - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
+        - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
+
+    **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
 
 <div id="estimator-modes" markdown="0">
 
@@ -282,7 +289,7 @@ Estimate monthly M365 Copilot **message-credit** consumption. Pick an **estimati
 
 !!! tip "How to use this estimator"
     1. **Set your org scope** — enter the number of users you're modelling and the proportion with an M365 Copilot license.
-    2. **Choose deployment type** — *Embedded in Teams / M365 Copilot* means licensed users accrue zero credits; *Standalone* charges all users regardless.
+    2. **Choose deployment type** — *Microsoft 365 (Teams · Copilot Chat · SharePoint)* means licensed users accrue zero credits; *Standalone / other channel* charges all users regardless.
     3. **Set interaction frequency** — estimate how many times a typical user interacts with the agent per month.
     4. **Build your normal path** — for each row, set *Uses / interaction* to how many times that feature fires in a single conversation. Rows default to 0 — only count features your agent actually uses.
     5. **Add an escalation path (optional)** — set an escalation rate and add extra steps that only fire when an interaction escalates (e.g. a query that can't be self-served triggers an additional lookup or handoff). The rate controls what percentage of interactions incur these extra costs.
@@ -448,7 +455,7 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <button id="agent-interactive" class="deploy-btn active" onclick="setDetailedAgentType('interactive')">Interactive — user-led (chat / voice)</button>
   <button id="agent-autonomous" class="deploy-btn" onclick="setDetailedAgentType('autonomous')">Autonomous — event-driven (no user)</button>
 </div>
-<p id="agent-type-hint" class="deploy-hint">Interactive agents are driven by people — a user sends a message or makes a call. Credits scale with <em>users × interactions / month</em>, and M365 Copilot–licensed users can accrue zero credits in embedded mode.</p>
+<p id="agent-type-hint" class="deploy-hint">Interactive agents are driven by people — a user sends a message or makes a call. Credits scale with <em>users × interactions / month</em>, and M365 Copilot–licensed users can accrue zero credits on Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint).</p>
 
 <hr class="calc-divider">
 
@@ -477,10 +484,10 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
 <div id="deploy-section">
 <div class="section-label">Deployment type</div>
 <div class="deploy-toggle">
-  <button id="toggle-embedded" class="deploy-btn active" onclick="setDeployMode('embedded')">Embedded in Teams / M365 Copilot</button>
+  <button id="toggle-embedded" class="deploy-btn active" onclick="setDeployMode('embedded')">Microsoft 365 (Teams · Copilot Chat · SharePoint)</button>
   <button id="toggle-standalone" class="deploy-btn" onclick="setDeployMode('standalone')">Standalone / other channel</button>
 </div>
-<p id="deploy-hint" class="deploy-hint">M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
+<p id="deploy-hint" class="deploy-hint">On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
 
 <hr class="calc-divider">
 </div>
@@ -500,7 +507,7 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
       <input type="number" id="licensePct" min="0" max="100" value="60" oninput="syncRange('licensePctSlider','licensePct');recalc()">
       <span>%</span>
     </div>
-    <div class="hint" id="license-hint">Embedded mode: licensed users accrue zero credits — only unlicensed users are billed. Pilots typically 10–20 %; full rollouts 60–100 %</div>
+    <div class="hint" id="license-hint">Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint): licensed users accrue zero credits — only unlicensed users are billed. Pilots typically 10–20 %; full rollouts 60–100 %</div>
   </div>
   <div class="calc-field" id="field-interactions">
     <label for="avgInteractions">Avg interactions / user / month</label>
@@ -527,6 +534,8 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
 
 <!-- ── Prompt table ── -->
 <div class="section-label">Edit rows or add your own process steps</div>
+
+<p class="hint" style="margin:-0.3rem 0 0.6rem">📞 <strong>Voice rows are per minute.</strong> In the <em>Uses / interaction</em> column, enter the average voice <strong>minutes per conversation</strong> — it's multiplied by your interactions × users to get the monthly total (credits = rate × minutes). The per-minute voice rate already <strong>includes</strong> the classic / generative answers and agent actions that occur during the call, so don't also fill in those rows for a voice agent. Tenant-graph grounding, content processing, AI tools, and agent flows are billed <strong>separately on top</strong>.</p>
 
 <div class="prompt-table-wrap">
   <table id="prompt-table">
@@ -609,9 +618,9 @@ var defaultRows = [
   { name: 'AI tool — Text/generative premium (per 10 responses = 100 credits)', count: 0, credits: 10   },
   { name: 'AI tool — Content processing (per page = 8 credits)',                count: 0, credits: 8    },
   // ── Voice (if applicable) ──
-  { name: 'Voice — Basic (classic orchestration)',             count: 0, credits: 10   },
-  { name: 'Voice — Standard (generative orchestration)',       count: 0, credits: 35   },
-  { name: 'Voice — Premium (real-time)',                       count: 0, credits: 75   },
+  { name: 'Voice — Basic (classic orchestration) — per minute',   count: 0, credits: 10   },
+  { name: 'Voice — Standard (generative) — per minute',           count: 0, credits: 35   },
+  { name: 'Voice — Premium (real-time) — per minute',             count: 0, credits: 75   },
 ];
 
 var rowId = 0;
@@ -775,7 +784,7 @@ function setDeployMode(mode) {
   document.getElementById('toggle-embedded').classList.toggle('active', isEmbedded);
   document.getElementById('toggle-standalone').classList.toggle('active', !isEmbedded);
   document.getElementById('deploy-hint').innerHTML = isEmbedded
-    ? 'M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.'
+    ? 'On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.'
     : 'All users generate credits regardless of M365 Copilot license status. The <em>% with M365 Copilot license</em> slider has no effect on credit calculation.';
   var licField = document.getElementById('license-field');
   if (licField) licField.style.opacity = isEmbedded ? '1' : '0.45';
