@@ -1,0 +1,74 @@
+# ── Content-Ops Automation Label Taxonomy ────────────────────────────────────
+# Managed by automation. To sync labels to the repo, run:
+#   gh label create --force -f .github/labels.yml
+# or use a labels-sync GitHub Action.
+#
+# Categories:
+#   Type    — what kind of intel signal is this?
+#   Status  — lifecycle stage of an intel item
+#   Priority — triage urgency
+#   Ops     — cross-cutting operational labels
+
+# ── Type ─────────────────────────────────────────────────────────────────────
+- name: "intel:accuracy-risk"
+  description: "Existing content may be inaccurate due to a product change"
+  color: "d93f0b"
+
+- name: "intel:new-resource"
+  description: "A new official Microsoft resource was detected"
+  color: "0e8a16"
+
+- name: "intel:new-usecase"
+  description: "A new use-case or walkthrough opportunity was identified"
+  color: "1d76db"
+
+- name: "intel:governance"
+  description: "Licensing, compliance, or policy change affecting content"
+  color: "5319e7"
+
+- name: "intel:framing-major"
+  description: "Structural/framing change requiring human decision (stage rename, journey reorder)"
+  color: "b60205"
+
+# ── Status ───────────────────────────────────────────────────────────────────
+- name: "intel:triage"
+  description: "Newly detected, awaiting classification"
+  color: "fbca04"
+
+- name: "intel:ready"
+  description: "Triaged and ready for automation or human to pick up"
+  color: "c2e0c6"
+
+- name: "intel:in-progress"
+  description: "Actively being worked (PR open or in draft)"
+  color: "006b75"
+
+- name: "intel:done"
+  description: "Resolved — content updated or issue closed"
+  color: "0e8a16"
+
+- name: "intel:wontfix"
+  description: "Reviewed and intentionally not actioned"
+  color: "ffffff"
+
+# ── Priority ─────────────────────────────────────────────────────────────────
+- name: "intel:p1"
+  description: "Critical — accuracy risk or broken content, fix ASAP"
+  color: "b60205"
+
+- name: "intel:p2"
+  description: "Important — should be addressed within a week"
+  color: "ff9f1c"
+
+- name: "intel:p3"
+  description: "Low — nice to have, address when capacity allows"
+  color: "c5def5"
+
+# ── Ops ──────────────────────────────────────────────────────────────────────
+- name: "automation"
+  description: "Created or managed by the content-ops automation pipeline"
+  color: "ededed"
+
+- name: "needs-human-review"
+  description: "Automation output requiring human approval before merge"
+  color: "f9d0c4"

@@ -32,6 +32,42 @@ into the Detailed calculator** so you can fine-tune from any starting point.
 
 ---
 
+## August 2026
+
+### Content-ops automation pipeline
+*August 2, 2026*
+
+The cookbook now has a **four-stage content intelligence pipeline** that keeps the site accurate
+and growing without manual monitoring:
+
+- **Watcher** (daily) — monitors 8 official Microsoft sources (Learn, Tech Community, Roadmap, etc.)
+  and files structured backlog issues when new docs, features, or changes are detected.
+- **Reconciler** (daily) — picks up accuracy-risk and new-resource issues, re-verifies claims against
+  live Microsoft URLs, and opens surgical PRs with full source citations.
+- **Author** (daily) — selects one work item from the backlog and writes a full
+  CONTENT-MODEL-compliant walkthrough or solution template, wired into nav and CATALOG.
+- **Auditor** (weekly) — governance checks: voice consistency, orphan pages, stale counts, dead links,
+  and accessibility. Files issues and compounds learnings.
+
+All automation PRs are labeled `needs-human-review` and never auto-merge — a human always approves.
+See `automation/README.md` for the full architecture.
+
+### New cross-journey resources
+*June–August 2026*
+
+- Added **[Copilot Camp](https://microsoft.github.io/copilot-camp/)** — hands-on labs from no-code to
+  pro-code agent building.
+- Added **[Generative AI for Beginners](https://github.com/microsoft/generative-ai-for-beginners)** —
+  free 21-lesson course on the fundamentals behind Copilot.
+
+### Journey page visual improvements
+*June 2026*
+
+- Pioneer/Destination badges added below the journey strip for clearer stage context.
+- Stage 5 (Autopilots) cross-linking with solutions and walkthroughs polished.
+
+---
+
 ## June 2026
 
 ### New Stage 5 · Autopilots — always-on agents (Scout), with a skills lens

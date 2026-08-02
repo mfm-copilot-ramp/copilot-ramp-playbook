@@ -1,0 +1,96 @@
+# ── Reconciler: Accuracy & Resource Edits ────────────────────────────────────
+# Keeps the site ACCURATE by making small, grounded edits driven ONLY by
+# the Watcher's backlog issues. Runs ~1 hour after the Watcher.
+#
+# NEVER auto-merges. All PRs get `automation` + `needs-human-review` labels.
+# Structural changes are escalated to intel:framing-major discussion issues.
+#
+# See automation/README.md for the full pipeline architecture.
+
+name: "Reconciler: accuracy edits from backlog"
+
+on:
+  schedule:
+    - cron: "0 14 * * *"    # Daily at 14:00 UTC (~1h after Watcher)
+  workflow_dispatch:          # Manual trigger from Actions tab
+    inputs:
+      dry_run:
+        description: "Dry run — verify issues but don't create PRs"
+        required: false
+        type: boolean
+        default: false
+      max_issues:
+        description: "Max issues to process this run (default: 3)"
+        required: false
+        type: number
+        default: 3
+
+permissions:
+  contents: write     # needed to create branches and push
+  issues: write       # needed to read/update issues
+  pull-requests: write  # needed to create PRs
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # full history for branch creation
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            automation/watcher/requirements.txt
+            requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -r automation/watcher/requirements.txt --quiet
+          pip install -r requirements.txt --quiet
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # ── Step 1: Select & Verify issues ─────────────────────────────────────
+      - name: "Select & verify backlog issues"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MAX="${{ inputs.max_issues || 3 }}"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python automation/reconciler/select_issues.py --dry-run --max-issues "$MAX"
+          else
+            python automation/reconciler/select_issues.py --max-issues "$MAX"
+          fi
+
+      # ── Step 2: Edit & create PRs ─────────────────────────────────────────
+      - name: "Apply edits & open PRs"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python automation/reconciler/edit_and_pr.py --dry-run
+          else
+            python automation/reconciler/edit_and_pr.py
+          fi
+
+      # ── Summary ────────────────────────────────────────────────────────────
+      - name: "Post run summary"
+        if: always()
+        run: |
+          echo "### 🔧 Reconciler completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f automation/state/reconciler-workplan.json ]; then
+            ITEMS=$(python -c "import json; print(len(json.load(open('automation/state/reconciler-workplan.json'))))")
+            echo "Workplan items processed: **${ITEMS}**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No workplan generated (no eligible issues found)." >> $GITHUB_STEP_SUMMARY
+          fi

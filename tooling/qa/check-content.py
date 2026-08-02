@@ -29,6 +29,8 @@ What it checks:
      Meta / navigational pages (index.md pages, glossary, prerequisites, CATALOG,
      RESOURCES, folder READMEs) are exempt, matching CONTENT-MODEL.md; any such
      page that *does* declare a description is still held to the length limit.
+  10. Stale walkthrough/solution count claims: non-history pages must not cite
+      a specific count that disagrees with the actual file counts.
 """
 from __future__ import annotations
 
@@ -201,6 +203,47 @@ for path in sorted(DOCS.rglob("*.md")):
             continue
         if not (path.parent / target_path).exists():
             errors.append(f"{relpath}: broken image reference -> {target}")
+
+
+# ── Check 9: Stale walkthrough/solution count claims ─────────────────────────
+# Count actual walkthroughs and solutions, then flag non-history pages that
+# cite a different number (threshold: claimed > 5 to avoid matching prose like
+# "2 walkthroughs in this stage").
+
+WALKTHROUGHS_DIR = DOCS / "walkthroughs"
+SOLUTIONS_DIR = DOCS / "solutions"
+
+actual_walkthrough_count = 0
+for wt_file in WALKTHROUGHS_DIR.glob("*.md"):
+    wt_text = wt_file.read_text(encoding="utf-8")
+    wt_fm = parse_frontmatter(wt_text)
+    if wt_fm and wt_fm.get("status") == "walkthrough":
+        actual_walkthrough_count += 1
+
+actual_solution_count = sum(
+    1 for s in SOLUTIONS_DIR.glob("*.md") if s.name != "index.md"
+)
+
+COUNT_PATTERN = re.compile(r"\b(\d+)\s+(walkthrough|solution template|solution|template)s?\b", re.IGNORECASE)
+
+for path in sorted(DOCS.rglob("*.md")):
+    relpath = rel(path)
+    if relpath in HISTORY_PAGES:
+        continue
+    text = path.read_text(encoding="utf-8")
+    for match in COUNT_PATTERN.finditer(text):
+        claimed = int(match.group(1))
+        thing = match.group(2).lower()
+        if "walkthrough" in thing and claimed > 5 and claimed != actual_walkthrough_count:
+            errors.append(
+                f"{relpath}: stale walkthrough count — claims {claimed} but actual is "
+                f"{actual_walkthrough_count} (match: '{match.group(0)}')"
+            )
+        elif ("solution" in thing or "template" in thing) and claimed > 3 and claimed != actual_solution_count:
+            errors.append(
+                f"{relpath}: stale solution/template count — claims {claimed} but actual is "
+                f"{actual_solution_count} (match: '{match.group(0)}')"
+            )
 
 
 if errors:
