@@ -1,0 +1,97 @@
+# ── Author: New Content Creation ─────────────────────────────────────────────
+# GROWS the library — promotes catalog stubs into walkthroughs and adds new
+# solution templates. Always downstream of accuracy (Watcher + Reconciler).
+#
+# Produces ONE piece of content per run, strictly following CONTENT-MODEL.md.
+# Never fabricates screenshots or product claims without citation.
+#
+# See automation/README.md for the full pipeline architecture.
+
+name: "Author: write new content from backlog"
+
+on:
+  schedule:
+    - cron: "0 10 * * 1"    # Weekly, Monday at 10:00 UTC
+  workflow_dispatch:          # Manual trigger from Actions tab
+    inputs:
+      dry_run:
+        description: "Dry run — select work but don't write or create PR"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write       # needed to create branches and push
+  issues: write         # needed to read/update issues
+  pull-requests: write  # needed to create PRs
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            automation/watcher/requirements.txt
+            requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -r automation/watcher/requirements.txt --quiet
+          pip install -r requirements.txt --quiet
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # ── Step 1: Select work ────────────────────────────────────────────────
+      - name: "Select work item"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python automation/author/select_work.py --dry-run
+          else
+            python automation/author/select_work.py
+          fi
+
+      # ── Step 2: Write content & open PR ────────────────────────────────────
+      - name: "Write content & open PR"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python automation/author/write_and_pr.py --dry-run
+          else
+            python automation/author/write_and_pr.py
+          fi
+
+      # ── Summary ────────────────────────────────────────────────────────────
+      - name: "Post run summary"
+        if: always()
+        run: |
+          echo "### ✍️ Author completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f automation/state/author-workitem.json ]; then
+            ITEM=$(python -c "
+          import json
+          data = json.load(open('automation/state/author-workitem.json'))
+          if data:
+              print(f\"Selected: {data.get('title', 'N/A')[:60]} ({data.get('output_type', 'N/A')})\")
+          else:
+              print('No work available this run.')
+          ")
+            echo "$ITEM" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No workitem file generated." >> $GITHUB_STEP_SUMMARY
+          fi
