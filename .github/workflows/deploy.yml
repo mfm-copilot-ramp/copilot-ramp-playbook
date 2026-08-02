@@ -42,7 +42,7 @@ jobs:
         run: mkdocs build --strict   # --strict fails the build on broken internal links
 
       - name: Upload the built site as a Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site   # mkdocs build outputs to ./site
 
