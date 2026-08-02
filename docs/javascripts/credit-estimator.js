@@ -616,20 +616,37 @@
       "</div></div>";
   }
   // ── Quick: export an importable Copilot Studio starter agent (.zip) ───────
+  // Renders one option in the "Authoring experience" segmented control (see CSS in
+  // credit-estimator.md). Themed to match the site instead of a raw <select>.
+  function qeSegOpt(val, title, sub, exp) {
+    var on = (exp === val);
+    var badge = val === "new" ? ' <span class="qe-seg-badge">Recommended</span>' : '';
+    return '<button type="button" class="qe-seg-opt' + (on ? ' qe-seg-opt--active' : '') + '"' +
+      ' role="radio" aria-checked="' + (on ? 'true' : 'false') + '" data-value="' + val + '"' +
+      ' onclick="qePkgExperienceChange(\'' + val + '\')">' +
+      '<span class="qe-seg-opt-title">' + title + badge + '</span>' +
+      '<span class="qe-seg-opt-sub">' + sub + '</span>' +
+      '</button>';
+  }
+  // The helper note under the segmented control — kept in one place so the initial
+  // render and the change handler never drift.
+  function qeExpNote(exp) {
+    return exp === "new"
+      ? 'The <strong>new experience</strong> is a different architecture (a single instruction-driven agent, no topics) that we\u2019re still finalizing. For now this downloads the <strong>classic-experience</strong> package \u2014 which imports cleanly today \u2014 with notes on rebuilding it in the new experience after import.'
+      : 'Generates the <strong>classic-experience</strong> agent (topics &amp; settings, generative orchestration) \u2014 the verified shape this tool emits today. Imports cleanly.';
+  }
   function qeStarterHtml() {
-    var orch = (state.qe && state.qe.pkgOrch) || "generative";
-    var gSel = orch === "classic" ? "" : " selected";
-    var cSel = orch === "classic" ? " selected" : "";
+    var exp = (state.qe && state.qe.pkgExp) || "classic";
     return '<div class="qe-starter">' +
       '<div class="section-label">Get a head start — export a Copilot Studio agent</div>' +
-      '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: instructions, orchestration settings, the standard topics, any knowledge sources, and wired connector actions. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend and publish, not a finished agent.</p>' +
-      '<div class="qe-orch-pick" style="margin:.15rem 0 .7rem">' +
-        '<label for="qe-pkg-orch" style="display:block;font-weight:600;font-size:.9rem;margin-bottom:.25rem">Orchestration</label>' +
-        '<select id="qe-pkg-orch" onchange="qePkgOrchChange(this.value)" style="max-width:24rem;width:100%">' +
-          '<option value="generative"' + gSel + '>Generative orchestration (recommended)</option>' +
-          '<option value="classic"' + cSel + '>Classic orchestration (legacy — topic-based)</option>' +
-        '</select>' +
-        '<div class="hint" style="margin-top:.3rem">Generative is the modern default — the agent reasons over its instructions, tools, and knowledge. <strong>Classic</strong> is legacy authoring; being phased out — use only for compatibility.</div>' +
+      '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: instructions, agent settings, the standard topics, any knowledge sources, and wired connector actions. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend and publish, not a finished agent.</p>' +
+      '<div class="qe-seg-field">' +
+        '<div class="section-label qe-seg-label" id="qe-pkg-exp-label">Authoring experience</div>' +
+        '<div class="qe-seg" role="radiogroup" aria-labelledby="qe-pkg-exp-label" id="qe-pkg-experience">' +
+          qeSegOpt("classic", "Classic experience", "Topics &amp; settings schema — what this tool generates today.", exp) +
+          qeSegOpt("new", "New experience", "Single instruction-driven agent, enhanced reasoning.", exp) +
+        '</div>' +
+        '<div class="qe-seg-note hint" id="qe-pkg-exp-note">' + qeExpNote(exp) + '</div>' +
       '</div>' +
       '<button type="button" class="em-btn" onclick="qeDownloadPackage()" aria-label="Download a Copilot Studio starter agent as a solution package ZIP file">\u2b07 Download agent starter (.zip)</button>' +
       '<span class="em-export-status" id="qe-pkg-status" role="status" aria-live="polite" style="margin-left:.6rem"></span>' +
@@ -654,22 +671,35 @@
     if (el._t) clearTimeout(el._t);
     el._t = setTimeout(function () { el.textContent = ""; }, 6000);
   }
-  // Persist the starter's orchestration pick so it survives result re-renders.
-  // Deliberately does NOT trigger qeRebuild — it's a download-time option only.
-  function qePkgOrchChange(v) {
-    if (state.qe) state.qe.pkgOrch = (v === "classic") ? "classic" : "generative";
+  // Persist the starter's authoring-experience pick so it survives result re-renders,
+  // and update the segmented control + helper note in place. Deliberately does NOT
+  // trigger qeRebuild — it's a download-time build-target option only.
+  function qePkgExperienceChange(v) {
+    var exp = (v === "new") ? "new" : "classic";
+    if (state.qe) state.qe.pkgExp = exp;
+    var grp = document.getElementById("qe-pkg-experience");
+    if (grp) {
+      Array.prototype.forEach.call(grp.querySelectorAll(".qe-seg-opt"), function (b) {
+        var on = b.getAttribute("data-value") === exp;
+        b.setAttribute("aria-checked", on ? "true" : "false");
+        b.classList.toggle("qe-seg-opt--active", on);
+      });
+    }
+    var note = document.getElementById("qe-pkg-exp-note");
+    if (note) note.innerHTML = qeExpNote(exp);
   }
   // Shared package options read from current Quick state + the download-time
-  // orchestration picker (kept separate from the credit-estimate orchestration).
+  // authoring-experience picker (separate from the credit-estimate orchestration).
   function qePkgOpts() {
     var v = (state.qe && state.qe.vars) || {};
     var outline = (state.qe && state.qe.outline) || null;
     var systems = (outline && outline.systems) || [];
-    var oEl = document.getElementById("qe-pkg-orch");
-    var orch = (oEl && oEl.value) || (state.qe && state.qe.pkgOrch) || "generative";
+    var grp = document.getElementById("qe-pkg-experience");
+    var sel = grp && grp.querySelector('.qe-seg-opt[aria-checked="true"]');
+    var exp = (sel && sel.getAttribute("data-value")) || (state.qe && state.qe.pkgExp) || "classic";
     // Pass the full outline so buildPackage can synthesize instructions + metadata
     // from the detected build steps (not just the systems list).
-    return { description: (state.qe && state.qe.raw) || "", vars: v, systems: systems, outline: outline, orchestration: orch };
+    return { description: (state.qe && state.qe.raw) || "", vars: v, systems: systems, outline: outline, experience: exp };
   }
 
   // Renders the inline review panel from an analyzePackage() summary. Every detected
@@ -681,7 +711,7 @@
       '<div class="qe-rev-title">Review what will be generated</div>' +
       '<div class="qe-rev-meta">' +
         '<span><strong>Agent:</strong> ' + esc(a.name) + '</span>' +
-        '<span><strong>Orchestration:</strong> ' + (a.orchestration === "classic" ? "Classic (legacy)" : "Generative") + '</span>' +
+        '<span><strong>Experience:</strong> ' + (a.experience === "new" ? "New (preview \u2014 classic package emitted)" : "Classic") + '</span>' +
         '<span><strong>Type:</strong> ' + (a.archetype === "autonomous" ? "Autonomous (triggered)" : "Interactive (chat)") + '</span>' +
       '</div>' +
       '<p class="hint" style="margin:.3rem 0 .5rem">Uncheck anything you don\u2019t want. Only the checked items are written into the package, its instructions, and <code>NEXT-STEPS.md</code>.</p>' +
@@ -806,7 +836,7 @@
       if (host) { host.innerHTML = ""; host.style.display = "none"; }
       var nRemoved = exclude.connectors.length + exclude.knowledge.length + exclude.capabilities.length;
       qePkgStatus(okDl
-        ? ("Built \u2713 " + pkg.filename + " (" + (opts.orchestration === "classic" ? "classic" : "generative") + (nRemoved ? ", " + nRemoved + " removed" : "") + ")")
+        ? ("Built \u2713 " + pkg.filename + " (" + (opts.experience === "new" ? "new experience" : "classic experience") + (nRemoved ? ", " + nRemoved + " removed" : "") + ")")
         : "Downloads aren't supported in this browser.");
     } catch (e) {
       qePkgStatus("Couldn't build the package: " + (e && e.message ? e.message : String(e)));
@@ -1480,7 +1510,7 @@
     window.qeDownloadPackage = qeDownloadPackage;
     window.qeConfirmDownload = qeConfirmDownload;
     window.qeCancelReview = qeCancelReview;
-    window.qePkgOrchChange = qePkgOrchChange;
+    window.qePkgExperienceChange = qePkgExperienceChange;
     window.spRecompute = spRecompute;
     window.spToDetailed = spToDetailed;
     window.emSetDeploy = emSetDeploy;

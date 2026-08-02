@@ -533,6 +533,26 @@
   var VERIFIED_FLOW_SHAPE = false;
   var VERIFIED_CONTENT_TOOL_SHAPE = false;
 
+  // ── Authoring-experience (build-target) gate ────────────────────────────────
+  // Microsoft Copilot Studio has TWO agent experiences (the authoring "harness"),
+  // which are fundamentally different architectures with no migration path between
+  // them (learn.microsoft.com/microsoft-copilot-studio/agents-experience/classic-vs-new):
+  //   • CLASSIC experience — topics + settings + explicit nodes; orchestration mode
+  //     (classic vs generative) is a *sub-setting within it*. THIS is the shape this
+  //     tool emits today (12 AdaptiveDialog system topics + the bot/component layout),
+  //     with generative orchestration enabled. It is verified + import-tested.
+  //   • NEW experience — a single instruction-driven agent object (no topics; enhanced
+  //     orchestration runtime, deeper reasoning). A structurally different solution
+  //     export we have NOT yet captured from a real unmanaged export.
+  // Same doctrine as the shape flags above: we never fabricate the new-experience
+  // serialization. While it's unverified, selecting "new" builds the (verified)
+  // classic-experience package as a fallback and DOCUMENTS the gap (NEXT-STEPS + UI).
+  // Flip to true only once a real new-experience unmanaged export is dropped into
+  // tooling/golden-exports/, its shape read via verify-exports.cjs, and an emitter
+  // authored + diffed green. NB: the experience selector must NOT be conflated with
+  // the in-agent orchestrator setting (GenerativeActionsEnabled) — see configJson.
+  var VERIFIED_NEW_EXPERIENCE_SHAPE = false;
+
   var GENERIC_DOMAIN = "the tasks described here";
 
   // A sensible authoring pipeline order so the numbered plan / examples read as a
@@ -946,20 +966,45 @@
       '  <template>default-2.1.0</template>\n' +
       '</bot>\n';
   }
-  function configJson(schema, orchestration) {
-    // Generative (default): generative actions on + the GenerativeAIRecognizer.
-    // Classic (legacy): disable generative actions and OMIT the recognizer so the
-    // agent runs topic/trigger-phrase driven.
-    // NB: the exact classic-orchestration configuration shape is ASSUMED here and
-    // should be verified against a real classic-orchestration export before relying on it.
-    var classic = orchestration === "classic";
+  // Narrow, explicit opt-in for CLASSIC in-agent orchestration. Default is GENERATIVE
+  // (modern, recommended); we only flip GenerativeActionsEnabled off when the description
+  // DIRECTLY calls for classic *orchestration*. Deliberately strict so it never fires by
+  // accident: it requires a classic/topic-based keyword qualifying the word "orchestration"
+  // (allowing a short bridge like a parenthetical synonym), OR "orchestration … classic",
+  // OR "disable/turn off generative orchestration". The bridge forbids the words
+  // "experience" and "generative" so "build in the classic EXPERIENCE with GENERATIVE
+  // orchestration" (the harness axis) is NOT mistaken for a classic-orchestrator request.
+  var CLASSIC_ORCH_RE = /\b(?:classic|traditional|legacy|topic[-\s]?based|trigger[-\s]?phrase(?:[-\s]?based)?)\b(?:(?!\b(?:experience|generative)\b)[^.]){0,20}?\borchestrat(?:ion|or)\b|\borchestrat(?:ion|or)\b(?:(?!\bgenerative\b)[^.]){0,16}?\bclassic\b|\b(?:disable|turn\s*off|no|without)\s+generative\s+orchestrat(?:ion|or)\b/;
+  function detectClassicOrchestration(descLower) {
+    return CLASSIC_ORCH_RE.test(descLower);
+  }
+  function configJson(schema, classicOrchestration) {
+    // Emits the agent's runtime config. Two INDEPENDENT axes must never be conflated:
+    //   • Authoring EXPERIENCE (classic vs new UI/harness) — does NOT touch this config.
+    //   • In-agent ORCHESTRATOR (GenerativeActionsEnabled) — set HERE.
+    // Doctrine: ALWAYS default to GENERATIVE orchestration (modern, recommended). Only emit
+    // the classic orchestrator shape when the description DIRECTLY calls it out (a rare
+    // escape hatch) — never by default, and never driven by the experience selector.
+    if (classicOrchestration) {
+      // Classic orchestration: generative actions OFF and NO GenerativeAIRecognizer.
+      // NOTE: this classic-config shape is ASSUMED and should be verified against a real
+      // classic-orchestration unmanaged export before relying on it in production. It only
+      // triggers on an explicit call-out, so the verified generative default is unaffected.
+      var clsCfg = {
+        BotConfiguration: {
+          GenerativeActionsEnabled: false,
+          GPTSettings: { defaultSchemaName: schema + ".gpt.default" }
+        }
+      };
+      return JSON.stringify(clsCfg, null, 2) + "\n";
+    }
     var cfg = {
       BotConfiguration: {
-        GenerativeActionsEnabled: !classic,
-        GPTSettings: { defaultSchemaName: schema + ".gpt.default" }
+        GenerativeActionsEnabled: true,
+        GPTSettings: { defaultSchemaName: schema + ".gpt.default" },
+        AISettings: { GenerativeAIRecognizer: true }
       }
     };
-    if (!classic) cfg.BotConfiguration.AISettings = { GenerativeAIRecognizer: true };
     return JSON.stringify(cfg, null, 2) + "\n";
   }
 
@@ -1071,11 +1116,12 @@
   }
 
   // ── NEXT-STEPS.md ─────────────────────────────────────────────────────────
-  function nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, orchestration, meta) {
+  function nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, meta, classicOrch) {
     vars = vars || {};
     capabilities = capabilities || [];
     meta = meta || {};
-    var classic = orchestration === "classic";
+    var isNew = experience === "new";
+    var newExpPending = isNew && !VERIFIED_NEW_EXPERIENCE_SHAPE;
     var L = [];
     L.push("# " + name + " — starter agent");
     L.push("");
@@ -1083,13 +1129,32 @@
     L.push("description. It imports as an **unmanaged** (fully editable) Copilot Studio agent so you");
     L.push("can extend it, then publish. It is a head start, **not** a production-ready agent.");
     L.push("");
-    L.push("**Orchestration mode:** " + (classic ? "Classic (legacy, topic-based)" : "Generative (recommended)") + ".");
+    L.push("**Build target:** " + (isNew ? "New agent experience (requested)" : "Classic agent experience") + ".");
     L.push("");
-    if (classic) {
-      L.push("This package was generated in **classic orchestration** — legacy, topic/trigger-phrase driven. Classic");
-      L.push("authoring is being **phased out**; we recommend **generative orchestration** instead. The estimator does");
-      L.push("**not** author custom topics, so to get classic behavior you'll need to add topics and trigger phrases");
-      L.push("yourself in the maker portal (Topics → New topic). The only topics in this package are system scaffolding.");
+    if (newExpPending) {
+      // Honest fallback: the new experience is a different architecture we can't yet
+      // emit verified, so we shipped the importable classic-experience package instead.
+      L.push("## \u26a0 New-experience agent not generated yet");
+      L.push("You selected the **new agent experience**, but that is a *fundamentally different architecture*");
+      L.push("from the classic experience (a single instruction-driven agent with no topics, on the enhanced");
+      L.push("orchestration runtime) and the two have **no import/migration path** between them. This tool");
+      L.push("doesn't yet emit a verified new-experience solution, so **this download is the classic-experience");
+      L.push("package** — it imports cleanly today. To move to the new experience: import this, then in Copilot");
+      L.push("Studio's **new experience** create a new agent and paste in the Instructions below, re-add the");
+      L.push("Knowledge sources, and re-add the Tools listed here. Microsoft recommends the new experience for");
+      L.push("its deeper reasoning and higher response quality, especially over Microsoft 365 data.");
+      L.push("");
+    }
+    if (classicOrch) {
+      // Rare escape hatch: the description explicitly asked for classic orchestration, so
+      // the config sets GenerativeActionsEnabled:false. Be loud that generative is preferred.
+      L.push("This package uses **classic (topic-based) orchestration** because your description explicitly");
+      L.push("asked for it (`GenerativeActionsEnabled` is off). Classic orchestration is **legacy** — Microsoft");
+      L.push("recommends **generative orchestration** for nearly all agents (it reasons over your instructions,");
+      L.push("tools, and knowledge instead of relying on authored topics and trigger phrases). Unless you have a");
+      L.push("hard requirement for classic behavior, turn generative orchestration back on in Copilot Studio and");
+      L.push("wire behavior through Tools + Knowledge + Instructions. If you do stay on classic, you must author");
+      L.push("the topics/trigger phrases yourself in the maker portal — this package ships none.");
     } else {
       L.push("This is a **generative-orchestration** baseline (topics-as-last-resort): the agent's behavior");
       L.push("lives in its **instructions**, **tools**, and **knowledge** — not in authored topics. Extend it");
@@ -1199,9 +1264,16 @@
   // need a component whose serialization we can't yet verify, so they're documented +
   // flagged instead of emitted. Drives both NEXT-STEPS sections and the UI review note,
   // keeping the builder the single source of truth. Returns [{ id, kind, title, detail }].
-  function shapeNotices(vars) {
+  function shapeNotices(vars, experience) {
     vars = vars || {};
     var out = [];
+    if (experience === "new" && !VERIFIED_NEW_EXPERIENCE_SHAPE) {
+      out.push({
+        id: "new-experience", kind: "experience",
+        title: "New-experience agent not generated yet",
+        detail: "The new agent experience is a different architecture (a single instruction-driven agent, no topics) with no import path from classic. This download is the classic-experience package, which imports today \u2014 after import, rebuild it in the new experience (paste the instructions, re-add knowledge + tools). See NEXT-STEPS.md."
+      });
+    }
     if (vars.archetype === "autonomous" && !VERIFIED_AUTONOMOUS_SHAPE) {
       out.push({
         id: "autonomous-trigger", kind: "autonomous",
@@ -1240,11 +1312,13 @@
     var vars = opts.vars || {};
     var systems = opts.systems || (opts.outline && opts.outline.systems) || [];
     var steps = (opts.outline && opts.outline.steps) || []; // detected build outline -> instructions/metadata
-    var orchestration = opts.orchestration === "classic" ? "classic" : "generative"; // default + recommended = generative
+    var experience = opts.experience === "new" ? "new" : "classic"; // default = classic (the verified, import-tested shape); new experience is gated below
     var name = (opts.name && String(opts.name).trim()) || deriveName(desc);
     var slug = slugify(name);
     var schema = "new_" + slug;
     var descLower = " " + desc.toLowerCase().replace(/\s+/g, " ") + " ";
+    // In-agent orchestrator: generative by default; classic ONLY on an explicit call-out.
+    var classicOrchestration = detectClassicOrchestration(descLower);
 
     // 1) Connectors implied by the description. Multiple actions may share a connector.
     //    - Text/system matches wire write + regex-detectable read/update actions.
@@ -1341,7 +1415,8 @@
     // Dry-run / preview: return the detection summary for the review step — no bytes.
     if (opts.preview) {
       return {
-        name: name, slug: slug, schema: schema, orchestration: orchestration,
+        name: name, slug: slug, schema: schema, experience: experience,
+        orchestrator: classicOrchestration ? "classic" : "generative",
         archetype: vars.archetype === "autonomous" ? "autonomous" : "interactive",
         connectors: connectors.map(function (c) {
           return { key: c.key, actionName: c.actionName, connectorLabel: c.connectorLabel, guidanceVerb: c.guidanceVerb };
@@ -1352,8 +1427,8 @@
         unmapped: unmapped.slice(),
         capabilities: capabilities.map(function (c) { return { id: c.id, behavior: c.behavior, tool: c.tool }; }),
         metadata: agentMeta,
-        notices: shapeNotices(vars),
-        shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE },
+        notices: shapeNotices(vars, experience),
+        shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
         tenantGraph: vars.knowledge === "tenantGraph"
       };
     }
@@ -1365,7 +1440,7 @@
     add("solution.xml", solutionXml(slug, name));
     add("customizations.xml", customizationsXml(connectors));
     add("bots/" + schema + "/bot.xml", botXml(schema, name));
-    add("bots/" + schema + "/configuration.json", configJson(schema, orchestration));
+    add("bots/" + schema + "/configuration.json", configJson(schema, classicOrchestration));
 
     // GPT orchestration component (type 15). Instructions reference the tools +
     // knowledge determined above, by their exact display names, and describe any
@@ -1412,7 +1487,7 @@
     if (connectors.length) add("Assets/botcomponent_connectionreferenceset.xml", connrefSetXml(connectors));
 
     // Always-present import guidance.
-    add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, orchestration, agentMeta));
+    add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration));
 
     // [Content_Types].xml leads the package and must cover EVERY part — including an
     // <Override> for each extensionless `data` file — so it is built last, once all
@@ -1428,16 +1503,17 @@
       files: entries.reduce(function (m, e) { m[e.name] = e.data; return m; }, {}),
       connectors: connectors, knowledge: knowledge, unmapped: unmapped,
       capabilities: capabilities.map(function (c) { return c.id; }),
-      orchestration: orchestration,
+      experience: experience,
+      orchestrator: classicOrchestration ? "classic" : "generative",
       metadata: agentMeta,
-      notices: shapeNotices(vars),
-      shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE },
+      notices: shapeNotices(vars, experience),
+      shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
       archetype: vars.archetype === "autonomous" ? "autonomous" : "interactive",
       tenantGraph: vars.knowledge === "tenantGraph"
     };
   }
 
-  // Dry-run wrapper: returns the detection summary (name, orchestration, archetype,
+  // Dry-run wrapper: returns the detection summary (name, experience, archetype,
   // connectors, knowledge, unmapped systems, read-capabilities) WITHOUT building bytes,
   // so the UI can show a review/confirm step before generating the .zip.
   function analyzePackage(opts) {
@@ -1494,7 +1570,7 @@
     READ_CAPABILITIES: READ_CAPABILITIES,
     detectCapabilities: detectCapabilities,
     shapeNotices: shapeNotices,
-    shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE },
+    shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
     SYSTEM_TOPICS: SYSTEM_TOPICS
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
