@@ -633,6 +633,7 @@
       '</div>' +
       '<button type="button" class="em-btn" onclick="qeDownloadPackage()" aria-label="Download a Copilot Studio starter agent as a solution package ZIP file">\u2b07 Download agent starter (.zip)</button>' +
       '<span class="em-export-status" id="qe-pkg-status" role="status" aria-live="polite" style="margin-left:.6rem"></span>' +
+      '<div id="qe-pkg-review" class="qe-pkg-review" role="group" aria-label="Review what will be generated" style="display:none"></div>' +
       '<details class="qe-import-help" style="margin-top:.65rem">' +
         '<summary>How do I import this?</summary>' +
         '<ol class="qe-import-steps">' +
@@ -658,20 +659,164 @@
   function qePkgOrchChange(v) {
     if (state.qe) state.qe.pkgOrch = (v === "classic") ? "classic" : "generative";
   }
+  // Shared package options read from current Quick state + the download-time
+  // orchestration picker (kept separate from the credit-estimate orchestration).
+  function qePkgOpts() {
+    var v = (state.qe && state.qe.vars) || {};
+    var outline = (state.qe && state.qe.outline) || null;
+    var systems = (outline && outline.systems) || [];
+    var oEl = document.getElementById("qe-pkg-orch");
+    var orch = (oEl && oEl.value) || (state.qe && state.qe.pkgOrch) || "generative";
+    // Pass the full outline so buildPackage can synthesize instructions + metadata
+    // from the detected build steps (not just the systems list).
+    return { description: (state.qe && state.qe.raw) || "", vars: v, systems: systems, outline: outline, orchestration: orch };
+  }
+
+  // Renders the inline review panel from an analyzePackage() summary. Every detected
+  // connector / knowledge source / read-capability gets a "keep" checkbox (checked by
+  // default) so the user can drop anything before the .zip is built.
+  function qePkgReviewHtml(a) {
+    var out = [];
+    out.push('<div class="qe-rev-head">' +
+      '<div class="qe-rev-title">Review what will be generated</div>' +
+      '<div class="qe-rev-meta">' +
+        '<span><strong>Agent:</strong> ' + esc(a.name) + '</span>' +
+        '<span><strong>Orchestration:</strong> ' + (a.orchestration === "classic" ? "Classic (legacy)" : "Generative") + '</span>' +
+        '<span><strong>Type:</strong> ' + (a.archetype === "autonomous" ? "Autonomous (triggered)" : "Interactive (chat)") + '</span>' +
+      '</div>' +
+      '<p class="hint" style="margin:.3rem 0 .5rem">Uncheck anything you don\u2019t want. Only the checked items are written into the package, its instructions, and <code>NEXT-STEPS.md</code>.</p>' +
+    '</div>');
+
+    // Shape-gap notices: described abilities (autonomous trigger, agent flow, prompt/
+    // content tools) whose exact export shape isn't verified yet, so the package documents
+    // them instead of emitting a component. Surfaced here so the user isn't surprised.
+    if (a.notices && a.notices.length) {
+      out.push('<div class="qe-rev-notices" role="note">');
+      out.push('<div class="qe-rev-noticeshead">Before you import \u2014 finish these in Copilot Studio</div>');
+      a.notices.forEach(function (n) {
+        out.push('<div class="qe-rev-notice"><strong>' + esc(n.title) + '</strong><div class="qe-rev-sub">' + esc(n.detail) + '</div></div>');
+      });
+      out.push('</div>');
+    }
+
+    // Connector actions (wired tools).
+    out.push('<div class="qe-rev-group"><div class="qe-rev-grouplbl">Connector actions to wire (' + a.connectors.length + ')</div>');
+    if (a.connectors.length) {
+      a.connectors.forEach(function (c) {
+        out.push('<label class="qe-rev-item"><input type="checkbox" class="qe-rev-conn" data-key="' + esc(c.key) + '" checked> ' +
+          '<span><strong>' + esc(c.actionName) + '</strong> \u2014 ' + esc(c.connectorLabel) + '</span></label>');
+      });
+    } else {
+      out.push('<div class="qe-rev-empty">None detected.</div>');
+    }
+    out.push('</div>');
+
+    // Knowledge sources.
+    var hasPlaceholder = false;
+    out.push('<div class="qe-rev-group"><div class="qe-rev-grouplbl">Knowledge sources (' + a.knowledge.length + ')</div>');
+    if (a.knowledge.length) {
+      a.knowledge.forEach(function (k) {
+        if (k.placeholder) hasPlaceholder = true;
+        var ph = k.placeholder ? ' <span class="qe-rev-flag">placeholder URL</span>' : '';
+        var site = k.site ? '<div class="qe-rev-sub">' + esc(k.site) + '</div>' : '';
+        out.push('<label class="qe-rev-item"><input type="checkbox" class="qe-rev-know" data-id="' + esc(k.id) + '" checked> ' +
+          '<span><strong>' + esc(k.label) + '</strong>' + ph + site + '</span></label>');
+      });
+    } else {
+      out.push('<div class="qe-rev-empty">None detected.</div>');
+    }
+    out.push('</div>');
+
+    // Read capabilities -> NEXT-STEPS (tools to add by hand).
+    out.push('<div class="qe-rev-group"><div class="qe-rev-grouplbl">Read capabilities \u2192 NEXT-STEPS (' + a.capabilities.length + ')</div>');
+    if (a.capabilities.length) {
+      a.capabilities.forEach(function (cap) {
+        out.push('<label class="qe-rev-item"><input type="checkbox" class="qe-rev-cap" data-id="' + esc(cap.id) + '" checked> ' +
+          '<span>' + esc(cap.behavior) + ' <span class="qe-rev-sub">tool to add by hand</span></span></label>');
+      });
+    } else {
+      out.push('<div class="qe-rev-empty">None detected.</div>');
+    }
+    out.push('</div>');
+
+    // Unmapped systems (info only — always listed in NEXT-STEPS).
+    if (a.unmapped && a.unmapped.length) {
+      out.push('<div class="qe-rev-group"><div class="qe-rev-grouplbl">Systems with no starter action</div>' +
+        '<div class="qe-rev-empty">' + a.unmapped.map(function (s) { return esc(s); }).join(", ") + ' \u2014 listed in NEXT-STEPS.</div></div>');
+    }
+    if (a.tenantGraph) {
+      out.push('<p class="hint" style="margin:.2rem 0">Grounded on Microsoft 365 tenant data (Graph) \u2014 configured on the agent, noted in NEXT-STEPS.</p>');
+    }
+    if (hasPlaceholder) {
+      out.push('<p class="hint" style="margin:.2rem 0"><strong>Note:</strong> items flagged <em>placeholder URL</em> use an example address \u2014 update it in Copilot Studio after import.</p>');
+    }
+
+    out.push('<div class="qe-rev-actions">' +
+      '<button type="button" class="em-btn" onclick="qeConfirmDownload()">\u2b07 Generate .zip</button> ' +
+      '<button type="button" class="em-btn secondary" onclick="qeCancelReview()">Cancel</button>' +
+    '</div>');
+
+    return out.join("");
+  }
+
+  // First click: analyze the description and show the review panel (no bytes built).
   function qeDownloadPackage() {
     if (!state.qe) { qePkgStatus("Build an estimate first."); return; }
-    if (!EP || !EP.buildPackage) { qePkgStatus("Package builder isn't available — try refreshing the page."); return; }
+    if (!EP || !EP.buildPackage) { qePkgStatus("Package builder isn't available \u2014 try refreshing the page."); return; }
+    var host = document.getElementById("qe-pkg-review");
     try {
-      var v = state.qe.vars || {};
-      var systems = (state.qe.outline && state.qe.outline.systems) || [];
-      var oEl = document.getElementById("qe-pkg-orch");
-      var orch = (oEl && oEl.value) || (state.qe && state.qe.pkgOrch) || "generative";
-      var pkg = EP.buildPackage({ description: state.qe.raw || "", vars: v, systems: systems, orchestration: orch });
+      var opts = qePkgOpts();
+      var a = EP.analyzePackage ? EP.analyzePackage(opts) :
+        (function () { var o = {}; for (var k in opts) o[k] = opts[k]; o.preview = true; return EP.buildPackage(o); })();
+      if (host) {
+        host.innerHTML = qePkgReviewHtml(a);
+        host.style.display = "";
+        qePkgStatus("Review the detected setup, then Generate.");
+      } else {
+        // Fallback: no panel host — build straight away (preserves old behavior).
+        qeConfirmDownload();
+      }
+    } catch (e) {
+      qePkgStatus("Couldn't analyze the package: " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  // Second click ("Generate .zip"): read the review checkboxes, build with the
+  // confirmed/edited selections, and download. With nothing unchecked the exclude
+  // lists are empty, so the output is identical to the pre-review behavior.
+  function qeConfirmDownload() {
+    if (!state.qe || !EP || !EP.buildPackage) { qePkgStatus("Package builder isn't available."); return; }
+    var host = document.getElementById("qe-pkg-review");
+    try {
+      var opts = qePkgOpts();
+      var exclude = { connectors: [], knowledge: [], capabilities: [] };
+      if (host) {
+        var collect = function (sel, key, attr) {
+          Array.prototype.forEach.call(host.querySelectorAll(sel), function (cb) {
+            if (!cb.checked) exclude[key].push(cb.getAttribute(attr));
+          });
+        };
+        collect(".qe-rev-conn", "connectors", "data-key");
+        collect(".qe-rev-know", "knowledge", "data-id");
+        collect(".qe-rev-cap", "capabilities", "data-id");
+      }
+      opts.exclude = exclude;
+      var pkg = EP.buildPackage(opts);
       var okDl = downloadBlob(pkg.bytes, pkg.filename, "application/zip");
-      qePkgStatus(okDl ? ("Built \u2713 " + pkg.filename + " (" + (orch === "classic" ? "classic" : "generative") + ")") : "Downloads aren't supported in this browser.");
+      if (host) { host.innerHTML = ""; host.style.display = "none"; }
+      var nRemoved = exclude.connectors.length + exclude.knowledge.length + exclude.capabilities.length;
+      qePkgStatus(okDl
+        ? ("Built \u2713 " + pkg.filename + " (" + (opts.orchestration === "classic" ? "classic" : "generative") + (nRemoved ? ", " + nRemoved + " removed" : "") + ")")
+        : "Downloads aren't supported in this browser.");
     } catch (e) {
       qePkgStatus("Couldn't build the package: " + (e && e.message ? e.message : String(e)));
     }
+  }
+
+  function qeCancelReview() {
+    var host = document.getElementById("qe-pkg-review");
+    if (host) { host.innerHTML = ""; host.style.display = "none"; }
+    qePkgStatus("Cancelled \u2014 nothing downloaded.");
   }
 
   function qeRenderResultsInner() {
@@ -1333,6 +1478,8 @@
     window.qeAdvanced = qeAdvanced;
     window.qeStartOver = qeStartOver;
     window.qeDownloadPackage = qeDownloadPackage;
+    window.qeConfirmDownload = qeConfirmDownload;
+    window.qeCancelReview = qeCancelReview;
     window.qePkgOrchChange = qePkgOrchChange;
     window.spRecompute = spRecompute;
     window.spToDetailed = spToDetailed;
