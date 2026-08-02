@@ -1,6 +1,11 @@
 # MkDocs build output — generated, never committed (CI rebuilds it).
 site/
 
+# Material "social" plugin render cache — regenerated per build, never committed.
+# (The generated card PNGs themselves live under site/assets/images/social, already
+# covered by the site/ rule above.)
+.cache/
+
 # Python
 __pycache__/
 *.pyc

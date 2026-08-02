@@ -97,6 +97,19 @@ plugins:
       type: date
       enable_creation_date: false
       fallback_to_build_date: true   # avoid --strict failures for untracked files
+  - social:
+      # Auto-generated branded social share cards: links shared on Teams / LinkedIn /
+      # X / Slack render a preview image with the page title + the per-page description
+      # on the site's indigo brand background. og:image / twitter:image are emitted from
+      # site_url (already set above). The site_name ("Copilot Ramp Playbook") is drawn
+      # onto every card automatically as the header line, with the page title + description
+      # below it. Needs the imaging deps (cairosvg + pillow — see requirements.txt) plus
+      # the system Cairo/FreeType libraries on the build host (installed in the CI and
+      # deploy workflows). The render cache lives in .cache/plugin/social (git-ignored).
+      cards: true
+      cards_layout_options:
+        background_color: "#4051b5"   # Material "indigo" primary — matches theme.palette
+        color: "#ffffff"
 
 markdown_extensions:
   - admonition                   # the > **Next:** / 📚 callouts render as cards

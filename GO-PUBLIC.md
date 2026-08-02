@@ -36,6 +36,19 @@ mkdocs serve
 
 Open **http://127.0.0.1:8000** in your browser. Edit any `.md` file in `docs/` and the page reloads instantly. Press `Ctrl+C` to stop.
 
+> **Heads-up — social share cards need system libraries.** The site auto-generates branded
+> link-preview images (Material's `social` plugin) so links shared on Teams / LinkedIn / X /
+> Slack show the page title + description on the brand background. That plugin renders the
+> images with **Cairo** and **FreeType**, which must be installed natively for a *local* build:
+>
+> - **macOS:** `brew install cairo freetype`
+> - **Debian/Ubuntu:** `sudo apt-get install libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev fonts-dejavu`
+> - **Windows:** install the GTK/Cairo runtime (for example via MSYS2, or conda-forge's `cairo`).
+>
+> Without Cairo, `mkdocs serve` / `mkdocs build` stops with a `cairosvg` load error. If you'd
+> rather not install it, just skip the local preview — the GitHub build installs these
+> libraries automatically and regenerates the cards on every deploy.
+
 > If `mkdocs serve` reports a broken link or a nav entry pointing at a missing file, fix it now —
 > the live build runs with `--strict`, which **fails** on broken internal links. Better to catch it here.
 
