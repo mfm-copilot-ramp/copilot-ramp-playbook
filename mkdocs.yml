@@ -148,7 +148,7 @@ extra:
   # partial reads the code from here. Until it is replaced the counter is inert.
   analytics:
     provider: custom
-    property: your-goatcounter-code   # ← REPLACE with your GoatCounter site code
+    property: copilot-ramp   # GoatCounter site code → copilot-ramp.goatcounter.com
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook
