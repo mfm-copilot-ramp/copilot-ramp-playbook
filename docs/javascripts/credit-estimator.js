@@ -617,9 +617,20 @@
   }
   // ── Quick: export an importable Copilot Studio starter agent (.zip) ───────
   function qeStarterHtml() {
+    var orch = (state.qe && state.qe.pkgOrch) || "generative";
+    var gSel = orch === "classic" ? "" : " selected";
+    var cSel = orch === "classic" ? " selected" : "";
     return '<div class="qe-starter">' +
       '<div class="section-label">Get a head start — export a Copilot Studio agent</div>' +
-      '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: instructions, generative orchestration, the standard topics, any knowledge sources, and wired connector actions. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend and publish, not a finished agent.</p>' +
+      '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: instructions, orchestration settings, the standard topics, any knowledge sources, and wired connector actions. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend and publish, not a finished agent.</p>' +
+      '<div class="qe-orch-pick" style="margin:.15rem 0 .7rem">' +
+        '<label for="qe-pkg-orch" style="display:block;font-weight:600;font-size:.9rem;margin-bottom:.25rem">Orchestration</label>' +
+        '<select id="qe-pkg-orch" onchange="qePkgOrchChange(this.value)" style="max-width:24rem;width:100%">' +
+          '<option value="generative"' + gSel + '>Generative orchestration (recommended)</option>' +
+          '<option value="classic"' + cSel + '>Classic orchestration (legacy — topic-based)</option>' +
+        '</select>' +
+        '<div class="hint" style="margin-top:.3rem">Generative is the modern default — the agent reasons over its instructions, tools, and knowledge. <strong>Classic</strong> is legacy authoring; being phased out — use only for compatibility.</div>' +
+      '</div>' +
       '<button type="button" class="em-btn" onclick="qeDownloadPackage()" aria-label="Download a Copilot Studio starter agent as a solution package ZIP file">\u2b07 Download agent starter (.zip)</button>' +
       '<span class="em-export-status" id="qe-pkg-status" role="status" aria-live="polite" style="margin-left:.6rem"></span>' +
       '<details class="qe-import-help" style="margin-top:.65rem">' +
@@ -642,15 +653,22 @@
     if (el._t) clearTimeout(el._t);
     el._t = setTimeout(function () { el.textContent = ""; }, 6000);
   }
+  // Persist the starter's orchestration pick so it survives result re-renders.
+  // Deliberately does NOT trigger qeRebuild — it's a download-time option only.
+  function qePkgOrchChange(v) {
+    if (state.qe) state.qe.pkgOrch = (v === "classic") ? "classic" : "generative";
+  }
   function qeDownloadPackage() {
     if (!state.qe) { qePkgStatus("Build an estimate first."); return; }
     if (!EP || !EP.buildPackage) { qePkgStatus("Package builder isn't available — try refreshing the page."); return; }
     try {
       var v = state.qe.vars || {};
       var systems = (state.qe.outline && state.qe.outline.systems) || [];
-      var pkg = EP.buildPackage({ description: state.qe.raw || "", vars: v, systems: systems });
+      var oEl = document.getElementById("qe-pkg-orch");
+      var orch = (oEl && oEl.value) || (state.qe && state.qe.pkgOrch) || "generative";
+      var pkg = EP.buildPackage({ description: state.qe.raw || "", vars: v, systems: systems, orchestration: orch });
       var okDl = downloadBlob(pkg.bytes, pkg.filename, "application/zip");
-      qePkgStatus(okDl ? ("Built \u2713 " + pkg.filename) : "Downloads aren't supported in this browser.");
+      qePkgStatus(okDl ? ("Built \u2713 " + pkg.filename + " (" + (orch === "classic" ? "classic" : "generative") + ")") : "Downloads aren't supported in this browser.");
     } catch (e) {
       qePkgStatus("Couldn't build the package: " + (e && e.message ? e.message : String(e)));
     }
@@ -1315,6 +1333,7 @@
     window.qeAdvanced = qeAdvanced;
     window.qeStartOver = qeStartOver;
     window.qeDownloadPackage = qeDownloadPackage;
+    window.qePkgOrchChange = qePkgOrchChange;
     window.spRecompute = spRecompute;
     window.spToDetailed = spToDetailed;
     window.emSetDeploy = emSetDeploy;
