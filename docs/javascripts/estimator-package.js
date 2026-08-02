@@ -139,6 +139,10 @@
   function deriveName(desc) {
     var d = String(desc || "").trim();
     if (!d) return "Custom Agent";
+    // Drop a leading creation phrase ("Create an …", "Build a …") so the name is
+    // the descriptive part ("Executive Meeting Prep"), not "Create An Executive …".
+    d = d.replace(/^\s*(?:please\s+)?(?:create|build|make|design|develop|configure|set\s?up|generate|we\s+want(?:\s+to\s+build)?|i\s+want|i\s+need|i'?d\s+like)\s+/i, "");
+    d = d.replace(/^(?:a|an|the|our|my)\s+/i, "");
     var m = d.match(/([A-Za-z][A-Za-z0-9 ]{1,38}?)\s+(agent|assistant|bot|copilot)\b/i);
     if (m) {
       var lead = titleCase(m[1]).replace(/^(An?|The|Our|My|A)\s+/i, "").trim();
@@ -163,6 +167,8 @@
   // ── Connector catalog (verified operationId / display-name pairs) ─────────
   // Only emitted when the description clearly implies the connector. operationIds
   // are NEVER fabricated — unknown systems go to NEXT-STEPS.md instead.
+  // `guidanceVerb` is the natural-language phrase the instructions use to point the
+  // model at the tool (e.g. "send an email" -> the "Send an email (V2)" tool).
   var CONNECTOR_ACTIONS = {
     office365: {
       connector: "shared_office365", abbrev: "office365",
@@ -170,6 +176,7 @@
       actionName: "Send an email (V2)",
       modelDescription: "Send an email through Office 365 Outlook.",
       connectorLabel: "Office 365 Outlook",
+      guidanceVerb: "send an email",
       match: /(outlook|exchange|e-?mail|inbox|send (a|an) mail)/,
       systemLabel: "Outlook / Exchange"
     },
@@ -179,6 +186,7 @@
       actionName: "Create file",
       modelDescription: "Create a file in a SharePoint document library.",
       connectorLabel: "SharePoint",
+      guidanceVerb: "save a file to SharePoint",
       // action-y language only — bare 'sharepoint' usually means a knowledge source
       match: /(upload|save|store|create|add|put|write).{0,40}(file|document|doc)|(file|document|doc).{0,40}sharepoint|sharepoint.{0,40}(upload|save|store|create|add|put|library|folder)/,
       systemLabel: "SharePoint"
@@ -189,6 +197,7 @@
       actionName: "Add a new row",
       modelDescription: "Add a new row to a Microsoft Dataverse table.",
       connectorLabel: "Microsoft Dataverse",
+      guidanceVerb: "add a row to Dataverse",
       match: /(dataverse|dynamics\s?365|\bd365\b|common data service|\bcds\b|crm record|customer record|create (a )?record|new row)/,
       systemLabel: "Dynamics 365"
     },
@@ -198,35 +207,132 @@
       actionName: "Post a message",
       modelDescription: "Post a message to a Microsoft Teams channel or chat.",
       connectorLabel: "Microsoft Teams",
+      guidanceVerb: "post a message to Teams",
       // action-y language only — bare 'teams' usually means the deployment channel
       match: /(post|send|notify|alert|message).{0,40}teams.{0,40}(channel|message|chat)?|teams.{0,40}(post|send|notify|alert|channel|message)/,
       systemLabel: "Teams"
+    },
+    servicenow: {
+      // Verified against the Microsoft "ServiceNow" connector (learn.microsoft.com/connectors/service-now).
+      connector: "shared_service-now", abbrev: "service-now",
+      operationId: "CreateRecord", actionSchema: "CreateRecord",
+      actionName: "Create record",
+      modelDescription: "Create a record in a ServiceNow table (for example an incident).",
+      connectorLabel: "ServiceNow",
+      guidanceVerb: "log a record in ServiceNow",
+      // anchored on 'servicenow' or incident-creation language, not bare 'ticket'
+      match: /service ?now|(create|open|log|raise|submit|file).{0,24}incident|incident.{0,24}(create|open|log|raise|submit|file)/,
+      systemLabel: "ServiceNow"
+    },
+    approvals: {
+      connector: "shared_approvals", abbrev: "approvals",
+      operationId: "StartAndWaitForAnApproval", actionSchema: "StartAndWaitForAnApproval",
+      actionName: "Start and wait for an approval",
+      modelDescription: "Start an approval and wait for the outcome.",
+      connectorLabel: "Approvals",
+      guidanceVerb: "request an approval",
+      match: /approval|approve\b|sign-?off|route.{0,20}approv/,
+      systemLabel: "Approvals"
+    },
+    sql: {
+      connector: "shared_sql", abbrev: "sql",
+      operationId: "PostItem_V2", actionSchema: "PostItemV2",
+      actionName: "Insert row (V2)",
+      modelDescription: "Insert a row into a SQL Server table.",
+      connectorLabel: "SQL Server",
+      guidanceVerb: "insert a row in SQL Server",
+      // action-y SQL language only — avoid matching a bare 'database' mention
+      match: /(insert|add|create|write).{0,24}(row|record).{0,24}(sql|database|table)|sql server.{0,24}(insert|add|row|record)|insert.{0,12}row/,
+      systemLabel: "SQL Server"
     }
   };
   var SYSTEM_TO_CONNECTOR = {
     "Outlook / Exchange": "office365", "SharePoint": "sharepoint",
-    "Teams": "teams", "Dynamics 365": "dataverse"
+    "Teams": "teams", "Dynamics 365": "dataverse",
+    "ServiceNow": "servicenow", "Approvals": "approvals", "SQL Server": "sql"
   };
 
-  // ── Baseline agent instructions ───────────────────────────────────────────
-  function buildInstructions(name, desc) {
-    var purpose = String(desc || "").trim().replace(/\s+/g, " ");
-    if (!purpose) purpose = "Help users with their requests accurately and safely.";
-    return [
-      "You are " + name + ", an AI assistant built in Microsoft Copilot Studio.",
-      "",
-      "Purpose",
-      purpose,
-      "",
-      "Tone",
-      "Be professional, clear, and concise. Stay friendly and helpful.",
-      "",
-      "Rules",
-      "- Ground every answer in the connected knowledge sources and cite them. If you do not know, say so rather than guessing.",
-      "- Use the available tools and actions to complete tasks. Always confirm with the user before any action that writes data, sends a message, or makes a change.",
-      "- Escalate to a human when a request is out of scope, sensitive, or the user asks for a person.",
-      "- For complex, multi-step, or multi-system requests, reason step by step and outline your plan before acting."
-    ].join("\n");
+  // ── Baseline agent instructions (generative orchestration) ────────────────
+  // Doctrine: behavior lives in INSTRUCTIONS + TOOLS + KNOWLEDGE, never in
+  // authored topics. We emit constraints + response format + guidance, and the
+  // guidance references THIS package's real tools (by exact display name) and
+  // knowledge. We deliberately avoid "search the knowledge / cite sources"
+  // phrasing — the orchestrator retrieves and grounds on its own.
+  function firstSentence(desc) {
+    var t = String(desc || "").trim().replace(/\s+/g, " ");
+    if (!t) return "";
+    var end = t.search(/[.!?](\s|$)/);
+    return end > 0 ? t.slice(0, end + 1) : t;
+  }
+  function derivePurpose(desc) {
+    var s = firstSentence(desc);
+    if (!s) return "Help users with their requests accurately and safely.";
+    // strip creation boilerplate ("Create an X agent that …") down to the intent
+    s = s.replace(/^\s*(?:please\s+)?(?:create|build|make|design|develop|configure|set\s?up|generate|we\s+want(?:\s+to\s+build)?|i\s+want|i\s+need|i'?d\s+like)\s+/i, "");
+    s = s.replace(/^(?:a|an|the|our|my)\s+/i, "");
+    s = s.replace(/^.*?\b(agent|bot|assistant|copilot)\b\s+(that|which|to|for|will)\s+/i, "");
+    s = s.replace(/\s+/g, " ").trim();
+    if (!s) return "Help users with their requests accurately and safely.";
+    if (s.length > 220) s = s.slice(0, 217).replace(/\s+\S*$/, "") + "…";
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+    if (!/[.!?…]$/.test(s)) s += ".";
+    return s;
+  }
+  function deriveDomain(name) {
+    var d = String(name || "").replace(/\b(agent|bot|assistant|copilot)\b/ig, "").replace(/\s+/g, " ").trim();
+    if (d && d.toLowerCase() !== "custom" && d.length >= 3) return d;
+    return "the topics described in your purpose above";
+  }
+  function knowledgeShort(kind) {
+    return knowledgeLabel(kind).replace(/^Knowledge\s*[—-]\s*/, "");
+  }
+  function buildInstructions(name, desc, ctx) {
+    ctx = ctx || {};
+    var vars = ctx.vars || {};
+    var connectors = ctx.connectors || [];
+    var knowledge = ctx.knowledge || [];
+    var autonomous = vars.archetype === "autonomous";
+    var domain = deriveDomain(name);
+    var purpose = derivePurpose(desc);
+    var L = [];
+
+    // Role / purpose (one line).
+    L.push("You are " + name + ", an AI agent built in Microsoft Copilot Studio. " + purpose);
+    L.push("");
+
+    // Constraints (scope guardrail, safety confirm, optional escalation).
+    L.push("Constraints");
+    L.push("- Only help with " + domain + ". If a request falls outside that, say you can't help with it and point the user to what you can do.");
+    L.push("- Confirm with the user before any action that writes data, sends a message, or makes a change.");
+    if (vars.hasEscalation) {
+      L.push("- Escalate to a human when a request is out of scope, sensitive, or the user asks for a person.");
+    }
+    L.push("");
+
+    // Response format.
+    L.push("Response format");
+    L.push("- Be professional, clear, and concise. Lead with the answer, then add only the detail that helps.");
+    L.push("");
+
+    // Guidance — references the real tools + knowledge this package emits.
+    L.push("Guidance");
+    if (autonomous) {
+      L.push("- You run automatically when your trigger fires — no one is chatting with you. Complete the task end to end using the tools below, then stop.");
+    } else {
+      L.push("- Help the user directly; ask a brief clarifying question only when you genuinely can't proceed without one.");
+    }
+    connectors.forEach(function (c) {
+      L.push("- When you need to " + (c.guidanceVerb || ("use " + c.connectorLabel)) + ", use the \"" + c.actionName + "\" tool.");
+    });
+    if (connectors.length > 1) {
+      L.push("- If a request needs more than one tool, use them in a sensible order and confirm before each change.");
+    }
+    if (knowledge.length) {
+      var labels = knowledge.map(function (k) { return knowledgeShort(k.kind); })
+        .filter(function (v, i, a) { return a.indexOf(v) === i; }).join(", ");
+      L.push("- Use the connected knowledge (" + labels + ") to answer questions about " + domain + ".");
+    }
+    return L.join("\n");
   }
 
   // ── System-topic YAML (minimal, valid AdaptiveDialog) ─────────────────────
@@ -440,12 +546,18 @@
 
   // ── NEXT-STEPS.md ─────────────────────────────────────────────────────────
   function nextStepsMd(name, connectors, unmapped, knowledge, vars) {
+    vars = vars || {};
     var L = [];
     L.push("# " + name + " — starter agent");
     L.push("");
     L.push("This is a **directional baseline** generated by the Copilot Credit Estimator from your");
     L.push("description. It imports as an **unmanaged** (fully editable) Copilot Studio agent so you");
     L.push("can extend it, then publish. It is a head start, **not** a production-ready agent.");
+    L.push("");
+    L.push("This is a **generative-orchestration** baseline (topics-as-last-resort): the agent's behavior");
+    L.push("lives in its **instructions**, **tools**, and **knowledge** — not in authored topics. Extend it");
+    L.push("by adding Tools and Knowledge and refining Instructions; only drop down to authoring a topic when");
+    L.push("orchestration genuinely can't handle the case. The topics in this package are just system scaffolding.");
     L.push("");
     L.push("## Import it");
     L.push("1. Go to **make.powerapps.com** (or **copilotstudio.microsoft.com**) → **Solutions** → **Import solution**.");
@@ -466,6 +578,16 @@
       L.push("Your description mentioned systems that don't have a built-in starter action here. Add these");
       L.push("manually in Studio (Tools → Add a tool → Connector) — we did **not** fabricate operations for them:");
       unmapped.forEach(function (s) { L.push("- " + s); });
+      L.push("");
+    }
+    var toolItems = [];
+    if (vars.hasAI) toolItems.push("Add a **Prompt tool** to draft, summarize, or classify content in your own words (Tools → Add a tool → Prompt). We don't generate the prompt tool because its exact serialization isn't verified yet.");
+    if (vars.hasFlow) toolItems.push("Add an **agent flow** (or Power Automate cloud flow) for the multi-step automation you described, then attach it as a tool.");
+    if (vars.hasContent) toolItems.push("Add a **document-processing tool** (a prompt or flow) to read and extract fields from the documents you described.");
+    if (toolItems.length) {
+      L.push("## Tools to add (no topics needed)");
+      L.push("These extend the agent through generative orchestration — add them as **Tools**, not topics:");
+      toolItems.forEach(function (t) { L.push("- " + t); });
       L.push("");
     }
     if (vars && vars.knowledge === "tenantGraph") {
@@ -509,7 +631,7 @@
         connectors.push({
           key: key, connector: c.connector, operationId: c.operationId,
           actionName: c.actionName, actionSchema: c.actionSchema,
-          actionSchemaName: actionSchemaName,
+          actionSchemaName: actionSchemaName, guidanceVerb: c.guidanceVerb,
           modelDescription: c.modelDescription, connectorLabel: c.connectorLabel,
           logical: schema + "." + c.connector + ".shared-" + c.abbrev + "-" + guid()
         });
@@ -547,13 +669,16 @@
     add("bots/" + schema + "/bot.xml", botXml(schema, name));
     add("bots/" + schema + "/configuration.json", configJson(schema));
 
-    // GPT orchestration component (type 15).
+    // GPT orchestration component (type 15). Instructions reference the tools +
+    // knowledge determined above, by their exact display names.
     var gptSchema = schema + ".gpt.default";
-    var instructions = buildInstructions(name, desc);
+    var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars });
     add("botcomponents/" + gptSchema + "/data", gptComponentData(instructions));
     add("botcomponents/" + gptSchema + "/botcomponent.xml", botcomponentXml(gptSchema, 15, name));
 
-    // System topics (type 9).
+    // System topics (type 9) — scaffolding/plumbing only (greeting, error, sign-in,
+    // escalate, …). Behavior is intentionally instruction/tool/knowledge-driven, so
+    // we never author routing or action topics here; these stay untouched.
     SYSTEM_TOPICS.forEach(function (t) {
       var s = schema + ".topic." + t.suffix;
       add("botcomponents/" + s + "/data", t.data);
