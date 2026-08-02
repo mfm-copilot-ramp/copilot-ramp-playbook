@@ -71,6 +71,15 @@ const CASES = [
       vars: { archetype: "autonomous", hasFlow: true, hasContent: true, hasAI: true },
       systems: []
     }
+  },
+  {
+    label: "new experience \u2014 instructions-first agent (SharePoint knowledge)",
+    opts: {
+      description: "An HR assistant that answers benefits questions from our SharePoint policy library.",
+      vars: { knowledge: "docs" },
+      systems: ["SharePoint"],
+      experience: "new"
+    }
   }
 ];
 
@@ -109,15 +118,23 @@ async function part1() {
     assert(names.indexOf("solution.xml") >= 0 && names.indexOf("customizations.xml") >= 0,
       "re-parsed archive contains solution.xml + customizations.xml");
 
-    // System-topic count: while the autonomous shape is gated OFF, autonomous packages
-    // keep all 12 interactive topics (current import-safe behavior); a VERIFIED autonomous
-    // shape would drop the interactive-only ones.
+    // System-topic count: the classic experience keeps all 12 interactive topics while the
+    // autonomous shape is gated OFF; the NEW experience is instructions-first and emits NONE.
     const topicCount = pkg.entries.filter(function (n) {
       return /\.topic\.[^/]+\/botcomponent\.xml$/.test(n);
     }).length;
-    const autoVerified = EP.shapeFlags.autonomous && c.opts.vars.archetype === "autonomous";
-    if (autoVerified) assert(topicCount < 12, "verified-autonomous drops interactive topics (got " + topicCount + ")");
-    else assert(topicCount === 12, "system topics == 12 (autonomous shape gated off) [got " + topicCount + "]");
+    const isNewExp = c.opts.experience === "new" && EP.shapeFlags.newExperience;
+    if (isNewExp) {
+      assert(topicCount === 0, "new experience emits no topics (got " + topicCount + ")");
+      assert(!pkg.entries.some(function (n) { return /\.gpt\.default/.test(n); }), "new experience emits no gpt.default");
+      const cfg = JSON.parse(fileText(pkg, "bots/" + pkg.schema + "/configuration.json"));
+      assert(cfg.recognizer && cfg.recognizer.$kind === "CLICopilotRecognizer", "new config uses CLICopilotRecognizer");
+      assert(cfg.agentSettings && cfg.agentSettings.instructions.segments[0].$kind === "StaticSegment", "new config carries inline StaticSegment instructions");
+    } else {
+      const autoVerified = EP.shapeFlags.autonomous && c.opts.vars.archetype === "autonomous";
+      if (autoVerified) assert(topicCount < 12, "verified-autonomous drops interactive topics (got " + topicCount + ")");
+      else assert(topicCount === 12, "system topics == 12 (autonomous shape gated off) [got " + topicCount + "]");
+    }
 
     // Fallback notices + NEXT-STEPS content when a capability is gated off.
     const noticeIds = EP.shapeNotices(c.opts.vars).map(function (x) { return x.id; });
