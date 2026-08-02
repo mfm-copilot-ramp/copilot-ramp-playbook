@@ -66,6 +66,20 @@
     setText("mode-desc", MODE_DESC[mode] || "");
   }
 
+  // ── privacy-respecting mode-usage analytics (GoatCounter custom events) ─────
+  // Cookieless + no PII: sends only the page path and a static per-mode label
+  // when the user actively picks a mode. Bound to the mode cards in init(), so it
+  // never fires on programmatic hydration or the "open in Detailed" feed-forward.
+  var GC_MODE_LABEL = { quick: "Quick", import: "Quick + Import", detailed: "Detailed", complex: "Solution package" };
+  function trackEstimatorMode(mode) {
+    if (!window.goatcounter || !GC_MODE_LABEL[mode]) return;
+    window.goatcounter.count({
+      path: location.pathname + "#estimator-mode-" + mode,
+      title: "Estimator mode: " + GC_MODE_LABEL[mode],
+      event: true
+    });
+  }
+
   // ── shared render helpers ─────────────────────────────────────────────────
   function tshirtHtml(t, drivers) {
     var i = EC.SIZE_INFO[t];
@@ -1563,6 +1577,17 @@
     }
     var qiHelp = document.getElementById("qi-schema-help");
     if (qiHelp && !qiHelp.dataset.filled) { qiHelp.dataset.filled = "1"; qiHelp.innerHTML = qiSchemaHelpHtml(); }
+
+    // Additive: report which estimator mode users actually pick (cookieless, no
+    // PII). Delegated on the card group so it only fires on a real user click.
+    var modeCards = document.querySelector(".mode-cards");
+    if (modeCards && !modeCards.dataset.gcBound) {
+      modeCards.dataset.gcBound = "1";
+      modeCards.addEventListener("click", function (e) {
+        var card = e.target.closest(".mode-card[data-mode]");
+        if (card) trackEstimatorMode(card.getAttribute("data-mode"));
+      });
+    }
 
     window.emCopySummary = emCopySummary;
     window.emDownloadSummary = emDownloadSummary;

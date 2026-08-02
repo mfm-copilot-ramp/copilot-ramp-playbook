@@ -135,6 +135,20 @@ markdown_extensions:
       permalink: true
 
 extra:
+  # ── Privacy-respecting, cookieless analytics (GoatCounter) ──────────────────
+  # Wired through Material's native custom-analytics hook. Material includes
+  # overrides/partials/integrations/analytics/custom.html into the page <head>
+  # because provider is "custom". GoatCounter sets NO cookies and stores NO
+  # personal data, so no cookie-consent banner is needed (we deliberately do not
+  # configure extra.consent).
+  #
+  # `property` is the SINGLE place to set the GoatCounter site code — the
+  # "yourname" in yourname.goatcounter.com. Create a free site at
+  # https://www.goatcounter.com/ and replace the placeholder below; the custom
+  # partial reads the code from here. Until it is replaced the counter is inert.
+  analytics:
+    provider: custom
+    property: copilot-ramp   # GoatCounter site code → copilot-ramp.goatcounter.com
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook

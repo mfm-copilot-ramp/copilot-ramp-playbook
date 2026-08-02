@@ -69,6 +69,18 @@ The use-case-first, grassroots spirit is inspired by [Sean Galliher's Cowork Coo
 
 ---
 
+## Analytics & privacy
+
+To see which stages, walkthroughs, and estimator modes actually help — and where the ramp loses people — this site uses [GoatCounter](https://www.goatcounter.com/) for lightweight, **aggregate** web analytics. It's chosen specifically because it is privacy-respecting by design:
+
+- **No cookies, so no consent banner.** GoatCounter is cookieless. There's nothing to accept or dismiss, and nothing is stored on your device.
+- **No personal data, no cross-site tracking.** We see only aggregate signals — page views, plus a few anonymous interaction counts such as whether a page's 👍 / 👎 "Was this page helpful?" was clicked, or which [Credit Estimator](credit-estimator.md) mode was opened. No names, no accounts, no fingerprinting, nothing that identifies you as an individual.
+- **Never your input.** Interaction events carry only the page path and a fixed label — never anything you type. That keeps the promise the estimator already makes: **everything runs in your browser; nothing is uploaded.** These analytics don't change that.
+
+Prefer to send nothing at all? Any content blocker — or your browser's Do-Not-Track / privacy setting — stops the counter, and the site behaves exactly the same without it.
+
+---
+
 ## Contributing & accuracy
 
 Found a broken link, an out-of-date screen, or a use case worth adding? This is a living, community resource — corrections and additions are welcome through the repository. When in doubt, defer to the official Microsoft documentation linked on each page.

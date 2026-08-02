@@ -1,0 +1,22 @@
+{#-
+  Privacy-respecting, cookieless web analytics via GoatCounter.
+
+  Material includes this partial in the document <head> because mkdocs.yml sets
+  extra.analytics.provider = custom (see the theme's
+  partials/integrations/analytics.html dispatcher). The GoatCounter site code
+  lives in exactly ONE place — extra.analytics.property in mkdocs.yml — so it is
+  swappable there without editing this file.
+
+  GoatCounter sets no cookies and stores no personal data, so no cookie-consent
+  banner is required (we intentionally do not configure extra.consent).
+
+  Page-helpfulness (👍 / 👎) and credit-estimator mode selections are additionally
+  reported as GoatCounter custom events from docs/javascripts/feedback.js and
+  docs/javascripts/credit-estimator.js, each guarded by `if (window.goatcounter)`.
+  Those events carry only the page path plus a static label — never user input.
+-#}
+{% if config.extra.analytics and config.extra.analytics.property %}
+  <script
+    data-goatcounter="https://{{ config.extra.analytics.property }}.goatcounter.com/count"
+    async src="//gc.zgo.at/count.js"></script>
+{% endif %}
