@@ -1,0 +1,10 @@
+# Code owners for the Copilot Ramp Playbook.
+# GitHub auto-requests review from these owners when a PR touches matching paths.
+
+# Default: every change needs a maintainer review.
+*       @mfm-copilot-ramp/maintainers
+
+# Optional finer-grained routing once the team grows (uncomment + adjust):
+# docs/                @mfm-copilot-ramp/content-maintainers
+# tooling/             @mfm-copilot-ramp/tooling-maintainers
+# .github/             @mfm-copilot-ramp/maintainers

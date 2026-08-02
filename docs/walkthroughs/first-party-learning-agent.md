@@ -1,5 +1,6 @@
 ---
 title: Upskill in the flow of work with the Learning agent
+description: Use the Learning agent to surface the right content, including LinkedIn Learning, the moment a skill is in front of you, not weeks later in a forgotten course.
 stage: first-party
 roles: [end-user, champion]
 tags: [first-party, learning, upskilling, linkedin-learning, enablement]

@@ -1,5 +1,6 @@
 ---
 title: Answer common questions with Agents in Communities
+description: Drop a shared agent into a Viva Engage community so the most-asked questions answer themselves where a broad audience already gathers, not in private DMs.
 stage: first-party
 roles: [champion, it-admin]
 tags: [first-party, agents, viva-engage, communities, self-serve, knowledge]

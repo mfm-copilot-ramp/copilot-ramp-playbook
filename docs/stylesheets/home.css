@@ -49,19 +49,21 @@
   background: var(--md-default-bg-color);
   border: 1px solid var(--md-default-fg-color--lightest);
   border-radius: .75rem;
-  padding: .5rem;
+  padding: .5rem .35rem;
   box-shadow: 0 1px 2px rgba(20,30,50,.06), 0 6px 18px rgba(20,30,50,.06);
   margin: 0 0 1.8rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0;
   text-decoration: none;
+  overflow-x: auto;
 }
 
 .journey .step {
-  flex: 1 1 150px;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 1.55rem .85rem .85rem;
+  padding: 1.45rem .6rem .8rem;
   border-radius: .55rem;
   text-decoration: none;
   color: var(--md-default-fg-color);
@@ -76,13 +78,14 @@
 .journey .arrow {
   align-self: center;
   color: var(--md-default-fg-color--lighter);
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1;
-  padding: 0 .15rem;
+  padding: 0 .05rem;
+  flex: 0 0 auto;
 }
 
 .journey .step .n {
-  font-size: .65rem;
+  font-size: .62rem;
   color: var(--md-default-fg-color--lighter);
   font-weight: 700;
   margin-bottom: .15rem;
@@ -90,14 +93,21 @@
 }
 .journey .step .t {
   font-weight: 700;
-  font-size: .88rem;
+  font-size: .82rem;
   margin: .1rem 0 .2rem;
   letter-spacing: -.01em;
+  line-height: 1.2;
 }
 .journey .step .d {
-  font-size: .74rem;
+  font-size: .7rem;
   color: var(--md-default-fg-color--lighter);
-  line-height: 1.4;
+  line-height: 1.35;
+}
+
+/* On narrow viewports keep the row intact via horizontal scroll
+   instead of wrapping Stage 7 to a new line. */
+@media (max-width: 900px) {
+  .journey .step { flex: 0 0 9.5rem; }
 }
 
 .journey .step.dest .t {
@@ -136,6 +146,21 @@
   font-weight: 700;
 }
 
+.journey .step.foundation::after {
+  content: "foundation";
+  position: absolute;
+  top: .5rem;
+  right: .65rem;
+  font-size: .55rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #4a5566;
+  background: color-mix(in srgb, #4a5566 10%, transparent);
+  padding: 2px 6px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
 .journey-legend {
   margin: .85rem 0 0;
   font-size: .8rem;
@@ -165,6 +190,10 @@
 }
 .journey-legend .jl-text {
   flex: 1 1 auto;
+}
+.journey-legend .jl-foundation {
+  color: #4a5566;
+  background: color-mix(in srgb, #4a5566 10%, transparent);
 }
 .journey-legend .jl-pioneer {
   color: #b26a00;

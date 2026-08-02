@@ -1,5 +1,6 @@
 ---
 title: Meet Microsoft Scout — and what Autopilots are
+description: A field guide to Autopilots, Microsoft's new category of always-on agents, and Scout, the first one, so you understand what it is and what it actually does.
 stage: autopilots
 roles: [end-user, champion, manager, maker, it-admin]
 tags: [autopilots, scout, overview, work-iq, frontier, field-guide]

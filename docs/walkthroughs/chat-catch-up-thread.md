@@ -1,5 +1,6 @@
 ---
 title: Catch up on a Teams thread you were @mentioned in
+description: Get pulled into an 80-message Teams thread and know in 30 seconds what's being asked of you and by when, using a single Copilot prompt instead of scrolling.
 stage: chat
 roles: [end-user]
 tags: [chat, teams, catch-up, triage, productivity]

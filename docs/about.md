@@ -10,7 +10,7 @@ title: About / Disclaimer
 
 ## What this is
 
-The **Copilot Ramp Cookbook** lays out a natural, grassroots ramp through seven stages of Microsoft Copilot — **Chat → First-Party Agents → Cowork → Agent Builder → Autopilots → Copilot Studio → Microsoft Foundry** — and gives you a concrete, paste-it-in use case at every step.
+The **Copilot Ramp Playbook** lays out a natural, grassroots ramp through seven stages of Microsoft Copilot — **Chat → First-Party Agents → Cowork → Agent Builder → Autopilots → Copilot Studio → Microsoft Foundry** — and gives you a concrete, paste-it-in use case at every step.
 
 It exists because two questions come up constantly: *"How do I actually get started with Copilot?"* and *"Where does it go from here?"* This site answers both as a ladder, where each rung lowers the activation energy for the next.
 

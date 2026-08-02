@@ -5,7 +5,30 @@ hide: [toc]
 
 # What's New
 
-Updates to the Copilot Ramp Cookbook — new walkthroughs, improvements, and structural changes.
+Updates to the Copilot Ramp Playbook — new walkthroughs, improvements, and structural changes.
+
+---
+
+## July 2026
+
+### Credit Estimator gains three modes — Quick, Detailed, and Solution package
+*July 29, 2026*
+
+The [Copilot Credit Estimator](credit-estimator.md) now offers **three ways to estimate**, chosen
+from a dropdown, so it fits wherever you are in the journey:
+
+- **Quick (low-effort)** — describe what you want the agent to do in plain language and get an
+  instant read on how it'd be built in Copilot Studio, a **T-shirt size**, and a rough
+  **credit/cost range**. Built for early ideas, or anyone who doesn't yet know how to size an agent.
+- **Detailed (default)** — the original feature-by-feature calculator, unchanged. For people who
+  know the tooling and want to model an agent they haven't built yet.
+- **Solution package (complex)** — export a finished Copilot Studio agent as a solution **`.zip`**
+  and upload it; the estimator inventories topics, triggers, knowledge, actions, flows, and AI
+  tools **entirely in your browser** (nothing leaves the page) to produce a grounded estimate. For
+  agents that are built and close to production.
+
+All three run **100% client-side**, and the Quick and Solution modes can **feed their assumptions
+into the Detailed calculator** so you can fine-tune from any starting point.
 
 ---
 
@@ -149,7 +172,7 @@ processing, support, NL-to-SQL, computer-use, voice/IVR, code review, and docume
   [A/B and shadow-deploy a model swap](walkthroughs/foundry-ab-shadow-deploy.md),
   [token-budgeting and cost optimization](walkthroughs/foundry-cost-optimization.md), and a
   [red-team / safety eval harness](walkthroughs/foundry-red-team-eval.md).
-- **Where it stands** — the cookbook now spans **95 walkthroughs** and **23 ready-to-adapt solution
+- **Where it stands** — the playbook now spans **95 walkthroughs** and **23 ready-to-adapt solution
   templates** across the six-stage ramp.
 
 ### Real product screenshots across the ramp
@@ -189,7 +212,7 @@ exactly what each step looks like, so you can match the product as you follow al
 ### Added 21 new walkthroughs across all 5 stages
 *June 3, 2026*
 
-The cookbook grew from 35 to 56 walkthroughs. New additions:
+The playbook grew from 35 to 56 walkthroughs. New additions:
 
 **Stage 1 · Chat (6 new)**
 
@@ -246,7 +269,7 @@ The cookbook grew from 35 to 56 walkthroughs. New additions:
 ### Initial launch: 35 walkthroughs across 5 stages
 *May 2026*
 
-First public release of the Copilot Ramp Cookbook on GitHub Pages.
+First public release of the Copilot Ramp Playbook on GitHub Pages.
 
 **Stage 1 · Chat (8 walkthroughs)** — meeting follow-ups, weekly status, 1:1 prep, document catch-up, thread catch-up, project plan, email rewrite, prompt of the day
 
@@ -260,4 +283,4 @@ First public release of the Copilot Ramp Cookbook on GitHub Pages.
 
 ---
 
-> Want to be notified of new walkthroughs? Subscribe via RSS at `/feed_rss_created.xml` or watch the [GitHub repository](https://github.com/MawellGlass/copilot-ramp-cookbook).
+> Want to be notified of new walkthroughs? Subscribe via RSS at `/feed_rss_created.xml` or watch the [GitHub repository](https://github.com/mfm-copilot-ramp/copilot-ramp-playbook).

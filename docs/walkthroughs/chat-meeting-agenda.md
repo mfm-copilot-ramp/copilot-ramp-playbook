@@ -1,5 +1,6 @@
 ---
 title: Build a meeting agenda from context and notes
+description: Use Copilot to build a structured, time-slotted meeting agenda from whatever notes and context you have, in under two minutes instead of starting from blank.
 stage: chat
 roles: [end-user, manager, champion]
 tags: [meetings, planning, productivity, teams]

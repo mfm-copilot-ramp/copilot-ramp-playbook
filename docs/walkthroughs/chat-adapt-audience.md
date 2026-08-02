@@ -1,5 +1,6 @@
 ---
 title: Adapt a document or message for a different audience
+description: Use Microsoft Copilot to transform any document or message for a new audience in one prompt, from technical spec to exec summary, without rewriting it.
 stage: chat
 roles: [end-user, manager, champion]
 tags: [comms, writing, audience, word, outlook]

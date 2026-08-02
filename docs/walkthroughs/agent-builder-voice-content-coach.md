@@ -1,5 +1,6 @@
 ---
 title: Build a "writes in my voice" content coach from your sent mail
+description: Ground a no-code agent on your own sent mail so it learns how you actually write, then have it draft and coach in your voice instead of generic AI tone.
 stage: agent-builder
 roles: [maker, end-user]
 tags: [agent-builder, declarative-agent, writing, voice, tone, personal, no-code]

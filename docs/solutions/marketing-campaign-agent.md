@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Marketing Campaign Agent"
+description: A Copilot Studio solution template for a marketing campaign agent that turns a brief into an asset checklist and on-brand first-draft copy in minutes.
 tags: [copilot-studio, marketing, campaign, content, brand, copywriting, template]
 level: intermediate
 time: 3–4 hours

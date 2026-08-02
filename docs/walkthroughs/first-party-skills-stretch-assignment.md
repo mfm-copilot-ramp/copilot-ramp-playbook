@@ -1,5 +1,6 @@
 ---
 title: Find a stretch assignment with the Skills agent
+description: Give the Skills agent your strengths and growth goals and get concrete stretch assignments, internal openings, and the one skill that opens the most doors.
 stage: first-party
 roles: [end-user, manager]
 tags: [first-party, skills, career, mobility, growth, people]

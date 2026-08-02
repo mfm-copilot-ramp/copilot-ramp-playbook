@@ -1,5 +1,6 @@
 ---
 title: Start by Role
+description: Pick your role and jump straight to the highest-value Microsoft Copilot walkthroughs for how you actually spend your day, from new user to IT admin.
 hide: [toc]
 ---
 

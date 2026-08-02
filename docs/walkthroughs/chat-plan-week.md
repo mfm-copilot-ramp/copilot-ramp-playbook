@@ -1,5 +1,6 @@
 ---
 title: Plan your week from your calendar and inbox
+description: Use Copilot to start every Monday with a clear view of what matters, what needs prep, and what you can defer, pulled from your calendar and inbox.
 stage: chat
 roles: [end-user, manager]
 tags: [planning, productivity, calendar, outlook, teams]

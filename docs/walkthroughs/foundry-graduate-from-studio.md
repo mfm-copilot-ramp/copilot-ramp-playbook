@@ -1,5 +1,6 @@
 ---
 title: Graduate a Copilot Studio agent into pro-code Foundry
+description: Re-platform a working low-code agent that hit a real ceiling as engineered Foundry software, keeping the behavior you proved and gaining the control you need.
 stage: foundry
 roles: [developer, maker]
 tags: [foundry, copilot-studio, migration, pro-code, frontier]

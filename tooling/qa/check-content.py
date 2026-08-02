@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Content QA guard for the Copilot Ramp Cookbook.
+"""Content QA guard for the Copilot Ramp Playbook.
 
 Stdlib-only. Run from the repo root:
 
@@ -22,10 +22,15 @@ What it checks:
   7. Walkthrough pages include a prompt: a "Try it now" heading or a fenced
      code block.
   8. No Markdown image embeds point at missing local files.
-  9. Stale walkthrough/solution count claims: non-history pages must not cite
-     a specific count that disagrees with the actual file counts.
-  10. Content pages (walkthroughs, solutions) should have a 'description:'
-      field in frontmatter for SEO and link previews.
+  9. Every content page (walkthroughs, stages, and non-index solutions — the same
+     set covered by the full-schema rule) carries a non-empty `description:`
+     frontmatter field of at most 160 characters, so Material stops falling back
+     to the single site_description and each page gets its own search snippet.
+     Meta / navigational pages (index.md pages, glossary, prerequisites, CATALOG,
+     RESOURCES, folder READMEs) are exempt, matching CONTENT-MODEL.md; any such
+     page that *does* declare a description is still held to the length limit.
+  10. Stale walkthrough/solution count claims: non-history pages must not cite
+      a specific count that disagrees with the actual file counts.
 """
 from __future__ import annotations
 
@@ -37,6 +42,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 
 STAGE_VOCAB = {"chat", "first-party", "cowork", "agent-builder", "autopilots", "studio", "foundry"}
+
+# Meta descriptions feed search snippets; keep them short enough not to be truncated.
+MAX_DESCRIPTION_LEN = 160
 
 # Dated changelog entries may keep their historical counts.
 HISTORY_PAGES = {"docs/whats-new.md"}
@@ -82,6 +90,30 @@ def require_keys(relpath: str, fm: dict[str, str] | None, keys: tuple[str, ...])
         errors.append(f"{relpath}: stage '{stage}' not in controlled vocabulary")
 
 
+def is_content_page(relpath: str) -> bool:
+    """Full-schema content pages — the set that must carry a `description:`.
+
+    Mirrors the tier split and the meta / navigational exemption in
+    CONTENT-MODEL.md: walkthroughs, stage pages, and solution templates are
+    content pages; `index.md` pages and other meta / navigational pages are not.
+    """
+    if relpath.startswith("docs/walkthroughs/"):
+        return True
+    if relpath.startswith("docs/stages/"):
+        return True
+    if relpath.startswith("docs/solutions/") and not relpath.endswith("/index.md"):
+        return True
+    return False
+
+
+def clean_description(raw: str) -> str:
+    """Value as the reader sees it: trimmed, with any matching wrapping quotes removed."""
+    d = raw.strip()
+    if len(d) >= 2 and d[0] == d[-1] and d[0] in "\"'":
+        d = d[1:-1].strip()
+    return d
+
+
 for path in sorted(DOCS.rglob("*.md")):
     relpath = rel(path)
     text = path.read_text(encoding="utf-8")
@@ -111,6 +143,28 @@ for path in sorted(DOCS.rglob("*.md")):
         require_keys(relpath, fm, ("title", "stage"))
     elif relpath.startswith("docs/solutions/") and path.name != "index.md":
         require_keys(relpath, fm, ("title", "status"))
+
+    # 5b. SEO meta description. Content pages must carry a non-empty description
+    # (<= 160 chars) so Material renders a per-page <meta name="description">
+    # instead of falling back to site_description. Meta / navigational pages are
+    # exempt, but any page that declares a description is still length-checked.
+    description = clean_description(fm.get("description", "")) if fm else ""
+    if is_content_page(relpath):
+        if not description:
+            errors.append(
+                f"{relpath}: frontmatter missing required key 'description' "
+                f"(every content page needs its own meta description for SEO)"
+            )
+        elif len(description) > MAX_DESCRIPTION_LEN:
+            errors.append(
+                f"{relpath}: description is {len(description)} chars "
+                f"(max {MAX_DESCRIPTION_LEN})"
+            )
+    elif description and len(description) > MAX_DESCRIPTION_LEN:
+        errors.append(
+            f"{relpath}: description is {len(description)} chars "
+            f"(max {MAX_DESCRIPTION_LEN})"
+        )
 
     # 6 & 7. Locked-template completeness on walkthrough pages.
     if fm and fm.get("status") == "walkthrough":
@@ -191,38 +245,12 @@ for path in sorted(DOCS.rglob("*.md")):
                 f"{actual_solution_count} (match: '{match.group(0)}')"
             )
 
-# ── Check 10: description field in content page frontmatter ──────────────────
-# Walkthroughs and solutions should have a description: for SEO.
-# This is a warning-level check (non-blocking) — we log but don't fail.
-
-description_warnings: list[str] = []
-for path in sorted(DOCS.rglob("*.md")):
-    relpath = rel(path)
-    if not (relpath.startswith("docs/walkthroughs/") or
-            (relpath.startswith("docs/solutions/") and path.name != "index.md")):
-        continue
-    text = path.read_text(encoding="utf-8")
-    fm = parse_frontmatter(text)
-    if fm and fm.get("status") == "walkthrough" and "description" not in fm:
-        description_warnings.append(f"{relpath}: missing 'description:' in frontmatter (recommended for SEO)")
-
 
 if errors:
     print("Content QA FAILED:\n")
     for err in errors:
         print("  -", err)
     print(f"\n{len(errors)} issue(s) found.")
-    if description_warnings:
-        print(f"\nAdditionally, {len(description_warnings)} description warning(s) (non-blocking):")
-        for warn in description_warnings[:5]:
-            print(f"  [warn] {warn}")
     sys.exit(1)
 
-if description_warnings:
-    print(f"Content QA passed with {len(description_warnings)} warning(s):")
-    for warn in description_warnings[:5]:
-        print(f"  [warn] {warn}")
-    if len(description_warnings) > 5:
-        print(f"  ... and {len(description_warnings) - 5} more")
-else:
-    print("Content QA passed: no readiness regressions found.")
+print("Content QA passed: no readiness regressions found.")

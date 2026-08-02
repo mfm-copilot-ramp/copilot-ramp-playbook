@@ -3,7 +3,7 @@
 {% block content %}
   {{ super() }}
   {% if page and not page.is_homepage %}
-    {%- set fb_repo = "https://github.com/MawellGlass/copilot-ramp-cookbook" -%}
+    {%- set fb_repo = "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook" -%}
     {%- set fb_url = page.canonical_url or page.url -%}
     {%- set fb_down_title = "Didn't work: " ~ page.title -%}
     {%- set fb_down_body = "**Page:** " ~ fb_url ~ "\n**Title:** " ~ page.title ~ "\n\n**What I was trying to do:**\n\n\n**Where the ramp broke for me (what was confusing, missing, or wrong):**\n\n\n**Anything else:**\n" -%}
@@ -37,9 +37,9 @@
   <div class="md-typeset page-foot-links">
     <p>
       Found an issue or want to suggest an improvement?
-      <a href="https://github.com/MawellGlass/copilot-ramp-cookbook/issues/new?title=Feedback+on+this+page&labels=feedback" target="_blank" rel="noopener noreferrer">Open a GitHub issue</a>
+      <a href="https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/new?title=Feedback+on+this+page&labels=feedback" target="_blank" rel="noopener noreferrer">Open a GitHub issue</a>
       &nbsp;&middot;&nbsp;
-      <a href="https://github.com/MawellGlass/copilot-ramp-cookbook" target="_blank" rel="noopener noreferrer">Star on GitHub</a>
+      <a href="https://github.com/mfm-copilot-ramp/copilot-ramp-playbook" target="_blank" rel="noopener noreferrer">Star on GitHub</a>
     </p>
   </div>
 {% endblock %}

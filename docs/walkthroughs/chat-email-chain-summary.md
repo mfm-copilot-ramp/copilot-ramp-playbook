@@ -1,5 +1,6 @@
 ---
 title: Catch up on a long email thread in seconds
+description: Open a 40-message email thread and know exactly where things stand and what's being asked of you in under a minute with one Microsoft Copilot prompt.
 stage: chat
 roles: [end-user, manager]
 tags: [email, outlook, productivity, catch-up]

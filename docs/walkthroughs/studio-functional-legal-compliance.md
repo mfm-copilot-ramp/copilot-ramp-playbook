@@ -1,5 +1,6 @@
 ---
 title: "Legal & Compliance: Policy guidance and process navigation"
+description: Build a Copilot Studio agent that answers compliance and legal-process questions with strict scope controls and a clear escalation path to a qualified human.
 stage: studio
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, legal, compliance, policies, data-handling, functional]

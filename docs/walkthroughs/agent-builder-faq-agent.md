@@ -1,5 +1,6 @@
 ---
 title: Build an FAQ agent for a recurring process
+description: Build a no-code Agent Builder FAQ bot that answers your team's repeat questions instantly, 24/7, from your own documentation so you stop being the help desk.
 stage: agent-builder
 roles: [champion, it-admin, manager]
 tags: [faq, helpdesk, agent-builder, knowledge, process]

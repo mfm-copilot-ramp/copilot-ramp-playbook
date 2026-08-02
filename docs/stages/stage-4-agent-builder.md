@@ -1,5 +1,6 @@
 ---
 title: "Stage 4 · Agent Builder"
+description: Stage 4 of the Copilot ramp. Turn the task you keep delegating into a reusable, shareable no-code agent built right inside Copilot, no code required.
 stage: agent-builder
 ---
 

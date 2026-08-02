@@ -1,5 +1,6 @@
 ---
 title: Run a "Prompt of the Day" for your team
+description: Run a 30-second daily Prompt of the Day to turn we have Copilot into we use Copilot, building team adoption one small, specific win at a time.
 stage: chat
 roles: [champion]
 tags: [chat, adoption, champion-kit, habit, enablement, ritual]

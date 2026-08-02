@@ -1,5 +1,6 @@
 ---
 title: "HR: Answer employee questions with a policies agent"
+description: Build a Copilot Studio HR agent that answers employee questions from your actual policies 24/7, cutting inbox volume and giving consistent, cited answers.
 stage: studio
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, hr, knowledge, faq, policies, functional]

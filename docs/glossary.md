@@ -1,5 +1,6 @@
 ---
 title: Glossary
+description: Plain-language definitions for the Microsoft Copilot and agent terms you'll meet on the ramp, from BizChat to Foundry. Unofficial and community-built.
 ---
 
 # Glossary

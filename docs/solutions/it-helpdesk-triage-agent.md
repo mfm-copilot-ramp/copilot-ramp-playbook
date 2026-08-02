@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: IT Helpdesk Triage Agent"
+description: A Copilot Studio solution template for an IT helpdesk agent that deflects tier-1 queries with KB answers and raises tickets automatically via Power Automate.
 tags: [copilot-studio, it, helpdesk, triage, actions, power-automate, template]
 level: intermediate
 time: 4–5 hours

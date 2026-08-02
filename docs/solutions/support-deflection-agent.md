@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Customer Support Deflection Agent (internal)"
+description: A Copilot Studio solution template for an internal support deflection agent that surfaces grounded answers, drafts replies, and escalates the edge cases.
 tags: [copilot-studio, customer-support, deflection, knowledge, escalation, template]
 level: intermediate
 time: 3–4 hours

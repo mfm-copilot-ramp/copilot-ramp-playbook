@@ -1,5 +1,6 @@
 ---
 title: Path Finder
+description: Answer six quick questions about your process, cadence, complexity, reach, data, and actions, and this Path Finder points you to the right Copilot build stage.
 hide: [toc]
 ---
 

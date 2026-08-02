@@ -1,5 +1,6 @@
 ---
 title: The Journey
+description: The seven-stage Microsoft Copilot maturity journey, from your first chat to pro-code Foundry agents, where each stage builds on the last and you start anywhere.
 hide: [toc]
 ---
 

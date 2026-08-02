@@ -1,5 +1,6 @@
 ---
 title: "IT: Self-service software and hardware access requests"
+description: Build a Copilot Studio agent that guides software, hardware, and system access requests, validated against policy and routed to the right IT queue.
 stage: studio
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, it, access-request, software, hardware, itsm, functional]

@@ -1,5 +1,6 @@
 ---
 title: Find answers across your organization's content with BizChat
+description: Search your whole company's SharePoint, email, and Teams in one question with BizChat and get a cited answer instead of a list of 400 links.
 stage: first-party
 roles: [end-user, manager, champion]
 tags: [search, knowledge, sharepoint, teams, email]

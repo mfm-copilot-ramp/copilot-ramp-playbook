@@ -1,4 +1,4 @@
-# Copilot Ramp Cookbook — Build Plan
+# Copilot Ramp Playbook — Build Plan
 
 > A public, community-built "single source" that walks customers through the Microsoft Copilot
 > maturity journey — from first chat to building and operating production agents in Microsoft Foundry.
@@ -159,7 +159,7 @@ later want a free custom domain, move the same repo to Azure Static Web Apps —
 
 ## 7. Open decisions for you
 
-1. **Site name.** Working title is "Copilot Ramp Cookbook." Alternatives: *Copilot Journey*,
+1. **Site name.** Working title is "Copilot Ramp Playbook." Alternatives: *Copilot Journey*,
    *The Copilot Ramp*, *Start With Copilot*. (Sean's is "Cowork Cookbook" — a parallel name keeps the
    family resemblance without copying.)
 2. **Custom domain now or later?** Free path = `*.github.io` to start; revisit a domain once it has traffic.

@@ -1,5 +1,6 @@
 ---
 title: "Sales: Build proposals and RFP responses with your approved content"
+description: Build a Copilot Studio agent that helps reps assemble proposals and RFP responses from your approved content, so the first draft takes 30 minutes not 3 hours.
 stage: studio
 roles: [maker, champion, manager]
 tags: [copilot-studio, sales, proposal, rfp, content-assembly, functional]

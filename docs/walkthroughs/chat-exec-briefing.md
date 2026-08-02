@@ -1,5 +1,6 @@
 ---
 title: Draft an exec briefing from background materials
+description: Use Copilot to draft sharp exec briefing talking points pulled from your own docs, so you walk into any leadership meeting prepared instead of writing at 8 PM.
 stage: chat
 roles: [end-user, manager, champion]
 tags: [comms, briefing, exec, outlook, word]

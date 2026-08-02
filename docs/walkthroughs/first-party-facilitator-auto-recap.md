@@ -1,5 +1,6 @@
 ---
 title: Auto-recap every meeting with Facilitator
+description: Let the Facilitator agent take collaborative meeting notes live and hand you decisions and action items the moment the meeting ends, no prompting required.
 stage: first-party
 roles: [end-user, champion]
 tags: [meetings, agents, teams, facilitator, delegation]

@@ -1,5 +1,6 @@
 ---
 title: Licensing & prerequisites
+description: Sort out the Microsoft Copilot licensing and prerequisites behind every walkthrough, so a feature you can't see never blocks you on the ramp again.
 ---
 
 # Licensing & prerequisites

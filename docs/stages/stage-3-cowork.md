@@ -1,5 +1,6 @@
 ---
 title: "Stage 3 · Cowork"
+description: Stage 3 of the Copilot ramp. Hand Cowork a multi-step task and let it run the work, your first taste of delegation instead of single-prompt assistance.
 stage: cowork
 ---
 

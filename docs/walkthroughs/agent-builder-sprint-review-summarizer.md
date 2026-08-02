@@ -1,5 +1,6 @@
 ---
 title: Build a sprint-review summarizer for your Friday demo
+description: Build a no-code agent that turns your Friday sprint review into a clean summary of what shipped, what's next, and what's blocked, sent in one click.
 stage: agent-builder
 roles: [maker, end-user, developer]
 tags: [agent-builder, declarative-agent, sprint-review, standup, summary, recurring, personal, no-code]

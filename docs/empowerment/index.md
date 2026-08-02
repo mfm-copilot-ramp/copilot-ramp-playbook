@@ -1,10 +1,11 @@
 ---
 title: AI Empowerment Team
+description: Go beyond individual skilling and build an AI empowerment team that helps your whole organization climb the Microsoft Copilot maturity journey together.
 ---
 
 # Build your AI empowerment team
 
-The rest of this cookbook teaches an **individual** how to climb the seven stages — from a first chat to a
+The rest of this playbook teaches an **individual** how to climb the seven stages — from a first chat to a
 production agent. This section is about the **organization** around that person: the internal team that
 decides *which* AI use cases to pursue, *who* owns them, and *which tool* each one belongs in.
 
@@ -60,12 +61,12 @@ You don't need a big team — you need the right *seats covered*. One person can
 - **Governance & compliance** — DLP, retention, what content an agent may touch.
 - **Change & communications** — training, announcements, and keeping momentum after launch.
 
-These map directly onto the personas you already see across the cookbook — see
+These map directly onto the personas you already see across the playbook — see
 [Start by Role](../start-by-role.md) for the individual-skill view of the same people.
 
 ---
 
-## How this fits the rest of the cookbook
+## How this fits the rest of the playbook
 
 This section is the **org-level companion** to the individual ladder:
 

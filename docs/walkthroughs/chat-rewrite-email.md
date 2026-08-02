@@ -1,5 +1,6 @@
 ---
 title: Rewrite an email for a tougher audience
+description: Use Copilot to turn a rambling, too-honest email draft into something tight, diplomatic, and impossible to misread, in a single prompt.
 stage: chat
 roles: [end-user]
 tags: [chat, email, writing, tone, outlook]

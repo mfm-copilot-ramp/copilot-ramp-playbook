@@ -1,0 +1,14 @@
+# Golden exports never get committed — they may contain real tenant data.
+# Keep the folder structure (READMEs, the harness, and .gitkeep placeholders)
+# but ignore any real solution export a contributor drops in to verify shapes.
+*.zip
+autonomous-agent/*
+agent-flow-tool/*
+prompt-tool/*
+content-tool/*
+
+# …but keep the placeholders so the empty folders stay in git.
+!autonomous-agent/.gitkeep
+!agent-flow-tool/.gitkeep
+!prompt-tool/.gitkeep
+!content-tool/.gitkeep

@@ -1,5 +1,6 @@
 ---
 title: Start by Stage
+description: Find your rung on the Microsoft Copilot maturity ladder in two minutes and take the next concrete step, from first chat to building your own agents.
 ---
 
 # Start by Stage

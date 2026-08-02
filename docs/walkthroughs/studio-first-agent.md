@@ -1,5 +1,6 @@
 ---
 title: Build your first Studio agent with a knowledge source + topic
+description: Build your first Copilot Studio agent with a knowledge source and a topic, adding designed conversations and logic you can ship to hundreds of people.
 stage: studio
 roles: [maker]
 tags: [copilot-studio, topics, knowledge, low-code, destination]

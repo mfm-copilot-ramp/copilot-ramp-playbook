@@ -1,5 +1,6 @@
 ---
 title: Give a Studio agent a real action with a connector
+description: Wire a connector into your Copilot Studio agent so it can read and write to a real system, making the leap from an agent that answers to one that acts.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, connector, action, integration, build]

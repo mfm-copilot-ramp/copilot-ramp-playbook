@@ -1,22 +1,22 @@
-# ── Copilot Ramp Cookbook — MkDocs configuration ────────────────────────────
+# ── Copilot Ramp Playbook — MkDocs configuration ────────────────────────────
 # Unofficial, community-built. Not affiliated with or endorsed by Microsoft.
 #
 # Local preview:  mkdocs serve   (then open http://127.0.0.1:8000)
 # Build static:   mkdocs build   (outputs to ./site)
 # Deploy Pages:   mkdocs gh-deploy   (or use the GitHub Action in .github/workflows)
 
-site_name: Copilot Ramp Cookbook
+site_name: Copilot Ramp Playbook
 site_description: >-
   A grassroots ramp through the Microsoft Copilot maturity journey —
   from your first chat to building production agents in Copilot Studio.
   Unofficial and community-built.
-site_author: Copilot Ramp Cookbook contributors
+site_author: Copilot Ramp Playbook contributors
 
 # ⚠️ Replace <org-or-user> with your GitHub account when you create the repo.
 # These three lines drive the repo link, edit button, and Pages base path.
-site_url: https://MawellGlass.github.io/copilot-ramp-cookbook/
-repo_url: https://github.com/MawellGlass/copilot-ramp-cookbook
-repo_name: copilot-ramp-cookbook
+site_url: https://mfm-copilot-ramp.github.io/copilot-ramp-playbook/
+repo_url: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook
+repo_name: mfm-copilot-ramp/copilot-ramp-playbook
 edit_uri: edit/main/docs/
 
 # Markdown source lives in docs/ (walkthroughs, catalog, resources, stage pages).
@@ -74,6 +74,11 @@ extra_javascript:
   - javascripts/role-path.js
   - javascripts/feedback.js
   - javascripts/card-filter.js
+  - javascripts/estimator-core.js
+  - javascripts/estimator-package.js
+  - javascripts/estimator-zip.js
+  - javascripts/estimator-xlsx.js
+  - javascripts/credit-estimator.js
 
 hooks:
   - tooling/mkdocs_hooks.py       # regenerates docs/path-catalog.json before each build
@@ -92,6 +97,19 @@ plugins:
       type: date
       enable_creation_date: false
       fallback_to_build_date: true   # avoid --strict failures for untracked files
+  - social:
+      # Auto-generated branded social share cards: links shared on Teams / LinkedIn /
+      # X / Slack render a preview image with the page title + the per-page description
+      # on the site's indigo brand background. og:image / twitter:image are emitted from
+      # site_url (already set above). The site_name ("Copilot Ramp Playbook") is drawn
+      # onto every card automatically as the header line, with the page title + description
+      # below it. Needs the imaging deps (cairosvg + pillow — see requirements.txt) plus
+      # the system Cairo/FreeType libraries on the build host (installed in the CI and
+      # deploy workflows). The render cache lives in .cache/plugin/social (git-ignored).
+      cards: true
+      cards_layout_options:
+        background_color: "#4051b5"   # Material "indigo" primary — matches theme.palette
+        color: "#ffffff"
 
 markdown_extensions:
   - admonition                   # the > **Next:** / 📚 callouts render as cards
@@ -119,7 +137,7 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/MawellGlass/copilot-ramp-cookbook
+      link: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook
   generator: false               # drop the "Made with Material for MkDocs" footer line
 
 # ── Navigation — journey-first (stages are the spine; role is a filter) ──────

@@ -1,5 +1,6 @@
 ---
 title: Trigger a Power Automate flow from inside a Studio agent
+description: Trigger a Power Automate flow from inside a Copilot Studio agent to create a ticket, update a record, or send a notification from a natural-language chat.
 stage: studio
 roles: [maker, it-admin]
 tags: [power-automate, studio, actions, connectors]

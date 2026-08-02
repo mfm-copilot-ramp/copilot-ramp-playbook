@@ -1,5 +1,6 @@
 ---
 title: Deep-dive a topic with Researcher
+description: Hand a hard question to the Researcher agent and get a cited, structured brief drawn from your own files and the web, an afternoon of work done in minutes.
 stage: first-party
 roles: [end-user, manager, maker]
 tags: [first-party, researcher, research, brief, sources]

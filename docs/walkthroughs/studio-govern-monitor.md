@@ -1,5 +1,6 @@
 ---
 title: Govern and monitor your agents at scale
+description: Govern and monitor a growing fleet of Copilot Studio agents so the program stays safe, compliant, and trusted as it scales instead of sprawling out of control.
 stage: studio
 roles: [it-admin]
 tags: [studio, governance, monitoring, alm, analytics, guardrails]

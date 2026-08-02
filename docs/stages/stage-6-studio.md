@@ -1,5 +1,6 @@
 ---
 title: "Stage 6 · Copilot Studio"
+description: Stage 6 of the Copilot ramp. Build production-grade agents in Copilot Studio with knowledge, real actions, MCP tools, publishing, and governance.
 stage: studio
 ---
 

@@ -32,6 +32,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install imaging system libraries (Cairo/FreeType for social cards)
+        # The Material "social" plugin renders share cards via cairosvg/Pillow, which need
+        # these native libraries. Without them the strict build fails on CI. Runs before
+        # "Install dependencies" so cairosvg can bind to Cairo when pip builds it.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev fonts-dejavu
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 

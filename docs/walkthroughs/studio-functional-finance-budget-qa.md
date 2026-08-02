@@ -1,5 +1,6 @@
 ---
 title: "Finance: Self-service spend and budget Q&A for budget owners"
+description: Build a Copilot Studio agent that gives budget owners instant answers on spend, variance from plan, and the approval process, without waiting on Finance.
 stage: studio
 roles: [maker, champion, manager]
 tags: [copilot-studio, finance, budget, spend, variance, functional]

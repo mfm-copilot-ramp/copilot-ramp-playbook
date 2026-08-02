@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Onboarding Buddy Agent"
+description: A Copilot Studio solution template for an onboarding buddy agent that personalizes first-week guidance to a new hire's role, team, and start week.
 tags: [copilot-studio, onboarding, hr, personalisation, knowledge, template]
 level: intermediate
 time: 3–4 hours

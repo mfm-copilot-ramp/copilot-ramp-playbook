@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Code-Review / PR-Triage Agent (Foundry)"
+description: A Foundry Agent Service solution template that triages pull requests on your private repo and leaves a first-pass review with risk flags, but never merges.
 tags: [foundry, pro-code, code-review, pull-request, devops, guardrails, template, developer]
 level: advanced
 time: 2–4 days

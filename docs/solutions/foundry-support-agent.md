@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Customer-Facing Support Agent (Foundry)"
+description: A Foundry Agent Service solution template for an external support agent that answers customers and takes real actions through your tools, behind guardrails.
 tags: [foundry, pro-code, support, mcp, tools, guardrails, evaluation, template, developer]
 level: advanced
 time: 3–5 days

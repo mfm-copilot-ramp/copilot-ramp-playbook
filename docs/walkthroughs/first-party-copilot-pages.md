@@ -1,5 +1,6 @@
 ---
 title: Share and co-edit an AI output with Copilot Pages
+description: Turn any Copilot response into a shared, editable Copilot Pages document, with no copy-pasting, reformatting, or emailing a draft back and forth.
 stage: first-party
 roles: [end-user, champion, manager]
 tags: [collaboration, pages, sharepoint, teams]

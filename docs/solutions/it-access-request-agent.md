@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: IT Access Request Agent"
+description: A Copilot Studio solution template for an IT access request agent that validates against the approved list, collects every field, and creates the ITSM ticket.
 tags: [copilot-studio, it, access-request, software, hardware, itsm, ticket-creation, template]
 level: intermediate
 time: 4–5 hours

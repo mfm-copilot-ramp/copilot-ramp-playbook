@@ -1,92 +1,70 @@
-# ── CI: Content Quality Gates ────────────────────────────────────────────────
-# Runs on every PR targeting main. Ensures automation PRs (and human PRs) pass
-# all quality checks before merge.
-#
-# Checks:
-# 1. check-content.py — frontmatter, stale counts, scaffolding, structure
-# 2. mkdocs build --strict — no broken internal links, valid config
-# 3. External link check (non-blocking) — reports but doesn't fail on transient errors
-
-name: "CI: content quality gates"
+# Validate pull requests against main: run the same content-QA + strict build that deploy uses,
+# without touching Pages and without needing any secrets. Fork-safe (read-only token).
+# The job name "build" below is the one to wire into branch protection as a required status check.
+name: PR validation
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "docs/**"
-      - "mkdocs.yml"
-      - "tooling/**"
-      - "automation/**"
-      - ".github/workflows/ci.yml"
-  workflow_dispatch:
+  workflow_dispatch:   # lets a maintainer rerun the validation manually
 
 permissions:
-  contents: read
-  pull-requests: write   # to post check results as comments if needed
+  contents: read       # read-only — this workflow does not deploy
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true   # newer pushes to the same PR cancel older runs
 
 jobs:
-  quality-gates:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repository
+      - name: Check out the pull request
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # full history so git-revision-date can compute accurate "last updated"
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: pip
           cache-dependency-path: requirements.txt
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt --quiet
-
-      # ── Gate 1: Content QA (blocking) ──────────────────────────────────────
-      - name: "Content QA: check-content.py"
-        run: python tooling/qa/check-content.py
-
-      # ── Gate 2: MkDocs build --strict (blocking) ───────────────────────────
-      - name: "Build: mkdocs build --strict"
-        run: mkdocs build --strict
-
-  # ── External link check (non-blocking) ───────────────────────────────────
-  # Runs as a separate job so transient network errors don't block merges.
-  # Reports results but continues on failure.
-  linkcheck:
-    runs-on: ubuntu-latest
-    # Only run link checks when docs content actually changes
-    if: contains(github.event.pull_request.labels.*.name, 'automation') || github.event_name == 'workflow_dispatch'
-    continue-on-error: true   # NEVER blocks merge on transient network failures
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v5
-
-      - name: Check external links (non-blocking)
-        uses: lycheeverse/lychee-action@v2
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          args: >
-            --verbose
-            --no-progress
-            --scheme https
-            --scheme http
-            --exclude "localhost"
-            --exclude "127.0.0.1"
-            --exclude "aka.ms"
-            --exclude "adoption.microsoft.com"
-            --exclude "m365.cloud.microsoft"
-            --max-retries 2
-            --timeout 20
-            docs/**/*.md
-          fail: false    # Report only — don't block
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          node-version: "20"
 
-      - name: Post link check summary
-        if: always()
+      - name: Install imaging system libraries (Cairo/FreeType for social cards)
+        # The Material "social" plugin renders share cards via cairosvg/Pillow, which need
+        # these native libraries. Without them the strict build fails on CI. Runs before
+        # "Install dependencies" so cairosvg can bind to Cairo when pip builds it.
         run: |
-          echo "### 🔗 External Link Check" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "This check is **non-blocking** — transient network errors are expected." >> $GITHUB_STEP_SUMMARY
-          echo "Review any persistent failures before merging." >> $GITHUB_STEP_SUMMARY
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev fonts-dejavu
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Content QA guard
+        run: python tooling/qa/check-content.py   # fails fast on readiness regressions
+
+      - name: Verify agent-package shapes (golden-export harness)
+        # Round-trips every buildPackage() output (incl. the autonomous invoice example)
+        # through the shipped ZIP reader and asserts the import invariants. CI-safe: the
+        # golden-export scan is a no-op unless a real export is present locally.
+        run: node tooling/golden-exports/verify-exports.cjs
+
+      - name: Build the site (strict)
+        run: mkdocs build --strict   # --strict fails the build on broken internal links
+
+      - name: Upload built site as a preview artifact
+        if: always()                  # upload even if a later step failed, when site/ exists
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: site
+          if-no-files-found: ignore
+          retention-days: 7

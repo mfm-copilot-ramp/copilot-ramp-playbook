@@ -1,5 +1,6 @@
 ---
 title: Seed your agent with starter prompts
+description: Seed your agent with starter prompts that tell people what to ask on the first try, the difference between an agent that gets used and one nobody opens.
 stage: agent-builder
 roles: [maker, champion]
 tags: [agent-builder, declarative-agent, starter-prompts, discoverability, adoption]
