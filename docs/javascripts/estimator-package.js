@@ -196,8 +196,10 @@
       modelDescription: "Create a file in a SharePoint document library.",
       connectorLabel: "SharePoint",
       guidanceVerb: "save a file to SharePoint",
-      // action-y language only — bare 'sharepoint' usually means a knowledge source
-      match: /(upload|save|store|create|add|put|write).{0,40}(file|document|doc)|(file|document|doc).{0,40}sharepoint|sharepoint.{0,40}(upload|save|store|create|add|put|library|folder)/,
+      // action-y language only — a write VERB must sit next to a concrete object
+      // (file/document/item/attachment). Bare 'sharepoint', 'library', or 'folder'
+      // are knowledge/deployment cues and never wire an action on their own.
+      match: /(?:upload|save|store|create|add|put|write|upsert)s?\b.{0,24}(?:files?|documents?|docs?|items?|attachments?)|(?:files?|documents?|docs?|items?|attachments?)\b.{0,24}(?:upload|save|store|create|add|put|write|upsert)s?\b/,
       systemLabel: "SharePoint"
     },
     dataverse: {
@@ -217,8 +219,9 @@
       modelDescription: "Post a message to a Microsoft Teams channel or chat.",
       connectorLabel: "Microsoft Teams",
       guidanceVerb: "post a message to Teams",
-      // action-y language only — bare 'teams' usually means the deployment channel
-      match: /(post|send|notify|alert|message).{0,40}teams.{0,40}(channel|message|chat)?|teams.{0,40}(post|send|notify|alert|channel|message)/,
+      // action-y language only — needs a write VERB next to a message object AND the
+      // word 'teams'. Bare 'teams', 'teams channel', or read phrasing never wires.
+      match: /^(?=.*\bteams\b)(?=.*(?:(?:post|send|share|publish|notify|alert)s?\b.{0,24}(?:messages?|posts?|notifications?|reply|card|chat)|(?:messages?|posts?|notifications?)\b.{0,24}(?:post|send|share|publish|notify|alert)s?\b)).*/,
       systemLabel: "Teams"
     },
     servicenow: {
@@ -278,12 +281,18 @@
     {
       id: "teamsRead",
       noun: /teams.{0,20}(message|chat|conversation|post)|(message|chat|conversation).{0,12}teams|read.{0,16}teams|summar.{0,16}teams/,
+      // outbound-send phrasing ("post a message to Teams", "notify the Teams channel")
+      // is a WRITE, not an inbound read — strip it before deciding this capability.
+      outbound: /\b(?:post|posts|posting|posted|send|sends|sending|sent|share|shares|shared|notify|notifies|notified|publish|publishes|drop|drops)\b[^.]{0,20}\b(?:messages?|posts?|notifications?|update|updates|card|cards|reply|alert|alerts)\b[^.]{0,16}\bteams\b|\bteams\b[^.]{0,20}\b(?:post|send|share|notify|publish|alert)\b/g,
       behavior: "recent Teams messages and chats",
       tool: "Add a **Microsoft Teams** \u201cGet messages\u201d tool so the agent can read recent Teams messages."
     },
     {
       id: "emailRead",
       noun: /(e-?mails?|inbox|mailbox)/,
+      // outbound-send phrasing ("emails the user a summary", "send an email") is a WRITE,
+      // not an inbound read — strip it before deciding this capability.
+      outbound: /\be-?mails?\s+(?:(?:the|a|an|them|him|her|me|us|your|our)\s+)*(?:users?|teams?|customers?|clients?|managers?|stakeholders?|recipients?|people|summary|summaries|report|reports|confirmation|notification|reminder|update|updates|response|reply|results?|details?|briefings?)\b|\b(?:send|sends|sending|sent|deliver|delivers|delivering|dispatch|dispatches|compose|composes|composing|draft|drafts|drafting|write|writes|writing)\b[^.]{0,24}\be-?mails?\b/g,
       behavior: "incoming email",
       tool: "Add an **Office 365 Outlook** \u201cGet emails (V3)\u201d tool so the agent can read incoming email."
     },
@@ -300,9 +309,24 @@
       tool: "Add an **Office 365 Users** \u201cGet user profile (V2)\u201d / \u201cSearch for users (V2)\u201d tool so the agent can look up people and org info."
     }
   ];
+  // A read capability only counts when a READ_VERB governs the noun — i.e. a read
+  // verb appears at or before where the noun phrase ends (so "review … emails" counts,
+  // but "emails the user a summary" does not, since the only read-ish word "summary"
+  // sits AFTER the noun). Outbound-send phrasing is stripped first (see cap.outbound).
+  function readGoverns(text, nounRe) {
+    var re = new RegExp(nounRe.source, nounRe.flags.replace(/g/g, "") + "g");
+    var m, lastEnd = -1;
+    while ((m = re.exec(text))) {
+      lastEnd = m.index + m[0].length;
+      if (re.lastIndex <= m.index) re.lastIndex = m.index + 1;
+    }
+    return lastEnd >= 0 && READ_VERB.test(text.slice(0, lastEnd));
+  }
   function detectCapabilities(descLower) {
-    if (!READ_VERB.test(descLower)) return [];
-    return READ_CAPABILITIES.filter(function (cap) { return cap.noun.test(descLower); });
+    return READ_CAPABILITIES.filter(function (cap) {
+      var text = cap.outbound ? descLower.replace(cap.outbound, " ") : descLower;
+      return cap.noun.test(text) && readGoverns(text, cap.noun);
+    });
   }
 
   // ── Baseline agent instructions (generative orchestration) ────────────────
