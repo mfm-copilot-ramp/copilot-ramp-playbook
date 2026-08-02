@@ -75,6 +75,7 @@ extra_javascript:
   - javascripts/feedback.js
   - javascripts/card-filter.js
   - javascripts/estimator-core.js
+  - javascripts/estimator-package.js
   - javascripts/estimator-zip.js
   - javascripts/estimator-xlsx.js
   - javascripts/credit-estimator.js
