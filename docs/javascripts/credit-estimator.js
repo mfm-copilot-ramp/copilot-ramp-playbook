@@ -8,7 +8,7 @@
 (function () {
   "use strict";
 
-  var EC = null, EZ = null, EX = null;
+  var EC = null, EZ = null, EX = null, EP = null;
   var state = { qe: null, sp: null, qi: null };
 
   // ── formatting ────────────────────────────────────────────────────────────
@@ -604,6 +604,7 @@
         '<div class="qe-axis"><h4>💳 Run cost</h4><div id="qe-axis-cost"></div></div>' +
       "</div>" +
       '<div id="qe-profile2"></div>' +
+      qeStarterHtml() +
       '<div class="qe-nav" style="margin-top:1.25rem">' +
         (adv
           ? '<button type="button" class="em-btn secondary" onclick="qeAdvanced()">← Back to guided</button>'
@@ -614,6 +615,47 @@
         '<button type="button" class="em-btn" onclick="qeToDetailed()">Open in Detailed estimator →</button>' +
       "</div></div>";
   }
+  // ── Quick: export an importable Copilot Studio starter agent (.zip) ───────
+  function qeStarterHtml() {
+    return '<div class="qe-starter">' +
+      '<div class="section-label">Get a head start — export a Copilot Studio agent</div>' +
+      '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: instructions, generative orchestration, the standard topics, any knowledge sources, and wired connector actions. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend and publish, not a finished agent.</p>' +
+      '<button type="button" class="em-btn" onclick="qeDownloadPackage()" aria-label="Download a Copilot Studio starter agent as a solution package ZIP file">\u2b07 Download agent starter (.zip)</button>' +
+      '<span class="em-export-status" id="qe-pkg-status" role="status" aria-live="polite" style="margin-left:.6rem"></span>' +
+      '<details class="qe-import-help" style="margin-top:.65rem">' +
+        '<summary>How do I import this?</summary>' +
+        '<ol class="qe-import-steps">' +
+          '<li>Go to <strong>make.powerapps.com</strong> (or <strong>copilotstudio.microsoft.com</strong>) &rarr; <strong>Solutions</strong> &rarr; <strong>Import solution</strong>.</li>' +
+          '<li>Choose the downloaded <code>.zip</code> and continue.</li>' +
+          '<li>On the <strong>Connections</strong> step, pick or create a connection for each connector.</li>' +
+          '<li>Click <strong>Import</strong> and wait for it to finish.</li>' +
+          '<li>Open the agent, review it, and <strong>Publish</strong>. It imports unmanaged, so everything stays editable.</li>' +
+        '</ol>' +
+        '<p class="hint" style="margin:.4rem 0 0">A <code>NEXT-STEPS.md</code> inside the package lists the connections to set and any actions to wire up by hand.</p>' +
+      '</details>' +
+    '</div>';
+  }
+  function qePkgStatus(msg) {
+    var el = document.getElementById("qe-pkg-status");
+    if (!el) return;
+    el.textContent = msg;
+    if (el._t) clearTimeout(el._t);
+    el._t = setTimeout(function () { el.textContent = ""; }, 6000);
+  }
+  function qeDownloadPackage() {
+    if (!state.qe) { qePkgStatus("Build an estimate first."); return; }
+    if (!EP || !EP.buildPackage) { qePkgStatus("Package builder isn't available — try refreshing the page."); return; }
+    try {
+      var v = state.qe.vars || {};
+      var systems = (state.qe.outline && state.qe.outline.systems) || [];
+      var pkg = EP.buildPackage({ description: state.qe.raw || "", vars: v, systems: systems });
+      var okDl = downloadBlob(pkg.bytes, pkg.filename, "application/zip");
+      qePkgStatus(okDl ? ("Built \u2713 " + pkg.filename) : "Downloads aren't supported in this browser.");
+    } catch (e) {
+      qePkgStatus("Couldn't build the package: " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
   function qeRenderResultsInner() {
     if (!state.qe) return;
     var v = state.qe.vars, profile = state.qe.profile || EC.deriveQuick(v);
@@ -693,7 +735,7 @@
     }
     var a = EC.analyzeText(txt);
     state.qe = {
-      vars: clone(a.vars), why: a.why, outline: a.outline, profile: a.profile.map(clone),
+      raw: txt, vars: clone(a.vars), why: a.why, outline: a.outline, profile: a.profile.map(clone),
       detectedActions: (a.outline.steps || []).filter(function (s) { return s.category === "action" && s.id !== "escalation"; }).map(function (s) { return s.id; }),
       view: "wizard", step: 0
     };
@@ -1255,6 +1297,7 @@
     EC = window.EstimatorCore;
     EZ = window.EstimatorZip;
     EX = window.EstimatorXlsx || null;
+    EP = window.EstimatorPackage || null;
     if (!EC || !EZ) return;
 
     window.setEstimatorMode = setEstimatorMode;
@@ -1271,6 +1314,7 @@
     window.qeEdit = qeEdit;
     window.qeAdvanced = qeAdvanced;
     window.qeStartOver = qeStartOver;
+    window.qeDownloadPackage = qeDownloadPackage;
     window.spRecompute = spRecompute;
     window.spToDetailed = spToDetailed;
     window.emSetDeploy = emSetDeploy;

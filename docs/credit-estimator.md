@@ -276,6 +276,11 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 @media (min-width: 680px) { .qe-axes { grid-template-columns: 1fr 1fr; } }
 .qe-axis { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 0.9rem 1rem; }
 .qe-axis h4 { margin: 0 0 0.6rem; font-size: 0.9rem; }
+.qe-starter { margin: 1.25rem 0 0; padding: 0.9rem 1rem; border: 1px solid var(--md-primary-fg-color); border-radius: 10px; background: color-mix(in srgb, var(--md-primary-fg-color) 6%, transparent); }
+.qe-import-help { margin-top: 0.65rem; }
+.qe-import-help > summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--md-primary-fg-color); }
+.qe-import-steps { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.8rem; line-height: 1.6; color: var(--md-default-fg-color--light); }
+.qe-import-steps li { margin: 0.15rem 0; }
 
 /* Quick + Import (batch portfolio) */
 .qi-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.5rem 0 0.25rem; }
@@ -365,7 +370,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
   </div>
   <button type="button" class="em-btn" onclick="qeAnalyze()">Build my estimate &rarr;</button>
   <div id="qe-results" class="em-hidden"></div>
-  <p class="hint" style="margin-top:1rem">We read your description to pre-fill a short guided assessment, then estimate the Studio build effort and a credit/cost profile — a directional starting point, not a real LLM analysis. Answer the questions, then open it in the Detailed estimator.</p>
+  <p class="hint" style="margin-top:1rem">We read your description to pre-fill a short guided assessment, then estimate the Studio build effort and a credit/cost profile — a directional starting point, not a real LLM analysis. Answer the questions, then open it in the Detailed estimator. Once your estimate is ready, you can also <strong>download a ready-to-import Copilot Studio starter agent (.zip)</strong> generated from your description.</p>
 </div>
 
 <!-- ── COMPLEX (solution package upload) ── -->
