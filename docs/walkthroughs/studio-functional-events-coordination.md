@@ -1,5 +1,6 @@
 ---
 title: "Workplace: plan an internal event end to end"
+description: Build a Copilot Studio agent that turns running an internal event into a logistics checklist, room and catering bookings, and drafted attendee comms.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, events, workplace, operations, functional]

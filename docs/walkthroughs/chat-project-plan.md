@@ -1,5 +1,6 @@
 ---
 title: Build a first-draft project plan
+description: Use Copilot to go from a vague goal to a first-draft project plan with phases, milestones, owners, and risks that you can edit in about five minutes.
 stage: chat
 roles: [champion, manager]
 tags: [chat, planning, project, structure, productivity]

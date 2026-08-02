@@ -22,6 +22,13 @@ What it checks:
   7. Walkthrough pages include a prompt: a "Try it now" heading or a fenced
      code block.
   8. No Markdown image embeds point at missing local files.
+  9. Every content page (walkthroughs, stages, and non-index solutions — the same
+     set covered by the full-schema rule) carries a non-empty `description:`
+     frontmatter field of at most 160 characters, so Material stops falling back
+     to the single site_description and each page gets its own search snippet.
+     Meta / navigational pages (index.md pages, glossary, prerequisites, CATALOG,
+     RESOURCES, folder READMEs) are exempt, matching CONTENT-MODEL.md; any such
+     page that *does* declare a description is still held to the length limit.
 """
 from __future__ import annotations
 
@@ -33,6 +40,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 
 STAGE_VOCAB = {"chat", "first-party", "cowork", "agent-builder", "autopilots", "studio", "foundry"}
+
+# Meta descriptions feed search snippets; keep them short enough not to be truncated.
+MAX_DESCRIPTION_LEN = 160
 
 # Dated changelog entries may keep their historical counts.
 HISTORY_PAGES = {"docs/whats-new.md"}
@@ -78,6 +88,30 @@ def require_keys(relpath: str, fm: dict[str, str] | None, keys: tuple[str, ...])
         errors.append(f"{relpath}: stage '{stage}' not in controlled vocabulary")
 
 
+def is_content_page(relpath: str) -> bool:
+    """Full-schema content pages — the set that must carry a `description:`.
+
+    Mirrors the tier split and the meta / navigational exemption in
+    CONTENT-MODEL.md: walkthroughs, stage pages, and solution templates are
+    content pages; `index.md` pages and other meta / navigational pages are not.
+    """
+    if relpath.startswith("docs/walkthroughs/"):
+        return True
+    if relpath.startswith("docs/stages/"):
+        return True
+    if relpath.startswith("docs/solutions/") and not relpath.endswith("/index.md"):
+        return True
+    return False
+
+
+def clean_description(raw: str) -> str:
+    """Value as the reader sees it: trimmed, with any matching wrapping quotes removed."""
+    d = raw.strip()
+    if len(d) >= 2 and d[0] == d[-1] and d[0] in "\"'":
+        d = d[1:-1].strip()
+    return d
+
+
 for path in sorted(DOCS.rglob("*.md")):
     relpath = rel(path)
     text = path.read_text(encoding="utf-8")
@@ -107,6 +141,28 @@ for path in sorted(DOCS.rglob("*.md")):
         require_keys(relpath, fm, ("title", "stage"))
     elif relpath.startswith("docs/solutions/") and path.name != "index.md":
         require_keys(relpath, fm, ("title", "status"))
+
+    # 5b. SEO meta description. Content pages must carry a non-empty description
+    # (<= 160 chars) so Material renders a per-page <meta name="description">
+    # instead of falling back to site_description. Meta / navigational pages are
+    # exempt, but any page that declares a description is still length-checked.
+    description = clean_description(fm.get("description", "")) if fm else ""
+    if is_content_page(relpath):
+        if not description:
+            errors.append(
+                f"{relpath}: frontmatter missing required key 'description' "
+                f"(every content page needs its own meta description for SEO)"
+            )
+        elif len(description) > MAX_DESCRIPTION_LEN:
+            errors.append(
+                f"{relpath}: description is {len(description)} chars "
+                f"(max {MAX_DESCRIPTION_LEN})"
+            )
+    elif description and len(description) > MAX_DESCRIPTION_LEN:
+        errors.append(
+            f"{relpath}: description is {len(description)} chars "
+            f"(max {MAX_DESCRIPTION_LEN})"
+        )
 
     # 6 & 7. Locked-template completeness on walkthrough pages.
     if fm and fm.get("status") == "walkthrough":

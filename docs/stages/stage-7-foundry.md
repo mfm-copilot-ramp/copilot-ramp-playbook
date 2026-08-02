@@ -1,5 +1,6 @@
 ---
 title: "Stage 7 · Foundry"
+description: Stage 7 of the Copilot ramp. Cross into pro-code Microsoft Foundry for custom models, autonomous orchestration, evaluation, and MCP tools at scale.
 stage: foundry
 ---
 

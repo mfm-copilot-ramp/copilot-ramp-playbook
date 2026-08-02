@@ -1,5 +1,6 @@
 ---
 title: Fine-tune a domain model and serve it from a Foundry agent
+description: When prompting and retrieval hit their ceiling, fine-tune a base model on your domain, serve it from a Foundry agent, and prove it actually got better.
 stage: foundry
 roles: [developer, it-admin]
 tags: [foundry, fine-tuning, custom-model, serving, evaluation, pro-code, frontier]

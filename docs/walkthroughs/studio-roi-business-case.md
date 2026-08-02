@@ -1,5 +1,6 @@
 ---
 title: Make the ROI case for your agent
+description: Build the ROI story for your Copilot Studio agent in the language leadership funds, with defensible numbers, so it survives the next budget review.
 stage: studio
 roles: [manager, champion]
 tags: [copilot-studio, roi, business-case, value, adoption]

@@ -1,5 +1,6 @@
 ---
 title: Quick Wins
+description: The highest-return Microsoft Copilot prompts across the journey, organized by the moment you're in. Copy, paste, fill in the brackets, and send.
 hide: [toc]
 ---
 

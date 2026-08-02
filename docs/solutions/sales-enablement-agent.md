@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Sales Enablement Agent"
+description: A Copilot Studio solution template for a sales enablement agent that gives reps grounded product positioning, competitive responses, and approved talk tracks.
 tags: [copilot-studio, sales, competitive-intel, product-knowledge, objections, template]
 level: intermediate
 time: 3–4 hours

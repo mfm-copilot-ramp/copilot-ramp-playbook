@@ -1,5 +1,6 @@
 ---
 title: Start by Product
+description: Pick the Microsoft app you already have open, Outlook, Teams, Word, PowerPoint, or Excel, and get three Copilot moves to try in the next five minutes.
 hide: [toc]
 ---
 

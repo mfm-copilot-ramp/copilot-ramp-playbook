@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Voice Agent / Contact-Center IVR (Foundry)"
+description: A Foundry Agent Service solution template for a voice agent that answers a call, holds a grounded conversation, takes scoped actions, and hands off to a human.
 tags: [foundry, pro-code, voice, speech, ivr, contact-center, guardrails, template, developer]
 level: advanced
 time: 3–5 days

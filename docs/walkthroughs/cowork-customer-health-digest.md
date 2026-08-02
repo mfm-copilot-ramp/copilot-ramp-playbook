@@ -1,5 +1,6 @@
 ---
 title: Generate a weekly customer-health digest across your accounts
+description: Describe the account digest you wish you had once and let Copilot Cowork compile a weekly customer-health view across your whole book of business.
 stage: cowork
 roles: [end-user, manager, champion]
 tags: [cowork, sales, csm, customer-health, digest, recurring, accounts, multi-step]

@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Legal & Compliance Guidance Agent"
+description: A Copilot Studio solution template for a legal and compliance agent that answers policy questions with tight scope controls and a firm escalation path.
 tags: [copilot-studio, legal, compliance, gdpr, data-handling, policy, template]
 level: intermediate
 time: 3–4 hours

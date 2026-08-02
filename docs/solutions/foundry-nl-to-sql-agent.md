@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: NL-to-SQL Analytics Agent (Foundry)"
+description: A Foundry Agent Service solution template that turns a plain-English question into validated, read-only SQL against your warehouse and returns the query it ran.
 tags: [foundry, pro-code, nl-to-sql, analytics, data-warehouse, evaluation, template, developer]
 level: advanced
 time: 2–4 days

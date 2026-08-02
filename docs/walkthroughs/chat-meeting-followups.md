@@ -1,5 +1,6 @@
 ---
 title: Turn a meeting into tracked follow-ups
+description: Use Microsoft Copilot to capture decisions, owners, and due dates in under five minutes after any meeting, without re-watching the recording.
 stage: chat
 roles: [end-user, champion]
 tags: [meetings, productivity, teams, outlook]

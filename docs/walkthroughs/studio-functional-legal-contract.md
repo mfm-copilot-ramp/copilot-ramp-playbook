@@ -1,5 +1,6 @@
 ---
 title: "Legal: Guide employees through contract routing and requirements"
+description: Build a Copilot Studio agent that gives employees a clear path for getting contracts reviewed, what type, what Legal needs, and where to submit, before intake.
 stage: studio
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, legal, contracts, routing, process-navigation, functional]

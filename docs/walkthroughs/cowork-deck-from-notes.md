@@ -1,5 +1,6 @@
 ---
 title: Build a deck from raw notes
+description: Hand Copilot Cowork your messy notes and get back a real slide deck with structure, narrative, and draft slides, so you start from a v1 not a blank canvas.
 stage: cowork
 roles: [end-user, champion]
 tags: [cowork, powerpoint, deck, synthesis, delegation]

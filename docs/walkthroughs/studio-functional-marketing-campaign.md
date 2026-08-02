@@ -1,5 +1,6 @@
 ---
 title: "Marketing: brief to campaign drafts"
+description: Build a Copilot Studio agent that turns a short brief into an asset checklist and on-brand first-draft copy, so the team starts from a draft not a blank page.
 stage: studio
 roles: [maker, marketer]
 tags: [copilot-studio, marketing, campaign, content, brand, functional]

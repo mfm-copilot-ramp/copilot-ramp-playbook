@@ -1,5 +1,6 @@
 ---
 title: Keep a project on track with the Project Manager agent
+description: Hand the Project Manager agent your plan and let it track action items, chase owners, and flag slips, so you stop being the human status-checker.
 stage: first-party
 roles: [champion, manager]
 tags: [first-party, project-manager, tracking, action-items, accountability]

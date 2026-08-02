@@ -1,5 +1,6 @@
 ---
 title: Add an MCP tool integration to your Studio agent
+description: Wire an MCP server into your Copilot Studio agent so it moves from telling users what the docs say to acting in the live system and making the change.
 stage: studio
 roles: [maker]
 tags: [studio, mcp, tools, integration, actions, extend]

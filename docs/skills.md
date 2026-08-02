@@ -1,5 +1,6 @@
 ---
 title: Skills Catalog
+description: A catalog of Copilot skills, the reusable, packaged capabilities you save once and reuse or share, so your best prompts and workflows don't get lost.
 ---
 
 # Skills Catalog

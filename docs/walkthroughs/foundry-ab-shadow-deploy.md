@@ -1,5 +1,6 @@
 ---
 title: A/B and shadow-deploy a model swap behind a Foundry agent
+description: Swap the model behind a Foundry agent the way you ship risky code, shadow first, then a small slice of live traffic, then promote on the numbers.
 stage: foundry
 roles: [developer, it-admin]
 tags: [foundry, deployment, ab-testing, shadow, model-swap, evaluation, pro-code, frontier]

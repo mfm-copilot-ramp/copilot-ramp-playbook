@@ -1,5 +1,6 @@
 ---
 title: Brainstorm solutions with structured tradeoffs
+description: Use Copilot to get past the blank page fast with structured options and honest tradeoffs, so you make a quicker, better-informed decision.
 stage: chat
 roles: [end-user, manager, champion]
 tags: [ideation, planning, strategy, productivity]

@@ -1,5 +1,6 @@
 ---
 title: Give your agent a persona and instructions that stick
+description: Write the persona, rules, and when-unsure behavior that make a no-code agent predictable and trusted, instead of one people abandon after a bad answer.
 stage: agent-builder
 roles: [maker]
 tags: [agent-builder, declarative-agent, persona, instructions, behavior]

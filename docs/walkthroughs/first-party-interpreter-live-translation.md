@@ -1,5 +1,6 @@
 ---
 title: Translate a meeting in real time with Interpreter
+description: Run a cross-language Teams meeting without a human interpreter as the Interpreter agent translates speech live in your own voice so everyone follows along.
 stage: first-party
 roles: [end-user]
 tags: [first-party, interpreter, translation, teams, meetings, accessibility]

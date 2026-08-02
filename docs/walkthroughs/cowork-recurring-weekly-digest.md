@@ -1,5 +1,6 @@
 ---
 title: Stand up a recurring weekly digest
+description: Describe the Monday-morning digest you wish landed in your inbox once and let Copilot Cowork compile and send it every week without you lifting a finger.
 stage: cowork
 roles: [champion, manager]
 tags: [cowork, scheduled-task, recurring, digest, automation]

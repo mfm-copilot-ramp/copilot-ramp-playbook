@@ -1,5 +1,6 @@
 ---
 title: "IT: Triage support requests and answer from the knowledge base"
+description: Build a Copilot Studio agent that deflects tier-1 IT tickets with instant knowledge-base answers and collects the details to raise a ticket when needed.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, it, helpdesk, triage, knowledge, actions, power-automate, functional]

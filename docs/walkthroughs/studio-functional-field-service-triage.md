@@ -1,5 +1,6 @@
 ---
 title: "Field Service: symptoms to dispatch path"
+description: Build a Copilot Studio agent that turns a symptom or fault code into the likely cause and the right dispatch path, so easy fixes never become a truck roll.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, field-service, triage, dispatch, functional]

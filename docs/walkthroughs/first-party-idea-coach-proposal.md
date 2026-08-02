@@ -1,5 +1,6 @@
 ---
 title: Pressure-test a proposal with the Idea Coach
+description: Hand your proposal to the Idea Coach before you send it and get the pushback a sharp colleague would give, the weak assumption and the missing option.
 stage: first-party
 roles: [end-user, manager, champion]
 tags: [first-party, idea-coach, brainstorm, feedback, proposal, writing]

@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Engineering On-Call Runbook Agent"
+description: A Copilot Studio solution template for an on-call runbook agent that matches an alert to the right step, guides the responder, and knows the escalation path.
 tags: [copilot-studio, engineering, on-call, runbook, incident, escalation, template]
 level: intermediate
 time: 4–5 hours

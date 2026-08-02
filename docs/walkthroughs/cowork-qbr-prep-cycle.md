@@ -1,5 +1,6 @@
 ---
 title: Run a full QBR prep cycle in Cowork
+description: Hand the full QBR prep cycle to Copilot Cowork, pulling account data, building the deck, prepping talking points, and chasing follow-ups so you just review.
 stage: cowork
 roles: [end-user, manager, champion]
 tags: [cowork, sales, qbr, deck, account, talking-points, follow-ups, multi-step]

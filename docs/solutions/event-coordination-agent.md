@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Event Coordination Agent"
+description: A Copilot Studio solution template for an event coordination agent that builds the logistics checklist, kicks off bookings, and drafts attendee communications.
 tags: [copilot-studio, events, workplace, operations, logistics, template]
 level: intermediate
 time: 3–4 hours

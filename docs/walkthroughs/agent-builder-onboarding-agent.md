@@ -1,5 +1,6 @@
 ---
 title: Build an onboarding agent for new hires
+description: Build a self-service onboarding agent that answers new hires' first-week questions on demand, so you stop repeating the same setup conversation every time.
 stage: agent-builder
 roles: [manager, champion, hr]
 tags: [onboarding, agent-builder, hr, knowledge]

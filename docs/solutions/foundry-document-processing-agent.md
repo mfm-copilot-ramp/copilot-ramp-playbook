@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: High-Volume Document Processing Agent (Foundry)"
+description: A Foundry Agent Service solution template that extracts structured data from documents at scale, validates against a schema, and routes exceptions to a human.
 tags: [foundry, pro-code, document-processing, extraction, evaluation, template, developer]
 level: advanced
 time: 2–4 days

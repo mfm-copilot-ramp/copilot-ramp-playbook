@@ -1,5 +1,6 @@
 ---
 title: Find where Copilot is landing with Workforce insights
+description: Use Workforce insights to see where your team gets real value from Copilot and where they underuse it, so you aim enablement at the gap, not the noise.
 stage: first-party
 roles: [champion, manager]
 tags: [first-party, adoption, insights, analytics, enablement, value]

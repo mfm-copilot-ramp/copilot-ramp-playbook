@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Sales Proposal & RFP Agent"
+description: A Copilot Studio solution template for a sales proposal and RFP agent that surfaces the right approved brief, case study, or answer from your content library.
 tags: [copilot-studio, sales, proposal, rfp, content-assembly, template]
 level: intermediate
 time: 3–4 hours

@@ -1,5 +1,6 @@
 ---
 title: Choose the Right Path
+description: A decision guide that helps you avoid the most common AI adoption mistake, building in the wrong place, by matching your process to the right Copilot stage.
 ---
 
 # Choose the right path

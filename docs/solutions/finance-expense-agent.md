@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Finance Expense & Procurement Agent"
+description: A Copilot Studio solution template for a finance agent that answers expense and procurement questions and guides employees into the right submission system.
 tags: [copilot-studio, finance, expense, procurement, policy, template]
 level: intermediate
 time: 3–4 hours

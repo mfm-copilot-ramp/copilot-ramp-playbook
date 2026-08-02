@@ -1,5 +1,6 @@
 ---
 title: Hand off an end-to-end task to Cowork
+description: Describe an outcome, not a prompt, and let Copilot Cowork plan and run the steps across your email, files, and apps until a finished deliverable lands.
 stage: cowork
 roles: [champion, end-user]
 tags: [cowork, delegation, multi-step, automation, deck]

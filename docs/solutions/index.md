@@ -1,5 +1,6 @@
 ---
 title: Solution Templates
+description: Ready-to-build Copilot agent designs. Each solution template takes you from zero to a deployed agent, in low-code Copilot Studio and pro-code Foundry flavors.
 hide: [toc]
 ---
 

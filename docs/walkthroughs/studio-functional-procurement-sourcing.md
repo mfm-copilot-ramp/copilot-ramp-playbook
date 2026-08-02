@@ -1,5 +1,6 @@
 ---
 title: "Procurement: request to vendors to policy gates"
+description: Build a Copilot Studio agent that turns a purchase request into a shortlist of preferred vendors and applies policy gates, keeping spend fast and on contract.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, procurement, sourcing, vendors, policy, functional]

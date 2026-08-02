@@ -1,5 +1,6 @@
 ---
 title: Brief an account before a call with the Sales agent
+description: Use the Sales agent to walk into every call already briefed on recent activity, open opportunities, and what to raise, pulled from your CRM and inbox.
 stage: first-party
 roles: [end-user, manager]
 tags: [first-party, sales, crm, account, briefing, meetings]

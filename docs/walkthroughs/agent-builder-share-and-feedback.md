@@ -1,5 +1,6 @@
 ---
 title: Pilot your agent with a team and gather feedback
+description: Run a small structured pilot for your first agent, gather feedback from a handful of users, and turn a private guess into a tested tool the team adopts.
 stage: agent-builder
 roles: [champion, it-admin]
 tags: [agent-builder, pilot, feedback, rollout, iterate, enablement]

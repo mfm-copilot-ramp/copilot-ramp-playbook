@@ -1,5 +1,6 @@
 ---
 title: Give a Foundry agent custom tools and MCP integrations
+description: Turn a talking Foundry agent into a doing one by wiring in your own functions and standards-based MCP tools so it can query systems and take real actions.
 stage: foundry
 roles: [developer]
 tags: [foundry, mcp, tools, function-calling, integration, pro-code, frontier]

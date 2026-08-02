@@ -1,5 +1,6 @@
 ---
 title: Build a "Cowork recipe" library for your org
+description: Capture a great one-off Copilot Cowork task as a reusable recipe so the whole team can rerun one person's best workflow on demand instead of losing it.
 stage: cowork
 roles: [champion]
 tags: [cowork, champion-kit, recipes, reusable, scale, library]

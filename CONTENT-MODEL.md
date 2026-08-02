@@ -20,6 +20,7 @@ Full schema for **content pages**:
 ```yaml
 ---
 title: Turn a meeting into tracked follow-ups        # human title
+description: Capture decisions, owners, and due dates in five minutes    # plain-text SEO meta description — required; see note below
 stage: chat                                          # chat | first-party | cowork | agent-builder | autopilots | studio | foundry
 roles: [end-user, champion]                          # any of: end-user, champion, manager, maker, developer, it-admin
 tags: [meetings, productivity, teams, outlook]       # free-form, used for the filter chips
@@ -37,6 +38,14 @@ updated: 2026-06-03
 - `roles`: `end-user`, `champion`, `manager`, `maker`, `developer`, `it-admin`
 - `level`: `starter`, `intermediate`, `advanced`
 - `status`: `stub` (catalog entry only) → `walkthrough` (fully expanded page)
+
+**`description` (required on content pages).** A plain-text meta description of **at most 160 characters**
+that gives the page its own search snippet. Without it, Material for MkDocs falls back to the single
+site-wide `site_description`, so every page ships an identical snippet and search click-through suffers.
+Derive it from the page's own content — for walkthroughs, the one-sentence payoff blockquote under the H1
+is the natural source — keep it ASCII and free of Markdown, and write a compelling, keyword-aware summary
+rather than a copy of the `title`. Meta / navigational pages (the exempt set above) don't need one, but any
+description they *do* set is still held to the 160-character limit.
 
 ---
 
@@ -145,7 +154,7 @@ Honest limitations & gotchas. Builds trust.
 > **Automated guard.** A content-QA check (`tooling/qa/check-content.py`) enforces these rules in CI
 > before the site builds. Run it locally with `python tooling/qa/check-content.py` before committing —
 > it flags leaked scaffolding labels, screenshot placeholders, unresolved catalog stubs, stale stage
-> counts, and missing frontmatter.
+> counts, missing frontmatter, and missing or over-length (>160 char) page descriptions.
 
 ---
 

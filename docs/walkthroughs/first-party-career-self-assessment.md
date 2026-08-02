@@ -1,5 +1,6 @@
 ---
 title: Draft a self-assessment with the Career agent
+description: Point the Career agent at your year's work and get a first-draft self-assessment of accomplishments, impact, and growth that you edit instead of author.
 stage: first-party
 roles: [end-user, manager]
 tags: [first-party, career, performance, self-assessment, review, growth, people]

@@ -1,5 +1,6 @@
 ---
 title: Draft a 30/60/90-day onboarding plan for a new team member
+description: Use Copilot Cowork to go from someone starts Monday to a complete, personalized 30/60/90-day onboarding plan in one session instead of an afternoon.
 stage: cowork
 roles: [manager]
 tags: [onboarding, hr, planning, cowork]

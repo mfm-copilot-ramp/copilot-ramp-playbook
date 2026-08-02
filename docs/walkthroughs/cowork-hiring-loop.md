@@ -1,5 +1,6 @@
 ---
 title: Coordinate a hiring loop end-to-end in Cowork
+description: Hand the whole hiring loop to Copilot Cowork, aligning the role, writing the JD, building the interview kit, and synthesizing the debrief into a decision.
 stage: cowork
 roles: [manager, end-user, champion]
 tags: [cowork, hr, recruiting, hiring, interview, jd, debrief, multi-step, people]
