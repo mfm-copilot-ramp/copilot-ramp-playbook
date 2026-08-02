@@ -22,6 +22,10 @@ What it checks:
   7. Walkthrough pages include a prompt: a "Try it now" heading or a fenced
      code block.
   8. No Markdown image embeds point at missing local files.
+  9. Stale walkthrough/solution count claims: non-history pages must not cite
+     a specific count that disagrees with the actual file counts.
+  10. Content pages (walkthroughs, solutions) should have a 'description:'
+      field in frontmatter for SEO and link previews.
 """
 from __future__ import annotations
 
@@ -147,11 +151,78 @@ for path in sorted(DOCS.rglob("*.md")):
             errors.append(f"{relpath}: broken image reference -> {target}")
 
 
+# ── Check 9: Stale walkthrough/solution count claims ─────────────────────────
+# Count actual walkthroughs and solutions, then flag non-history pages that
+# cite a different number (threshold: claimed > 5 to avoid matching prose like
+# "2 walkthroughs in this stage").
+
+WALKTHROUGHS_DIR = DOCS / "walkthroughs"
+SOLUTIONS_DIR = DOCS / "solutions"
+
+actual_walkthrough_count = 0
+for wt_file in WALKTHROUGHS_DIR.glob("*.md"):
+    wt_text = wt_file.read_text(encoding="utf-8")
+    wt_fm = parse_frontmatter(wt_text)
+    if wt_fm and wt_fm.get("status") == "walkthrough":
+        actual_walkthrough_count += 1
+
+actual_solution_count = sum(
+    1 for s in SOLUTIONS_DIR.glob("*.md") if s.name != "index.md"
+)
+
+COUNT_PATTERN = re.compile(r"\b(\d+)\s+(walkthrough|solution template|solution|template)s?\b", re.IGNORECASE)
+
+for path in sorted(DOCS.rglob("*.md")):
+    relpath = rel(path)
+    if relpath in HISTORY_PAGES:
+        continue
+    text = path.read_text(encoding="utf-8")
+    for match in COUNT_PATTERN.finditer(text):
+        claimed = int(match.group(1))
+        thing = match.group(2).lower()
+        if "walkthrough" in thing and claimed > 5 and claimed != actual_walkthrough_count:
+            errors.append(
+                f"{relpath}: stale walkthrough count — claims {claimed} but actual is "
+                f"{actual_walkthrough_count} (match: '{match.group(0)}')"
+            )
+        elif ("solution" in thing or "template" in thing) and claimed > 3 and claimed != actual_solution_count:
+            errors.append(
+                f"{relpath}: stale solution/template count — claims {claimed} but actual is "
+                f"{actual_solution_count} (match: '{match.group(0)}')"
+            )
+
+# ── Check 10: description field in content page frontmatter ──────────────────
+# Walkthroughs and solutions should have a description: for SEO.
+# This is a warning-level check (non-blocking) — we log but don't fail.
+
+description_warnings: list[str] = []
+for path in sorted(DOCS.rglob("*.md")):
+    relpath = rel(path)
+    if not (relpath.startswith("docs/walkthroughs/") or
+            (relpath.startswith("docs/solutions/") and path.name != "index.md")):
+        continue
+    text = path.read_text(encoding="utf-8")
+    fm = parse_frontmatter(text)
+    if fm and fm.get("status") == "walkthrough" and "description" not in fm:
+        description_warnings.append(f"{relpath}: missing 'description:' in frontmatter (recommended for SEO)")
+
+
 if errors:
     print("Content QA FAILED:\n")
     for err in errors:
         print("  -", err)
     print(f"\n{len(errors)} issue(s) found.")
+    if description_warnings:
+        print(f"\nAdditionally, {len(description_warnings)} description warning(s) (non-blocking):")
+        for warn in description_warnings[:5]:
+            print(f"  [warn] {warn}")
     sys.exit(1)
 
-print("Content QA passed: no readiness regressions found.")
+if description_warnings:
+    print(f"Content QA passed with {len(description_warnings)} warning(s):")
+    for warn in description_warnings[:5]:
+        print(f"  [warn] {warn}")
+    if len(description_warnings) > 5:
+        print(f"  ... and {len(description_warnings) - 5} more")
+else:
+    print("Content QA passed: no readiness regressions found.")

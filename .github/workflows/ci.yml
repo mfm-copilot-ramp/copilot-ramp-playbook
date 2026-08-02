@@ -1,0 +1,92 @@
+# ── CI: Content Quality Gates ────────────────────────────────────────────────
+# Runs on every PR targeting main. Ensures automation PRs (and human PRs) pass
+# all quality checks before merge.
+#
+# Checks:
+# 1. check-content.py — frontmatter, stale counts, scaffolding, structure
+# 2. mkdocs build --strict — no broken internal links, valid config
+# 3. External link check (non-blocking) — reports but doesn't fail on transient errors
+
+name: "CI: content quality gates"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "tooling/**"
+      - "automation/**"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write   # to post check results as comments if needed
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt --quiet
+
+      # ── Gate 1: Content QA (blocking) ──────────────────────────────────────
+      - name: "Content QA: check-content.py"
+        run: python tooling/qa/check-content.py
+
+      # ── Gate 2: MkDocs build --strict (blocking) ───────────────────────────
+      - name: "Build: mkdocs build --strict"
+        run: mkdocs build --strict
+
+  # ── External link check (non-blocking) ───────────────────────────────────
+  # Runs as a separate job so transient network errors don't block merges.
+  # Reports results but continues on failure.
+  linkcheck:
+    runs-on: ubuntu-latest
+    # Only run link checks when docs content actually changes
+    if: contains(github.event.pull_request.labels.*.name, 'automation') || github.event_name == 'workflow_dispatch'
+    continue-on-error: true   # NEVER blocks merge on transient network failures
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Check external links (non-blocking)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >
+            --verbose
+            --no-progress
+            --scheme https
+            --scheme http
+            --exclude "localhost"
+            --exclude "127.0.0.1"
+            --exclude "aka.ms"
+            --exclude "adoption.microsoft.com"
+            --exclude "m365.cloud.microsoft"
+            --max-retries 2
+            --timeout 20
+            docs/**/*.md
+          fail: false    # Report only — don't block
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post link check summary
+        if: always()
+        run: |
+          echo "### 🔗 External Link Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This check is **non-blocking** — transient network errors are expected." >> $GITHUB_STEP_SUMMARY
+          echo "Review any persistent failures before merging." >> $GITHUB_STEP_SUMMARY
