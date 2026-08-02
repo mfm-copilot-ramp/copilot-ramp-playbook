@@ -543,15 +543,22 @@
   //     with generative orchestration enabled. It is verified + import-tested.
   //   • NEW experience — a single instruction-driven agent object (no topics; enhanced
   //     orchestration runtime, deeper reasoning). A structurally different solution
-  //     export we have NOT yet captured from a real unmanaged export.
-  // Same doctrine as the shape flags above: we never fabricate the new-experience
-  // serialization. While it's unverified, selecting "new" builds the (verified)
-  // classic-experience package as a fallback and DOCUMENTS the gap (NEXT-STEPS + UI).
-  // Flip to true only once a real new-experience unmanaged export is dropped into
-  // tooling/golden-exports/, its shape read via verify-exports.cjs, and an emitter
-  // authored + diffed green. NB: the experience selector must NOT be conflated with
-  // the in-agent orchestrator setting (GenerativeActionsEnabled) — see configJson.
-  var VERIFIED_NEW_EXPERIENCE_SHAPE = false;
+  //     export, now VERIFIED against a real new-experience unmanaged export (the
+  //     "cliagent" template): bot.xml <template>cliagent-1.0.0</template>, a completely
+  //     different configuration.json (recognizer CLICopilotRecognizer + instructions
+  //     INLINE as a StaticSegment + a model.series picker + web.enableWebSearch), NO
+  //     gpt.default component and NO topics. See tooling/golden-exports/new-experience/
+  //     and newBotXml / newConfigJson below.
+  // When "new" is selected we emit that verified new-experience agent (instructions-first).
+  // Its behavior is built up in the maker portal by adding Tools + Knowledge, so
+  // connectors/flows/triggers are listed in NEXT-STEPS rather than wired into the export
+  // (the plain connector-action shape is not part of the verified new-experience export,
+  // and wiring an unverified component would break import). We DO ship a working scaffold
+  // knowledge document (verified type-14 file component) so the imported agent can answer
+  // on import, per the "must import cleanly + be a working agent to build on" requirement.
+  // NB: the experience selector must NOT be conflated with the in-agent orchestrator
+  // setting (GenerativeActionsEnabled) — see configJson (that axis is classic-only).
+  var VERIFIED_NEW_EXPERIENCE_SHAPE = true;
 
   var GENERIC_DOMAIN = "the tasks described here";
 
@@ -826,6 +833,14 @@
       L.push("## Tools");
       connectors.forEach(function (c) {
         var verb = c.guidanceVerb || ("use " + (c.connectorLabel || "the connector"));
+        if (ctx.experience === "new") {
+          // New experience is instructions-first: tools aren't shipped in the package,
+          // they're added in the portal. Describe the intended tool, don't name a wired one.
+          var nline = "- To " + verb + ", add a \"" + (c.connectorLabel || "connector") + "\" tool in Copilot Studio, then use it";
+          if (isWriteTool(c)) nline += " — confirm with the user before it runs";
+          L.push(nline + ".");
+          return;
+        }
         var line = "- To " + verb + ", use the \"" + c.actionName + "\" tool";
         var inputs = toolInputsHint(c);
         if (inputs) line += " — provide " + inputs;
@@ -836,8 +851,12 @@
         L.push("- If a request needs more than one tool, use them in a sensible order and confirm before each change.");
       }
       if (knowledge.length) {
-        var labels = uniq(knowledge.map(function (k) { return knowledgeShort(k.kind); })).join(", ");
-        L.push("- Use the connected knowledge (" + labels + ") to answer questions about " + domain + ".");
+        if (ctx.experience === "new") {
+          L.push("- Use your connected knowledge to answer questions about " + domain + ". Ground answers in it and don't invent facts.");
+        } else {
+          var labels = uniq(knowledge.map(function (k) { return knowledgeShort(k.kind); })).join(", ");
+          L.push("- Use the connected knowledge (" + labels + ") to answer questions about " + domain + ".");
+        }
       }
       // Read capabilities with no verified starter action: describe the behavior in
       // prose (do NOT name a /tool the package didn't emit) and point at NEXT-STEPS.md.
@@ -1008,6 +1027,133 @@
     return JSON.stringify(cfg, null, 2) + "\n";
   }
 
+  // ── NEW (cliagent) experience emitters ───────────────────────────────────
+  // Verified against a real "new agent experience" unmanaged export (see
+  // tooling/golden-exports/new-experience/). The new experience is a single
+  // instruction-driven agent: NO topics, NO gpt.default component — the instructions
+  // live INLINE in configuration.json, the recognizer is CLICopilotRecognizer, and the
+  // model is chosen via a series picker. These shapes are copied verbatim from the golden
+  // export; only schemaname / display name / instructions / web-search / model vary.
+  var NEW_EXP_BOT_TEMPLATE = "cliagent-1.0.0"; // <template> marker for the new authoring harness
+  var NEW_EXP_RECOGNIZER = "CLICopilotRecognizer";
+  // Model picker value. "Sonnet46" (Claude Sonnet 4.6) is the only series string verified
+  // from a real export; it's a single documented constant so it's a one-line change once
+  // other verified series values are captured. Users can switch the model in the portal.
+  var NEW_EXP_MODEL_SERIES = "Sonnet46";
+  function newBotXml(schema, name) {
+    return '<bot schemaname="' + xmlEsc(schema) + '">\n' +
+      '  <authenticationmode>2</authenticationmode>\n' +
+      '  <authenticationtrigger>1</authenticationtrigger>\n' +
+      '  <iconbase64>' + ICON_PNG_B64 + '</iconbase64>\n' +
+      '  <iscustomizable>0</iscustomizable>\n' +
+      '  <language>1033</language>\n' +
+      '  <name>' + xmlEsc(name) + '</name>\n' +
+      '  <runtimeprovider>0</runtimeprovider>\n' +
+      '  <template>' + NEW_EXP_BOT_TEMPLATE + '</template>\n' +
+      '  <timezoneruleversionnumber>4</timezoneruleversionnumber>\n' +
+      '</bot>\n';
+  }
+  function newConfigJson(schema, instructions, webSearch) {
+    // New-experience runtime config (verified shape, minified like the real export).
+    // Instructions are a StaticSegment INLINE here; there is deliberately no
+    // GenerativeActionsEnabled / GPTSettings / AISettings and no separate gpt component.
+    var cfg = {
+      categories: [],
+      channels: [{ id: "MsTeams", channelId: "MsTeams", channelSpecifier: null, displayName: null }],
+      settings: {},
+      publishOnCreate: false,
+      publishOnImport: true,
+      isLightweightBot: false,
+      $kind: "BotConfiguration",
+      recognizer: { $kind: NEW_EXP_RECOGNIZER },
+      agentSettings: {
+        $kind: "AgentSettings",
+        model: { $kind: "ModelConfig", series: NEW_EXP_MODEL_SERIES },
+        instructions: { $kind: "Instructions", segments: [{ $kind: "StaticSegment", value: String(instructions == null ? "" : instructions) }] }
+      },
+      web: { $kind: "WebSettings", enableWebSearch: !!webSearch }
+    };
+    return JSON.stringify(cfg);
+  }
+  function rand5() {
+    var a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", s = "";
+    for (var i = 0; i < 5; i++) s += a.charAt(Math.floor(Math.random() * a.length));
+    return s;
+  }
+  // Schema slug for a .file knowledge component: filename with all non-alnum stripped
+  // (incl. the dot), then a random suffix — matches the real export's naming.
+  function fileSlug(fileName) {
+    return String(fileName).toLowerCase().replace(/[^a-z0-9]/g, "") + "_" + rand5();
+  }
+  function filenameSafe(s) {
+    var t = String(s == null ? "" : s).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return t || "Agent";
+  }
+  // A type-14 uploaded-file knowledge component (verified). The actual .docx lives in the
+  // sibling filedata/ folder. Returns { schema, xml } so the caller can add both parts.
+  function newFileKnowledgeComponent(mainSchema, fileName) {
+    var schema = mainSchema + ".file." + fileSlug(fileName);
+    var xml = '<botcomponent schemaname="' + xmlEsc(schema) + '">\n' +
+      '  <componenttype>14</componenttype>\n' +
+      '  <description>This knowledge source searches information contained in ' + xmlEsc(fileName) + '</description>\n' +
+      '  <filedata mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document">' + xmlEsc(fileName) + '</filedata>\n' +
+      '  <iscustomizable>0</iscustomizable>\n' +
+      '  <name>' + xmlEsc(fileName) + '</name>\n' +
+      '  <parentbotid>\n' +
+      '    <schemaname>' + xmlEsc(mainSchema) + '</schemaname>\n' +
+      '  </parentbotid>\n' +
+      '  <statecode>0</statecode>\n' +
+      '  <statuscode>1</statuscode>\n' +
+      '</botcomponent>\n';
+    return { schema: schema, xml: xml };
+  }
+  // Minimal, valid Office Open XML (.docx) as raw bytes, built with the same STORE zip
+  // writer. Enough for Copilot Studio knowledge ingestion to extract the text. We ship
+  // this as a working placeholder knowledge source the user replaces after import.
+  function buildDocx(paragraphs) {
+    var body = (paragraphs || []).map(function (p) {
+      return '<w:p><w:r><w:t xml:space="preserve">' + xmlEsc(p) + '</w:t></w:r></w:p>';
+    }).join("");
+    var documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' +
+      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' +
+      body + '<w:sectPr/></w:body></w:document>';
+    var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+      '</Types>';
+    var rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+      '</Relationships>';
+    return zipStore([
+      { name: "[Content_Types].xml", data: ct },
+      { name: "_rels/.rels", data: rels },
+      { name: "word/document.xml", data: documentXml }
+    ]);
+  }
+  // Build the scaffold knowledge document for a new-experience agent so it has a working
+  // (replaceable) knowledge source on import. Returns { fileName, bytes }.
+  function scaffoldKnowledgeDoc(domain, steps, sources) {
+    var fileName = filenameSafe(domain) + "-Knowledge.docx";
+    var lines = [];
+    lines.push(domain + " — Knowledge (placeholder)");
+    lines.push("This placeholder knowledge document was generated by the Copilot Credit Estimator starter so your new agent has a working knowledge source the moment it imports.");
+    lines.push("Replace the contents of this document with your real " + domain + " material, or remove it and connect a live source (SharePoint, a website, Dataverse, or your own uploaded files) in Copilot Studio → Knowledge.");
+    var srcLabels = uniq((sources || []).map(function (k) { return knowledgeShort(k.kind); }));
+    if (srcLabels.length) {
+      lines.push("Your description referenced these knowledge sources — connect them in the portal: " + srcLabels.join(", ") + ".");
+    }
+    var stepLabels = uniq(orderSteps(steps || []).map(function (s) { return STEP_MISSION[s.id]; }).filter(Boolean));
+    if (stepLabels.length) {
+      lines.push("This agent is intended to help with:");
+      stepLabels.forEach(function (s) { lines.push("- " + s); });
+    }
+    lines.push("Until you replace this document, the agent can only ground its answers in this placeholder text.");
+    return { fileName: fileName, bytes: buildDocx(lines) };
+  }
+
   // ── solution.xml + customizations.xml ─────────────────────────────────────
   function addressBlock(n) {
     var fields = ["City", "County", "Country", "Fax", "Latitude", "Line1", "Line2", "Line3",
@@ -1108,6 +1254,7 @@
       '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n' +
       '  <Default Extension="xml" ContentType="application/octet-stream" />\n' +
       '  <Default Extension="json" ContentType="application/octet-stream" />\n' +
+      '  <Default Extension="docx" ContentType="application/octet-stream" />\n' +
       '  <Default Extension="png" ContentType="application/octet-stream" />\n' +
       '  <Default Extension="md" ContentType="application/octet-stream" />\n' +
       '  <Default Extension="txt" ContentType="application/octet-stream" />\n' +
@@ -1121,7 +1268,7 @@
     capabilities = capabilities || [];
     meta = meta || {};
     var isNew = experience === "new";
-    var newExpPending = isNew && !VERIFIED_NEW_EXPERIENCE_SHAPE;
+    var useNewExperience = isNew && VERIFIED_NEW_EXPERIENCE_SHAPE;
     var L = [];
     L.push("# " + name + " — starter agent");
     L.push("");
@@ -1129,23 +1276,29 @@
     L.push("description. It imports as an **unmanaged** (fully editable) Copilot Studio agent so you");
     L.push("can extend it, then publish. It is a head start, **not** a production-ready agent.");
     L.push("");
-    L.push("**Build target:** " + (isNew ? "New agent experience (requested)" : "Classic agent experience") + ".");
+    L.push("**Build target:** " + (isNew ? "New agent experience" : "Classic agent experience") + ".");
     L.push("");
-    if (newExpPending) {
-      // Honest fallback: the new experience is a different architecture we can't yet
-      // emit verified, so we shipped the importable classic-experience package instead.
-      L.push("## \u26a0 New-experience agent not generated yet");
-      L.push("You selected the **new agent experience**, but that is a *fundamentally different architecture*");
-      L.push("from the classic experience (a single instruction-driven agent with no topics, on the enhanced");
-      L.push("orchestration runtime) and the two have **no import/migration path** between them. This tool");
-      L.push("doesn't yet emit a verified new-experience solution, so **this download is the classic-experience");
-      L.push("package** — it imports cleanly today. To move to the new experience: import this, then in Copilot");
-      L.push("Studio's **new experience** create a new agent and paste in the Instructions below, re-add the");
-      L.push("Knowledge sources, and re-add the Tools listed here. Microsoft recommends the new experience for");
-      L.push("its deeper reasoning and higher response quality, especially over Microsoft 365 data.");
+    if (useNewExperience) {
+      // New experience: instructions-first single agent. Explain what shipped and that
+      // tools/knowledge are built up in the portal (that IS the new-experience workflow).
+      L.push("## Your new-experience agent");
+      L.push("This is a **new agent experience** solution — the modern, instructions-first Copilot Studio");
+      L.push("agent: a single reasoning agent with **no topics**. Its behavior lives entirely in the");
+      L.push("**Instructions** (already written into the agent, ready to edit) on the enhanced-orchestration");
+      L.push("runtime. Import it, review, and publish — then build it up with the items below.");
       L.push("");
-    }
-    if (classicOrch) {
+      L.push("- **Model:** the agent is set to a default model (`" + NEW_EXP_MODEL_SERIES + "`). Change it in the agent's settings if you prefer another.");
+      L.push("- **Tools are added in the portal.** The new experience gains capability by adding **Tools**");
+      L.push("  (connectors, prompts, agent flows, other agents) and **Knowledge** in Copilot Studio. Anything");
+      L.push("  your description implied is listed below to add after import — we don't wire connector components");
+      L.push("  into the new-experience package so the import always stays clean.");
+      if (knowledge.length) {
+        L.push("- **Knowledge:** we included a **placeholder knowledge document** so the agent can answer the");
+        L.push("  moment it imports. Open **Knowledge**, then replace it with your real files or connect a live");
+        L.push("  source (SharePoint, a website, Dataverse).");
+      }
+      L.push("");
+    } else if (classicOrch) {
       // Rare escape hatch: the description explicitly asked for classic orchestration, so
       // the config sets GenerativeActionsEnabled:false. Be loud that generative is preferred.
       L.push("This package uses **classic (topic-based) orchestration** because your description explicitly");
@@ -1155,13 +1308,14 @@
       L.push("hard requirement for classic behavior, turn generative orchestration back on in Copilot Studio and");
       L.push("wire behavior through Tools + Knowledge + Instructions. If you do stay on classic, you must author");
       L.push("the topics/trigger phrases yourself in the maker portal — this package ships none.");
+      L.push("");
     } else {
       L.push("This is a **generative-orchestration** baseline (topics-as-last-resort): the agent's behavior");
       L.push("lives in its **instructions**, **tools**, and **knowledge** — not in authored topics. Extend it");
       L.push("by adding Tools and Knowledge and refining Instructions; only drop down to authoring a topic when");
       L.push("orchestration genuinely can't handle the case. The topics in this package are just system scaffolding.");
+      L.push("");
     }
-    L.push("");
     // Autonomous fallback (STEP B): when the agent is autonomous but the verified
     // trigger shape isn't available yet, the package imports as an interactive chat
     // agent. Surface that prominently so the user wires the trigger + unattended run.
@@ -1232,7 +1386,7 @@
       L.push("add Microsoft 365 sources). Tenant-graph grounding bills ~10 credits per response — plan for it.");
       L.push("");
     }
-    if (knowledge.some(function (k) { return k.placeholder; })) {
+    if (!useNewExperience && knowledge.some(function (k) { return k.placeholder; })) {
       L.push("## Knowledge sources");
       L.push("One or more knowledge sources use a **placeholder** URL/site because your description didn't");
       L.push("include a specific link. Open Knowledge on the agent and point each source at your real content.");
@@ -1319,6 +1473,12 @@
     var descLower = " " + desc.toLowerCase().replace(/\s+/g, " ") + " ";
     // In-agent orchestrator: generative by default; classic ONLY on an explicit call-out.
     var classicOrchestration = detectClassicOrchestration(descLower);
+    // Authoring experience: new (instructions-first cliagent) vs classic (topics layout).
+    // Gated on the verified-shape flag so an unverified new shape can never ship broken.
+    var useNewExperience = experience === "new" && VERIFIED_NEW_EXPERIENCE_SHAPE;
+    // The new experience has no in-agent GenerativeActionsEnabled setting — it is
+    // inherently generative — so never label a new-experience package "classic".
+    var orchestrator = (!useNewExperience && classicOrchestration) ? "classic" : "generative";
 
     // 1) Connectors implied by the description. Multiple actions may share a connector.
     //    - Text/system matches wire write + regex-detectable read/update actions.
@@ -1416,7 +1576,7 @@
     if (opts.preview) {
       return {
         name: name, slug: slug, schema: schema, experience: experience,
-        orchestrator: classicOrchestration ? "classic" : "generative",
+        orchestrator: orchestrator,
         archetype: vars.archetype === "autonomous" ? "autonomous" : "interactive",
         connectors: connectors.map(function (c) {
           return { key: c.key, actionName: c.actionName, connectorLabel: c.connectorLabel, guidanceVerb: c.guidanceVerb };
@@ -1438,56 +1598,81 @@
     var add = function (nm, data) { entries.push({ name: nm, data: data }); };
 
     add("solution.xml", solutionXml(slug, name));
-    add("customizations.xml", customizationsXml(connectors));
-    add("bots/" + schema + "/bot.xml", botXml(schema, name));
-    add("bots/" + schema + "/configuration.json", configJson(schema, classicOrchestration));
 
-    // GPT orchestration component (type 15). Instructions reference the tools +
-    // knowledge determined above, by their exact display names, and describe any
-    // read capabilities to add in prose.
-    var gptSchema = schema + ".gpt.default";
-    var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps });
-    add("botcomponents/" + gptSchema + "/data", gptComponentData(instructions, agentMeta));
-    add("botcomponents/" + gptSchema + "/botcomponent.xml", botcomponentXml(gptSchema, 15, name));
+    if (useNewExperience) {
+      // ── NEW (cliagent) experience: a single instruction-driven agent. NO topics, NO
+      //    gpt.default component — the instructions live INLINE in configuration.json.
+      //    Tools / connectors / flows are added in the maker portal (instructions-first)
+      //    and listed in NEXT-STEPS; we don't wire connector components here because the
+      //    plain connector-action shape isn't part of the verified new-experience export
+      //    and a wrong shape breaks import. We DO ship a working scaffold knowledge doc
+      //    (verified type-14 file component) so the imported agent can answer immediately.
+      add("customizations.xml", customizationsXml([]));
+      add("bots/" + schema + "/bot.xml", newBotXml(schema, name));
+      var newInstr = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new" });
+      add("bots/" + schema + "/configuration.json", newConfigJson(schema, newInstr, agentMeta.webBrowsing));
 
-    // System topics (type 9) — scaffolding/plumbing only (greeting, error, sign-in,
-    // escalate, …). Behavior is intentionally instruction/tool/knowledge-driven, so
-    // we never author routing or action topics here; these stay untouched.
-    //
-    // A VERIFIED autonomous (triggered, unattended) agent drops the interactive-only
-    // conversational entry points and keeps just plumbing. While the autonomous shape
-    // is unverified (VERIFIED_AUTONOMOUS_SHAPE=false) we keep ALL system topics — i.e.
-    // current import-safe behavior — and document the trigger gap in NEXT-STEPS + the UI.
-    var dropInteractiveTopics = VERIFIED_AUTONOMOUS_SHAPE && vars.archetype === "autonomous";
-    SYSTEM_TOPICS.forEach(function (t) {
-      if (dropInteractiveTopics && t.interactive) return;
-      var s = schema + ".topic." + t.suffix;
-      add("botcomponents/" + s + "/data", t.data);
-      add("botcomponents/" + s + "/botcomponent.xml", botcomponentXml(s, 9, t.name));
-    });
-    // NOTE: when VERIFIED_AUTONOMOUS_SHAPE flips true, emit the autonomous TRIGGER
-    // component here (shape captured from tooling/golden-exports/autonomous-agent/) and
-    // switch configJson to the unattended shape. We deliberately do NOT fabricate that
-    // component while its serialization is unverified — see nextStepsMd's autonomous note.
+      if (knowledge.length) {
+        var kdoc = scaffoldKnowledgeDoc(domain, steps, knowledge);
+        var kcomp = newFileKnowledgeComponent(schema, kdoc.fileName);
+        add("botcomponents/" + kcomp.schema + "/botcomponent.xml", kcomp.xml);
+        add("botcomponents/" + kcomp.schema + "/filedata/" + kdoc.fileName, kdoc.bytes);
+      }
 
-    // Knowledge sources (type 16).
-    knowledge.forEach(function (k, i) {
-      var s = schema + ".knowledge." + (i + 1);
-      add("botcomponents/" + s + "/data", knowledgeData(k.kind, k.site, k.placeholder));
-      add("botcomponents/" + s + "/botcomponent.xml", botcomponentXml(s, 16, knowledgeLabel(k.kind)));
-    });
+      add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration));
+    } else {
+      // ── CLASSIC experience (default): the verified topics + gpt.default layout. ──
+      add("customizations.xml", customizationsXml(connectors));
+      add("bots/" + schema + "/bot.xml", botXml(schema, name));
+      add("bots/" + schema + "/configuration.json", configJson(schema, classicOrchestration));
 
-    // Connector actions (type 9) + connection-reference set.
-    connectors.forEach(function (c) {
-      add("botcomponents/" + c.actionSchemaName + "/data",
-        actionData(c.logical, c.operationId, c.actionName, c.modelDescription));
-      add("botcomponents/" + c.actionSchemaName + "/botcomponent.xml",
-        botcomponentXml(c.actionSchemaName, 9, c.connectorLabel + " - " + c.actionName));
-    });
-    if (connectors.length) add("Assets/botcomponent_connectionreferenceset.xml", connrefSetXml(connectors));
+      // GPT orchestration component (type 15). Instructions reference the tools +
+      // knowledge determined above, by their exact display names, and describe any
+      // read capabilities to add in prose.
+      var gptSchema = schema + ".gpt.default";
+      var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps });
+      add("botcomponents/" + gptSchema + "/data", gptComponentData(instructions, agentMeta));
+      add("botcomponents/" + gptSchema + "/botcomponent.xml", botcomponentXml(gptSchema, 15, name));
 
-    // Always-present import guidance.
-    add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration));
+      // System topics (type 9) — scaffolding/plumbing only (greeting, error, sign-in,
+      // escalate, …). Behavior is intentionally instruction/tool/knowledge-driven, so
+      // we never author routing or action topics here; these stay untouched.
+      //
+      // A VERIFIED autonomous (triggered, unattended) agent drops the interactive-only
+      // conversational entry points and keeps just plumbing. While the autonomous shape
+      // is unverified (VERIFIED_AUTONOMOUS_SHAPE=false) we keep ALL system topics — i.e.
+      // current import-safe behavior — and document the trigger gap in NEXT-STEPS + the UI.
+      var dropInteractiveTopics = VERIFIED_AUTONOMOUS_SHAPE && vars.archetype === "autonomous";
+      SYSTEM_TOPICS.forEach(function (t) {
+        if (dropInteractiveTopics && t.interactive) return;
+        var s = schema + ".topic." + t.suffix;
+        add("botcomponents/" + s + "/data", t.data);
+        add("botcomponents/" + s + "/botcomponent.xml", botcomponentXml(s, 9, t.name));
+      });
+      // NOTE: when VERIFIED_AUTONOMOUS_SHAPE flips true, emit the autonomous TRIGGER
+      // component here (shape captured from tooling/golden-exports/autonomous-agent/) and
+      // switch configJson to the unattended shape. We deliberately do NOT fabricate that
+      // component while its serialization is unverified — see nextStepsMd's autonomous note.
+
+      // Knowledge sources (type 16).
+      knowledge.forEach(function (k, i) {
+        var s = schema + ".knowledge." + (i + 1);
+        add("botcomponents/" + s + "/data", knowledgeData(k.kind, k.site, k.placeholder));
+        add("botcomponents/" + s + "/botcomponent.xml", botcomponentXml(s, 16, knowledgeLabel(k.kind)));
+      });
+
+      // Connector actions (type 9) + connection-reference set.
+      connectors.forEach(function (c) {
+        add("botcomponents/" + c.actionSchemaName + "/data",
+          actionData(c.logical, c.operationId, c.actionName, c.modelDescription));
+        add("botcomponents/" + c.actionSchemaName + "/botcomponent.xml",
+          botcomponentXml(c.actionSchemaName, 9, c.connectorLabel + " - " + c.actionName));
+      });
+      if (connectors.length) add("Assets/botcomponent_connectionreferenceset.xml", connrefSetXml(connectors));
+
+      // Always-present import guidance.
+      add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration));
+    }
 
     // [Content_Types].xml leads the package and must cover EVERY part — including an
     // <Override> for each extensionless `data` file — so it is built last, once all
@@ -1504,7 +1689,7 @@
       connectors: connectors, knowledge: knowledge, unmapped: unmapped,
       capabilities: capabilities.map(function (c) { return c.id; }),
       experience: experience,
-      orchestrator: classicOrchestration ? "classic" : "generative",
+      orchestrator: orchestrator,
       metadata: agentMeta,
       notices: shapeNotices(vars, experience),
       shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
@@ -1563,6 +1748,10 @@
     properName: properName,
     buildInstructions: buildInstructions,
     derivePurpose: derivePurpose,
+    newConfigJson: newConfigJson,
+    newBotXml: newBotXml,
+    buildDocx: buildDocx,
+    NEW_EXP_MODEL_SERIES: NEW_EXP_MODEL_SERIES,
     agentDescription: agentDescription,
     deriveStarters: deriveStarters,
     impliesWebBrowsing: impliesWebBrowsing,

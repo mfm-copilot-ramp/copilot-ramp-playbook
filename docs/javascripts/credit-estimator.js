@@ -646,18 +646,18 @@
   // render and the change handler never drift.
   function qeExpNote(exp) {
     return exp === "new"
-      ? 'The <strong>new experience</strong> is a different architecture (a single instruction-driven agent, no topics) that we\u2019re still finalizing. For now this downloads the <strong>classic-experience</strong> package \u2014 which imports cleanly today \u2014 with notes on rebuilding it in the new experience after import.'
-      : 'Generates the <strong>classic-experience</strong> agent (topics &amp; settings, generative orchestration) \u2014 the verified shape this tool emits today. Imports cleanly.';
+      ? 'The <strong>new experience</strong> is the modern, instruction-driven Copilot Studio agent \u2014 a single reasoning agent with <strong>no topics</strong>, richer thinking, and instructions written straight into the agent. It imports cleanly as an unmanaged solution; add tools &amp; knowledge in the portal to extend it. <strong>Recommended.</strong>'
+      : 'Generates the <strong>classic-experience</strong> agent (topics, settings &amp; system scaffolding \u2014 legacy authoring). Imports cleanly. Use only if you specifically need the classic builder.';
   }
   function qeStarterHtml() {
-    var exp = (state.qe && state.qe.pkgExp) || "classic";
+    var exp = (state.qe && state.qe.pkgExp) || "new";
     return '<div class="qe-starter">' +
       '<div class="section-label">Get a head start — export a Copilot Studio agent</div>' +
-      '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: instructions, agent settings, the standard topics, any knowledge sources, and wired connector actions. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend and publish, not a finished agent.</p>' +
+      '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: a tailored role &amp; instructions, agent settings, and any knowledge sources. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend with tools &amp; knowledge and publish, not a finished agent.</p>' +
       '<div class="qe-seg-field">' +
         '<div class="section-label qe-seg-label" id="qe-pkg-exp-label">Authoring experience</div>' +
         '<div class="qe-seg" role="radiogroup" aria-labelledby="qe-pkg-exp-label" id="qe-pkg-experience">' +
-          qeSegOpt("classic", "Classic experience", "Topics &amp; settings schema — what this tool generates today.", exp) +
+          qeSegOpt("classic", "Classic experience", "Topics, settings &amp; system scaffolding \u2014 legacy authoring.", exp) +
           qeSegOpt("new", "New experience", "Single instruction-driven agent, enhanced reasoning.", exp) +
         '</div>' +
         '<div class="qe-seg-note hint" id="qe-pkg-exp-note">' + qeExpNote(exp) + '</div>' +
@@ -710,7 +710,7 @@
     var systems = (outline && outline.systems) || [];
     var grp = document.getElementById("qe-pkg-experience");
     var sel = grp && grp.querySelector('.qe-seg-opt[aria-checked="true"]');
-    var exp = (sel && sel.getAttribute("data-value")) || (state.qe && state.qe.pkgExp) || "classic";
+    var exp = (sel && sel.getAttribute("data-value")) || (state.qe && state.qe.pkgExp) || "new";
     // Pass the full outline so buildPackage can synthesize instructions + metadata
     // from the detected build steps (not just the systems list).
     return { description: (state.qe && state.qe.raw) || "", vars: v, systems: systems, outline: outline, experience: exp };
@@ -725,7 +725,7 @@
       '<div class="qe-rev-title">Review what will be generated</div>' +
       '<div class="qe-rev-meta">' +
         '<span><strong>Agent:</strong> ' + esc(a.name) + '</span>' +
-        '<span><strong>Experience:</strong> ' + (a.experience === "new" ? "New (preview \u2014 classic package emitted)" : "Classic") + '</span>' +
+        '<span><strong>Experience:</strong> ' + (a.experience === "new" ? "New agent experience" : "Classic experience") + '</span>' +
         '<span><strong>Type:</strong> ' + (a.archetype === "autonomous" ? "Autonomous (triggered)" : "Interactive (chat)") + '</span>' +
       '</div>' +
       '<p class="hint" style="margin:.3rem 0 .5rem">Uncheck anything you don\u2019t want. Only the checked items are written into the package, its instructions, and <code>NEXT-STEPS.md</code>.</p>' +
