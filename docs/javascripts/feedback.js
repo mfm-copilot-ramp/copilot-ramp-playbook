@@ -1,5 +1,6 @@
 /* Page feedback widget — "Was this page helpful? 👍 👎"
-   No analytics, no storage. 👍/👎 simply reveals a thank-you line; 👎 surfaces a
+   A click also sends a cookieless GoatCounter event (page path + a static up/down
+   label; no personal data, no storage). 👍/👎 simply reveals a thank-you line; 👎 surfaces a
    prefilled GitHub issue link so confused readers can say exactly where the ramp broke.
    Wired via Material's document$ observable so it re-binds on instant navigation. */
 (function () {
@@ -21,6 +22,16 @@
       if (ask) ask.hidden = true;
       if (vote === "up" && thanksUp) thanksUp.hidden = false;
       if (vote === "down" && thanksDown) thanksDown.hidden = false;
+
+      // Additive, cookieless usage signal — page path + a static label only, never
+      // user input. Guarded so the widget works with or without GoatCounter loaded.
+      if (window.goatcounter && (vote === "up" || vote === "down")) {
+        window.goatcounter.count({
+          path: location.pathname + "#feedback-" + vote,
+          title: "Feedback: " + vote,
+          event: true
+        });
+      }
     });
   }
 

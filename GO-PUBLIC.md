@@ -151,6 +151,36 @@ Revisit this once the site has traffic.
 
 ---
 
+## 7. Turn on privacy-friendly analytics (optional, 5 min)
+
+The site is pre-wired for **[GoatCounter](https://www.goatcounter.com/)** — cookieless, privacy-respecting
+web analytics that show which stages, walkthroughs, and estimator modes get used. It sets no cookies and
+collects no personal data, so **no consent banner is needed**. Until you add a site code the counter stays
+inert; turning it on is two steps:
+
+1. **Create a free GoatCounter site.** Sign up at [goatcounter.com](https://www.goatcounter.com/) and pick a
+   code — the `yourname` in `yourname.goatcounter.com`.
+2. **Set the code in one place.** In `mkdocs.yml`, under `extra: → analytics:`, replace the `property:`
+   placeholder with your code:
+
+   ```yaml
+   extra:
+     analytics:
+       provider: custom
+       property: yourname        # ← the "yourname" in yourname.goatcounter.com
+   ```
+
+   That `property` value is the **only** place the code lives. The custom analytics partial at
+   `overrides/partials/integrations/analytics/custom.html` reads it from there and injects the GoatCounter
+   script into every page's `<head>`. Commit, push, and analytics go live with the next deploy.
+
+Two interactions are also reported as anonymous [custom events](https://www.goatcounter.com/help/events): the
+👍 / 👎 "Was this page helpful?" vote, and which Credit Estimator mode a visitor opens. Both send only the page
+path plus a static label — never anything a visitor types. The privacy stance is disclosed on the site's
+About page (`docs/about.md`).
+
+---
+
 ## Quick reference
 
 | Task | Command |
