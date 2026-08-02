@@ -298,6 +298,21 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 .qe-rev-noticeshead { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; }
 .qe-rev-notice { font-size: 0.82rem; margin: 0.25rem 0; }
 
+/* Authoring-experience segmented control (Quick starter build target) */
+.qe-seg-field { margin: 0.35rem 0 0.7rem; }
+.qe-seg-label { margin-bottom: 0.3rem; }
+.qe-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.qe-seg-opt { display: flex; flex-direction: column; gap: 0.15rem; text-align: left; padding: 0.6rem 0.7rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 10px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); cursor: pointer; font: inherit; transition: border-color .12s, background .12s, box-shadow .12s; }
+.qe-seg-opt:hover { border-color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 5%, transparent); }
+.qe-seg-opt:focus-visible { outline: 2px solid var(--md-primary-fg-color); outline-offset: 2px; }
+.qe-seg-opt--active { border-color: var(--md-primary-fg-color); border-width: 2px; padding: calc(0.6rem - 1px) calc(0.7rem - 1px); background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent); box-shadow: 0 1px 4px color-mix(in srgb, var(--md-primary-fg-color) 22%, transparent); }
+.qe-seg-opt-title { font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; }
+.qe-seg-opt--active .qe-seg-opt-title { color: var(--md-primary-fg-color); }
+.qe-seg-opt-sub { font-size: 0.76rem; color: var(--md-default-fg-color--light); line-height: 1.35; }
+.qe-seg-badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 999px; background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); }
+.qe-seg-note { margin-top: 0.4rem; }
+@media (max-width: 480px) { .qe-seg { grid-template-columns: 1fr; } }
+
 /* Quick + Import (batch portfolio) */
 .qi-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.5rem 0 0.25rem; }
 .qi-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin: 1rem 0; }
