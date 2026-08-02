@@ -272,8 +272,10 @@
 
   // ── botcomponent wrapper XML ──────────────────────────────────────────────
   function botcomponentXml(schema, type, name) {
-    return '<?xml version="1.0" encoding="utf-8"?>\n' +
-      '<botcomponent schemaname="' + xmlEsc(schema) + '">\n' +
+    // NB: entity/customization XML files carry NO <?xml?> prolog in a real Copilot
+    // Studio export — only [Content_Types].xml does. A stray declaration makes the
+    // Dataverse importer throw "the specified node ... is the wrong type".
+    return '<botcomponent schemaname="' + xmlEsc(schema) + '">\n' +
       '  <componenttype>' + type + '</componenttype>\n' +
       '  <name>' + xmlEsc(name) + '</name>\n' +
       '  <parentbotid>\n' +
@@ -311,8 +313,7 @@
   var ICON_PNG_B64 =
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
   function botXml(schema, name) {
-    return '<?xml version="1.0" encoding="utf-8"?>\n' +
-      '<bot schemaname="' + xmlEsc(schema) + '">\n' +
+    return '<bot schemaname="' + xmlEsc(schema) + '">\n' +
       '  <authenticationmode>2</authenticationmode>\n' +
       '  <authenticationtrigger>1</authenticationtrigger>\n' +
       '  <iconbase64>' + ICON_PNG_B64 + '</iconbase64>\n' +
@@ -345,8 +346,7 @@
       '        </Address>';
   }
   function solutionXml(slug, name) {
-    return '<?xml version="1.0" encoding="utf-8"?>\n' +
-      '<ImportExportXml version="9.2.24024.0" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n' +
+    return '<ImportExportXml version="9.2.24024.0" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n' +
       '  <SolutionManifest>\n' +
       '    <UniqueName>' + xmlEsc(slug) + '</UniqueName>\n' +
       '    <LocalizedNames>\n' +
@@ -388,8 +388,7 @@
     return '  <connectionreferences>\n' + refs + '\n  </connectionreferences>\n';
   }
   function customizationsXml(connectors) {
-    return '<?xml version="1.0" encoding="utf-8"?>\n' +
-      '<ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n' +
+    return '<ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n' +
       '  <Entities></Entities>\n' +
       '  <Roles></Roles>\n' +
       '  <Workflows></Workflows>\n' +
@@ -412,12 +411,22 @@
         '    <iscustomizable>1</iscustomizable>\n' +
         '  </botcomponent_connectionreference>';
     }).join("\n");
-    return '<?xml version="1.0" encoding="utf-8"?>\n' +
-      '<botcomponent_connectionreferenceset>\n' + rows + '\n</botcomponent_connectionreferenceset>\n';
+    return '<botcomponent_connectionreferenceset>\n' + rows + '\n</botcomponent_connectionreferenceset>\n';
   }
 
   // ── [Content_Types].xml ───────────────────────────────────────────────────
-  function contentTypesXml() {
+  function contentTypesXml(entries) {
+    // OPC requires every part to declare a content type. The .xml/.json/.png/.md/.txt
+    // parts are covered by <Default> rules, but the extensionless botcomponent `data`
+    // files have no extension a Default can match — each needs an explicit <Override>
+    // (PartName must start with "/" and match the zip entry path exactly). Without
+    // these the package is not a valid OPC container and the import fails.
+    var overrides = (entries || [])
+      .filter(function (e) { return /(^|\/)data$/.test(e.name); })
+      .map(function (e) {
+        return '  <Override PartName="/' + xmlEsc(e.name) + '" ContentType="application/octet-stream" />';
+      })
+      .join("\n");
     return '<?xml version="1.0" encoding="utf-8"?>\n' +
       '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n' +
       '  <Default Extension="xml" ContentType="application/octet-stream" />\n' +
@@ -425,6 +434,7 @@
       '  <Default Extension="png" ContentType="application/octet-stream" />\n' +
       '  <Default Extension="md" ContentType="application/octet-stream" />\n' +
       '  <Default Extension="txt" ContentType="application/octet-stream" />\n' +
+      (overrides ? overrides + "\n" : "") +
       '</Types>\n';
   }
 
@@ -532,7 +542,6 @@
     var entries = [];
     var add = function (nm, data) { entries.push({ name: nm, data: data }); };
 
-    add("[Content_Types].xml", contentTypesXml());
     add("solution.xml", solutionXml(slug, name));
     add("customizations.xml", customizationsXml(connectors));
     add("bots/" + schema + "/bot.xml", botXml(schema, name));
@@ -569,6 +578,11 @@
 
     // Always-present import guidance.
     add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars));
+
+    // [Content_Types].xml leads the package and must cover EVERY part — including an
+    // <Override> for each extensionless `data` file — so it is built last, once all
+    // entries are known, then unshifted to the front of the archive.
+    entries.unshift({ name: "[Content_Types].xml", data: contentTypesXml(entries) });
 
     var bytes = zipStore(entries);
     return {
