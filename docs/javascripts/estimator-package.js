@@ -136,17 +136,26 @@
     if (!/^[A-Za-z]/.test(s)) s = "A" + s;
     return s.slice(0, 40);
   }
+  // Title-case a derived name while preserving all-caps acronyms typed by the user
+  // (HR, IT, CRM, D365) so "an HR onboarding assistant" -> "HR Onboarding Assistant".
+  function properName(s) {
+    return String(s || "").trim().split(/\s+/).map(function (w) {
+      if (/[A-Z]/.test(w) && /^[A-Z0-9&/.\-]{2,6}$/.test(w)) return w; // keep acronyms as typed
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    }).join(" ");
+  }
   function deriveName(desc) {
     var d = String(desc || "").trim();
     if (!d) return "Custom Agent";
-    // Drop a leading creation phrase ("Create an …", "Build a …") so the name is
-    // the descriptive part ("Executive Meeting Prep"), not "Create An Executive …".
-    d = d.replace(/^\s*(?:please\s+)?(?:create|build|make|design|develop|configure|set\s?up|generate|we\s+want(?:\s+to\s+build)?|i\s+want|i\s+need|i'?d\s+like)\s+/i, "");
+    // Drop a leading imperative/builder phrase ("Create an …", "Build a …", "I want an …",
+    // "Help me build a …", "Spin up …") so the name is the descriptive part
+    // ("Executive Meeting Prep"), not "Create An Executive …".
+    d = d.replace(/^\s*(?:please\s+)?(?:help\s+me\s+(?:build|create|make|design|develop|set\s?up|spin\s?up|generate)|create|build|make|design|develop|configure|set\s?up|spin\s?up|generate|we\s+want(?:\s+to\s+build)?|i\s+want(?:\s+to\s+build)?|i\s+need|i'?d\s+like)\s+/i, "");
     d = d.replace(/^(?:a|an|the|our|my)\s+/i, "");
     var m = d.match(/([A-Za-z][A-Za-z0-9 ]{1,38}?)\s+(agent|assistant|bot|copilot)\b/i);
     if (m) {
-      var lead = titleCase(m[1]).replace(/^(An?|The|Our|My|A)\s+/i, "").trim();
-      if (lead) return lead + " " + titleCase(m[2]);
+      var lead = properName(m[1]).replace(/^(?:An?|The|Our|My)\s+/i, "").trim();
+      if (lead) return lead + " " + properName(m[2]);
     }
     return "Custom Agent";
   }
@@ -252,6 +261,50 @@
     "ServiceNow": "servicenow", "Approvals": "approvals", "SQL Server": "sql"
   };
 
+  // ── Read-capability fidelity (Part 2) ─────────────────────────────────────
+  // Common "read/pull" intents that have NO verified connector action in the
+  // catalog above (every CONNECTOR_ACTIONS entry is a write). When the description
+  // asks the agent to READ one of these, we never fabricate an operationId —
+  // instead we (a) describe the behavior in the instructions in prose and (b) add
+  // a tool-framed item to NEXT-STEPS.md naming the exact connector tool to add.
+  var READ_VERB = /(review|read|summar|triage|check|scan|analy|monitor|gather|pull|look|prepar|prep\b|brief|assess|identif|recommend|understand|surface)/;
+  var READ_CAPABILITIES = [
+    {
+      id: "calendar",
+      noun: /(calendar|meetings?|schedule|upcoming (event|appointment|meeting)|agenda)/,
+      behavior: "the user's upcoming meetings and calendar",
+      tool: "Add an **Office 365 Outlook** \u201cGet calendar events (V4)\u201d tool so the agent can read the user's meetings."
+    },
+    {
+      id: "teamsRead",
+      noun: /teams.{0,20}(message|chat|conversation|post)|(message|chat|conversation).{0,12}teams|read.{0,16}teams|summar.{0,16}teams/,
+      behavior: "recent Teams messages and chats",
+      tool: "Add a **Microsoft Teams** \u201cGet messages\u201d tool so the agent can read recent Teams messages."
+    },
+    {
+      id: "emailRead",
+      noun: /(e-?mails?|inbox|mailbox)/,
+      behavior: "incoming email",
+      tool: "Add an **Office 365 Outlook** \u201cGet emails (V3)\u201d tool so the agent can read incoming email."
+    },
+    {
+      id: "onedrive",
+      noun: /(onedrive|one drive)/,
+      behavior: "relevant OneDrive files",
+      tool: "Add a **OneDrive for Business** \u201cList files in folder\u201d / \u201cGet file content\u201d tool so the agent can read files."
+    },
+    {
+      id: "people",
+      noun: /(look ?up|find|search|summar).{0,24}(person|people|colleague|coworker|employee|user|manager|org\b)|who (is|are|reports)|org(anization|anisation)? (info|chart|structure)|stakeholders?/,
+      behavior: "people and organizational information",
+      tool: "Add an **Office 365 Users** \u201cGet user profile (V2)\u201d / \u201cSearch for users (V2)\u201d tool so the agent can look up people and org info."
+    }
+  ];
+  function detectCapabilities(descLower) {
+    if (!READ_VERB.test(descLower)) return [];
+    return READ_CAPABILITIES.filter(function (cap) { return cap.noun.test(descLower); });
+  }
+
   // ── Baseline agent instructions (generative orchestration) ────────────────
   // Doctrine: behavior lives in INSTRUCTIONS + TOOLS + KNOWLEDGE, never in
   // authored topics. We emit constraints + response format + guidance, and the
@@ -286,11 +339,18 @@
   function knowledgeShort(kind) {
     return knowledgeLabel(kind).replace(/^Knowledge\s*[—-]\s*/, "");
   }
+  function joinAnd(arr) {
+    arr = (arr || []).filter(Boolean);
+    if (arr.length <= 1) return arr.join("");
+    if (arr.length === 2) return arr[0] + " and " + arr[1];
+    return arr.slice(0, -1).join(", ") + ", and " + arr[arr.length - 1];
+  }
   function buildInstructions(name, desc, ctx) {
     ctx = ctx || {};
     var vars = ctx.vars || {};
     var connectors = ctx.connectors || [];
     var knowledge = ctx.knowledge || [];
+    var capabilities = ctx.capabilities || [];
     var autonomous = vars.archetype === "autonomous";
     var domain = deriveDomain(name);
     var purpose = derivePurpose(desc);
@@ -331,6 +391,13 @@
       var labels = knowledge.map(function (k) { return knowledgeShort(k.kind); })
         .filter(function (v, i, a) { return a.indexOf(v) === i; }).join(", ");
       L.push("- Use the connected knowledge (" + labels + ") to answer questions about " + domain + ".");
+    }
+    // Read capabilities the description asks for that have no verified starter action:
+    // describe the behavior in prose (do NOT name a /tool the package didn't emit) and
+    // point at NEXT-STEPS.md, which lists the exact connector tools to add.
+    if (capabilities.length) {
+      L.push("- To do this, review " + joinAnd(capabilities.map(function (c) { return c.behavior; })) +
+        ". Those read tools aren't wired into this package yet — add them in Copilot Studio (see NEXT-STEPS.md) before relying on that data.");
     }
     return L.join("\n");
   }
@@ -430,14 +497,21 @@
       '  <template>default-2.1.0</template>\n' +
       '</bot>\n';
   }
-  function configJson(schema) {
-    return JSON.stringify({
+  function configJson(schema, orchestration) {
+    // Generative (default): generative actions on + the GenerativeAIRecognizer.
+    // Classic (legacy): disable generative actions and OMIT the recognizer so the
+    // agent runs topic/trigger-phrase driven.
+    // NB: the exact classic-orchestration configuration shape is ASSUMED here and
+    // should be verified against a real classic-orchestration export before relying on it.
+    var classic = orchestration === "classic";
+    var cfg = {
       BotConfiguration: {
-        GenerativeActionsEnabled: true,
-        GPTSettings: { defaultSchemaName: schema + ".gpt.default" },
-        AISettings: { GenerativeAIRecognizer: true }
+        GenerativeActionsEnabled: !classic,
+        GPTSettings: { defaultSchemaName: schema + ".gpt.default" }
       }
-    }, null, 2) + "\n";
+    };
+    if (!classic) cfg.BotConfiguration.AISettings = { GenerativeAIRecognizer: true };
+    return JSON.stringify(cfg, null, 2) + "\n";
   }
 
   // ── solution.xml + customizations.xml ─────────────────────────────────────
@@ -545,8 +619,10 @@
   }
 
   // ── NEXT-STEPS.md ─────────────────────────────────────────────────────────
-  function nextStepsMd(name, connectors, unmapped, knowledge, vars) {
+  function nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, orchestration) {
     vars = vars || {};
+    capabilities = capabilities || [];
+    var classic = orchestration === "classic";
     var L = [];
     L.push("# " + name + " — starter agent");
     L.push("");
@@ -554,10 +630,19 @@
     L.push("description. It imports as an **unmanaged** (fully editable) Copilot Studio agent so you");
     L.push("can extend it, then publish. It is a head start, **not** a production-ready agent.");
     L.push("");
-    L.push("This is a **generative-orchestration** baseline (topics-as-last-resort): the agent's behavior");
-    L.push("lives in its **instructions**, **tools**, and **knowledge** — not in authored topics. Extend it");
-    L.push("by adding Tools and Knowledge and refining Instructions; only drop down to authoring a topic when");
-    L.push("orchestration genuinely can't handle the case. The topics in this package are just system scaffolding.");
+    L.push("**Orchestration mode:** " + (classic ? "Classic (legacy, topic-based)" : "Generative (recommended)") + ".");
+    L.push("");
+    if (classic) {
+      L.push("This package was generated in **classic orchestration** — legacy, topic/trigger-phrase driven. Classic");
+      L.push("authoring is being **phased out**; we recommend **generative orchestration** instead. The estimator does");
+      L.push("**not** author custom topics, so to get classic behavior you'll need to add topics and trigger phrases");
+      L.push("yourself in the maker portal (Topics → New topic). The only topics in this package are system scaffolding.");
+    } else {
+      L.push("This is a **generative-orchestration** baseline (topics-as-last-resort): the agent's behavior");
+      L.push("lives in its **instructions**, **tools**, and **knowledge** — not in authored topics. Extend it");
+      L.push("by adding Tools and Knowledge and refining Instructions; only drop down to authoring a topic when");
+      L.push("orchestration genuinely can't handle the case. The topics in this package are just system scaffolding.");
+    }
     L.push("");
     L.push("## Import it");
     L.push("1. Go to **make.powerapps.com** (or **copilotstudio.microsoft.com**) → **Solutions** → **Import solution**.");
@@ -578,6 +663,14 @@
       L.push("Your description mentioned systems that don't have a built-in starter action here. Add these");
       L.push("manually in Studio (Tools → Add a tool → Connector) — we did **not** fabricate operations for them:");
       unmapped.forEach(function (s) { L.push("- " + s); });
+      L.push("");
+    }
+    if (capabilities.length) {
+      L.push("## Read tools to add (so the agent can pull this data)");
+      L.push("Your description asks the agent to **read** data that has no verified starter action, so we did");
+      L.push("**not** wire it (fabricated operations break import). Add each as a **tool** in Studio");
+      L.push("(Tools → Add a tool → Connector) — not a topic:");
+      capabilities.forEach(function (c) { L.push("- " + c.tool); });
       L.push("");
     }
     var toolItems = [];
@@ -614,6 +707,7 @@
     var desc = String(opts.description || "");
     var vars = opts.vars || {};
     var systems = opts.systems || (opts.outline && opts.outline.systems) || [];
+    var orchestration = opts.orchestration === "classic" ? "classic" : "generative"; // default + recommended = generative
     var name = (opts.name && String(opts.name).trim()) || deriveName(desc);
     var slug = slugify(name);
     var schema = "new_" + slug;
@@ -660,6 +754,12 @@
       return wiredKeys.indexOf(key) < 0;     // known connector but not wired here
     });
 
+    // 3b) Read capabilities the description asks for that we don't wire (no verified
+    // read action). Surfaced in instructions (prose) + NEXT-STEPS (tool-framed) — never
+    // fabricated as components/operationIds. All CONNECTOR_ACTIONS are writes, so these
+    // read intents never overlap a wired action.
+    var capabilities = detectCapabilities(descLower);
+
     // 4) Assemble the ZIP entries.
     var entries = [];
     var add = function (nm, data) { entries.push({ name: nm, data: data }); };
@@ -667,12 +767,13 @@
     add("solution.xml", solutionXml(slug, name));
     add("customizations.xml", customizationsXml(connectors));
     add("bots/" + schema + "/bot.xml", botXml(schema, name));
-    add("bots/" + schema + "/configuration.json", configJson(schema));
+    add("bots/" + schema + "/configuration.json", configJson(schema, orchestration));
 
     // GPT orchestration component (type 15). Instructions reference the tools +
-    // knowledge determined above, by their exact display names.
+    // knowledge determined above, by their exact display names, and describe any
+    // read capabilities to add in prose.
     var gptSchema = schema + ".gpt.default";
-    var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars });
+    var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities });
     add("botcomponents/" + gptSchema + "/data", gptComponentData(instructions));
     add("botcomponents/" + gptSchema + "/botcomponent.xml", botcomponentXml(gptSchema, 15, name));
 
@@ -702,7 +803,7 @@
     if (connectors.length) add("Assets/botcomponent_connectionreferenceset.xml", connrefSetXml(connectors));
 
     // Always-present import guidance.
-    add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars));
+    add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, orchestration));
 
     // [Content_Types].xml leads the package and must cover EVERY part — including an
     // <Override> for each extensionless `data` file — so it is built last, once all
@@ -717,6 +818,8 @@
       entries: entries.map(function (e) { return e.name; }),
       files: entries.reduce(function (m, e) { m[e.name] = e.data; return m; }, {}),
       connectors: connectors, knowledge: knowledge, unmapped: unmapped,
+      capabilities: capabilities.map(function (c) { return c.id; }),
+      orchestration: orchestration,
       tenantGraph: vars.knowledge === "tenantGraph"
     };
   }
@@ -741,8 +844,11 @@
     utf8: utf8,
     slugify: slugify,
     deriveName: deriveName,
+    properName: properName,
     buildInstructions: buildInstructions,
     CONNECTOR_ACTIONS: CONNECTOR_ACTIONS,
+    READ_CAPABILITIES: READ_CAPABILITIES,
+    detectCapabilities: detectCapabilities,
     SYSTEM_TOPICS: SYSTEM_TOPICS
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
