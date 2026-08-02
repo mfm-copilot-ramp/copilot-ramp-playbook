@@ -281,6 +281,21 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 .qe-import-help > summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--md-primary-fg-color); }
 .qe-import-steps { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.8rem; line-height: 1.6; color: var(--md-default-fg-color--light); }
 .qe-import-steps li { margin: 0.15rem 0; }
+.qe-pkg-review { margin: 0.7rem 0 0; padding: 0.75rem 0.85rem; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; background: var(--md-default-bg-color); }
+.qe-rev-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.15rem; }
+.qe-rev-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-size: 0.82rem; color: var(--md-default-fg-color--light); }
+.qe-rev-group { margin: 0.55rem 0 0; }
+.qe-rev-grouplbl { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--md-default-fg-color--light); margin-bottom: 0.2rem; }
+.qe-rev-item { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.25rem 0.35rem; font-size: 0.85rem; border-radius: 6px; cursor: pointer; }
+.qe-rev-item:hover { background: color-mix(in srgb, var(--md-primary-fg-color) 7%, transparent); }
+.qe-rev-item input { margin-top: 0.2rem; }
+.qe-rev-sub { display: block; font-size: 0.75rem; color: var(--md-default-fg-color--light); word-break: break-all; }
+.qe-rev-flag { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0 0.35rem; border-radius: 999px; background: color-mix(in srgb, #d98b00 22%, transparent); color: var(--md-default-fg-color); vertical-align: 1px; }
+.qe-rev-empty { font-size: 0.82rem; color: var(--md-default-fg-color--light); padding: 0.1rem 0.35rem; }
+.qe-rev-actions { margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.qe-rev-notices { margin: 0.4rem 0 0.6rem; border: 1px solid color-mix(in srgb, #d98b00 45%, transparent); border-left-width: 3px; border-radius: 6px; background: color-mix(in srgb, #d98b00 10%, transparent); padding: 0.5rem 0.6rem; }
+.qe-rev-noticeshead { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; }
+.qe-rev-notice { font-size: 0.82rem; margin: 0.25rem 0; }
 
 /* Quick + Import (batch portfolio) */
 .qi-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.5rem 0 0.25rem; }

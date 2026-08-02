@@ -31,11 +31,22 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Content QA guard
         run: python tooling/qa/check-content.py   # fails fast on readiness regressions
+
+      - name: Verify agent-package shapes (golden-export harness)
+        # Round-trips every buildPackage() output (incl. the autonomous invoice example)
+        # through the shipped ZIP reader and asserts the import invariants. CI-safe: the
+        # golden-export scan is a no-op unless a real export is present locally.
+        run: node tooling/golden-exports/verify-exports.cjs
 
       - name: Build the site (strict)
         run: mkdocs build --strict   # --strict fails the build on broken internal links
