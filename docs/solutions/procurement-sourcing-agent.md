@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Procurement Sourcing Agent"
+description: A Copilot Studio solution template for a procurement sourcing agent that returns qualified preferred vendors and enforces spend thresholds and approval routing.
 tags: [copilot-studio, procurement, sourcing, vendors, policy, template]
 level: intermediate
 time: 3–4 hours

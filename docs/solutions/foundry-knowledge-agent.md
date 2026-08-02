@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Pro-Code Grounded Q&A Agent (Foundry)"
+description: A Foundry Agent Service solution template for a pro-code grounded Q&A agent with custom retrieval and your own evaluation gate, for when Studio cannot carry it.
 tags: [foundry, pro-code, rag, grounding, evaluation, template, developer]
 level: advanced
 time: 1–2 days

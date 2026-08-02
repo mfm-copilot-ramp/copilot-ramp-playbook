@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Multi-Modal Document Classification Agent (Foundry)"
+description: A Foundry Agent Service solution template that classifies documents at scale using vision and text, routing each to the right queue with a confidence score.
 tags: [foundry, pro-code, vision, classification, documents, multimodal, evaluation, template, developer]
 level: advanced
 time: 2–4 days

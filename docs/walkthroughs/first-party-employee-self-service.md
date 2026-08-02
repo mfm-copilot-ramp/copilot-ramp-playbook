@@ -1,5 +1,6 @@
 ---
 title: Answer routine HR and IT questions with Employee Self-Service
+description: Get PTO balances, policies, and how-do-I answers in seconds from approved sources with Employee Self-Service, no ticket filed and no waiting in a queue.
 stage: first-party
 roles: [end-user, it-admin]
 tags: [first-party, employee-self-service, hr, it, helpdesk, self-serve]

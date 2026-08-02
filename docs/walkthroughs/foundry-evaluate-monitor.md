@@ -1,5 +1,6 @@
 ---
 title: Evaluate and continuously monitor a Foundry agent
+description: Treat Foundry agent quality like test coverage, measuring it before you ship and watching it live so regressions surface on a dashboard, not in a complaint.
 stage: foundry
 roles: [developer, it-admin]
 tags: [foundry, evaluation, monitoring, quality, observability, pro-code, frontier]

@@ -1,5 +1,6 @@
 ---
 title: "Customer Support: deflect and draft, escalate the rest"
+description: Build a Copilot Studio support assistant that answers from approved help content, drafts a send-ready reply, and escalates the edge cases to a human.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, customer-support, deflection, escalation, functional]

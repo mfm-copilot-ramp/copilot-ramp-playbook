@@ -1,5 +1,6 @@
 ---
 title: Build a competitive comparison from multiple source documents
+description: Use Copilot Cowork to turn competitor briefs, product pages, and analyst notes into a structured comparison matrix for exec review or sales enablement.
 stage: cowork
 roles: [manager, end-user, champion]
 tags: [strategy, research, cowork, competitive]

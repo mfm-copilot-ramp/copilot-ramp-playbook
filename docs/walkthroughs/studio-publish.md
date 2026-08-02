@@ -1,5 +1,6 @@
 ---
 title: Publish and govern your agent
+description: Publish a Copilot Studio agent safely to the right audience with an owner and a way to watch it, the step that turns a working agent into a trusted one.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, publish, governance, lifecycle, deployment]

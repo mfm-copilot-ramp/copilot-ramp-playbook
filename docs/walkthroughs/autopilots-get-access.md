@@ -1,5 +1,6 @@
 ---
 title: Find out if you can get Scout — and turn it on
+description: Microsoft Scout is in private preview. Find out whether your org can get this autopilot and what has to be true to switch it on before you plan any workflow.
 stage: autopilots
 roles: [end-user, champion, it-admin]
 tags: [autopilots, scout, frontier, access, enablement, intune]

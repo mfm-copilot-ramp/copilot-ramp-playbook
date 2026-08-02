@@ -1,5 +1,6 @@
 ---
 title: "Stage 1 · Copilot Chat"
+description: Stage 1 of the Copilot ramp. Use Microsoft Copilot Chat in the apps you already live in, where the journey starts and most of the everyday value is.
 stage: chat
 ---
 

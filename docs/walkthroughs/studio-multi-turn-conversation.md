@@ -1,5 +1,6 @@
 ---
 title: Design a multi-turn conversation with fallback and clarification
+description: Design a Copilot Studio agent that asks what it needs to know before answering and recovers gracefully when a user says something unexpected.
 stage: studio
 roles: [maker]
 tags: [studio, conversation-design, topics, fallback]

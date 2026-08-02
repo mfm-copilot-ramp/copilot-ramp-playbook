@@ -1,5 +1,6 @@
 ---
 title: Copilot Ramp Playbook
+description: A community-built playbook that ramps you from your first Microsoft Copilot chat to building production agents, guided by role, stage, or the product you use.
 hide:
   - navigation
   - toc

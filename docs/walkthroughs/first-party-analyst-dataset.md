@@ -1,5 +1,6 @@
 ---
 title: Analyze a dataset with Analyst
+description: Ask a spreadsheet questions in plain English with the Analyst agent and get the answer and the chart, no pivot tables, formulas, or Excel expert needed.
 stage: first-party
 roles: [manager, maker]
 tags: [first-party, analyst, data, analysis, charts]

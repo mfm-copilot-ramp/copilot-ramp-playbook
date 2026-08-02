@@ -1,5 +1,6 @@
 ---
 title: Know when to graduate from Agent Builder to Copilot Studio
+description: An honest decision guide for when you've outgrown no-code Agent Builder and need Copilot Studio, so you pick the right tool and don't rebuild your agent twice.
 stage: agent-builder
 roles: [maker, it-admin]
 tags: [agent-builder, copilot-studio, decision, governance, graduation]

@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Policy FAQ Agent"
+description: A production-ready Copilot Studio solution template that answers policy and process questions from your org's documents, for HR, IT, Finance, or Legal.
 tags: [copilot-studio, knowledge, faq, template, hr, it, finance, legal, policies]
 level: intermediate
 time: 2–3 hours

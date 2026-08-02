@@ -1,5 +1,6 @@
 ---
 title: Draft a status update from your week's activity
+description: Use Copilot to turn a week of scattered emails, chats, and meetings into a crisp five-bullet status update for your manager in a couple of minutes.
 stage: chat
 roles: [end-user, manager]
 tags: [chat, status-update, synthesis, manager-comms, outlook, teams]

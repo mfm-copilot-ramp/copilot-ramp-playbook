@@ -1,5 +1,6 @@
 ---
 title: Token-budgeting and cost optimization for a production agent
+description: Make tokens a metric you watch and cut the cost of a production Foundry agent with smaller models, shorter context, and caching, without cutting quality.
 stage: foundry
 roles: [developer, it-admin]
 tags: [foundry, cost, tokens, optimization, caching, monitoring, pro-code, frontier]

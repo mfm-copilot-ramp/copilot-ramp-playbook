@@ -1,5 +1,6 @@
 ---
 title: Build a red-team / safety eval harness
+description: Before a Foundry agent meets users, try to break it on purpose and repeatably, turning is it safe into a suite of attacks it must survive on every release.
 stage: foundry
 roles: [developer, it-admin]
 tags: [foundry, safety, red-team, evaluation, security, guardrails, pro-code, frontier]

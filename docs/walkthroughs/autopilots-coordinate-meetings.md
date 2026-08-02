@@ -1,5 +1,6 @@
 ---
 title: Let Scout coordinate your meetings and prep
+description: Hand Microsoft Scout the scheduling and meeting prep that eats your week and let it line up times and pull context in the background while you stay in control.
 stage: autopilots
 roles: [end-user, manager]
 tags: [autopilots, scout, meetings, scheduling, prep, calendar]

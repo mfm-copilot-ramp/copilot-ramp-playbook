@@ -1,5 +1,6 @@
 ---
 title: Research a market and write a landscape brief
+description: Hand Copilot Cowork a topic and your inputs to get back a structured market landscape brief you would normally spend half a day writing yourself.
 stage: cowork
 roles: [manager, end-user, champion]
 tags: [research, strategy, cowork, market-research]

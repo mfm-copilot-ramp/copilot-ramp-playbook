@@ -1,5 +1,6 @@
 ---
 title: Connect a Studio agent to a Microsoft Fabric data agent
+description: Wire a Microsoft Fabric data agent into Copilot Studio so users can ask plain-language questions of your warehouse, lakehouse, and semantic models.
 stage: studio
 roles: [maker, it-admin]
 tags: [copilot-studio, fabric, data-agent, onelake, analytics, knowledge, build]

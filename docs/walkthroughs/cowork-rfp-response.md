@@ -1,5 +1,6 @@
 ---
 title: Draft an RFP or proposal response from scattered source docs
+description: Use Copilot Cowork to turn an RFP and scattered internal docs into a structured first-draft response, so you shape and polish rather than write from nothing.
 stage: cowork
 roles: [end-user, manager, champion]
 tags: [proposals, rfp, writing, cowork]

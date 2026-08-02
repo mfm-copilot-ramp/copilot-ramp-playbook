@@ -1,5 +1,6 @@
 ---
 title: "HR: Guide new starters through a personalised first-week experience"
+description: Build a Copilot Studio agent that gives every new employee a 24/7 first-week companion that knows their role, team, and start week, cutting handbook hunting.
 stage: studio
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, hr, onboarding, personalisation, conversation-variables, functional]

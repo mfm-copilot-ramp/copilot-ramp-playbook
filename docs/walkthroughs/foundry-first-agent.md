@@ -1,5 +1,6 @@
 ---
 title: Build your first pro-code agent with the Foundry Agent Service
+description: Stand up your first pro-code agent as software with the Foundry Agent Service, created from an SDK, grounded on a tool, and callable from your own code.
 stage: foundry
 roles: [developer]
 tags: [foundry, agent-service, sdk, pro-code, python, frontier]

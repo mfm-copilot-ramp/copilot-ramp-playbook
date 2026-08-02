@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Browser-Using (Computer-Use) Agent (Foundry)"
+description: A Foundry Agent Service solution template for a browser-using agent that reads, clicks, and types to finish tasks on web apps with no API, inside a sandbox.
 tags: [foundry, pro-code, computer-use, browser, automation, guardrails, evaluation, template, developer]
 level: advanced
 time: 3–5 days

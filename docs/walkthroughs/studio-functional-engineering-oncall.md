@@ -1,5 +1,6 @@
 ---
 title: "Engineering: alert to runbook to escalation"
+description: Build a Copilot Studio on-call agent that matches an alert to the right runbook step, guides the fix, and knows exactly who to escalate to when it runs out.
 stage: studio
 roles: [maker, developer, it-admin]
 tags: [copilot-studio, engineering, on-call, runbook, incident, functional]

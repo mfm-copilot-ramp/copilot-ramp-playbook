@@ -1,5 +1,6 @@
 ---
 title: Test and evaluate a Studio agent before publishing
+description: Test and evaluate a Copilot Studio agent before publishing by running structured test cases, finding failure modes, and fixing them before they hit users.
 stage: studio
 roles: [maker, champion]
 tags: [studio, testing, quality, evaluation, publish]

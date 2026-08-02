@@ -1,5 +1,6 @@
 ---
 title: "Sales: Product intel and objection handling for sales reps"
+description: Build a Copilot Studio agent that gives reps the right product story, competitive positioning, and objection responses mid-call, grounded on your content.
 stage: studio
 roles: [maker, champion, manager]
 tags: [copilot-studio, sales, product-knowledge, competitive-intel, objections, functional]

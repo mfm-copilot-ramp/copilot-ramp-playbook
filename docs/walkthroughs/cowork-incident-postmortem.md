@@ -1,5 +1,6 @@
 ---
 title: Build an incident postmortem from Teams, tickets, and email
+description: Point Copilot Cowork at your Teams war-room, ticket, and emails to reconstruct the timeline and get a blameless first-draft incident postmortem you edit.
 stage: cowork
 roles: [end-user, manager, champion, developer]
 tags: [cowork, it, itsm, incident, postmortem, retrospective, multi-step, synthesis]

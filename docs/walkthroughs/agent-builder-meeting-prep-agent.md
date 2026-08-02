@@ -1,5 +1,6 @@
 ---
 title: Build a meeting-prep agent for a recurring 1:1 or standup
+description: Build a no-code agent that auto-generates agenda items, talking points, and context before every recurring one-on-one or standup, with no manual pulling.
 stage: agent-builder
 roles: [manager, end-user]
 tags: [meetings, agent-builder, planning, teams, 1on1]

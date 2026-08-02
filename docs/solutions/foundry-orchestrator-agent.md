@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Multi-Agent Workflow Orchestrator (Foundry)"
+description: A Foundry Agent Service solution template for an orchestrator that decomposes a request, routes sub-tasks to specialist agents, and assembles one answer.
 tags: [foundry, pro-code, orchestration, multi-agent, connected-agents, evaluation, template, developer]
 level: advanced
 time: 2–4 days

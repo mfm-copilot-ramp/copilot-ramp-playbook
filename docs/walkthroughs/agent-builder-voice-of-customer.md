@@ -1,5 +1,6 @@
 ---
 title: Build a "voice of customer" agent over your support inbox
+description: Build a no-code agent grounded on your support inbox and ask it what customers are really saying, surfacing the themes hiding in emails you can't all read.
 stage: agent-builder
 roles: [maker, end-user]
 tags: [agent-builder, declarative-agent, voice-of-customer, support, feedback, personal, no-code]

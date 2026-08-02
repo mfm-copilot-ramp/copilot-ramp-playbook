@@ -1,5 +1,6 @@
 ---
 title: Build a team-knowledge agent over a SharePoint site
+description: Point a no-code agent at your team's SharePoint site once so everyone can ask plain-language questions and get cited answers instead of pinging you.
 stage: agent-builder
 roles: [maker, champion]
 tags: [agent-builder, declarative-agent, sharepoint, grounding, no-code]

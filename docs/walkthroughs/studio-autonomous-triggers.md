@@ -1,5 +1,6 @@
 ---
 title: Configure an autonomous event-triggered agent
+description: Build a Copilot Studio agent that acts when an event happens, without waiting for a user to start a conversation, real automation rather than a chatbot.
 stage: studio
 roles: [maker, it-admin]
 tags: [studio, autonomous, triggers, power-automate, automation]

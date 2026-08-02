@@ -1,5 +1,6 @@
 ---
 title: Secure a Studio agent with authentication
+description: Secure a Copilot Studio agent with authentication so only the right people can use it and it acts as the right identity when accessing data on their behalf.
 stage: studio
 roles: [maker, it-admin]
 tags: [studio, security, authentication, entra, identity]

@@ -1,5 +1,6 @@
 ---
 title: Secure and govern Foundry agents in production
+description: Run pro-code Foundry agents like production software, with tenant-isolated data, least-privilege identity, and the same governance plane as low-code agents.
 stage: foundry
 roles: [it-admin, developer]
 tags: [foundry, security, governance, rbac, entra, purview, agent-365, pro-code, frontier]

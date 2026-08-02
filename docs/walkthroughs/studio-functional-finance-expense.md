@@ -1,5 +1,6 @@
 ---
 title: "Finance: Self-service expense and procurement guidance"
+description: Build a Copilot Studio agent that gives employees instant answers on expense policy and procurement rules and guides them into the right process.
 stage: studio
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, finance, expense, procurement, knowledge, functional]

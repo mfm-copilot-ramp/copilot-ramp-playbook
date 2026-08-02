@@ -1,5 +1,6 @@
 ---
 title: Synthesize many documents into one brief
+description: Point Copilot Cowork at a stack of documents and get one coherent brief with the throughline, the conflicts, and the gaps, instead of reading them all yourself.
 stage: cowork
 roles: [maker, manager]
 tags: [cowork, synthesis, research, brief, delegation]

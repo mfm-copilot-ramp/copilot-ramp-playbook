@@ -1,5 +1,6 @@
 ---
 title: Agents in Channels — post team-wide answers
+description: Drop a shared agent into a Teams channel so the whole team can mention it and self-serve answers, instead of the same five questions landing in your DMs.
 stage: first-party
 roles: [champion, it-admin]
 tags: [first-party, teams, channels, shared-agent, self-service]

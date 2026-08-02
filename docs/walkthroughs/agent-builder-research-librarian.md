@@ -1,5 +1,6 @@
 ---
 title: Build a personal research librarian over your OneDrive
+description: Turn years of saved PDFs and notes in your OneDrive into a no-code research librarian that gives cited answers to any question about your own files.
 stage: agent-builder
 roles: [maker, end-user]
 tags: [agent-builder, declarative-agent, onedrive, research, knowledge, personal, no-code]

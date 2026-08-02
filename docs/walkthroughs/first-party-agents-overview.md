@@ -1,5 +1,6 @@
 ---
 title: The first-party agents included with your M365 Copilot license
+description: A field guide to the prebuilt agents included in your Microsoft 365 Copilot license, so you delegate to the right one instead of prompting from scratch.
 stage: first-party
 roles: [end-user, champion, manager, maker, it-admin]
 tags: [first-party, agents, overview, roster, m365-copilot, included]

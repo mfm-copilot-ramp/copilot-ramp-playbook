@@ -1,5 +1,6 @@
 ---
 title: "Stage 5 · Autopilots"
+description: Stage 5 of the Copilot ramp. Hand a recurring job to an always-on autonomous agent like Microsoft Scout that watches, decides, and acts without being prompted.
 stage: autopilots
 ---
 

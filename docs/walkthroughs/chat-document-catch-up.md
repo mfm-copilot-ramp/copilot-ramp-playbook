@@ -1,5 +1,6 @@
 ---
 title: Get up to speed on a long document fast
+description: Use Copilot to reduce a long document to what your role needs, plus the risks buried deep inside, before a meeting where everyone pretends they read it.
 stage: chat
 roles: [end-user, manager]
 tags: [chat, documents, summarize, reading, productivity]

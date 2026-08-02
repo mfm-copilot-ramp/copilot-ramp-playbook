@@ -1,5 +1,6 @@
 ---
 title: "Stage 2 · First-Party Agents"
+description: Stage 2 of the Copilot ramp. Use the purpose-built agents already in your license, Researcher, Analyst, and Facilitator, that go beyond chat with no building.
 stage: first-party
 ---
 

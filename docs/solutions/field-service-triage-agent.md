@@ -1,5 +1,6 @@
 ---
 title: "Solution Template: Field Service Triage Agent"
+description: A Copilot Studio solution template for a field service triage agent that turns a symptom or fault code into the likely cause and the right dispatch path.
 tags: [copilot-studio, field-service, triage, dispatch, troubleshooting, template]
 level: intermediate
 time: 4–5 hours

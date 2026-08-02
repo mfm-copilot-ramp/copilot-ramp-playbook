@@ -1,5 +1,6 @@
 ---
 title: AI Empowerment Team
+description: Go beyond individual skilling and build an AI empowerment team that helps your whole organization climb the Microsoft Copilot maturity journey together.
 ---
 
 # Build your AI empowerment team

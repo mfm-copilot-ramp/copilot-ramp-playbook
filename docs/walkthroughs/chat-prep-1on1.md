@@ -1,5 +1,6 @@
 ---
 title: Prep for a 1:1 in two minutes
+description: Use Copilot to walk into your next one-on-one with talking points drawn from the work you actually shared this week, prepared in about two minutes.
 stage: chat
 roles: [manager, end-user]
 tags: [chat, 1on1, prep, relationships, productivity]

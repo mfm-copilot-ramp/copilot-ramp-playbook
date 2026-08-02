@@ -1,5 +1,6 @@
 ---
 title: Have Scout watch your deliverables and flag risks
+description: Give Microsoft Scout a standing watch over your deliverables so it flags slipped deadlines and stalled decisions before they quietly cost you.
 stage: autopilots
 roles: [manager, champion, end-user]
 tags: [autopilots, scout, deliverables, risk, calendar, stalled-decisions]

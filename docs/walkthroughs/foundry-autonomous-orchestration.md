@@ -1,5 +1,6 @@
 ---
 title: Orchestrate multiple agents and autonomous runs in Foundry
+description: Move from one Foundry agent answering a prompt to a system of agents that hand work to each other and run when triggered, the engineered form of delegation.
 stage: foundry
 roles: [developer]
 tags: [foundry, orchestration, multi-agent, autonomous, connected-agents, pro-code, frontier]

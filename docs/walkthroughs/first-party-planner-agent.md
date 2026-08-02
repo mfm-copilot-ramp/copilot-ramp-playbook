@@ -1,5 +1,6 @@
 ---
 title: Track project milestones with the Planner agent
+description: Use the Planner agent to turn a goal and a task list into a structured, assigned project plan by describing it in plain language, not filling in a form.
 stage: first-party
 roles: [manager, champion, end-user]
 tags: [planning, tasks, project-management, planner, teams]
