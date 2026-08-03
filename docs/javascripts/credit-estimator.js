@@ -49,8 +49,83 @@
     finance: "Whenever an invoice is submitted, the agent extracts the fields from the scanned document, validates them, and runs a Power Automate approval workflow. About 800 invoices per month for the finance department."
   };
 
+  // ── "flight" gate for in-progress modes (Bulk generate) ───────────────────
+  // Bulk generate is headed for its own dedicated page, so it's hidden from the
+  // estimator by default. The tiny secret dot in the switcher is the on/off
+  // control, and its state persists per-browser in localStorage. A ?flight=bulk
+  // (or ?labs=bulk / ?flight=all) URL param is a convenience *seed*: it flips the
+  // stored flag ON once at page load so a shared demo link opens revealed, while
+  // ?flight=off / ?flight=none / ?flight=hide seeds it OFF (a clean reset link).
+  // After load the dot is authoritative — the URL never live-overrides it, so
+  // clicking the dot always toggles both ways. No estimator math changes.
+  var FLIGHT_BULK_KEY = "ce-flight-bulk";
+  function flightParamState() {
+    // → "on" | "off" | null  (null = no recognised flight param in the URL)
+    try {
+      var q = (location.search || "").toLowerCase();
+      if (/[?&](?:flight|labs)=(?:[a-z-]*,)*(?:bulk|all)\b/.test(q)) return "on";
+      if (/[?&](?:flight|labs)=(?:off|none|hide|0)\b/.test(q)) return "off";
+    } catch (e) {}
+    return null;
+  }
+  function seedFlightFromUrl() {
+    // One-time: let a ?flight= link set the persisted flag, then hand control to
+    // the dot. Called once from init(), never on every apply/toggle — so the URL
+    // seeds the initial state but the dot can still turn it off afterwards.
+    var s = flightParamState();
+    if (!s) return;
+    try { window.localStorage.setItem(FLIGHT_BULK_KEY, s === "on" ? "1" : "0"); } catch (e) {}
+  }
+  function bulkFlighted() {
+    try { return window.localStorage.getItem(FLIGHT_BULK_KEY) === "1"; } catch (e) { return false; }
+  }
+  function applyBulkFlight() {
+    var on = bulkFlighted();
+    var root = document.getElementById("estimator-studio") || document.body;
+    if (root) root.classList.toggle("estimator-flighted", on);
+    var dot = document.getElementById("flight-toggle");
+    if (dot) {
+      dot.setAttribute("aria-pressed", on ? "true" : "false");
+      dot.title = on ? "Preview features on \u2014 Bulk generate is visible" : "";
+    }
+    // If it got locked while the user was sitting in bulk, fall back to Quick.
+    if (!on) {
+      var panel = document.getElementById("panel-bulk");
+      if (panel && !panel.classList.contains("em-hidden")) setEstimatorMode("quick");
+    }
+    return on;
+  }
+  function flightToast(msg) {
+    var t = document.getElementById("flight-toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "flight-toast";
+      t.className = "flight-toast";
+      t.setAttribute("role", "status");
+      t.setAttribute("aria-live", "polite");
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    void t.offsetWidth; // reflow so the transition replays
+    t.classList.add("show");
+    clearTimeout(t._hideT);
+    t._hideT = setTimeout(function () { t.classList.remove("show"); }, 2400);
+  }
+  function toggleBulkFlight() {
+    var stored = false;
+    try { stored = window.localStorage.getItem(FLIGHT_BULK_KEY) === "1"; } catch (e) { stored = false; }
+    var turnOn = !stored;
+    try { window.localStorage.setItem(FLIGHT_BULK_KEY, turnOn ? "1" : "0"); } catch (e) {}
+    var nowOn = applyBulkFlight();
+    if (nowOn && turnOn) setEstimatorMode("bulk");
+    flightToast(nowOn ? "Bulk generate flighted \u2014 visible on this browser" : "Bulk generate hidden");
+  }
+
   // ── mode switching ────────────────────────────────────────────────────────
   function setEstimatorMode(mode) {
+    // Bulk is gated behind the flight flag — a stale #hash, select value, or
+    // hydration can't force it open while it's locked.
+    if (mode === "bulk" && !bulkFlighted()) mode = "quick";
     var ids = { quick: "panel-quick", import: "panel-import", detailed: "panel-detailed", complex: "panel-complex", bulk: "panel-bulk" };
     Object.keys(ids).forEach(function (k) {
       var el = document.getElementById(ids[k]);
@@ -2180,10 +2255,23 @@
       });
     }
 
+    // Secret "flight" dot: reveals the hidden Bulk generate mode for demos.
+    var flightDot = document.getElementById("flight-toggle");
+    if (flightDot && !flightDot.dataset.bound) {
+      flightDot.dataset.bound = "1";
+      flightDot.addEventListener("click", function (e) { e.preventDefault(); toggleBulkFlight(); });
+    }
+    seedFlightFromUrl();
+    applyBulkFlight();
+
     window.emCopySummary = emCopySummary;
     window.emDownloadSummary = emDownloadSummary;
     window.emDownloadCsv = emDownloadCsv;
     window.emCopyLink = emCopyLink;
+    window.toggleBulkFlight = toggleBulkFlight;
+    window.applyBulkFlight = applyBulkFlight;
+    window.bulkFlighted = bulkFlighted;
+    window.seedFlightFromUrl = seedFlightFromUrl;
 
     var hydrated = false;
     try { hydrated = rehydrateDetailedFromHash(); } catch (e) { hydrated = false; }
