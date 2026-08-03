@@ -16,6 +16,14 @@
 (function (root) {
   "use strict";
 
+  // Shared VERIFIED component vocabulary (estimator-vocab.js) — the WRITE side of the
+  // single source of truth the READER (estimator-core.analyzeSolution) also consumes.
+  // Loaded first on the page; required in Node; small inline fallback keeps this file
+  // standalone. The emit→read self-consistency test asserts both sides stay in lockstep.
+  var EV = (root && root.EstimatorVocab) ||
+    (typeof require === "function" ? (function () { try { return require("./estimator-vocab.js"); } catch (e) { return null; } })() : null) ||
+    { RECOGNIZER_NEW_EXPERIENCE: "CLICopilotRecognizer", MODEL_SERIES_VERIFIED: ["Sonnet46"] };
+
   // ── UTF-8 encode (TextEncoder with a manual fallback) ─────────────────────
   function utf8(str) {
     if (typeof TextEncoder !== "undefined") return new TextEncoder().encode(str);
@@ -550,15 +558,33 @@
   //     gpt.default component and NO topics. See tooling/golden-exports/new-experience/
   //     and newBotXml / newConfigJson below.
   // When "new" is selected we emit that verified new-experience agent (instructions-first).
-  // Its behavior is built up in the maker portal by adding Tools + Knowledge, so
-  // connectors/flows/triggers are listed in NEXT-STEPS rather than wired into the export
-  // (the plain connector-action shape is not part of the verified new-experience export,
-  // and wiring an unverified component would break import). We DO ship a working scaffold
-  // knowledge document (verified type-14 file component) so the imported agent can answer
-  // on import, per the "must import cleanly + be a working agent to build on" requirement.
+  // Its capability is added in the portal as Tools + Knowledge. Connector tools ARE now
+  // wired into the export as verified `.tool.<Slug>_<rand3>` botcomponents (componenttype 9,
+  // `kind: ConnectorTool` data, one shared `.cr.<connector>` connection reference per
+  // connector) — shape captured verbatim from a real new-experience export. Flows / triggers
+  // / Work-IQ-for-new-experience remain NEXT-STEPS notes until their shapes are verified.
+  // We also ship a working scaffold knowledge document (verified type-14 file component) so
+  // the imported agent can answer on import, per the "must import cleanly + be a working
+  // agent to build on" requirement.
   // NB: the experience selector must NOT be conflated with the in-agent orchestrator
   // setting (GenerativeActionsEnabled) — see configJson (that axis is classic-only).
   var VERIFIED_NEW_EXPERIENCE_SHAPE = true;
+  // New-experience connector TOOLS. Verified verbatim against a real new-experience
+  // unmanaged export (`.tool.<Slug>_<rand3>` botcomponent + `kind: ConnectorTool` data +
+  // `.cr.<connector>` connection reference). See newToolBotcomponentXml / newConnectorToolData.
+  var VERIFIED_NEW_CONNECTOR_TOOL_SHAPE = true;
+  // Work IQ (M365 tenant-graph) MCP tool pair. Verified verbatim against a real CLASSIC
+  // export with the Work IQ toggle ON (two `.topic.WorkIQ*Preview` components, componenttype
+  // 9, `kind: TaskDialog` + `InvokeExternalAgentTaskAction` + `ModelContextProtocolMetadata`
+  // data, paired classic connection references). The new-EXPERIENCE Work IQ shape is tenant-
+  // gated (nobody can export it yet) → gated to a NEXT-STEPS note, not emitted.
+  var VERIFIED_WORKIQ_SHAPE = true;
+  // Skills (new-experience InlineAgentSkill components). Verified verbatim against a real
+  // new-experience unmanaged export (`.skill.<slug>_<rand3>` botcomponent, componenttype 9,
+  // `kind: InlineAgentSkill` data whose `content: |` block scalar carries a SKILL.md with a
+  // `name`/`description` front-matter). See buildSkills / skillContent / skillBotcomponentXml.
+  // Skills are a new-experience concept → gated to a NEXT-STEPS note in the classic experience.
+  var VERIFIED_SKILL_SHAPE = true;
 
   var GENERIC_DOMAIN = "the tasks described here";
 
@@ -632,6 +658,9 @@
     (arr || []).forEach(function (v) { if (v != null && !seen[v]) { seen[v] = 1; out.push(v); } });
     return out;
   }
+  // Collapse a possibly multi-line string into a single trimmed line (front-matter/description
+  // must be a single YAML scalar line).
+  function oneLine(s) { return String(s == null ? "" : s).replace(/\s+/g, " ").trim(); }
   function orderSteps(steps) {
     return (steps || []).slice().sort(function (a, b) {
       var ia = STEP_ORDER.indexOf(a && a.id), ib = STEP_ORDER.indexOf(b && b.id);
@@ -829,8 +858,14 @@
 
     // 4) Tools — per-tool WHEN / inputs / confirm-before-write guidance, referencing
     //    the package's ACTUAL tools + knowledge by their exact display names.
-    if (connectors.length || knowledge.length || capabilities.length) {
+    if (connectors.length || knowledge.length || capabilities.length || ctx.workIQ) {
       L.push("## Tools");
+      // Work IQ (M365 tenant graph) is the preferred grounding when on — one permission-
+      // trimmed call returns people/meeting/mail/file context, so prefer it over separate
+      // one-off Microsoft 365 connector reads.
+      if (ctx.workIQ) {
+        L.push("- For anything about the user's Microsoft 365 world — people, org chart, meetings, recent mail, chats, or files — use **Work IQ** (the \"Work IQ Copilot (Preview)\" and \"Work IQ User (Preview)\" tools). Prefer it over adding separate Outlook/Teams/SharePoint reads: one Work IQ call returns richer, permission-trimmed context.");
+      }
       connectors.forEach(function (c) {
         var verb = c.guidanceVerb || ("use " + (c.connectorLabel || "the connector"));
         if (ctx.experience === "new") {
@@ -864,6 +899,17 @@
         L.push("- To do this, review " + joinAnd(capabilities.map(function (c) { return c.behavior; })) +
           ". Those read tools aren't wired into this package yet — add them in Copilot Studio (see NEXT-STEPS.md) before relying on that data.");
       }
+      L.push("");
+    }
+
+    // 4b) Skills — reusable, named instruction modules the orchestrator invokes by name
+    //     (new experience only; emitted as verified InlineAgentSkill components).
+    if (ctx.skills && ctx.skills.length) {
+      L.push("## Skills");
+      L.push("You have reusable skills. When a request matches a skill's purpose, invoke that skill by name and follow its instructions:");
+      ctx.skills.forEach(function (sk) {
+        L.push("- **" + sk.slug + "** — " + sk.description);
+      });
       L.push("");
     }
 
@@ -1004,26 +1050,34 @@
     // Doctrine: ALWAYS default to GENERATIVE orchestration (modern, recommended). Only emit
     // the classic orchestrator shape when the description DIRECTLY calls it out (a rare
     // escape hatch) — never by default, and never driven by the experience selector.
-    if (classicOrchestration) {
-      // Classic orchestration: generative actions OFF and NO GenerativeAIRecognizer.
-      // NOTE: this classic-config shape is ASSUMED and should be verified against a real
-      // classic-orchestration unmanaged export before relying on it in production. It only
-      // triggers on an explicit call-out, so the verified generative default is unaffected.
-      var clsCfg = {
-        BotConfiguration: {
-          GenerativeActionsEnabled: false,
-          GPTSettings: { defaultSchemaName: schema + ".gpt.default" }
-        }
-      };
-      return JSON.stringify(clsCfg, null, 2) + "\n";
-    }
+    // VERIFIED classic configuration.json shape — copied field-for-field from real
+    // unmanaged exports (EmailAssistant_preWorkIQ, WorkIQClassicGroundTruth). The importer
+    // appends this into a combined DOM, so the exact key names + `$kind` discriminators
+    // matter. Note the camelCase `gPTSettings` / `aISettings` (first letter lower) — that is
+    // how the real export serializes them; the previous PascalCase `{BotConfiguration:{…}}`
+    // wrapper was NOT a real export shape.
     var cfg = {
-      BotConfiguration: {
-        GenerativeActionsEnabled: true,
-        GPTSettings: { defaultSchemaName: schema + ".gpt.default" },
-        AISettings: { GenerativeAIRecognizer: true }
-      }
+      $kind: "BotConfiguration",
+      settings: { GenerativeActionsEnabled: !classicOrchestration },
+      isAgentConnectable: true,
+      gPTSettings: { $kind: "GPTSettings", defaultSchemaName: schema + ".gpt.default" },
+      aISettings: {
+        $kind: "AISettings",
+        useModelKnowledge: true,
+        isFileAnalysisEnabled: true,
+        isSemanticSearchEnabled: true,
+        optInUseLatestModels: false
+      },
+      recognizer: { $kind: "GenerativeAIRecognizer" }
     };
+    if (classicOrchestration) {
+      // Rare escape hatch (explicit call-out only): flip the one documented axis
+      // (settings.GenerativeActionsEnabled) off and drop the GenerativeAIRecognizer, which
+      // is the generative-orchestration signal. This is the verified generative shape with
+      // that single axis toggled — it is NOT an independently verified classic-orchestration
+      // export, but it only fires on a direct call-out so the verified default is unaffected.
+      delete cfg.recognizer;
+    }
     return JSON.stringify(cfg, null, 2) + "\n";
   }
 
@@ -1035,11 +1089,11 @@
   // model is chosen via a series picker. These shapes are copied verbatim from the golden
   // export; only schemaname / display name / instructions / web-search / model vary.
   var NEW_EXP_BOT_TEMPLATE = "cliagent-1.0.0"; // <template> marker for the new authoring harness
-  var NEW_EXP_RECOGNIZER = "CLICopilotRecognizer";
+  var NEW_EXP_RECOGNIZER = EV.RECOGNIZER_NEW_EXPERIENCE; // "CLICopilotRecognizer" (shared vocab)
   // Model picker value. "Sonnet46" (Claude Sonnet 4.6) is the only series string verified
-  // from a real export; it's a single documented constant so it's a one-line change once
-  // other verified series values are captured. Users can switch the model in the portal.
-  var NEW_EXP_MODEL_SERIES = "Sonnet46";
+  // from a real export; sourced from the shared vocab's verified list so the writer and the
+  // reader (which flags reasoning series) can never disagree on the catalog. Switchable in the portal.
+  var NEW_EXP_MODEL_SERIES = (EV.MODEL_SERIES_VERIFIED && EV.MODEL_SERIES_VERIFIED[0]) || "Sonnet46";
   function newBotXml(schema, name) {
     return '<bot schemaname="' + xmlEsc(schema) + '">\n' +
       '  <authenticationmode>2</authenticationmode>\n' +
@@ -1237,6 +1291,205 @@
     return '<botcomponent_connectionreferenceset>\n' + rows + '\n</botcomponent_connectionreferenceset>\n';
   }
 
+  // ── NEW (cliagent) experience connector TOOLS (verified) ─────────────────────
+  // A new-experience connector is a `.tool.<Slug>_<rand3>` botcomponent (componenttype 9)
+  // whose <name> is the operation's display name and whose sibling `data` is a
+  // `kind: ConnectorTool` YAML. Every connector's tools share ONE connection reference
+  // logical-named `<schema>.cr.<connector>` (the `.cr.` infix + no GUID — distinct from the
+  // classic `<schema>.<connector>.shared-<abbrev>-<guid>` naming). Shapes copied verbatim
+  // from WorkIQMeetingPrepNewExperience_unmanaged (a real new-experience export).
+  function toolSlug(actionName) {
+    // "Send an email (V2)" -> "SendanemailV2" (real-export convention: display name, non-alnum stripped)
+    var t = String(actionName == null ? "" : actionName).replace(/[^A-Za-z0-9]/g, "");
+    return t || "Tool";
+  }
+  function rand3() {
+    var a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", s = "";
+    for (var i = 0; i < 3; i++) s += a.charAt(Math.floor(Math.random() * a.length));
+    return s;
+  }
+  function newToolBotcomponentXml(parentSchema, toolSchemaName, name, modelDescription) {
+    return '<botcomponent schemaname="' + xmlEsc(toolSchemaName) + '">\n' +
+      '  <componenttype>9</componenttype>\n' +
+      '  <description>' + xmlEsc(modelDescription || "") + '</description>\n' +
+      '  <iscustomizable>0</iscustomizable>\n' +
+      '  <name>' + xmlEsc(name) + '</name>\n' +
+      '  <parentbotid>\n' +
+      '    <schemaname>' + xmlEsc(parentSchema) + '</schemaname>\n' +
+      '  </parentbotid>\n' +
+      '  <statecode>0</statecode>\n' +
+      '  <statuscode>1</statuscode>\n' +
+      '</botcomponent>\n';
+  }
+  function newConnectorToolData(logical, connector, operationId) {
+    // Verified verbatim (field order + values) against the real new-experience export.
+    return "kind: ConnectorTool\n" +
+      "authMode: Invoker\n" +
+      "connectionReference: " + logical + "\n" +
+      "connectorId: /providers/Microsoft.PowerApps/apis/" + connector + "\n" +
+      "operationId: " + operationId + "\n";
+  }
+  // Map detected connector-action objects into new-experience tool objects (one per action,
+  // sharing a `.cr.<connector>` logical per connector). Reuses customizationsXml/connrefSetXml
+  // (they key off `.logical`, `.connector`, `.actionSchemaName`).
+  function newExperienceTools(schema, connectors) {
+    return connectors.map(function (c) {
+      return {
+        connector: c.connector,
+        logical: schema + ".cr." + c.connector,
+        actionSchemaName: schema + ".tool." + toolSlug(c.actionName) + "_" + rand3(),
+        actionName: c.actionName,
+        connectorLabel: c.connectorLabel,
+        modelDescription: c.modelDescription,
+        operationId: c.operationId
+      };
+    });
+  }
+
+  // ── Work IQ (M365 tenant-graph) MCP tool pair (verified CLASSIC shape) ───────
+  // Turning Work IQ on adds two `.topic.WorkIQ*Preview` botcomponents (componenttype 9)
+  // whose `data` is a TaskDialog that invokes an external MCP agent (the M365 tenant graph)
+  // + two paired classic connection references. Shapes copied verbatim from a real classic
+  // export (WorkIQClassicGroundTruth) captured with the toggle ON.
+  function workIqBotcomponentXml(parentSchema, schemaName, name) {
+    // Verified element ORDER (iscustomizable BEFORE name) — matches the real export exactly.
+    return '<botcomponent schemaname="' + xmlEsc(schemaName) + '">\n' +
+      '  <componenttype>9</componenttype>\n' +
+      '  <iscustomizable>0</iscustomizable>\n' +
+      '  <name>' + xmlEsc(name) + '</name>\n' +
+      '  <parentbotid>\n' +
+      '    <schemaname>' + xmlEsc(parentSchema) + '</schemaname>\n' +
+      '  </parentbotid>\n' +
+      '  <statecode>0</statecode>\n' +
+      '  <statuscode>1</statuscode>\n' +
+      '</botcomponent>\n';
+  }
+  function workIqData(modelDisplayName, logical, operationId) {
+    // Verified verbatim (incl. the blank line before operationDetails) against the export.
+    return "kind: TaskDialog\n" +
+      "modelDisplayName: " + modelDisplayName + "\n" +
+      "action:\n" +
+      "  kind: InvokeExternalAgentTaskAction\n" +
+      "  connectionReference: " + logical + "\n" +
+      "  connectionProperties:\n" +
+      "    mode: Invoker\n" +
+      "\n" +
+      "  operationDetails:\n" +
+      "    kind: ModelContextProtocolMetadata\n" +
+      "    operationId: " + operationId + "\n";
+  }
+  // Build the two Work IQ tool objects for a given parent schema. Each carries `logical`,
+  // `connector`, and `actionSchemaName` so it slots straight into the shared
+  // connectionReferencesXml / connrefSetXml emitters alongside ordinary connectors.
+  function workIqComponents(schema) {
+    var catalog = (EV && EV.WORKIQ_MCP) || [];
+    return catalog.map(function (w) {
+      var schemaName = schema + ".topic." + w.suffix;
+      return {
+        schemaName: schemaName,
+        actionSchemaName: schemaName, // connrefSetXml keys off this
+        name: w.modelDisplayName,
+        modelDisplayName: w.modelDisplayName,
+        connector: w.connector,
+        abbrev: w.abbrev,
+        operationId: w.operationId,
+        logical: schema + "." + w.connector + ".shared-" + w.abbrev + "-" + guid(),
+        workIQ: true
+      };
+    });
+  }
+  // Does the user/description want Work IQ grounding on? An explicit vars.workIQ toggle wins;
+  // a tenant-graph knowledge selection implies it; otherwise a description mentioning Work IQ
+  // / the M365 tenant graph opts in.
+  var WORKIQ_RE = /\bwork\s?iq\b|\bm365 (?:tenant )?graph\b|\btenant graph\b|\bmicrosoft 365 (?:tenant )?graph\b/i;
+  function wantsWorkIQ(vars, descLower) {
+    vars = vars || {};
+    if (vars.workIQ === true || vars.workIQ === "on") return true;
+    if (vars.workIQ === false || vars.workIQ === "off") return false;
+    if (vars.knowledge === "tenantGraph") return true;
+    return WORKIQ_RE.test(descLower || "");
+  }
+
+  // ── Skills (new-experience InlineAgentSkill components — verified shape) ─────
+  // A Skill is a reusable, named instruction module the generative orchestrator can invoke by
+  // name. Shape copied verbatim from a real new-experience export
+  // (WorkIQMeetingPrepNewExperience, `.skill.meeting-brief-formatter`): a componenttype-9
+  // botcomponent whose `data` is `kind: InlineAgentSkill` with a `content: |` block scalar
+  // carrying a SKILL.md — a `name`/`description` front-matter, then a markdown body. The
+  // botcomponent.xml is byte-identical to a connector tool's (description → iscustomizable →
+  // name), so we reuse newToolBotcomponentXml for it.
+  function skillSlug(name) {
+    // Front-matter + botcomponent <name> use the lowercase-hyphen slug (verified convention).
+    var s = String(name == null ? "" : name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return s || "skill";
+  }
+  function skillTitle(name, slug) {
+    var raw = String(name == null ? "" : name).trim();
+    if (raw && /[^a-z0-9\- ]/i.test(raw) === false && raw.indexOf(" ") === -1 && raw === slug) {
+      // Bare slug typed as the name → prettify "meeting-brief-formatter" → "Meeting Brief Formatter".
+      return slug.replace(/-/g, " ").replace(/\b\w/g, function (m) { return m.toUpperCase(); });
+    }
+    return raw || slug;
+  }
+  function skillContent(slug, description, bodyLines) {
+    // The InlineAgentSkill `content` is a YAML block scalar — every content line is indented
+    // two spaces (blank lines stay truly blank). We do NOT emit the export-only
+    // `<!-- bic:source=upload -->` marker (that is an upload-tracking artifact Studio injects;
+    // ours is generated). The SKILL.md body is free-form data, not part of the verified shape.
+    var md = ["---", "name: " + slug, "description: " + oneLine(description), "---"].concat(bodyLines);
+    return "kind: InlineAgentSkill\n" +
+      "content: |\n" +
+      md.map(function (l) { return l && l.length ? "  " + l : ""; }).join("\n") + "\n";
+  }
+  function skillBody(title, slug, description) {
+    // A scaffold SKILL.md that mirrors the section structure of the verified example
+    // (title / summary / When to use / How to respond / Style) so it reads as a real,
+    // editable skill. The description (a verb phrase) becomes the standalone summary line.
+    var summary = description
+      ? (/[.!?]$/.test(description) ? description : description + ".")
+      : ("Use this skill when the agent needs to " + slug.replace(/-/g, " ") + ".");
+    return [
+      "# " + title,
+      "",
+      summary,
+      "",
+      "## When to use",
+      "- Describe the conditions that should trigger this skill.",
+      "",
+      "## How to respond",
+      "- Spell out the exact steps, structure, or output format the agent should follow.",
+      "",
+      "## Style",
+      "- Lead with the answer, keep it concise, and never invent facts."
+    ];
+  }
+  // Normalize the UI/opts skills input (array of strings or {name,description}) into defs.
+  function normalizeSkills(raw) {
+    if (!raw) return [];
+    var arr = Array.isArray(raw) ? raw : [raw];
+    return arr.map(function (s) {
+      if (s == null) return null;
+      if (typeof s === "string") { var t = s.trim(); return t ? { name: t, description: "" } : null; }
+      var name = (s.name == null ? "" : String(s.name)).trim();
+      if (!name) return null;
+      return { name: name, description: (s.description == null ? "" : String(s.description)).trim() };
+    }).filter(Boolean);
+  }
+  function buildSkills(schema, skills) {
+    return normalizeSkills(skills).map(function (sk) {
+      var slug = skillSlug(sk.name);
+      var title = skillTitle(sk.name, slug);
+      var description = sk.description || ("Reusable instructions for " + title + ".");
+      return {
+        schemaName: schema + ".skill." + slug + "_" + rand3(),
+        slug: slug,
+        name: title,
+        description: oneLine(description),
+        content: skillContent(slug, description, skillBody(title, slug, description))
+      };
+    });
+  }
+
   // ── [Content_Types].xml ───────────────────────────────────────────────────
   function contentTypesXml(entries) {
     // OPC requires every part to declare a content type. The .xml/.json/.png/.md/.txt
@@ -1263,12 +1516,20 @@
   }
 
   // ── NEXT-STEPS.md ─────────────────────────────────────────────────────────
-  function nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, meta, classicOrch) {
+  function nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, meta, classicOrch, toolsWired, workIqOpts) {
     vars = vars || {};
     capabilities = capabilities || [];
     meta = meta || {};
+    workIqOpts = workIqOpts || {};
+    var workIqTools = workIqOpts.workIqTools || [];
+    var workIqGatedNew = !!workIqOpts.workIqGatedNew;
+    var skillList = workIqOpts.skills || [];
+    var skillGatedClassic = !!workIqOpts.skillGatedClassic;
     var isNew = experience === "new";
     var useNewExperience = isNew && VERIFIED_NEW_EXPERIENCE_SHAPE;
+    // Are the detected connectors wired into the package? Classic always wires them; the new
+    // experience wires them as `.tool.` components when the verified-tool flag is on (toolsWired).
+    var wiredConnectors = isNew ? !!toolsWired : true;
     var L = [];
     L.push("# " + name + " — starter agent");
     L.push("");
@@ -1288,10 +1549,15 @@
       L.push("runtime. Import it, review, and publish — then build it up with the items below.");
       L.push("");
       L.push("- **Model:** the agent is set to a default model (`" + NEW_EXP_MODEL_SERIES + "`). Change it in the agent's settings if you prefer another.");
-      L.push("- **Tools are added in the portal.** The new experience gains capability by adding **Tools**");
-      L.push("  (connectors, prompts, agent flows, other agents) and **Knowledge** in Copilot Studio. Anything");
-      L.push("  your description implied is listed below to add after import — we don't wire connector components");
-      L.push("  into the new-experience package so the import always stays clean.");
+      if (wiredConnectors) {
+        L.push("- **Connector tools are wired in.** The connectors your description implied are included as");
+        L.push("  **Tools** in this package and bind at import (see the Connections step below). Add any further");
+        L.push("  Tools (prompts, agent flows, other agents) and **Knowledge** in Copilot Studio as needed.");
+      } else {
+        L.push("- **Tools are added in the portal.** The new experience gains capability by adding **Tools**");
+        L.push("  (connectors, prompts, agent flows, other agents) and **Knowledge** in Copilot Studio. Anything");
+        L.push("  your description implied is listed below to add after import.");
+      }
       if (knowledge.length) {
         L.push("- **Knowledge:** we included a **placeholder knowledge document** so the agent can answer the");
         L.push("  moment it imports. Open **Knowledge**, then replace it with your real files or connect a live");
@@ -1331,29 +1597,65 @@
       L.push("4. Remove the conversational entry points (greeting, goodbye, etc.) — they don't apply to a triggered agent.");
       L.push("");
     }
-    L.push("## Import it");
-    L.push("1. Go to **make.powerapps.com** (or **copilotstudio.microsoft.com**) → **Solutions** → **Import solution**.");
-    L.push("2. Choose this .zip and continue.");
-    L.push("3. On the **Connections** step, pick or create a connection for each connector below.");
-    L.push("4. Click **Import** and wait for it to finish.");
-    L.push("5. Open the agent, review everything, and **Publish**.");
-    L.push("");
-    if (connectors.length) {
-      L.push("## Connections to set at import");
-      L.push("Each **connector** below needs one connection (it covers every action listed under it):");
-      var grp = {}, order = [];
-      connectors.forEach(function (c) {
-        if (!grp[c.connector]) { grp[c.connector] = { label: c.connectorLabel, actions: [] }; order.push(c.connector); }
-        grp[c.connector].actions.push(c);
-      });
-      order.forEach(function (conn) {
-        var g = grp[conn];
-        L.push("- **" + g.label + "** — one connection, used by:");
-        g.actions.forEach(function (c) {
-          L.push("    - \"" + c.actionName + "\" (operation `" + c.operationId + "`).");
-        });
-      });
+    if (useNewExperience) {
+      L.push("## Import it");
+      L.push("1. Go to **make.powerapps.com** (or **copilotstudio.microsoft.com**) → **Solutions** → **Import solution**.");
+      if (wiredConnectors) {
+        L.push("2. Choose this .zip and continue.");
+        L.push("3. On the **Connections** step, pick or create a connection for each connector below.");
+        L.push("4. Click **Import** and wait for it to finish.");
+        L.push("5. Open the agent, review the **Instructions** (already written in), and **Publish**.");
+      } else {
+        L.push("2. Choose this .zip, continue, and click **Import** (there is **no Connections step** — this agent ships no connector components).");
+        L.push("3. Open the agent and review the **Instructions** (already written in).");
+        L.push("4. Add the **Tools** listed below (connectors, prompts, flows) and review **Knowledge**, then **Publish**.");
+      }
       L.push("");
+    } else {
+      L.push("## Import it");
+      L.push("1. Go to **make.powerapps.com** (or **copilotstudio.microsoft.com**) → **Solutions** → **Import solution**.");
+      L.push("2. Choose this .zip and continue.");
+      L.push("3. On the **Connections** step, pick or create a connection for each connector below.");
+      L.push("4. Click **Import** and wait for it to finish.");
+      L.push("5. Open the agent, review everything, and **Publish**.");
+      L.push("");
+    }
+    if (connectors.length) {
+      if (wiredConnectors) {
+        L.push("## Connections to set at import");
+        L.push("Each **connector** below is wired into the package and needs one connection (it covers every action listed under it):");
+        var grp = {}, order = [];
+        connectors.forEach(function (c) {
+          if (!grp[c.connector]) { grp[c.connector] = { label: c.connectorLabel, actions: [] }; order.push(c.connector); }
+          grp[c.connector].actions.push(c);
+        });
+        order.forEach(function (conn) {
+          var g = grp[conn];
+          L.push("- **" + g.label + "** — one connection, used by:");
+          g.actions.forEach(function (c) {
+            L.push("    - \"" + c.actionName + "\" (operation `" + c.operationId + "`).");
+          });
+        });
+        L.push("");
+      } else {
+        L.push("## Tools to add after import");
+        L.push("Your description implied these connectors, but the new experience gains capability through **Tools**");
+        L.push("added in the portal — so they are **not** wired into this package. Add each in Copilot Studio");
+        L.push("(**Tools → Add a tool → Connector**) after import, then reference it from your instructions:");
+        var grpN = {}, orderN = [];
+        connectors.forEach(function (c) {
+          if (!grpN[c.connector]) { grpN[c.connector] = { label: c.connectorLabel, actions: [] }; orderN.push(c.connector); }
+          grpN[c.connector].actions.push(c);
+        });
+        orderN.forEach(function (conn) {
+          var gN = grpN[conn];
+          L.push("- **" + gN.label + "** — add as a tool, then use:");
+          gN.actions.forEach(function (c) {
+            L.push("    - \"" + c.actionName + "\" (operation `" + c.operationId + "`).");
+          });
+        });
+        L.push("");
+      }
     }
     if (unmapped.length) {
       L.push("## Actions to wire up after import");
@@ -1384,6 +1686,54 @@
       L.push("## Microsoft 365 knowledge (tenant graph)");
       L.push("Enable **Microsoft 365** / tenant-graph grounding on the agent after import (Knowledge →");
       L.push("add Microsoft 365 sources). Tenant-graph grounding bills ~10 credits per response — plan for it.");
+      L.push("");
+    }
+    if (workIqTools.length) {
+      // Classic Work IQ: the two verified MCP tools are wired into the package.
+      L.push("## Work IQ (Microsoft 365 tenant graph) is wired in");
+      L.push("This agent ships with **Work IQ** on — the modern way to ground on the Microsoft 365 tenant");
+      L.push("graph (people, meetings, mail, files, chats) instead of wiring individual M365 connectors. Two");
+      L.push("MCP tools are included:");
+      L.push("");
+      workIqTools.forEach(function (w) {
+        L.push("- **" + w.modelDisplayName + "** (`" + w.operationId + "` via `" + w.connector + "`)");
+      });
+      L.push("");
+      L.push("On the **Connections** step at import, pick or create a connection for each. Prefer Work IQ over");
+      L.push("one-off M365 connector reads: it returns richer, permission-trimmed context in a single grounded");
+      L.push("call. **Billing:** Work IQ grounding bills as tenant-graph — **~10 credits per response** — so it");
+      L.push("wins once the agent would otherwise make 2+ separate M365 reads.");
+      L.push("");
+    } else if (workIqGatedNew) {
+      // New-experience Work IQ shape is tenant-gated (unverified) → portal toggle, not emitted.
+      L.push("## Turn on Work IQ after import");
+      L.push("Your description implied **Work IQ** (Microsoft 365 tenant-graph grounding). In the **new agent");
+      L.push("experience** Work IQ is a tenant-gated toggle we can't yet ship pre-wired, so turn it on in the");
+      L.push("portal after import: open the agent → **Knowledge / Work IQ** and enable it. It grounds on the");
+      L.push("M365 graph (people, meetings, mail, files) and bills as tenant-graph (**~10 credits per response**).");
+      L.push("");
+    }
+    // Skills — reusable InlineAgentSkill modules (new experience). Wired when present, or a
+    // note when requested in the classic experience (skills are a new-experience feature).
+    if (skillList.length) {
+      L.push("## Skills are wired in");
+      L.push("This agent ships with reusable **skills** — named instruction modules the generative");
+      L.push("orchestrator invokes by name when a request matches. Each is a starting point you refine in");
+      L.push("Studio (open the agent → **Skills**):");
+      L.push("");
+      skillList.forEach(function (sk) {
+        L.push("- **" + sk.slug + "** — " + sk.description);
+      });
+      L.push("");
+      L.push("Each skill's `SKILL.md` has a `## When to use` and `## How to respond` scaffold — tighten those");
+      L.push("so the orchestrator picks the right skill and produces the exact output you want.");
+      L.push("");
+    } else if (skillGatedClassic) {
+      L.push("## Skills need the new experience");
+      L.push("Your request asked for **skills**, but skills (reusable named instruction modules) are a");
+      L.push("**new agent experience** feature — they aren't part of the classic topic-based architecture, so");
+      L.push("they aren't in this package. Regenerate with the **New experience** option selected to ship them,");
+      L.push("or add the behavior here as topics/instructions instead.");
       L.push("");
     }
     if (!useNewExperience && knowledge.some(function (k) { return k.placeholder; })) {
@@ -1479,6 +1829,16 @@
     // The new experience has no in-agent GenerativeActionsEnabled setting — it is
     // inherently generative — so never label a new-experience package "classic".
     var orchestrator = (!useNewExperience && classicOrchestration) ? "classic" : "generative";
+    // Work IQ (M365 tenant-graph grounding). Verified as a CLASSIC-experience shape; the
+    // new-experience Work IQ shape is tenant-gated (unverified) → gate to a NEXT-STEPS note.
+    var wantWorkIQ = VERIFIED_WORKIQ_SHAPE && wantsWorkIQ(vars, descLower);
+    var workIqOnClassic = wantWorkIQ && !useNewExperience;
+
+    // Skills (reusable InlineAgentSkill modules). Verified as a NEW-experience shape → emit
+    // them there; requested-in-classic is gated to a NEXT-STEPS note.
+    var skillDefs = normalizeSkills(opts.skills);
+    var skillOnNew = VERIFIED_SKILL_SHAPE && useNewExperience && skillDefs.length > 0;
+    var skillGatedClassic = skillDefs.length > 0 && !useNewExperience;
 
     // 1) Connectors implied by the description. Multiple actions may share a connector.
     //    - Text/system matches wire write + regex-detectable read/update actions.
@@ -1560,6 +1920,15 @@
       c.logical = connLogical[c.connector];
     });
 
+    // Work IQ MCP tool pair (classic, verified). Built here so preview can report it and the
+    // classic emit can wire the two components + their connection references. New-experience
+    // Work IQ is gated to a NEXT-STEPS note (tenant-gated shape, unverified).
+    var workIqComps = workIqOnClassic ? workIqComponents(schema) : [];
+
+    // Skills (new-experience InlineAgentSkill components, verified). Built here so preview can
+    // report them and the new-experience emit can wire the components.
+    var skillComps = skillOnNew ? buildSkills(schema, skillDefs) : [];
+
     // Agent-level metadata synthesized from the outline: a description, up to 3
     // conversation starters (interactive agents only), and an intent-derived
     // webBrowsing capability. Computed once and shared by preview + build + NEXT-STEPS.
@@ -1589,7 +1958,9 @@
         metadata: agentMeta,
         notices: shapeNotices(vars, experience),
         shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
-        tenantGraph: vars.knowledge === "tenantGraph"
+        workIQ: { requested: wantWorkIQ, wired: workIqComps.length > 0, gatedNewExperience: wantWorkIQ && useNewExperience, tools: workIqComps.map(function (w) { return w.modelDisplayName; }) },
+        skills: { requested: skillDefs.length, wired: skillComps.length > 0, gatedClassic: skillGatedClassic, items: skillComps.map(function (s) { return { slug: s.slug, name: s.name, description: s.description }; }) },
+        tenantGraph: vars.knowledge === "tenantGraph" || wantWorkIQ
       };
     }
 
@@ -1602,15 +1973,32 @@
     if (useNewExperience) {
       // ── NEW (cliagent) experience: a single instruction-driven agent. NO topics, NO
       //    gpt.default component — the instructions live INLINE in configuration.json.
-      //    Tools / connectors / flows are added in the maker portal (instructions-first)
-      //    and listed in NEXT-STEPS; we don't wire connector components here because the
-      //    plain connector-action shape isn't part of the verified new-experience export
-      //    and a wrong shape breaks import. We DO ship a working scaffold knowledge doc
+      //    Connector tools ARE wired as verified `.tool.` components (gated); flows /
+      //    triggers stay in NEXT-STEPS. We also ship a working scaffold knowledge doc
       //    (verified type-14 file component) so the imported agent can answer immediately.
-      add("customizations.xml", customizationsXml([]));
+      var newTools = (VERIFIED_NEW_CONNECTOR_TOOL_SHAPE && connectors.length) ? newExperienceTools(schema, connectors) : [];
+      add("customizations.xml", customizationsXml(newTools));
       add("bots/" + schema + "/bot.xml", newBotXml(schema, name));
-      var newInstr = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new" });
+      var newInstr = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new", workIQ: false, skills: skillComps });
       add("bots/" + schema + "/configuration.json", newConfigJson(schema, newInstr, agentMeta.webBrowsing));
+
+      // Connector tools (type 9) + shared connection-reference set (one `.cr.<connector>`
+      // reference per connector — office365's tools share a single reference).
+      newTools.forEach(function (t) {
+        add("botcomponents/" + t.actionSchemaName + "/data",
+          newConnectorToolData(t.logical, t.connector, t.operationId));
+        add("botcomponents/" + t.actionSchemaName + "/botcomponent.xml",
+          newToolBotcomponentXml(schema, t.actionSchemaName, t.actionName, t.modelDescription));
+      });
+      if (newTools.length) add("Assets/botcomponent_connectionreferenceset.xml", connrefSetXml(newTools));
+
+      // Skills (type 9 InlineAgentSkill components) — reusable named instruction modules the
+      // orchestrator invokes by name. Reuses the connector-tool botcomponent.xml shape.
+      skillComps.forEach(function (sk) {
+        add("botcomponents/" + sk.schemaName + "/data", sk.content);
+        add("botcomponents/" + sk.schemaName + "/botcomponent.xml",
+          newToolBotcomponentXml(schema, sk.schemaName, sk.slug, sk.description));
+      });
 
       if (knowledge.length) {
         var kdoc = scaffoldKnowledgeDoc(domain, steps, knowledge);
@@ -1619,10 +2007,16 @@
         add("botcomponents/" + kcomp.schema + "/filedata/" + kdoc.fileName, kdoc.bytes);
       }
 
-      add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration));
+      // Work IQ in the NEW experience is tenant-gated (nobody can export its shape yet) →
+      // we do NOT emit unverified components; instead NEXT-STEPS tells the user to toggle it
+      // on in the portal. Classic Work IQ is emitted as verified components (else branch).
+      add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration, newTools.length > 0, { workIqTools: [], workIqGatedNew: wantWorkIQ, skills: skillComps, skillGatedClassic: false }));
     } else {
       // ── CLASSIC experience (default): the verified topics + gpt.default layout. ──
-      add("customizations.xml", customizationsXml(connectors));
+      // Work IQ (when on) contributes two MCP tool components + their connection refs, so
+      // they join the ordinary connectors in customizations.xml + the connrefset.
+      var classicConnRefs = connectors.concat(workIqComps);
+      add("customizations.xml", customizationsXml(classicConnRefs));
       add("bots/" + schema + "/bot.xml", botXml(schema, name));
       add("bots/" + schema + "/configuration.json", configJson(schema, classicOrchestration));
 
@@ -1630,7 +2024,7 @@
       // knowledge determined above, by their exact display names, and describe any
       // read capabilities to add in prose.
       var gptSchema = schema + ".gpt.default";
-      var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps });
+      var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, workIQ: workIqComps.length > 0 });
       add("botcomponents/" + gptSchema + "/data", gptComponentData(instructions, agentMeta));
       add("botcomponents/" + gptSchema + "/botcomponent.xml", botcomponentXml(gptSchema, 15, name));
 
@@ -1654,6 +2048,14 @@
       // switch configJson to the unattended shape. We deliberately do NOT fabricate that
       // component while its serialization is unverified — see nextStepsMd's autonomous note.
 
+      // Work IQ MCP tool pair (type 9) — verified `.topic.WorkIQ*Preview` components that
+      // ground the agent on the M365 tenant graph (the 10 cr/run meter). Their connection
+      // references were folded into customizations.xml + the connrefset above/below.
+      workIqComps.forEach(function (w) {
+        add("botcomponents/" + w.schemaName + "/data", workIqData(w.modelDisplayName, w.logical, w.operationId));
+        add("botcomponents/" + w.schemaName + "/botcomponent.xml", workIqBotcomponentXml(schema, w.schemaName, w.name));
+      });
+
       // Knowledge sources (type 16).
       knowledge.forEach(function (k, i) {
         var s = schema + ".knowledge." + (i + 1);
@@ -1668,10 +2070,10 @@
         add("botcomponents/" + c.actionSchemaName + "/botcomponent.xml",
           botcomponentXml(c.actionSchemaName, 9, c.connectorLabel + " - " + c.actionName));
       });
-      if (connectors.length) add("Assets/botcomponent_connectionreferenceset.xml", connrefSetXml(connectors));
+      if (classicConnRefs.length) add("Assets/botcomponent_connectionreferenceset.xml", connrefSetXml(classicConnRefs));
 
       // Always-present import guidance.
-      add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration));
+      add("NEXT-STEPS.md", nextStepsMd(name, connectors, unmapped, knowledge, vars, capabilities, experience, agentMeta, classicOrchestration, false, { workIqTools: workIqComps, workIqGatedNew: false, skills: [], skillGatedClassic: skillGatedClassic }));
     }
 
     // [Content_Types].xml leads the package and must cover EVERY part — including an
@@ -1693,8 +2095,10 @@
       metadata: agentMeta,
       notices: shapeNotices(vars, experience),
       shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
+      workIQ: { requested: wantWorkIQ, wired: workIqComps.length > 0, gatedNewExperience: wantWorkIQ && useNewExperience, tools: workIqComps.map(function (w) { return w.modelDisplayName; }) },
+      skills: { requested: skillDefs.length, wired: skillComps.length > 0, gatedClassic: skillGatedClassic, items: skillComps.map(function (s) { return { slug: s.slug, name: s.name, description: s.description }; }) },
       archetype: vars.archetype === "autonomous" ? "autonomous" : "interactive",
-      tenantGraph: vars.knowledge === "tenantGraph"
+      tenantGraph: vars.knowledge === "tenantGraph" || wantWorkIQ
     };
   }
 
@@ -1758,6 +2162,10 @@
     CONNECTOR_ACTIONS: CONNECTOR_ACTIONS,
     READ_CAPABILITIES: READ_CAPABILITIES,
     detectCapabilities: detectCapabilities,
+    wantsWorkIQ: wantsWorkIQ,
+    workIqComponents: workIqComponents,
+    buildSkills: buildSkills,
+    skillSlug: skillSlug,
     shapeNotices: shapeNotices,
     shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
     SYSTEM_TOPICS: SYSTEM_TOPICS

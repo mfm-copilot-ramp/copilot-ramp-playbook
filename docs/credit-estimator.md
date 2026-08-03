@@ -102,8 +102,8 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 }
 /* mode card selector (replaces the dropdown) */
 .mode-cards {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; align-items: stretch;
-  margin: 0.25rem 0 0.4rem; max-width: 960px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 0.6rem; align-items: stretch;
+  margin: 0.25rem 0 0.4rem; max-width: 1180px;
 }
 @media (max-width: 720px) { .mode-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 559px) { .mode-cards { grid-template-columns: 1fr; } }
@@ -142,6 +142,21 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 .mode-panel { margin-top: 1.25rem; }
 .em-hidden { display: none !important; }
 #panel-quick .hint, #panel-complex .hint { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); }
+
+/* bulk generate — portfolio table + per-agent downloads */
+.bulk-summary { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; align-items: baseline; margin: 0.25rem 0 0.75rem; }
+.bulk-summary .big { font-size: 1.5rem; font-weight: 800; color: var(--md-primary-fg-color); }
+.bulk-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.25rem 0 1rem; }
+.bulk-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.bulk-table th, .bulk-table td { text-align: left; padding: 0.4rem 0.55rem; border-bottom: 1px solid var(--md-default-fg-color--lightest); vertical-align: top; }
+.bulk-table th { font-weight: 700; color: var(--md-default-fg-color--light); }
+.bulk-table td.num, .bulk-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.bulk-table tbody tr:hover { background: color-mix(in srgb, var(--md-primary-fg-color) 6%, transparent); }
+.bulk-table tfoot td { font-weight: 700; border-top: 2px solid var(--md-default-fg-color--lighter); }
+.bulk-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0.05rem 0.4rem; border-radius: 10px; background: var(--md-code-bg-color); color: var(--md-default-fg-color--light); }
+.bulk-dl { font: inherit; font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.55rem; border-radius: 6px; border: 1px solid var(--md-primary-fg-color); background: transparent; color: var(--md-primary-fg-color); white-space: nowrap; }
+.bulk-dl:hover { background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent); }
+.bulk-err { color: var(--md-typeset-color); background: color-mix(in srgb, #d32f2f 10%, transparent); border-left: 3px solid #d32f2f; padding: 0.5rem 0.7rem; border-radius: 0 6px 6px 0; margin: 0.5rem 0; font-size: 0.83rem; }
 
 /* generic controls */
 .em-textarea {
@@ -227,6 +242,25 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 .sp-chip { font-size: 0.76rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lighter); color: var(--md-default-fg-color--light); }
 .sp-chip.prem { border-color: #e6a100; color: #b26a00; background: rgba(255, 171, 0, 0.08); }
 
+/* strat-modernize-upload — advisory recommendations panel */
+.sp-modernize { margin: 1.25rem 0 0.5rem; }
+.sp-modernize-head { font-weight: 800; font-size: 0.95rem; margin-bottom: 0.15rem; }
+.sp-rec { border-left: 3px solid var(--md-default-fg-color--lighter); background: var(--md-code-bg-color); border-radius: 0 6px 6px 0; padding: 0.6rem 0.85rem; margin: 0.5rem 0; }
+.sp-rec-title { font-weight: 700; font-size: 0.9rem; line-height: 1.4; }
+.sp-rec-body { font-size: 0.82rem; line-height: 1.6; color: var(--md-default-fg-color--light); margin-top: 0.25rem; }
+.sp-rec-cost { font-size: 0.78rem; line-height: 1.5; margin-top: 0.35rem; color: #7a4a00; background: rgba(255, 171, 0, 0.1); border-radius: 6px; padding: 0.35rem 0.6rem; }
+[data-md-color-scheme="slate"] .sp-rec-cost { color: #ffcc66; }
+.sp-rec-tag { display: inline-block; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.1rem 0.42rem; border-radius: 999px; margin-right: 0.5rem; vertical-align: middle; color: #fff; background: var(--md-default-fg-color--light); }
+.sp-rec--build { border-left-color: var(--md-primary-fg-color); }
+.sp-rec--build .sp-rec-tag { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); }
+.sp-rec--cost { border-left-color: #e6a100; }
+.sp-rec--cost .sp-rec-tag { background: #e6a100; }
+.sp-rec--governance { border-left-color: #6a1b9a; }
+.sp-rec--governance .sp-rec-tag { background: #6a1b9a; }
+.sp-rec--ok { border-left-color: #2e7d32; }
+.sp-rec--ok .sp-rec-title { color: #2e7d32; }
+[data-md-color-scheme="slate"] .sp-rec--ok .sp-rec-title { color: #81c784; }
+
 /* details / inventory */
 .em-details { margin: 1.25rem 0; font-size: 0.85rem; }
 .em-details summary { cursor: pointer; font-weight: 600; color: var(--md-primary-fg-color); }
@@ -311,6 +345,13 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 .qe-seg-opt-sub { font-size: 0.76rem; color: var(--md-default-fg-color--light); line-height: 1.35; }
 .qe-seg-badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 0.05rem 0.35rem; border-radius: 999px; background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); }
 .qe-seg-note { margin-top: 0.4rem; }
+.qe-pkg-workiq { display: flex; align-items: center; gap: 0.5rem; margin: 0.2rem 0 0.15rem; padding: 0.5rem 0.7rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 10px; background: var(--md-default-bg-color); cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+.qe-pkg-workiq:hover { border-color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 5%, transparent); }
+.qe-pkg-workiq input { width: 1.05rem; height: 1.05rem; accent-color: var(--md-primary-fg-color); cursor: pointer; }
+.qe-pkg-skills { margin: 0.2rem 0 0.15rem; }
+.qe-pkg-skills textarea { width: 100%; box-sizing: border-box; margin: 0.15rem 0 0.1rem; padding: 0.45rem 0.6rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 10px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); font: inherit; font-size: 0.85rem; resize: vertical; }
+.qe-pkg-skills textarea:focus { outline: none; border-color: var(--md-primary-fg-color); box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-primary-fg-color) 20%, transparent); }
+.qe-pkg-skills-tag { display: inline-block; margin-left: 0.35rem; padding: 0.02rem 0.4rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; background: color-mix(in srgb, var(--md-primary-fg-color) 14%, transparent); color: var(--md-primary-fg-color); vertical-align: middle; }
 @media (max-width: 480px) { .qe-seg { grid-template-columns: 1fr; } }
 
 /* Quick + Import (batch portfolio) */
@@ -356,6 +397,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
   <option value="import">Quick + Import</option>
   <option value="detailed">Detailed</option>
   <option value="complex">Solution package</option>
+  <option value="bulk">Bulk generate</option>
 </select>
 
 <div class="mode-cards" role="radiogroup" aria-label="Choose how you want to estimate">
@@ -378,6 +420,11 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
     <span class="mode-card-title">Solution package</span>
     <span class="mode-card-sub">Upload a built agent</span>
     <span class="mode-card-best">Best when the agent is already built</span>
+  </button>
+  <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="bulk" onclick="setEstimatorMode('bulk')">
+    <span class="mode-card-title">Bulk generate</span>
+    <span class="mode-card-sub">One starter .zip per agent</span>
+    <span class="mode-card-best">Best for standing up many agents at once</span>
   </button>
 </div>
 
@@ -456,6 +503,29 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
   <div id="qi-results" class="em-hidden"></div>
 </div>
 
+<!-- ── BULK GENERATE (one starter .zip per agent) ── -->
+<div class="mode-panel em-hidden" id="panel-bulk">
+  <div class="section-label">Describe your agents — one per line</div>
+  <p class="em-range">Paste a plain-English description of each agent on its own line and get a <strong>ready-to-import Copilot Studio starter (.zip) for every one</strong>, bundled together with a portfolio roll-up. This mirrors <strong>Quick + Import</strong>, but the output is <em>generated agents</em>, not just sizing. Everything runs <strong>in your browser</strong> — nothing is uploaded. These are directional starters to extend, not production-ready agents.</p>
+  <details class="em-details">
+    <summary>Want more control? Use a header row.</summary>
+    <div style="font-size:0.83rem; line-height:1.7; margin-top:0.5rem">
+      Without a header, each line is treated as one agent <strong>description</strong>. To set options per agent, make the first line a header naming any of: <code>name</code>, <code>description</code>, <code>experience</code> (new/classic), <code>archetype</code> (interactive/autonomous), <code>knowledge</code>, <code>workIQ</code> (yes/no), <code>skills</code> (<code>;</code>-separated), <code>systems</code> (<code>;</code>-separated). Separate columns with a comma or tab; wrap any value containing a comma in "quotes". <code>description</code> is the only required column. New experience is the recommended default.
+    </div>
+  </details>
+  <textarea id="bulk-input" class="em-textarea" placeholder="An HR assistant that answers benefits questions from our SharePoint policies for employees in Teams.&#10;A support agent that creates a ServiceNow incident for each issue and notifies the on-call team.&#10;Every time an invoice arrives in the shared mailbox, extract the fields and create a record in Dynamics 365."></textarea>
+  <div class="em-chips">
+    <span class="hint">Try an example set:</span>
+    <button type="button" class="em-chip" onclick="bulkExample('support')">Support desk suite</button>
+    <button type="button" class="em-chip" onclick="bulkExample('ops')">Back-office ops</button>
+  </div>
+  <div class="qi-toolbar">
+    <button type="button" class="em-btn" onclick="bulkAnalyze()">Analyze portfolio &rarr;</button>
+    <span id="bulk-status" class="sp-status" aria-live="polite"></span>
+  </div>
+  <div id="bulk-results" class="em-hidden"></div>
+</div>
+
 </div><!-- /#estimator-studio -->
 
 </div>
@@ -474,6 +544,67 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 
 <style>
 #calc-wrap { font-family: inherit; overflow-x: hidden; }
+
+/* Two-way binding banner: shown atop the Detailed estimator when a row was opened
+   from the imported portfolio, offering save-back / return-without-saving. */
+.det-origin-banner {
+  display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; justify-content: space-between;
+  margin: 0 0 1rem; padding: .7rem .9rem;
+  border: 1px solid var(--md-accent-fg-color, #7c4dff);
+  border-left: 4px solid var(--md-accent-fg-color, #7c4dff);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--md-accent-fg-color, #7c4dff) 8%, transparent);
+}
+.det-origin-banner.em-hidden { display: none; }
+.det-origin-banner .dob-txt { font-size: .86rem; line-height: 1.35; flex: 1 1 16rem; }
+.det-origin-banner .dob-actions { display: flex; gap: .4rem; flex: 0 0 auto; flex-wrap: wrap; }
+.qi-edited-note { margin: .1rem 0 .5rem; font-size: .8rem; font-weight: 600; color: var(--md-accent-fg-color, #7c4dff); }
+
+/* Phase B: escalation "buffer" readout (average vs escalated vs blended) */
+.em-esc-wrap:empty { display: none; }
+.em-esc {
+  margin: .85rem 0; padding: .7rem .8rem; border-radius: 8px;
+  border: 1px solid var(--md-default-fg-color--lightest, rgba(0,0,0,.1));
+  background: var(--md-code-bg-color);
+}
+.em-esc--on { border-color: var(--md-accent-fg-color, #7c4dff); }
+.em-esc-head { font-size: .82rem; font-weight: 700; margin-bottom: .55rem; }
+.em-esc-head .hint { font-weight: 400; text-transform: none; letter-spacing: 0; }
+.em-esc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-bottom: .4rem; }
+@media (max-width: 560px) { .em-esc-grid { grid-template-columns: 1fr; } }
+.em-esc-cell {
+  text-align: center; padding: .45rem .3rem; border-radius: 6px;
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest, rgba(0,0,0,.08));
+}
+.em-esc-cell .v { font-size: 1.05rem; font-weight: 700; line-height: 1.1; }
+.em-esc-cell .k { font-size: .68rem; text-transform: uppercase; letter-spacing: .03em; color: var(--md-default-fg-color--light); margin-top: .15rem; }
+.em-esc-cell--blend { background: color-mix(in srgb, var(--md-accent-fg-color, #7c4dff) 12%, var(--md-default-bg-color)); border-color: var(--md-accent-fg-color, #7c4dff); }
+.em-esc-buffer { margin: .15rem 0 .55rem; }
+.em-esc-ctl label { display: block; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--md-default-fg-color--light); margin-bottom: .3rem; }
+.em-esc-ctl .range-row { max-width: 22rem; }
+.em-esc-ctl--static { color: var(--md-default-fg-color--light); }
+
+/* Phase D — solution-import precision questionnaire (average vs escalation-only tools) */
+.em-precision {
+  border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px;
+  padding: .7rem .8rem; margin: .6rem 0 .2rem;
+  background: color-mix(in srgb, var(--md-primary-fg-color) 5%, var(--md-default-bg-color));
+}
+.em-precision-head { font-size: .82rem; font-weight: 700; margin-bottom: .3rem; }
+.em-precision p { margin: 0; }
+.em-fireson { display: inline-flex; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 6px; overflow: hidden; }
+.em-fireson-opt {
+  appearance: none; -webkit-appearance: none; border: 0; cursor: pointer;
+  padding: .22rem .5rem; font-size: .72rem; font-family: inherit; line-height: 1.2;
+  background: var(--md-default-bg-color); color: var(--md-default-fg-color--light);
+  border-right: 1px solid var(--md-default-fg-color--lightest);
+}
+.em-fireson-opt:last-child { border-right: 0; }
+.em-fireson-opt.active { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); font-weight: 700; }
+.em-fireson-opt:focus-visible { outline: 2px solid var(--md-accent-fg-color, #7c4dff); outline-offset: -2px; }
+.em-prow--esc td { opacity: .62; font-style: italic; }
+.em-prow--esc .em-fireson-opt.active { opacity: 1; font-style: normal; }
 
 .section-label {
   font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
@@ -920,6 +1051,8 @@ function recalc() {
     document.getElementById('res-per-user').textContent        = fmt(perUser);
     reduceHint = 'Reduce interactions per user, escalation rate, or the credit mix.';
   }
+
+  window.__detailedResult = { monthly: monthlyC, perUnit: totalCpud, regime: autonomous ? 'autonomous' : 'interactive' };
 
   var budget   = parseFloat(document.getElementById('creditBudget').value);
   var resultEl = document.getElementById('budget-result');

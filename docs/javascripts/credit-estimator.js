@@ -8,8 +8,8 @@
 (function () {
   "use strict";
 
-  var EC = null, EZ = null, EX = null, EP = null;
-  var state = { qe: null, sp: null, qi: null };
+  var EC = null, EZ = null, EX = null, EP = null, EB = null;
+  var state = { qe: null, sp: null, qi: null, origin: null, bulk: null };
 
   // ── formatting ────────────────────────────────────────────────────────────
   function fmt(n) {
@@ -37,7 +37,8 @@
     quick: "Best when you're early or unsure — describe the agent in plain words and get a rough size, a Studio build outline, and a credit/cost range. No build knowledge needed.",
     import: "Best for sizing many agents at once — download the Excel template, fill in one row per scenario, and import it back for a portfolio-wide size + credit/cost roll-up. Runs entirely in your browser.",
     detailed: "Best when you know the building blocks but haven't built yet — set your org scope and dial in exactly which features each conversation uses.",
-    complex: "Best when the agent is built — export it as a Power Platform solution (.zip) and upload it for a component-level analysis. Everything is parsed locally in your browser."
+    complex: "Best when the agent is built — export it as a Power Platform solution (.zip) and upload it for a component-level analysis. Everything is parsed locally in your browser.",
+    bulk: "Best for standing up many agents at once — paste one description per line and get a ready-to-import Copilot Studio starter (.zip) for each, bundled with a portfolio roll-up. Runs entirely in your browser."
   };
 
   var QE_EXAMPLES = {
@@ -50,7 +51,7 @@
 
   // ── mode switching ────────────────────────────────────────────────────────
   function setEstimatorMode(mode) {
-    var ids = { quick: "panel-quick", import: "panel-import", detailed: "panel-detailed", complex: "panel-complex" };
+    var ids = { quick: "panel-quick", import: "panel-import", detailed: "panel-detailed", complex: "panel-complex", bulk: "panel-bulk" };
     Object.keys(ids).forEach(function (k) {
       var el = document.getElementById(ids[k]);
       if (el) el.classList.toggle("em-hidden", k !== mode);
@@ -70,7 +71,7 @@
   // Cookieless + no PII: sends only the page path and a static per-mode label
   // when the user actively picks a mode. Bound to the mode cards in init(), so it
   // never fires on programmatic hydration or the "open in Detailed" feed-forward.
-  var GC_MODE_LABEL = { quick: "Quick", import: "Quick + Import", detailed: "Detailed", complex: "Solution package" };
+  var GC_MODE_LABEL = { quick: "Quick", import: "Quick + Import", detailed: "Detailed", complex: "Solution package", bulk: "Bulk generate" };
   function trackEstimatorMode(mode) {
     if (!window.goatcounter || !GC_MODE_LABEL[mode]) return;
     window.goatcounter.count({
@@ -117,17 +118,29 @@
       '</div>';
   }
 
-  function profileTableHtml(p, profile) {
+  function profileTableHtml(p, profile, opts) {
+    opts = opts || {};
+    var withPaths = !!opts.withPaths, paths = opts.paths || [];
+    var pathHead = withPaths ? '<th class="num">Fires on</th>' : "";
     var rows = profile.map(function (r, i) {
-      return '<tr><td>' + esc(r.name) + (r.note ? ' <span class="hint" style="display:block">' + esc(r.note) + '</span>' : "") + '</td>' +
+      var isEsc = withPaths && paths[i] === "esc";
+      var pathCell = "";
+      if (withPaths) {
+        pathCell = '<td class="num"><span class="em-fireson" role="group" aria-label="When this tool fires">' +
+          '<button type="button" class="em-fireson-opt' + (isEsc ? "" : " active") + '" aria-pressed="' + (!isEsc) + '" onclick="' + p + 'SetToolPath(' + i + ',&quot;avg&quot;)">Average</button>' +
+          '<button type="button" class="em-fireson-opt' + (isEsc ? " active" : "") + '" aria-pressed="' + isEsc + '" onclick="' + p + 'SetToolPath(' + i + ',&quot;esc&quot;)">Escalation-only</button>' +
+          '</span></td>';
+      }
+      return '<tr class="em-prow' + (isEsc ? " em-prow--esc" : "") + '" data-idx="' + i + '"><td>' + esc(r.name) + (r.note ? ' <span class="hint" style="display:block">' + esc(r.note) + '</span>' : "") + '</td>' +
         '<td class="num"><input type="number" min="0" step="0.1" class="' + p + '-use" data-idx="' + i + '" value="' + r.uses + '" oninput="' + p + 'Recompute()"></td>' +
         '<td class="num">' + fmtDec(r.credits) + '</td>' +
-        '<td class="num pcredit" id="' + p + '-sub-' + i + '">—</td></tr>';
+        '<td class="num pcredit" id="' + p + '-sub-' + i + '">—</td>' + pathCell + '</tr>';
     }).join("");
-    return '<div class="section-label" style="margin-top:1.25rem">Per-interaction credit profile <span style="text-transform:none;font-weight:400">— tune uses / interaction</span></div>' +
-      '<table class="em-profile"><thead><tr><th>Feature</th><th class="num">Uses / interaction</th><th class="num">Credits / use</th><th class="num">Credits</th></tr></thead>' +
+    var footLabel = withPaths ? "Effective credits / average interaction" : "Effective credits / interaction";
+    return '<div class="section-label" style="margin-top:1.25rem">Per-interaction credit profile <span style="text-transform:none;font-weight:400">— tune uses / interaction' + (withPaths ? ' &amp; mark escalation-only tools' : '') + '</span></div>' +
+      '<table class="em-profile"><thead><tr><th>Feature</th><th class="num">Uses / interaction</th><th class="num">Credits / use</th><th class="num">Credits</th>' + pathHead + '</tr></thead>' +
       '<tbody>' + rows + '</tbody>' +
-      '<tfoot><tr><td>Effective credits / interaction</td><td></td><td></td><td class="num pcredit" id="' + p + '-per">—</td></tr></tfoot></table>';
+      '<tfoot><tr><td>' + footLabel + '</td>' + (withPaths ? '<td></td><td></td><td class="num pcredit" id="' + p + '-per">—</td><td></td>' : '<td></td><td></td><td class="num pcredit" id="' + p + '-per">—</td>') + '</tr></tfoot></table>';
   }
 
   function estimateHtml(p, auto) {
@@ -140,6 +153,7 @@
         '<div class="result-card"><div class="val" id="' + p + '-peruser">—</div><div class="lbl">' + c3 + '</div></div>' +
       '</div>' +
       '<div class="em-range" id="' + p + '-range"></div>' +
+      '<div id="' + p + '-esc-readout" class="em-esc-wrap"></div>' +
       '<div class="section-label" style="margin-top:1.25rem">Estimated cost</div>' +
       '<div class="em-cost">' +
         '<div class="card"><div class="v" id="' + p + '-cost-payg">—</div><div class="sub">/ month · pay-as-you-go ($0.01 / credit)</div></div>' +
@@ -188,13 +202,17 @@
     var scale = readScale(p);
     st.scale = scale;
 
-    var per = 0;
+    var per = 0, escExtra = 0;
     st.profile.forEach(function (r, i) {
       var sub = r.uses * r.credits;
       per += sub;
       setText(p + "-sub-" + i, fmtDec(sub));
+      // Phase D: rows the user tagged "escalation-only" are priced into the buffer,
+      // not the average interaction. No tags → escExtra 0 → avgPer === per (base estimate).
+      if (st.toolPaths && st.toolPaths[i] === "esc") escExtra += sub;
     });
-    setText(p + "-per", fmtDec(per));
+    var avgPer = per - escExtra;
+    setText(p + "-per", fmtDec(avgPer));
 
     if (scale.regime === "autonomous") {
       var monthly = scale.runs * per;
@@ -206,20 +224,30 @@
       setText(p + "-range", "Range: " + fmt(rngA.low) + " – " + fmt(rngA.high) + " credits / month");
       setText(p + "-cost-payg", money(costA.payg));
       setText(p + "-cost-pre", money(costA.prepaid));
+      setHtml(p + "-esc-readout", "");
       return;
     }
 
     var lf = document.getElementById(p + "-lic-field");
     if (lf) lf.style.opacity = scale.deployment === "standalone" ? "0.45" : "1";
     var est = EC.computeEstimate(st.profile, scale);
-    var rng = EC.creditRange(est.monthly);
-    var cost = EC.costUSD(est.monthly);
+    // Phase B/D: blend the escalation buffer onto the AVERAGE per-interaction cost. The
+    // escalation adder is per-tool when the user has tagged tools (Phase D), else falls back
+    // to one escalation action (Phase B). At 0% (default) blendMonthly === avgMonthly, so the
+    // base estimate is preserved; nothing tagged escalation-only → escExtra 0 → no buffer.
+    var escCredits = st.toolPaths ? escExtra : ESC_DEFAULT_CREDITS;
+    var split = escSplit(avgPer, est.billed * scale.interactions, st.escalation || 0, escCredits);
+    var monthly = split.blendMonthly;
+    var rng = EC.creditRange(monthly);
+    var cost = EC.costUSD(monthly);
     setText(p + "-billed", fmt(est.billed));
-    setText(p + "-credits", fmt(est.monthly));
-    setText(p + "-peruser", fmtDec(scale.interactions * per));
+    setText(p + "-credits", fmt(monthly));
+    setText(p + "-peruser", fmtDec(scale.interactions * avgPer));
     setText(p + "-range", "Range: " + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month");
     setText(p + "-cost-payg", money(cost.payg));
     setText(p + "-cost-pre", money(cost.prepaid));
+    setHtml(p + "-esc-readout", escReadoutHtml(split,
+      { editable: true, unit: "interaction", onchange: p + "SetEscalationPct(this.value)" }));
   }
 
   function emSetDeploy(p, mode) {
@@ -231,7 +259,7 @@
   }
 
   // ── feed-forward into the Detailed estimator ──────────────────────────────
-  function seedDetailed(profile, scale, escalation) {
+  function seedDetailed(profile, scale, escalation, escProfile) {
     setEstimatorMode("detailed");
     var auto = scale && scale.archetype === "autonomous";
     if (typeof window.setDetailedAgentType === "function") {
@@ -266,6 +294,13 @@
       });
       if (!matched && typeof window.addRow === "function") window.addRow(r.name, r.uses, r.credits, false);
     });
+    // Repaint escalation-only rows too (only when caller supplies them, e.g. re-opening
+    // a scenario already tuned in Detailed) so the round-trip is faithful; left untouched
+    // for the ordinary Quick/Solution feed-forward.
+    if (escProfile && escProfile.length && typeof window.addRow === "function") {
+      document.querySelectorAll("#escalation-tbody tr:not(.section-divider-row)").forEach(function (tr) { tr.remove(); });
+      escProfile.forEach(function (r) { window.addRow(r.name, r.uses, r.credits, true); });
+    }
     if (typeof window.recalc === "function") window.recalc();
     var wrap = document.getElementById("calc-wrap");
     if (wrap && wrap.scrollIntoView) wrap.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -597,6 +632,8 @@
         '<div class="card"><div class="v">' + money(cost.prepaid) + '</div><div class="sub">/ mo · prepaid ($0.008)</div></div>' +
       "</div>" +
       (drivers.length ? '<div class="em-why"><strong>Why this cost:</strong> ' + drivers.join(" · ") + "</div>" : "") +
+      escReadoutHtml(escSplit(est.perUnit, est.units || 0, v.escalation || 0, escCreditsOf(v)),
+        { editable: true, unit: "interaction", onchange: "qeSetEscalationPct(this.value)", autonomous: v.archetype === "autonomous" }) +
       '<p class="hint">Credits only — excludes M365 license fees.' + (v.archetype === "autonomous" ? " Autonomous runs are billed even for licensed users." : "") + "</p>";
   }
 
@@ -662,6 +699,16 @@
         '</div>' +
         '<div class="qe-seg-note hint" id="qe-pkg-exp-note">' + qeExpNote(exp) + '</div>' +
       '</div>' +
+      '<label class="qe-pkg-workiq" for="qe-pkg-workiq">' +
+        '<input type="checkbox" id="qe-pkg-workiq"' + (qeWorkIQDefault() ? ' checked' : '') + ' onchange="qePkgWorkIQChange(this.checked)">' +
+        '<span>Ground on Microsoft&nbsp;365 with <strong>Work&nbsp;IQ</strong></span>' +
+      '</label>' +
+      '<div class="qe-seg-note hint" style="margin:.1rem 0 .55rem">Adds Work&nbsp;IQ (tenant-graph) tools for people, meetings, mail &amp; files instead of wiring one-off Microsoft&nbsp;365 connectors. Bills ~10 credits per response. Classic wires the tools in; the new experience adds a portal toggle note.</div>' +
+      '<div class="qe-pkg-skills">' +
+        '<label class="section-label qe-seg-label" for="qe-pkg-skills-input">Skills <span class="qe-pkg-skills-tag">new experience</span></label>' +
+        '<textarea id="qe-pkg-skills-input" rows="2" oninput="qePkgSkillsChange(this.value)" placeholder="One skill per line \u2014 e.g. Meeting brief formatter: turns gathered context into an executive brief">' + esc((state.qe && state.qe.pkgSkills) || "") + '</textarea>' +
+        '<div class="qe-seg-note hint" style="margin:.1rem 0 .55rem">Reusable, named instruction modules the agent invokes by name. Format each line <code>Name: what it does</code>. Emitted as editable <strong>Skills</strong> on new-experience agents (classic gets a note to switch experience).</div>' +
+      '</div>' +
       '<button type="button" class="em-btn" onclick="qeDownloadPackage()" aria-label="Download a Copilot Studio starter agent as a solution package ZIP file">\u2b07 Download agent starter (.zip)</button>' +
       '<span class="em-export-status" id="qe-pkg-status" role="status" aria-live="polite" style="margin-left:.6rem"></span>' +
       '<div id="qe-pkg-review" class="qe-pkg-review" role="group" aria-label="Review what will be generated" style="display:none"></div>' +
@@ -702,6 +749,37 @@
     var note = document.getElementById("qe-pkg-exp-note");
     if (note) note.innerHTML = qeExpNote(exp);
   }
+  // Work IQ opt-in for the starter. Default reflects the emitter's own auto-detection
+  // (EP.wantsWorkIQ) so the checkbox shows what WOULD happen; a user toggle records an
+  // explicit override in state so it survives result re-renders. Download-time only —
+  // does NOT rebuild the estimate (Work IQ pricing lives in analyzeText's tenantGraph).
+  function qeWorkIQDefault() {
+    if (state.qe && typeof state.qe.pkgWorkIQ === "boolean") return state.qe.pkgWorkIQ;
+    try {
+      var v = (state.qe && state.qe.vars) || {};
+      var raw = ((state.qe && state.qe.raw) || "").toLowerCase();
+      return !!(EP && EP.wantsWorkIQ && EP.wantsWorkIQ(v, raw));
+    } catch (e) { return false; }
+  }
+  function qePkgWorkIQChange(checked) {
+    if (state.qe) state.qe.pkgWorkIQ = !!checked;
+  }
+  // Persist the Skills textarea so it survives result re-renders. Parsed at build time by
+  // parseSkillLines (one skill per line, `Name: description`).
+  function qePkgSkillsChange(text) {
+    if (state.qe) state.qe.pkgSkills = String(text == null ? "" : text);
+  }
+  // "Meeting brief formatter: turns X into Y" -> {name, description}. Separator = first ":" or
+  // em-dash; a bare line is the name only. Blank lines dropped.
+  function parseSkillLines(text) {
+    return String(text == null ? "" : text).split(/\r?\n/).map(function (ln) {
+      ln = ln.trim();
+      if (!ln) return null;
+      var m = ln.match(/^([^:\u2014]+?)\s*[:\u2014]\s*(.+)$/);
+      if (m) return { name: m[1].trim(), description: m[2].trim() };
+      return { name: ln, description: "" };
+    }).filter(Boolean);
+  }
   // Shared package options read from current Quick state + the download-time
   // authoring-experience picker (separate from the credit-estimate orchestration).
   function qePkgOpts() {
@@ -711,9 +789,21 @@
     var grp = document.getElementById("qe-pkg-experience");
     var sel = grp && grp.querySelector('.qe-seg-opt[aria-checked="true"]');
     var exp = (sel && sel.getAttribute("data-value")) || (state.qe && state.qe.pkgExp) || "new";
+    // Merge in the Work IQ override (live checkbox if present, else stored state) WITHOUT
+    // mutating state.qe.vars so the credit estimate is untouched. undefined = auto-detect.
+    var pkgVars = v;
+    var wiqBox = document.getElementById("qe-pkg-workiq");
+    var wiq = wiqBox ? wiqBox.checked : (state.qe && typeof state.qe.pkgWorkIQ === "boolean" ? state.qe.pkgWorkIQ : undefined);
+    if (typeof wiq === "boolean") {
+      pkgVars = {}; for (var k in v) if (Object.prototype.hasOwnProperty.call(v, k)) pkgVars[k] = v[k];
+      pkgVars.workIQ = wiq;
+    }
     // Pass the full outline so buildPackage can synthesize instructions + metadata
     // from the detected build steps (not just the systems list).
-    return { description: (state.qe && state.qe.raw) || "", vars: v, systems: systems, outline: outline, experience: exp };
+    var skillsBox = document.getElementById("qe-pkg-skills-input");
+    var skillsText = skillsBox ? skillsBox.value : ((state.qe && state.qe.pkgSkills) || "");
+    var skills = parseSkillLines(skillsText);
+    return { description: (state.qe && state.qe.raw) || "", vars: pkgVars, systems: systems, outline: outline, experience: exp, skills: skills };
   }
 
   // Renders the inline review panel from an analyzePackage() summary. Every detected
@@ -743,8 +833,18 @@
       out.push('</div>');
     }
 
-    // Connector actions (wired tools).
-    out.push('<div class="qe-rev-group"><div class="qe-rev-grouplbl">Connector actions to wire (' + a.connectors.length + ')</div>');
+    // Connectors are wired into the package in BOTH experiences and bind at import — classic
+    // as `.action.` components, the new experience as verified `.tool.` (ConnectorTool)
+    // components with a shared `.cr.<connector>` connection reference. (This resolves the
+    // earlier report of connectors being "noted" but absent from the new-experience agent.)
+    var newExp = a.experience === "new";
+    var connLbl = newExp
+      ? "Connector tools to wire (" + a.connectors.length + ")"
+      : "Connector actions to wire (" + a.connectors.length + ")";
+    out.push('<div class="qe-rev-group"><div class="qe-rev-grouplbl">' + connLbl + '</div>');
+    if (newExp && a.connectors.length) {
+      out.push('<p class="hint" style="margin:.1rem 0 .35rem">These ship as <strong>Tools</strong> in the package and <strong>bind at import</strong> (pick a connection on the Connections step). Uncheck any you don\u2019t want included.</p>');
+    }
     if (a.connectors.length) {
       a.connectors.forEach(function (c) {
         out.push('<label class="qe-rev-item"><input type="checkbox" class="qe-rev-conn" data-key="' + esc(c.key) + '" checked> ' +
@@ -790,6 +890,18 @@
     }
     if (a.tenantGraph) {
       out.push('<p class="hint" style="margin:.2rem 0">Grounded on Microsoft 365 tenant data (Graph) \u2014 configured on the agent, noted in NEXT-STEPS.</p>');
+    }
+    // Skills (new-experience InlineAgentSkill modules). Show what will be generated, or a
+    // note if they were requested in the classic experience (where they can't ship).
+    if (a.skills && a.skills.items && a.skills.items.length) {
+      out.push('<div class="qe-rev-group"><div class="qe-rev-grouplbl">Skills to generate (' + a.skills.items.length + ')</div>' +
+        a.skills.items.map(function (s) {
+          return '<div class="qe-rev-item"><span><strong>' + esc(s.slug) + '</strong>' +
+            (s.description ? '<span class="qe-rev-sub">' + esc(s.description) + '</span>' : '') + '</span></div>';
+        }).join("") +
+        '<div class="qe-rev-empty">Reusable instruction modules the agent invokes by name \u2014 refine each in Studio.</div></div>');
+    } else if (a.skills && a.skills.gatedClassic) {
+      out.push('<p class="hint" style="margin:.2rem 0"><strong>Skills</strong> need the <strong>new experience</strong> \u2014 switch the authoring experience above to ship them (see NEXT-STEPS).</p>');
     }
     if (hasPlaceholder) {
       out.push('<p class="hint" style="margin:.2rem 0"><strong>Note:</strong> items flagged <em>placeholder URL</em> use an example address \u2014 update it in Copilot Studio after import.</p>');
@@ -929,6 +1041,19 @@
     if (i && i.focus) i.focus();
   }
   function qeSetNum(id, val) { var e = document.getElementById(id); if (e) { e.value = val; qeRebuild(); } }
+  // Phase B: edit the escalation buffer straight from the Quick results (run-cost axis).
+  // Re-renders only the results panel from state.qe.vars (never qeReadVars) so the
+  // escalation % isn't clobbered by wizard-input reads.
+  function qeSetEscalationPct(pct) {
+    if (!state.qe) return;
+    var e = Math.min(100, Math.max(0, parseFloat(pct) || 0));
+    state.qe.vars.escalation = e;
+    if (e > 0) {
+      state.qe.vars.hasEscalation = true;
+      if (!(state.qe.vars.escalationCredits > 0)) state.qe.vars.escalationCredits = ESC_DEFAULT_CREDITS;
+    }
+    if (document.getElementById("qe-results-full")) qeRenderResultsInner();
+  }
 
   function qeAnalyze() {
     var input = document.getElementById("qe-input");
@@ -952,6 +1077,7 @@
   function qeRecompute() { qeRebuild(); }
   function qeToDetailed() {
     var st = state.qe; if (!st) return;
+    clearOrigin();
     var v = st.vars;
     var profile = EC.deriveQuick(v);
     var scale = v.archetype === "autonomous"
@@ -965,6 +1091,9 @@
     var k = f.knowledgeTypes.length ? f.knowledgeTypes.join(", ") : "none identified";
     var lines = [
       "Regime:                         " + (f.regime === "autonomous" ? "autonomous (per-run)" : "interactive (per-user)"),
+      "Authoring experience:           " + (f.newExperience
+        ? "New (cliagent" + (f.modelSeries ? ", model " + f.modelSeries : "") + (f.reasoningModel ? ", reasoning" : "") + ", generative runtime)"
+        : "Classic"),
       "Topics (AdaptiveDialog):        " + f.topics,
       "Triggers:                       " + f.triggers,
       "Generative answer nodes:        " + f.genAnswers,
@@ -1011,6 +1140,17 @@
 
   function spInventoryHtml(a) {
     var f = a.findings, out = [];
+    // Phase C — surface the authoritative new-experience reads (gated: classic exports
+    // render nothing here). model series + reasoning flag + web-search + agent-flow tools
+    // all come straight from the shared verified vocabulary, not keyword guessing.
+    if (f.newExperience) {
+      var badges = '<span class="sp-chip">New agent experience</span>' +
+        '<span class="sp-chip">Generative runtime</span>';
+      if (f.modelSeries) badges += '<span class="sp-chip">Model · ' + esc(f.modelSeries) + (f.reasoningModel ? " · reasoning" : "") + '</span>';
+      if (f.webSearch) badges += '<span class="sp-chip">Web search on</span>';
+      if (f.workflowTools) badges += '<span class="sp-chip">' + f.workflowTools + ' agent-flow tool' + (f.workflowTools > 1 ? "s" : "") + '</span>';
+      out.push('<div class="section-label" style="margin-top:1.25rem">Authoring experience</div><div class="sp-chips">' + badges + '</div>');
+    }
     if (a.flows && a.flows.length) {
       out.push('<div class="section-label" style="margin-top:1.25rem">Flows detected</div>');
       out.push('<table class="em-profile"><thead><tr><th>Trigger</th><th class="num">Actions</th><th class="num">AI prompts</th><th class="num">Loops</th><th>Connectors</th></tr></thead><tbody>' +
@@ -1030,6 +1170,32 @@
     return out.join("");
   }
 
+  // strat-modernize-upload — advisory panel that diffs the uploaded solution
+  // against the best-practice bar this tool now builds to. Pure render over
+  // EC.modernizeAdvice() (read-only; no rate/calc). Shown for both regimes.
+  var SP_REC_TAG = { build: "Build", cost: "Cost", governance: "Governance" };
+  function spModernizeHtml(a) {
+    if (!EC || typeof EC.modernizeAdvice !== "function") return "";
+    var recs = EC.modernizeAdvice(a) || [];
+    var head = '<div class="sp-modernize"><div class="sp-modernize-head">Modernization recommendations</div>';
+    if (!recs.length) {
+      return head +
+        '<div class="sp-rec sp-rec--ok"><div class="sp-rec-title">\u2713 Already following current best practices</div>' +
+        '<div class="sp-rec-body">This agent uses the new experience with generative orchestration and shows no obvious one-off Microsoft 365 reads to consolidate. Nice work.</div></div></div>';
+    }
+    var body = recs.map(function (r) {
+      var tag = SP_REC_TAG[r.severity] || "Tip";
+      return '<div class="sp-rec sp-rec--' + esc(r.severity) + '">' +
+        '<div class="sp-rec-title"><span class="sp-rec-tag">' + esc(tag) + '</span>' + esc(r.title) + '</div>' +
+        '<div class="sp-rec-body">' + esc(r.body) + '</div>' +
+        (r.cost ? '<div class="sp-rec-cost">' + esc(r.cost) + '</div>' : "") +
+        '</div>';
+    }).join("");
+    return head +
+      '<p class="hint">How to bring this agent up to the bar this tool builds to \u2014 new agent experience, generative orchestration, Work IQ over one-off reads, and Skills for reusable clusters. Advisory only; nothing here changes the estimate above.</p>' +
+      body + '</div>';
+  }
+
   function spRender(a) {
     var auto = a.regime === "autonomous";
     state.sp = {
@@ -1040,6 +1206,10 @@
         : { regime: "interactive", users: 500, interactions: 10, deployment: "embedded", licensePct: 60 },
       escalation: 0, tshirt: a.tshirt
     };
+    // Phase D: per-tool average/escalation classification (interactive only — the core
+    // doesn't model escalation on per-run agents). Default every tool to the average path so
+    // the base estimate matches the file's structure; the questionnaire lets the user reclassify.
+    if (!auto) state.sp.toolPaths = state.sp.profile.map(function () { return "avg"; });
     var f = a.findings;
     var grid = auto
       ? (findCard(f.aiPrompts, "AI Builder prompts", f.aiPrompts === 0) +
@@ -1071,6 +1241,7 @@
       spWarningsHtml(a) +
       tshirtHtml(a.tshirt) +
       spInventoryHtml(a) +
+      spModernizeHtml(a) +
       (auto
         ? assumptionsAutonomousHtml("sp", state.sp.scale, {})
         : assumptionsHtml("sp", state.sp.scale, {
@@ -1078,7 +1249,8 @@
             interactions: "How often each user will interact per month.",
             deployment: "Where the agent is published."
           })) +
-      profileTableHtml("sp", state.sp.profile) +
+      (auto ? "" : spPrecisionIntroHtml()) +
+      profileTableHtml("sp", state.sp.profile, auto ? {} : { withPaths: true, paths: state.sp.toolPaths }) +
       '<p class="hint">Per-' + (auto ? "run" : "interaction") + ' <em>uses</em> are assumptions — a solution shows which capabilities <em>exist</em>, not how often each fires. Tune them to your real ' + (auto ? "runs" : "flows") + '.</p>' +
       estimateHtml("sp", auto) +
       exportBarHtml("complex", {}) +
@@ -1088,8 +1260,37 @@
     scrollToResults("sp-results");
   }
   function spRecompute() { recompute("sp"); }
+  // Phase D: guided precision intro for the average-vs-escalation questionnaire.
+  function spPrecisionIntroHtml() {
+    return '<div class="em-precision"><div class="em-precision-head">Refine precision — average vs escalation</div>' +
+      '<p class="hint">Your base estimate counts <strong>every</strong> capability on the average interaction. For a tighter number, mark the tools that only fire when a conversation <em>escalates</em> or hands off (a manager lookup, a ticket write-back, an approval). Those get priced into a separate <strong>escalation buffer</strong> below instead of every interaction — the same "add a buffer" idea from the Detailed estimator. Set the buffer % to the share of interactions you expect to escalate.</p></div>';
+  }
+  // Phase D: reclassify a profile row between the average path and escalation-only, then
+  // reprice. Updates the toggle + row styling in place (no full re-render → keeps inputs/scroll).
+  function spSetToolPath(idx, path) {
+    var st = state.sp; if (!st || !st.toolPaths || idx == null) return;
+    st.toolPaths[idx] = path === "esc" ? "esc" : "avg";
+    var isEsc = st.toolPaths[idx] === "esc";
+    var row = document.querySelector('#sp-results tr.em-prow[data-idx="' + idx + '"]');
+    if (row) {
+      row.classList.toggle("em-prow--esc", isEsc);
+      var btns = row.querySelectorAll(".em-fireson-opt");
+      if (btns[0]) { btns[0].classList.toggle("active", !isEsc); btns[0].setAttribute("aria-pressed", String(!isEsc)); }
+      if (btns[1]) { btns[1].classList.toggle("active", isEsc); btns[1].setAttribute("aria-pressed", String(isEsc)); }
+    }
+    recompute("sp");
+  }
+  // Phase B: escalation buffer for an uploaded solution. The escalation adder is per-tool when
+  // tools are tagged (Phase D); otherwise it defaults to one escalation action per interaction
+  // (ESC_DEFAULT_CREDITS). Stored on state.sp.escalation and read back in recompute().
+  function spSetEscalationPct(pct) {
+    if (!state.sp) return;
+    state.sp.escalation = Math.min(100, Math.max(0, parseFloat(pct) || 0));
+    recompute("sp");
+  }
   function spToDetailed() {
     var st = state.sp; if (!st) return;
+    clearOrigin();
     var scale = readScale("sp");
     if (scale.regime === "autonomous") seedDetailed(st.profile, { archetype: "autonomous", events: scale.runs }, st.escalation);
     else seedDetailed(st.profile, scale, st.escalation);
@@ -1175,20 +1376,95 @@
     }
     return esc(d.label) + " \u2014 " + fmtDec(d.value) + " " + esc(d.unit || "");
   }
+
+  // ── Phase B: escalation "buffer" — average vs escalated vs blended ──────────
+  // Presentational only. Re-derives the average / escalated / blended split from the
+  // SAME primitive computeQuick already blends: per-interaction credits + the
+  // escExtra = (escalation% / 100) × escalation-credits term (estimator-core.js:168).
+  // No core rate/calc math is touched — this just SURFACES the buffer and lets each
+  // mode edit the escalation % to add headroom for the fraction of interactions that
+  // hand off to a human or fire extra tools.
+  var ESC_DEFAULT_CREDITS = (EC && EC.CREDIT && EC.CREDIT.action) || 1; // one escalation action / interaction
+  function escCreditsOf(v) { return (v && v.escalationCredits > 0) ? v.escalationCredits : ESC_DEFAULT_CREDITS; }
+  function qiExpanded(i) { return !!(state.qi && state.qi.expanded && state.qi.expanded[i]); }
+  function escSplit(per, volume, pct, escCredits) {
+    var e = Math.min(100, Math.max(0, parseFloat(pct) || 0));
+    var ec = parseFloat(escCredits) || 0;
+    var vol = Math.max(0, volume || 0);
+    var blendPer = per + (e / 100) * ec, escPer = per + ec;
+    return { pct: e, escCredits: ec, vol: vol, avgPer: per, blendPer: blendPer, escPer: escPer,
+      avgMonthly: vol * per, blendMonthly: vol * blendPer, escMonthly: vol * escPer };
+  }
+  // Renders the avg / escalated / blended read-out. opts:{ editable, onchange, unit, autonomous }.
+  // Returns "" for autonomous (core doesn't model escalation on per-run agents).
+  function escReadoutHtml(split, opts) {
+    opts = opts || {};
+    if (opts.autonomous) return "";
+    var s = split, unit = opts.unit || "interaction";
+    var buffer = s.blendMonthly - s.avgMonthly;
+    var pctTxt = fmtDec(s.pct);
+    var noEscTools = s.escCredits === 0; // Phase D: nothing tagged escalation-only
+    var on = s.pct > 0 && s.escCredits > 0;
+    var ctl;
+    if (opts.editable && opts.onchange) {
+      ctl = '<div class="em-esc-ctl"><label>Escalation buffer</label>' +
+        '<div class="range-row">' +
+          '<input type="range" min="0" max="100" step="1" value="' + s.pct + '" aria-label="Escalation percent" ' +
+            'oninput="this.parentNode.querySelector(&quot;input[type=number]&quot;).value=this.value" onchange="' + opts.onchange + '">' +
+          '<input type="number" min="0" max="100" step="1" value="' + s.pct + '" aria-label="Escalation percent" onchange="' + opts.onchange + '"><span>%</span>' +
+        '</div></div>';
+    } else {
+      ctl = '<div class="em-esc-ctl em-esc-ctl--static"><span class="hint">at ' + pctTxt + '% escalation</span></div>';
+    }
+    var hint;
+    if (noEscTools) {
+      hint = '<div class="hint em-esc-buffer">No tools marked <em>escalation-only</em> — an escalated ' + esc(unit) + ' costs the same as an average one. Mark the tools that only fire on hand-off above to model a buffer.</div>';
+    } else if (s.pct > 0) {
+      hint = '<div class="hint em-esc-buffer">Buffer of <strong>+' + fmt(buffer) + ' cr / mo</strong> (' + money(EC.costUSD(buffer).payg) + ' PAYG) over the ' + fmt(s.avgMonthly) + ' cr / mo average \u2014 headroom for the ' + pctTxt + '% of ' + esc(unit) + 's that escalate.</div>';
+    } else {
+      hint = '<div class="hint em-esc-buffer">No buffer yet \u2014 set a % to add headroom for ' + esc(unit) + 's that hand off to a human or fire extra tools. The middle figure is what one <em>escalated</em> ' + esc(unit) + ' would cost.</div>';
+    }
+    return '<div class="em-esc' + (on ? " em-esc--on" : "") + '">' +
+      '<div class="em-esc-head">Escalation headroom <span class="hint">\u2014 average vs escalated ' + esc(unit) + 's</span></div>' +
+      '<div class="em-esc-grid">' +
+        '<div class="em-esc-cell"><div class="v">' + fmtDec(s.avgPer) + '</div><div class="k">avg cr / ' + esc(unit) + '</div></div>' +
+        '<div class="em-esc-cell"><div class="v">' + fmtDec(s.escPer) + '</div><div class="k">escalated cr / ' + esc(unit) + '</div></div>' +
+        '<div class="em-esc-cell em-esc-cell--blend"><div class="v">' + fmt(s.blendMonthly) + '</div><div class="k">blended cr / mo</div></div>' +
+      '</div>' +
+      hint +
+      ctl +
+    '</div>';
+  }
+
   function qiRowDetailHtml(s, i) {
     var caps = (s.capabilities || []).map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("");
     var costs = (s.costDrivers || []).map(function (c) { return "<li>" + qiCostDriverText(c) + "</li>"; }).join("");
     var sizeWhy = (s.sizeDrivers || []).map(esc).join(" · ");
     var warns = (s.warnings || []).map(function (w) { return '<li class="qi-warn">' + esc(w) + "</li>"; }).join("");
     var unit = s.vars.archetype === "autonomous" ? "event" : "interaction";
-    return '<div class="qi-detail">' +
+    var editedNote = s.edited ? '<div class="qi-edited-note">\u270E Tuned in the Detailed estimator \u2014 volume, escalation, and the credit mix below reflect your manual edits.</div>' : "";
+    var mix = "";
+    if (s.edited && s.profile && s.profile.length) {
+      var mixLines = s.profile.filter(function (r) { return r.name; }).map(function (r) {
+        return "<li>" + esc(r.name) + " \u2014 " + fmtDec(r.uses) + " \u00D7 " + fmtDec(r.credits) + " = " + fmtDec(r.uses * r.credits) + "</li>";
+      }).join("");
+      mix = "<div><strong>Credit mix</strong> (" + fmtDec(s.perUnit) + " credits / " + unit + ")<ul>" + mixLines + "</ul></div>";
+    }
+    var escBlock = "";
+    if (s.vars.archetype !== "autonomous") {
+      escBlock = escReadoutHtml(
+        escSplit(s.perUnit, (s.estimate && s.estimate.units) || 0, s.vars.escalation || 0, escCreditsOf(s.vars)),
+        { editable: true, unit: "interaction", onchange: "qiSetEscalationPct(" + i + ", this.value)" });
+    }
+    return '<div class="qi-detail">' + editedNote +
       "<strong>" + esc(s.sizeInfo.name) + " build (" + s.size + ")</strong> — " + esc(s.sizeInfo.desc) +
       (sizeWhy ? '<div class="hint"><strong>Why ' + s.size + ":</strong> " + sizeWhy + "</div>" : "") +
       "<div><strong>What it does</strong><ul>" + caps + "</ul></div>" +
-      (costs ? "<div><strong>Cost drivers</strong> (" + fmtDec(s.perUnit) + " credits / " + unit + ")<ul>" + costs + "</ul></div>" : "") +
+      (mix ? mix : (costs ? "<div><strong>Cost drivers</strong> (" + fmtDec(s.perUnit) + " credits / " + unit + ")<ul>" + costs + "</ul></div>" : "")) +
+      escBlock +
       '<div class="hint">≈ ' + fmt(s.range.low) + "–" + fmt(s.range.high) + " credits / mo · " + money(s.cost.payg) + " PAYG · " + money(s.cost.prepaid) + " prepaid.</div>" +
       (warns ? "<div><strong>Needs attention</strong><ul>" + warns + "</ul></div>" : "") +
-      '<div class="qi-open"><button type="button" class="em-btn" onclick="qiRowToDetailed(' + i + ')">Open in Detailed estimator &rarr;</button></div>' +
+      '<div class="qi-open"><button type="button" class="em-btn" onclick="qiRowToDetailed(' + i + ')">' + (s.edited ? "Edit again in Detailed estimator" : "Open in Detailed estimator") + ' &rarr;</button></div>' +
       "</div>";
   }
   function qiRowHtml(s, i) {
@@ -1203,14 +1479,14 @@
       '<td class="qi-num">' + qiVolume(s) + "</td>" +
       '<td class="qi-num">' + fmt(s.estimate.monthly) + "</td>" +
       '<td class="qi-num">' + money(s.cost.payg) + "</td></tr>" +
-      '<tr class="qi-detail-row" id="qi-detail-' + i + '" style="display:none"><td class="qi-detail-cell" colspan="6">' +
+      '<tr class="qi-detail-row" id="qi-detail-' + i + '" style="display:' + (qiExpanded(i) ? "" : "none") + '"><td class="qi-detail-cell" colspan="6">' +
       qiRowDetailHtml(s, i) + "</td></tr>";
   }
 
-  function qiRender(res, srcName) {
+  function qiRender(res, srcName, expanded) {
     var el = document.getElementById("qi-results");
     if (!el) return;
-    state.qi = { scenarios: res.scenarios, totals: res.totals, src: srcName };
+    state.qi = { scenarios: res.scenarios, totals: res.totals, src: srcName, expanded: expanded || {} };
     if (!res.scenarios.length) {
       var hw = (res.headerWarnings && res.headerWarnings.length) ? " " + res.headerWarnings.join(" ") : "";
       el.innerHTML = '<p class="hint">No scenarios found in <strong>' + esc(srcName || "the file") +
@@ -1250,18 +1526,318 @@
       (res.totals.flagged ? " (" + res.totals.flagged + " need attention)" : "") + ".");
     return res;
   }
+
+  // ── BULK GENERATE ──────────────────────────────────────────────────────────
+  // Surfaces the decoupled batch engine (estimator-batch.js / EstimatorBatch):
+  // paste one description per line (or a header table), get one importable
+  // Copilot Studio starter .zip per scenario + a portfolio roll-up. The credit
+  // roll-up is injected via bulkEstimateFn so the engine stays pure; the estimate
+  // reuses the SAME Quick pipeline (analyzeText → computeQuick / sizeFromDrivers),
+  // so a bulk row reads identically to running that text through Quick mode.
+  var BULK_EXAMPLES = {
+    support:
+      "An HR assistant that answers benefits questions from our SharePoint policy library for employees in Teams.\n" +
+      "A customer support agent that answers from our knowledge base and creates a ServiceNow incident for each issue it can't resolve, then notifies the on-call team.\n" +
+      "An IT helpdesk agent that looks up the status of a ServiceNow incident and updates it, and summarizes a user's recent Teams messages.",
+    ops:
+      "Whenever a new invoice arrives in the shared mailbox, extract the fields from the document and create a record in Dynamics 365.\n" +
+      "A procurement agent that drafts purchase requests and runs a Power Automate approval workflow before submitting them.\n" +
+      "A sales enablement agent that summarizes product docs from our SharePoint library and drafts proposals for sellers."
+  };
+
+  function bulkStatus(msg, err) {
+    var st = document.getElementById("bulk-status");
+    if (st) { st.className = "sp-status" + (err ? " sp-error" : ""); st.textContent = msg || ""; }
+  }
+
+  // estimateInput (from estimator-batch.js) -> { creditsPerRun, buildEffort, ... }.
+  // Directional + consistent with Quick: infers volume/actions/knowledge straight
+  // from the description. Fails soft (blank cells) so one bad row never breaks the
+  // whole portfolio render.
+  function bulkEstimateFn(inp) {
+    try {
+      var desc = (inp && inp.description) || "";
+      if (!desc || !EC.analyzeText) return { creditsPerRun: "", buildEffort: "", monthly: 0 };
+      var a = EC.analyzeText(desc);
+      var v = a && a.vars ? clone(a.vars) : {};
+      var profile = (a && a.profile && a.profile.length) ? a.profile.map(clone) : EC.deriveQuick(v);
+      var est = EC.computeQuick(profile, v);
+      var sizing = EC.sizeFromDrivers(v);
+      return {
+        creditsPerRun: est && est.perUnit != null ? Math.round(est.perUnit * 100) / 100 : "",
+        monthly: est && est.monthly != null ? est.monthly : 0,
+        regime: est && est.regime ? est.regime : "interactive",
+        buildEffort: sizing && sizing.size ? sizing.size : "",
+        size: sizing && sizing.size ? sizing.size : ""
+      };
+    } catch (e) { return { creditsPerRun: "", buildEffort: "", monthly: 0 }; }
+  }
+
+  function bulkAnalyze() {
+    if (!EB || !EP) { bulkStatus("The bulk generator isn't loaded — try refreshing the page.", true); return; }
+    var txt = getVal("bulk-input");
+    var rows;
+    try { rows = EB.parseRows(txt); }
+    catch (e) { bulkStatus("Couldn't read that list: " + (e && e.message ? e.message : e), true); return; }
+    if (!rows.length) {
+      bulkStatus("Add at least one agent description (one per line) first.", true);
+      var empty = document.getElementById("bulk-results");
+      if (empty) empty.classList.add("em-hidden");
+      return;
+    }
+    var analysis;
+    try { analysis = EB.analyzeBatch(rows, { experience: "new", estimate: bulkEstimateFn }); }
+    catch (e2) { bulkStatus("Analysis failed: " + (e2 && e2.message ? e2.message : e2), true); return; }
+    state.bulk = { rows: rows, analysis: analysis, experience: "new", built: null };
+    bulkRender(analysis);
+    scrollToResults("bulk-results");
+    bulkStatus("Analyzed " + analysis.length + " agent" + (analysis.length === 1 ? "" : "s") + " — download all, or grab any single starter below.");
+  }
+
+  function bulkTotals(analysis) {
+    var monthly = 0, priced = 0;
+    analysis.forEach(function (a) {
+      if (a.estimate && typeof a.estimate.monthly === "number") { monthly += a.estimate.monthly; priced++; }
+    });
+    return { monthly: monthly, priced: priced };
+  }
+
+  function bulkRender(analysis) {
+    var el = document.getElementById("bulk-results");
+    if (!el) return;
+    var t = bulkTotals(analysis);
+    var cost = EC.costUSD(t.monthly);
+    var rows = analysis.map(function (a, i) {
+      var cr = a.estimate && a.estimate.creditsPerRun !== "" && a.estimate.creditsPerRun != null ? fmtDec(a.estimate.creditsPerRun) : "—";
+      var mo = a.estimate && typeof a.estimate.monthly === "number" ? fmt(a.estimate.monthly) : "—";
+      var sz = a.estimate && a.estimate.buildEffort ? a.estimate.buildEffort : "—";
+      var flags = [];
+      if (a.unmapped && a.unmapped.length) flags.push('<span class="bulk-badge" title="Systems mentioned but not auto-wired — see NEXT-STEPS.md">' + a.unmapped.length + " to wire</span>");
+      if (a.tenantGraph) flags.push('<span class="bulk-badge" title="Uses Microsoft 365 tenant graph grounding">tenant graph</span>');
+      return '<tr>' +
+        '<td class="num">' + a.index + '</td>' +
+        '<td>' + esc(a.name || "Agent " + a.index) + (flags.length ? ' ' + flags.join(" ") : "") + '</td>' +
+        '<td>' + esc(a.experience === "new" ? "New" : "Classic") + '</td>' +
+        '<td>' + esc(a.archetype || "interactive") + '</td>' +
+        '<td class="num">' + (a.connectors ? a.connectors.length : 0) + '</td>' +
+        '<td class="num">' + (a.knowledge ? a.knowledge.length : 0) + '</td>' +
+        '<td class="num">' + sz + '</td>' +
+        '<td class="num">' + cr + '</td>' +
+        '<td class="num">' + mo + '</td>' +
+        '<td><button type="button" class="bulk-dl" onclick="bulkDownloadOne(' + i + ')">&darr; .zip</button></td>' +
+        '</tr>';
+    }).join("");
+    var priceNote = t.priced < analysis.length
+      ? ' <span class="hint">(' + (analysis.length - t.priced) + ' not priced)</span>' : "";
+    el.innerHTML =
+      '<div class="bulk-summary">' +
+        '<span><span class="big">' + analysis.length + '</span> agent' + (analysis.length === 1 ? "" : "s") + '</span>' +
+        '<span><span class="big">' + fmt(t.monthly) + '</span> credits / mo (portfolio)' + priceNote + '</span>' +
+        '<span><span class="big">' + money(cost.payg) + '</span> / mo PAYG &middot; ' + money(cost.prepaid) + ' prepaid</span>' +
+      '</div>' +
+      '<div class="bulk-actions">' +
+        '<button type="button" class="em-btn" onclick="bulkDownloadAll()">&darr; Download all agents (.zip)</button>' +
+        '<button type="button" class="em-chip" onclick="bulkDownloadCsv()">Download roll-up (.csv)</button>' +
+      '</div>' +
+      '<div style="overflow-x:auto">' +
+      '<table class="bulk-table"><thead><tr>' +
+        '<th class="num">#</th><th>Agent</th><th>Experience</th><th>Type</th>' +
+        '<th class="num">Tools*</th><th class="num">Knowledge</th><th class="num">Size</th>' +
+        '<th class="num">Cr / run</th><th class="num">Cr / mo</th><th>Starter</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody>' +
+      '<tfoot><tr><td colspan="8">Portfolio credits / month</td><td class="num">' + fmt(t.monthly) + '</td><td></td></tr></tfoot>' +
+      '</table></div>' +
+      '<p class="hint">*Tools/connectors your description implied. In the new experience these are added as Tools in Copilot Studio after import — each package\'s NEXT-STEPS.md lists them. Sizes and credits are directional starting points (same engine as Quick), not a real LLM analysis. These are starter agents to extend, not production-ready.</p>';
+    el.classList.remove("em-hidden");
+  }
+
+  function ensureBulkBuilt() {
+    if (!state.bulk) return null;
+    if (!state.bulk.built) {
+      state.bulk.built = EB.buildBatch(state.bulk.rows, { experience: state.bulk.experience, estimate: bulkEstimateFn });
+    }
+    return state.bulk.built;
+  }
+
+  function bulkDownloadAll() {
+    if (!state.bulk) { bulkStatus("Analyze a list first, then download.", true); return; }
+    try {
+      var b = ensureBulkBuilt();
+      var ok = downloadBlob(b.bytes, b.filename, "application/zip");
+      if (ok) bulkStatus("Downloaded " + b.count + " starter agent" + (b.count === 1 ? "" : "s") + " (" + b.filename + ").");
+    } catch (e) { bulkStatus("Couldn't build the bundle: " + (e && e.message ? e.message : e), true); }
+  }
+
+  function bulkDownloadCsv() {
+    if (!state.bulk) { bulkStatus("Analyze a list first, then download.", true); return; }
+    try {
+      var b = ensureBulkBuilt();
+      var ok = downloadBlob(b.csv, "agent-studio-portfolio-estimate.csv", "text/csv");
+      if (ok) bulkStatus("Downloaded the portfolio roll-up (.csv).");
+    } catch (e) { bulkStatus("Couldn't build the roll-up: " + (e && e.message ? e.message : e), true); }
+  }
+
+  function bulkDownloadOne(i) {
+    if (!state.bulk || !state.bulk.rows[i]) { bulkStatus("That agent isn't available — re-analyze the list.", true); return; }
+    try {
+      var pkg = EP.buildPackage(EB.toOpts(state.bulk.rows[i], { experience: state.bulk.experience }));
+      var ok = downloadBlob(pkg.bytes, pkg.filename, "application/zip");
+      if (ok) bulkStatus("Downloaded " + (pkg.name || "agent") + " (" + pkg.filename + ").");
+    } catch (e) { bulkStatus("Couldn't build that agent: " + (e && e.message ? e.message : e), true); }
+  }
+
+  function bulkExample(which) {
+    var v = BULK_EXAMPLES[which] || BULK_EXAMPLES.support;
+    setVal("bulk-input", v);
+    bulkAnalyze();
+  }
+
   function qiToggleDetail(i) {
     var r = document.getElementById("qi-detail-" + i);
-    if (r) r.style.display = r.style.display === "none" ? "" : "none";
+    if (!r) return;
+    var show = r.style.display === "none";
+    r.style.display = show ? "" : "none";
+    if (state.qi) { if (!state.qi.expanded) state.qi.expanded = {}; state.qi.expanded[i] = show; }
+  }
+  // Phase B: edit a scenario's escalation buffer inline (no need to open Detailed).
+  // Recomputes via the SAME engine analyzeScenarioRow used (computeQuick), marks the
+  // row edited, keeps it expanded, and re-renders so portfolio totals stay in sync.
+  function qiSetEscalationPct(i, pct) {
+    var st = state.qi; if (!st || !st.scenarios[i]) return;
+    var sc = st.scenarios[i];
+    if (sc.vars.archetype === "autonomous") return;
+    var e = Math.min(100, Math.max(0, parseFloat(pct) || 0));
+    sc.vars = clone(sc.vars);
+    sc.vars.escalation = e;
+    if (e > 0) {
+      sc.vars.hasEscalation = true;
+      if (!(sc.vars.escalationCredits > 0)) sc.vars.escalationCredits = ESC_DEFAULT_CREDITS;
+    }
+    var est = EC.computeQuick(sc.profile, sc.vars);
+    sc.estimate = est; sc.perUnit = est.perUnit;
+    sc.range = EC.creditRange(est.monthly); sc.cost = EC.costUSD(est.monthly);
+    sc.edited = true;
+    if (!st.expanded) st.expanded = {}; st.expanded[i] = true;
+    qiRerender();
   }
   function qiRowToDetailed(i) {
     var st = state.qi; if (!st || !st.scenarios[i]) return;
-    var v = st.scenarios[i].vars;
-    var profile = EC.deriveQuick(v);
+    var sc = st.scenarios[i], v = sc.vars;
+    var profile = (sc.edited && sc.profile && sc.profile.length) ? sc.profile : EC.deriveQuick(v);
     var scale = v.archetype === "autonomous"
       ? { archetype: "autonomous", events: v.events || 0 }
       : { archetype: "interactive", users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
-    seedDetailed(profile, scale, v.escalation || 0);
+    state.origin = { kind: "qi", index: i, name: sc.name };
+    seedDetailed(profile, scale, v.escalation || 0, sc.edited ? sc.escProfile : null);
+    renderOriginBanner();
+  }
+
+  // ── Two-way Detailed binding ────────────────────────────────────────────────
+  // seedDetailed projects a portfolio scenario INTO the Detailed estimator (one-way).
+  // The functions below read it back OUT so tweaks (volume, escalation buffer, the
+  // credit mix) return to state.qi — and therefore to the portfolio table, totals,
+  // and every export — instead of being lost when the user navigates away.
+  function ensureOriginBanner() {
+    var b = document.getElementById("det-origin-banner");
+    if (b) return b;
+    var wrap = document.getElementById("calc-wrap");
+    if (!wrap || !wrap.parentNode) return null;
+    b = document.createElement("div");
+    b.id = "det-origin-banner";
+    b.className = "det-origin-banner em-hidden";
+    wrap.parentNode.insertBefore(b, wrap);
+    return b;
+  }
+  function renderOriginBanner() {
+    var b = ensureOriginBanner(); if (!b) return;
+    var o = state.origin;
+    if (o && o.kind === "qi") {
+      b.innerHTML =
+        '<span class="dob-txt">\uD83D\uDCCB Editing <strong>' + esc(o.name || "scenario") +
+        "</strong> from your imported portfolio \u2014 tune volume, the escalation buffer, or the credit mix, then save it back.</span>" +
+        '<span class="dob-actions">' +
+        '<button type="button" class="em-btn" onclick="detSaveToPortfolio()">\uD83D\uDCBE Save to portfolio</button> ' +
+        '<button type="button" class="em-btn secondary" onclick="detReturnToPortfolio()">\u2190 Return without saving</button>' +
+        "</span>";
+      b.classList.remove("em-hidden");
+    } else {
+      b.innerHTML = "";
+      b.classList.add("em-hidden");
+    }
+  }
+  function clearOrigin() { state.origin = null; renderOriginBanner(); }
+
+  // Recompute portfolio totals from the (possibly edited) scenarios. Sums the same
+  // per-scenario fields analyzeImport produced, so an untouched portfolio is stable
+  // and an edited one reflects exactly the rows shown.
+  function qiTotalsFrom(scs) {
+    var t = { monthly: 0, range: { low: 0, high: 0 }, payg: 0, prepaid: 0, count: scs.length, interactive: 0, autonomous: 0, sizes: {}, flagged: 0 };
+    scs.forEach(function (s) {
+      t.monthly += (s.estimate && s.estimate.monthly) || 0;
+      t.range.low += (s.range && s.range.low) || 0;
+      t.range.high += (s.range && s.range.high) || 0;
+      t.payg += (s.cost && s.cost.payg) || 0;
+      t.prepaid += (s.cost && s.cost.prepaid) || 0;
+      if (s.vars && s.vars.archetype === "autonomous") t.autonomous++; else t.interactive++;
+      if (s.size) t.sizes[s.size] = (t.sizes[s.size] || 0) + 1;
+      if (s.warnings && s.warnings.length) t.flagged++;
+    });
+    return t;
+  }
+  function qiRerender() {
+    if (!state.qi || !state.qi.scenarios) return;
+    qiRender({ scenarios: state.qi.scenarios, totals: qiTotalsFrom(state.qi.scenarios), headerWarnings: [] }, state.qi.src, state.qi.expanded);
+  }
+
+  function detReturnToPortfolio() {
+    clearOrigin();
+    setEstimatorMode("import");
+    scrollToResults("qi-results");
+  }
+  function detSaveToPortfolio() {
+    var o = state.origin; if (!o || o.kind !== "qi") return;
+    var st = state.qi; if (!st || !st.scenarios || !st.scenarios[o.index]) return;
+    if (typeof window.recalc === "function") window.recalc();
+    var sc = st.scenarios[o.index];
+    var auto = detIsAutonomous();
+    // Prefer the RAW monthly the Detailed engine computed. The res-credits text is
+    // compact-formatted (e.g. "6.4K"), which numFromText would misparse as 6.4 — so
+    // only fall back to parsing the text if the raw global isn't available.
+    var dr = window.__detailedResult;
+    var monthly = (dr && isFinite(dr.monthly)) ? dr.monthly : numFromText(txt("res-credits"));
+    var rows = detReadRows();
+    var normal = rows.filter(function (r) { return r.type !== "escalation"; });
+    var escRows = rows.filter(function (r) { return r.type === "escalation"; });
+    var escPct = Math.min(100, Math.max(0, parseFloat(getVal("escalationRate")) || 0));
+
+    var v = clone(sc.vars || {});
+    v.archetype = auto ? "autonomous" : "interactive";
+    v.escalation = escPct;
+    if (auto) {
+      v.events = Math.max(0, parseFloat(getVal("eventsPerMonth")) || 0);
+    } else {
+      v.users = Math.max(0, parseFloat(getVal("totalUsers")) || 0);
+      v.interactions = Math.max(0, parseFloat(getVal("avgInteractions")) || 0);
+      v.licensePct = Math.min(100, Math.max(0, parseFloat(getVal("licensePct")) || 0));
+      v.deployment = detIsEmbedded() ? "embedded" : "standalone";
+    }
+    sc.vars = v;
+    sc.profile = normal.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits }; });
+    sc.escProfile = escRows.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits }; });
+    sc.perUnit = normal.reduce(function (a, r) { return a + r.uses * r.credits; }, 0) +
+      escRows.reduce(function (a, r) { return a + r.uses * r.credits * escPct / 100; }, 0);
+    sc.estimate = sc.estimate || {};
+    sc.estimate.monthly = monthly;
+    if (EC.creditRange) sc.range = EC.creditRange(monthly);
+    if (EC.costUSD) sc.cost = EC.costUSD(monthly);
+    sc.edited = true;
+
+    var name = sc.name || "scenario";
+    qiRerender();
+    clearOrigin();
+    setEstimatorMode("import");
+    scrollToResults("qi-results");
+    qiStatus("Saved changes to \u201C" + name + "\u201D \u2014 portfolio totals and export now reflect your edits.");
   }
 
   function qiHandleFile(file) {
@@ -1505,6 +2081,7 @@
     EZ = window.EstimatorZip;
     EX = window.EstimatorXlsx || null;
     EP = window.EstimatorPackage || null;
+    EB = window.EstimatorBatch || null;
     if (!EC || !EZ) return;
 
     window.setEstimatorMode = setEstimatorMode;
@@ -1515,6 +2092,7 @@
     window.qeToDetailed = qeToDetailed;
     window.qePick = qePick;
     window.qeSetNum = qeSetNum;
+    window.qeSetEscalationPct = qeSetEscalationPct;
     window.qeNext = qeNext;
     window.qeBack = qeBack;
     window.qeSkip = qeSkip;
@@ -1525,14 +2103,27 @@
     window.qeConfirmDownload = qeConfirmDownload;
     window.qeCancelReview = qeCancelReview;
     window.qePkgExperienceChange = qePkgExperienceChange;
+    window.qePkgWorkIQChange = qePkgWorkIQChange;
+  window.qePkgSkillsChange = qePkgSkillsChange;
+    window.qePkgOpts = qePkgOpts;
     window.spRecompute = spRecompute;
+    window.spSetEscalationPct = spSetEscalationPct;
+    window.spSetToolPath = spSetToolPath;
     window.spToDetailed = spToDetailed;
     window.emSetDeploy = emSetDeploy;
     window.qiDownloadTemplate = qiDownloadTemplate;
     window.qiDownloadCsv = qiDownloadCsv;
     window.qiToggleDetail = qiToggleDetail;
+    window.qiSetEscalationPct = qiSetEscalationPct;
     window.qiRowToDetailed = qiRowToDetailed;
+    window.detSaveToPortfolio = detSaveToPortfolio;
+    window.detReturnToPortfolio = detReturnToPortfolio;
     window.qiAnalyzeMatrix = qiAnalyzeMatrix;
+    window.bulkAnalyze = bulkAnalyze;
+    window.bulkExample = bulkExample;
+    window.bulkDownloadAll = bulkDownloadAll;
+    window.bulkDownloadCsv = bulkDownloadCsv;
+    window.bulkDownloadOne = bulkDownloadOne;
 
     var fileInput = document.getElementById("sp-file");
     if (fileInput && !fileInput.dataset.bound) {
