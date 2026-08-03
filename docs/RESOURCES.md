@@ -38,6 +38,7 @@ the matching stage page on the site. These are the "broad set of resources to le
 | **Microsoft 365 (official channel)** | Official M365 product channel — feature walkthroughs and Copilot demos | [YouTube channel](https://www.youtube.com/@microsoft365) |
 | **Copilot Camp** | Hands-on labs to build agents and extensions — from no-code Studio to pro-code, learn by building | [microsoft.github.io/copilot-camp](https://microsoft.github.io/copilot-camp/) |
 | **Generative AI for Beginners** | A free 21-lesson course on the fundamentals behind Copilot and agents — prompts, models, and apps | [github.com/microsoft/generative-ai-for-beginners](https://github.com/microsoft/generative-ai-for-beginners) |
+| **ðŸ“¡ New: Microsoft Viva: Copilot Dashboard - Targeted Audience Surveys** | Official Microsoft resource — Microsoft 365 Roadmap | Microsoft 365 | [www.microsoft.com/microsoft-365/roadmap?id=568072...](https://www.microsoft.com/microsoft-365/roadmap?id=568072) |
 
 ---
 
