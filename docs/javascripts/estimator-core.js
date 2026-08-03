@@ -8,6 +8,25 @@
 (function (root) {
   "use strict";
 
+  // Shared VERIFIED component vocabulary (estimator-vocab.js). One source of truth for
+  // the new-experience export tokens; loaded first on the page, required in Node.
+  var EV = (root && root.EstimatorVocab) ||
+    (typeof require === "function" ? (function () { try { return require("./estimator-vocab.js"); } catch (e) { return null; } })() : null) ||
+    { RECOGNIZER_NEW_EXPERIENCE: "CLICopilotRecognizer",
+      COMPONENTTYPE: { FILE_KNOWLEDGE: 14 },
+      DATA_KIND: { WORKFLOW_TOOL: "WorkflowTool", CONNECTED_AGENT_TOOL: "ConnectedAgentTool" },
+      MODEL_SERIES_REASONING: [],
+      isReasoningSeries: function () { return false; },
+      RE: {
+        newExperience: function () { return /CLICopilotRecognizer/i; },
+        workflowTool: function () { return /kind:\s*WorkflowTool\b/gi; },
+        connectedAgentTool: function () { return /kind:\s*ConnectedAgentTool\b/gi; },
+        fileKnowledgeType: function () { return /<componenttype>\s*14\s*<\/componenttype>/gi; },
+        webSearchOn: function () { return /"?enableWebSearch"?\s*:\s*true\b/i; },
+        modelSeries: function () { return /"?series"?\s*:\s*"?([A-Za-z0-9_.-]+)"?/i; },
+        workIQ: function () { return /shared_a365copilotchatmcp|shared_a365memcp|mcp_m365copilot|mcp_MeServer/gi; }
+      } };
+
   // ── Credit model — mirrors the detailed estimator's default rows ──────────
   var CREDIT = {
     classic: 1, generative: 2, action: 5, tenantGraph: 10, flowAction: 0.13,
@@ -728,6 +747,25 @@
     var all = textFiles.map(function (f) { return f.text || ""; }).join("\n");
     var names = files.map(function (f) { return (f.name || "").toLowerCase(); });
 
+    // ── 0. New-experience (cliagent) authoritative reads (shared verified vocab) ──
+    // A real new-experience export declares its runtime via recognizer CLICopilotRecognizer,
+    // its knowledge as componenttype-14 file sources, its agent-flow tools as `kind: WorkflowTool`
+    // (zero-rated 0.13 path) and its connected sub-agents as `kind: ConnectedAgentTool`. These are
+    // read verbatim (not keyword-guessed) so a new-experience agent is priced correctly instead of
+    // falling through to the classic-fallback line. All tokens verified vs files/golden-new-solution/.
+    var newExperience = EV.RE.newExperience().test(all);
+    var webSearch = EV.RE.webSearchOn().test(all);
+    var workflowTools = countAll(all, EV.RE.workflowTool());        // agent-flow tools (zero-rated)
+    var connectedAgentTools = countAll(all, EV.RE.connectedAgentTool());
+    var fileKnowledgeComps = countAll(all, EV.RE.fileKnowledgeType()); // componenttype 14
+    // Model series is a new-experience agentSettings concept — only read it there, so classic
+    // exports are untouched. Only a VERIFIED reasoning series flips the premium meter (none yet).
+    var modelSeries = null, seriesReasoning = false;
+    if (newExperience) {
+      var ms = all.match(EV.RE.modelSeries());
+      if (ms) { modelSeries = ms[1]; seriesReasoning = EV.isReasoningSeries(modelSeries); }
+    }
+
     // ── 1. Copilot Studio bot component signals ──
     var topics = countAll(all, /kind:\s*AdaptiveDialog/gi);
     var botTriggers = countAll(all, /kind:\s*On(RecognizedIntent|UnknownIntent|ConversationStart|EventActivity|DialogEvent|KnowledgeRequested|Activity|ToolSelected)/gi);
@@ -738,7 +776,7 @@
     // components whose inner source kind is one of the *SearchSource types below.
     var knowledgeConfigs = countAll(all, /KnowledgeSourceConfiguration/gi);
     var knowledgeKinds = all.match(/\b(PublicSiteSearchSource|SharePointSearchSource|DataverseSearchSource|AzureAISearchSource)\b/gi) || [];
-    var knowledgeSources = Math.max(knowledgeKinds.length, knowledgeConfigs);
+    var knowledgeSources = Math.max(knowledgeKinds.length, knowledgeConfigs, fileKnowledgeComps);
     var botActionNodes = countAll(all, /(InvokeConnectorAction|InvokeConnectorTaskAction|HttpRequestAction|InvokeExternalAgentTaskAction|InvokeComputerUseAction)\b/gi);
     var botFlowNodes = countAll(all, /InvokeFlowAction/gi);
     var workflowFiles = names.filter(function (n) { return /(^|\/)workflows?\/.+\.json$/.test(n) || /workflow[^\/]*\.json$/.test(n); }).length;
@@ -759,7 +797,8 @@
     var promptToolNodes = Object.keys(promptToolSet).length + countAll(all, /(InvokeAIBuilderModelAction|PromptDialog)/gi);
     var computerUse = /InvokeComputerUseAction/i.test(all);
     var connectedAgents = countAll(all, /(InvokeConnectedAgentTaskAction|connectedAgent)/gi);
-    var tenantGraph = /(graphgrounding|tenant ?graph|enterprise ?search|graph ?connector|sharepointonlinesearch|m365 ?index|microsoftgraph)/i.test(all);
+    var tenantGraph = /(graphgrounding|tenant ?graph|enterprise ?search|graph ?connector|sharepointonlinesearch|m365 ?index|microsoftgraph)/i.test(all) ||
+      EV.RE.workIQ().test(all); // Work IQ MCP tools (shared_a365copilotchatmcp / a365memcp) ground on the M365 tenant graph → 10 cr/run
     var genOrch = /(generativeactionsenabled|generative ?orchestration|"?orchestration"?\s*:\s*"?generative|generativemodeenabled|"?aIGenerativeMode)/i.test(all);
     var contentProc = /(prebuilt.*document|documentprocessing|invoiceprocessing|receiptprocessing|content ?understanding|documentextraction|extract .*from .*(invoice|receipt|document))/i.test(all);
 
@@ -795,6 +834,18 @@
       var info = connectorInfo(m[0]);
       if (info.label) { connectorSet[info.label] = true; if (info.premium) premiumSet[info.label] = true; }
     });
+    // Copilot Studio AGENT connector tools don't use connectorid=. They bind via
+    // the connection-reference logical name (`<prefix>.shared_xxx.<connection>`)
+    // in customizations.xml / the connectionreferenceset, and the tool's
+    // botcomponent `connectionReference:` line. Detect those so agent (non-flow)
+    // exports surface their wired connectors too. Inventory-only: connectors[]
+    // never feeds the credit profile (that's driven by action/answer/flow node
+    // counts), so this cannot change any credit total.
+    (all.match(/connectionreference[a-z]*["=:\s.][^"'<>\n]*?shared_[a-z0-9]+/gi) || []).forEach(function (mm) {
+      var m = mm.match(/shared_[a-z0-9]+/i); if (!m) return;
+      var info = connectorInfo(m[0]);
+      if (info.label) { connectorSet[info.label] = true; if (info.premium) premiumSet[info.label] = true; }
+    });
     var connectionRefs = countAll(all, /<connectionreference\b/gi)
       || names.filter(function (n) { return /connectionreference/.test(n); }).length;
     if (!connectionRefs) {
@@ -809,17 +860,23 @@
 
     // ── Merge + reconcile ──
     var knowledgeCtx = knowledgeComps > 0 || knowledgeSearch > 0 || genAnswers > 0 || knowledgeSources > 0 ||
+      fileKnowledgeComps > 0 || webSearch ||
       /knowledgesource|grounding|search and summarize|searchandsummarize/i.test(all);
     var knowledgeTypes = {};
     if (/(sharepointsource|sharepointsearchsource)/i.test(all) || (knowledgeComps > 0 && /sharepoint/i.test(all))) knowledgeTypes.SharePoint = true;
     if (/(publicwebsource|publicsitesearchsource|websource|"kind"\s*:\s*"?public ?website)/i.test(all) && knowledgeCtx) knowledgeTypes.Website = true;
     if (/(dataversesearch|dataversesearchsource|dataverse ?search)/i.test(all) && knowledgeCtx) knowledgeTypes.Dataverse = true;
     if ((/(fileknowledge|fileattachment|documentknowledge|uploaded ?file|azureaisearchsource)/i.test(all) && knowledgeCtx) ||
-        (spec.isSpec && spec.knowledgeDocs > 0)) knowledgeTypes.Files = true;
+        fileKnowledgeComps > 0 || (spec.isSpec && spec.knowledgeDocs > 0)) knowledgeTypes.Files = true;
+    if (webSearch) knowledgeTypes["Web search"] = true;  // new-experience web grounding (free, generative)
     var knowledgeCount = Math.max(knowledgeComps, knowledgeSearch, knowledgeSources, Object.keys(knowledgeTypes).length, spec.knowledgeDocs || 0);
 
+    // Connected sub-agents: reconcile the classic runtime-node regex with the authoritative
+    // new-experience `kind: ConnectedAgentTool` count (take the larger; never double-count).
+    connectedAgents = Math.max(connectedAgents, connectedAgentTools);
     var agentActions = botActionNodes + spec.actionCount;
-    var flowsTotal = flowCount || botFlowNodes || workflowFiles || (spec.hasFlow ? 1 : 0);
+    // Agent-flow tools (WorkflowTool) are the zero-rated 0.13 path; fold them into the flow total.
+    var flowsTotal = flowCount || botFlowNodes || workflowFiles || workflowTools || (spec.hasFlow ? 1 : 0);
     var aiNodes = botAiNodes + flow.aiPrompts;
     var promptTools = promptToolNodes + flow.aiPrompts;
     var agentCount = Math.max(1, spec.agentCount, connectedAgents > 0 ? connectedAgents + 1 : 1);
@@ -827,12 +884,18 @@
       /(escalate to (a )?(human|agent|person)|human handoff|transfer to (a )?agent|OnEscalate)/i.test(all);
     var voice = /(telephony|\bdtmf\b|speechrecognizer|azure ?speech|contact ?cent(er|re)|"?enableVoice"?\s*:\s*true|voiceConfiguration|voice channel|\bivr\b)/i.test(all) ||
       (spec.isSpec && spec.voice);
-    var isGenerative = genAnswers > 0 || genOrch || flow.aiPrompts > 0 || botAiNodes > 0 || (spec.isSpec && spec.generative);
+    // A new-experience (cliagent) agent runs on generative orchestration by definition, and web
+    // grounding implies a generative answer — so either flips isGenerative even with no classic
+    // SearchAndSummarizeContent node (which new-experience agents don't emit).
+    var isGenerative = genAnswers > 0 || genOrch || flow.aiPrompts > 0 || botAiNodes > 0 ||
+      (spec.isSpec && spec.generative) || newExperience || webSearch;
+    // Reasoning tier can come from a build-spec OR a verified reasoning model series (none verified yet).
+    var reasoningModel = spec.reasoningModel || seriesReasoning;
     var triggers = botTriggers + flowResults.reduce(function (s, r) { return s + (r.triggerCount || 0); }, 0);
 
     // ── Regime: interactive (users×interactions) vs autonomous (runs/month) ──
     var interactiveSignal = topics > 0 || genAnswers > 0 || knowledgeSearch > 0 ||
-      knowledgeComps > 0 || spec.isSpec || spec.connectedAgent || botActionNodes > 0;
+      knowledgeComps > 0 || fileKnowledgeComps > 0 || newExperience || spec.isSpec || spec.connectedAgent || botActionNodes > 0;
     var autonomous = (flowCount > 0 && !interactiveSignal) || (spec.autonomousTrigger && topics === 0 && !spec.connectedAgent);
     var regime = autonomous ? "autonomous" : "interactive";
 
@@ -858,7 +921,7 @@
         profile.push({ key: "autonomous", name: ROW.autonomous, uses: 1, credits: CREDIT.autonomousTrigger,
           note: "billed as one agent action per run — the flow/connector/answer steps it invokes are billed separately below" });
       }
-      if (spec.reasoningModel) {
+      if (reasoningModel) {
         profile.push({ key: "reasoning", name: ROW.reasoning, uses: REASON_TOKENS_K, credits: CREDIT.reasoningPremium,
           note: "reasoning model — premium AI meter (10 credits/1K tokens) on top of the feature rate · assumes ~" + REASON_TOKENS_K + "K tokens/run" });
       }
@@ -889,8 +952,8 @@
         uses: Math.max(1, Math.min(20, (flow.connectorActions + flow.http) || 5)), credits: CREDIT.flowAction,
         note: flowsTotal + " agent flow(s)" });
       if (contentProc) profile.push({ key: "content", name: ROW.content, uses: 1, credits: CREDIT.contentPage, note: "document processing" });
-      if (promptTools > 0 && !spec.reasoningModel) profile.push({ key: "aiStandard", name: ROW.aiStandard, uses: promptTools, credits: CREDIT.aiStandard, note: promptTools + " prompt / AI tool(s) — Text/generative standard (1.5 cr per response; ~2K tokens assumed)" });
-      if (spec.reasoningModel) profile.push({ key: "reasoning", name: ROW.reasoning, uses: REASON_TOKENS_K, credits: CREDIT.reasoningPremium,
+      if (promptTools > 0 && !reasoningModel) profile.push({ key: "aiStandard", name: ROW.aiStandard, uses: promptTools, credits: CREDIT.aiStandard, note: promptTools + " prompt / AI tool(s) — Text/generative standard (1.5 cr per response; ~2K tokens assumed)" });
+      if (reasoningModel) profile.push({ key: "reasoning", name: ROW.reasoning, uses: REASON_TOKENS_K, credits: CREDIT.reasoningPremium,
         note: "reasoning model — premium AI meter (10 credits/1K tokens) on top of the feature rate · assumes ~" + REASON_TOKENS_K + "K tokens/turn" });
 
       if (isGenerative) score += 1;
@@ -905,19 +968,19 @@
       if (topics >= 10) score += 2; else if (topics >= 5) score += 1;
       if (computerUse) score += 2;
     }
-    if (spec.reasoningModel) score += 1;
+    if (reasoningModel) score += 1;
     var tshirt = sizeForScore(score, { voice: voice, users: 0 });
 
     // ── Governance warnings ──
     var warnings = [];
     if (regime === "autonomous") warnings.push("Autonomous / flow package — cost scales with RUNS PER MONTH, not users. Set your expected run volume below.");
     if (flow.aiPrompts > 0) warnings.push(flow.aiPrompts + " AI Builder prompt(s) are token-metered; the estimate assumes ~2K tokens per call. Long inputs (e.g. transcripts, documents) can be far larger — tune token size and per-run call counts to your data.");
-    if (promptTools > 0 && !spec.reasoningModel) warnings.push(promptTools + " prompt / AI tool(s) detected — billed as Text/generative AI tools (assumed Standard tier, 1.5 credits per response / ~2K tokens). Basic-tier prompts bill 0.1 and premium/reasoning-tier bill 10 credits per 1K tokens — adjust the tier to match your prompt's model.");
+    if (promptTools > 0 && !reasoningModel) warnings.push(promptTools + " prompt / AI tool(s) detected — billed as Text/generative AI tools (assumed Standard tier, 1.5 credits per response / ~2K tokens). Basic-tier prompts bill 0.1 and premium/reasoning-tier bill 10 credits per 1K tokens — adjust the tier to match your prompt's model.");
     if ((flow.connectorActions + flow.http) > 0 && regime === "autonomous") warnings.push("Flow actions are priced here at the Copilot agent-flow rate (0.13 credits each), which applies ONLY when a Copilot Studio agent invokes the flow. If it runs standalone in Power Automate, those connector actions consume Power Platform requests (licensed separately) and only the AI Builder prompt(s) bill Copilot Credits — drop the agent-flow line in that case.");
     if (flow.loops > 0) warnings.push(flow.loops + " loop(s) detected — per-run action counts assume ~" + FLOW_LOOP_ITERS + " iterations each. Set your real batch size.");
     if (premiumConnectors.length > 0) warnings.push("Premium/unknown connector(s): " + premiumConnectors.join(", ") + ". These bill via Power Platform / Power Automate licensing, NOT Copilot Credits — budget separately.");
     if (spec.isSpec) warnings.push("Analyzed from an agent build-spec bundle (documents), not a Dataverse solution export — counts are inferred from the spec + knowledge files, not runtime components.");
-    if (spec.reasoningModel) warnings.push("Reasoning-capable model detected — Microsoft bills a premium \u201CText and generative AI tools (premium)\u201D meter at 10 credits per 1K tokens ON TOP of the feature rate for each reasoning step. This estimate assumes ~" + REASON_TOKENS_K + "K premium tokens per run; tune it to your prompt/response size, or drop the reasoning line if the agent uses a standard (non-reasoning) model.");
+    if (reasoningModel) warnings.push("Reasoning-capable model detected — Microsoft bills a premium \u201CText and generative AI tools (premium)\u201D meter at 10 credits per 1K tokens ON TOP of the feature rate for each reasoning step. This estimate assumes ~" + REASON_TOKENS_K + "K premium tokens per run; tune it to your prompt/response size, or drop the reasoning line if the agent uses a standard (non-reasoning) model.");
     if (computerUse) warnings.push("Computer-Using Agent (CUA) actions detected \u2014 these are NOT covered by the Microsoft 365 Copilot license and bill at the agent-action rate (5 credits) even for licensed users, so the embedded (Teams / Copilot Chat / SharePoint) zero-rating does not fully apply to this agent.");
     if (connectedAgents > 0) warnings.push("Multi-agent orchestration detected (" + agentCount + " agents) — each connected-agent hop adds latency and its own component budget.");
     if (aiNodes === 0 && agentActions === 0 && flowsTotal === 0 && topics === 0 && !spec.isSpec)
@@ -938,7 +1001,9 @@
       flowConnectorActions: flow.connectorActions, flowHttp: flow.http, flowLoops: flow.loops,
       connectors: connectors, premiumConnectors: premiumConnectors,
       agentCount: agentCount, connectedAgents: connectedAgents, hasEscalation: hasEscalation,
-      specBundle: spec.isSpec, binaryFiles: manifest.length, reasoningModel: spec.reasoningModel
+      specBundle: spec.isSpec, binaryFiles: manifest.length, reasoningModel: reasoningModel,
+      // Phase C — authoritative new-experience reads (verified vocab)
+      newExperience: newExperience, webSearch: webSearch, workflowTools: workflowTools, modelSeries: modelSeries
     };
     return {
       findings: findings, profile: profile, score: score, tshirt: tshirt,
@@ -1231,6 +1296,86 @@
     return { scenarios: scenarios, totals: totals, headers: parsed.headers, headerMap: parsed.headerMap, headerWarnings: parsed.warnings };
   }
 
+  // ── Modernization advisory (read-only) ────────────────────────────────────
+  // Diffs an uploaded solution's DETECTED shape against the same best-practice
+  // bar this tool now GENERATES by default: new agent experience, generative
+  // orchestration, connectors-as-tools, Work IQ over one-off Microsoft 365
+  // reads, and Skills for reusable clusters. Pure / presentational — it only
+  // reads analyzeSolution() output and returns advisory items. It NEVER touches
+  // any rate, credit, or calculation. Consumed by the Complex-upload results
+  // panel (and reusable by a future Agent Studio page).
+  //
+  // Microsoft 365 connectors whose READ operations Work IQ (Microsoft 365
+  // tenant-graph grounding) can consolidate into one permission-trimmed source
+  // (mail, calendar, files, Teams, people). Labels match CONNECTOR_CATALOG.
+  var WORKIQ_CONNECTORS = {
+    "Office 365 Outlook": true, "Office 365 Users": true, "Microsoft Teams": true,
+    "SharePoint": true, "OneDrive for Business": true
+  };
+  function modernizeAdvice(analysis) {
+    analysis = analysis || {};
+    var f = analysis.findings || {};
+    var connectors = analysis.connectors || f.connectors || [];
+    var recs = [];
+
+    // R1 — adopt the new agent experience (classic export → new).
+    if (!f.newExperience) {
+      recs.push({
+        id: "new-experience", severity: "build",
+        title: "Rebuild in the new agent experience",
+        body: "This export is a classic-experience agent (topic-based). The new agent experience is instruction-driven, uses generative orchestration by default, and is what this tool now generates. There is no in-place migration \u2014 recreate the agent in the new experience and carry your instructions, knowledge, and tools across.",
+        cost: ""
+      });
+    }
+
+    // R2 — turn on generative orchestration (classic + non-generative only;
+    // the new experience is always generative, so skip it there).
+    if (!f.newExperience && !f.genOrch) {
+      recs.push({
+        id: "generative-orchestration", severity: "build",
+        title: "Turn on generative orchestration",
+        body: "Generative orchestration is off, so the agent leans on classic topic routing. Microsoft recommends generative orchestration for most agents \u2014 the model picks the right tool and knowledge per turn instead of relying on hand-authored topic trees. Reserve classic routing for narrow, deterministic flows.",
+        cost: ""
+      });
+    }
+
+    // R3 — consolidate one-off Microsoft 365 reads with Work IQ.
+    var m365 = connectors.filter(function (c) { return WORKIQ_CONNECTORS[c]; });
+    if (m365.length && !f.tenantGraph) {
+      recs.push({
+        id: "work-iq", severity: "build",
+        title: "Consider Work IQ instead of one-off Microsoft 365 reads",
+        body: "This agent wires Microsoft 365 connector tool(s): " + m365.join(", ") + ". If it mostly READS across a user's Microsoft 365 (mail, calendar, Teams, files, people), Work IQ (Microsoft 365 tenant-graph grounding) can replace those individual reads with one permission-trimmed, always-current source \u2014 less to wire and maintain. Keep the connectors for genuine WRITES (send, create, update).",
+        cost: "Work IQ / tenant-graph grounding bills ~" + CREDIT.tenantGraph + " credits per run; each connector action bills " + CREDIT.action + ". Consolidating several reads per turn is usually simpler and can cost less; for one or two reads the connectors may be cheaper."
+      });
+    }
+
+    // R4 — promote reusable tool clusters to Skills.
+    if (connectors.length >= 3 || (f.connectedAgents || 0) > 0) {
+      recs.push({
+        id: "skills", severity: "governance",
+        title: "Package reusable tool clusters as Skills",
+        body: ((f.connectedAgents || 0) > 0
+          ? "This solution already composes connected agents. "
+          : "This agent wires " + connectors.length + " tools. ") +
+          "Related actions used together \u2014 or reused across several agents \u2014 are good candidates to package as Skills, so they can be shared, versioned, and governed centrally instead of re-wired in every agent.",
+        cost: ""
+      });
+    }
+
+    // R5 — right-size the model (reasoning premium).
+    if (f.reasoningModel) {
+      recs.push({
+        id: "right-size-model", severity: "cost",
+        title: "Confirm the reasoning model is needed",
+        body: "A reasoning-capable model is in use. Reasoning models add a premium meter on top of the feature rate. If the agent's tasks are routine lookups, drafting, or Q&A, a standard model handles them at a fraction of the cost \u2014 reserve reasoning for genuinely multi-step problem solving.",
+        cost: "Reasoning bills a premium " + CREDIT.reasoningPremium + " credits per 1K tokens on top of feature rates; a standard model avoids that meter."
+      });
+    }
+
+    return recs;
+  }
+
   var api = {
     CREDIT: CREDIT, RATE_PAYG: RATE_PAYG, RATE_PREPAID: RATE_PREPAID, ROW: ROW,
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
@@ -1246,7 +1391,8 @@
     connectorInfo: connectorInfo, parseAgentSpec: parseAgentSpec, CONNECTOR_CATALOG: CONNECTOR_CATALOG,
     IMPORT_SCHEMA: IMPORT_SCHEMA, IMPORT_EXAMPLES: IMPORT_EXAMPLES,
     buildHeaderMap: buildHeaderMap, matrixToObjects: matrixToObjects,
-    rowToVars: rowToVars, analyzeScenarioRow: analyzeScenarioRow, analyzeImport: analyzeImport
+    rowToVars: rowToVars, analyzeScenarioRow: analyzeScenarioRow, analyzeImport: analyzeImport,
+    modernizeAdvice: modernizeAdvice
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.EstimatorCore = api;

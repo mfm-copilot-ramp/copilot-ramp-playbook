@@ -74,10 +74,12 @@ extra_javascript:
   - javascripts/role-path.js
   - javascripts/feedback.js
   - javascripts/card-filter.js
+  - javascripts/estimator-vocab.js
   - javascripts/estimator-core.js
   - javascripts/estimator-package.js
   - javascripts/estimator-zip.js
   - javascripts/estimator-xlsx.js
+  - javascripts/estimator-batch.js
   - javascripts/credit-estimator.js
 
 hooks:
