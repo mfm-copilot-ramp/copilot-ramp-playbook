@@ -10,5 +10,5 @@ mkdocs-git-revision-date-localized-plugin==1.5.3
 # extra). Pinned within the ranges declared for mkdocs-material 9.5.39 (cairosvg~=2.6,
 # pillow~=10.2). Needs system Cairo/FreeType libraries on the build host: installed in the
 # CI/deploy workflows, and documented for local builds in GO-PUBLIC.md.
-cairosvg==2.7.1
+cairosvg==2.9.0
 pillow==10.4.0
