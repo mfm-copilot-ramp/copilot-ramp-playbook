@@ -1,0 +1,75 @@
+[
+  {
+    "issue_number": 74,
+    "issue_title": "📡 New: OneDrive: Improved max path error experience on desktop",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/74",
+    "issue_type": "accuracy-risk",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=557563",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=557563",
+      "redirected": true,
+      "content_length": 629292,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/credit-estimator.md",
+      "docs/walkthroughs/autopilots-coordinate-meetings.md",
+      "docs/walkthroughs/autopilots-get-access.md",
+      "docs/walkthroughs/autopilots-track-deliverables.md",
+      "docs/walkthroughs/studio-functional-field-service-triage.md"
+    ],
+    "priority": 0
+  },
+  {
+    "issue_number": 77,
+    "issue_title": "📡 New: Microsoft Edge: Import Google account data anytime from Settings",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/77",
+    "issue_type": "new-resource",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=568365",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=568365",
+      "redirected": true,
+      "content_length": 629292,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/empowerment/wizard.md",
+      "docs/roles/it-admin.md",
+      "docs/solutions/foundry-support-agent.md",
+      "docs/solutions/onboarding-buddy-agent.md",
+      "docs/solutions/policy-faq-agent.md",
+      "docs/stages/stage-3-cowork.md",
+      "docs/walkthroughs/autopilots-coordinate-meetings.md",
+      "docs/walkthroughs/cowork-customer-health-digest.md",
+      "docs/walkthroughs/studio-authentication.md"
+    ],
+    "priority": 1
+  },
+  {
+    "issue_number": 76,
+    "issue_title": "📡 New: Outlook: Expanded Conditions for Conditional Formatting in the New Outlook for Web and Windows",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/76",
+    "issue_type": "new-resource",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=503551",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=503551",
+      "redirected": true,
+      "content_length": 629292,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/stages/stage-3-cowork.md",
+      "docs/walkthroughs/chat-exec-briefing.md",
+      "docs/walkthroughs/studio-authentication.md"
+    ],
+    "priority": 1
+  }
+]

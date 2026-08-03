@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-10T18:08:16Z",
+  "generated": "2026-08-03T16:27:25Z",
   "items": [
     {
       "path": "walkthroughs/agent-builder-faq-agent/",
@@ -175,6 +175,70 @@
       "fn": [],
       "level": "intermediate",
       "time": "10 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-coordinate-meetings/",
+      "title": "Let Scout coordinate your meetings and prep",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-get-access/",
+      "title": "Find out if you can get Scout — and turn it on",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "champion",
+        "it-admin"
+      ],
+      "fn": [
+        "it",
+        "sales"
+      ],
+      "level": "starter",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-meet-scout/",
+      "title": "Meet Microsoft Scout — and what Autopilots are",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "champion",
+        "manager",
+        "maker",
+        "it-admin"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "10 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-track-deliverables/",
+      "title": "Have Scout watch your deliverables and flag risks",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "manager",
+        "champion",
+        "end-user"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
       "kind": "walkthrough"
     },
     {
