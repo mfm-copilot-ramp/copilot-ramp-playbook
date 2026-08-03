@@ -78,7 +78,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 /* top-level "what are you estimating" switcher (reserves the layout for a future Cowork estimator) */
-.est-switcher { margin: 1.5rem 0 0.9rem; }
+.est-switcher { margin: 1.5rem 0 0.9rem; position: relative; }
 .est-switcher-label {
   display: block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
   letter-spacing: 0.05em; color: var(--md-default-fg-color--light); margin-bottom: 0.45rem;
@@ -100,6 +100,33 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
   padding: 0.1rem 0.42rem; border-radius: 10px;
   background: var(--md-default-fg-color--lightest); color: var(--md-default-fg-color--light);
 }
+/* Secret "flight" dot: reveals the hidden Bulk generate mode for demos. Deliberately
+   low-key so a casual visitor won't notice it; the demoer knows where to click. */
+.flight-dot {
+  position: absolute; top: 0; right: 0; width: 14px; height: 14px; padding: 0;
+  border: none; border-radius: 50%; cursor: pointer; -webkit-appearance: none; appearance: none;
+  background: var(--md-default-fg-color); opacity: 0.08;
+  transition: opacity .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.flight-dot:hover { opacity: 0.4; }
+.flight-dot:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; opacity: 0.4; }
+.estimator-flighted .flight-dot {
+  background: var(--md-primary-fg-color); opacity: 0.92;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-primary-fg-color) 22%, transparent);
+}
+/* Bulk generate lives behind the flight flag — hidden until the dot (or ?flight=bulk) flips it on.
+   Compound selector (.mode-card.mode-card--secret) so it outranks the later `.mode-card { display:flex }` base rule. */
+.mode-card.mode-card--secret { display: none; }
+.estimator-flighted .mode-card.mode-card--secret { display: flex; }
+.flight-toast {
+  position: fixed; left: 50%; bottom: 1.4rem; z-index: 60;
+  transform: translateX(-50%) translateY(0.6rem);
+  padding: 0.5rem 0.95rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600;
+  background: var(--md-default-fg-color); color: var(--md-default-bg-color);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24);
+  opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease;
+}
+.flight-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 /* mode card selector (replaces the dropdown) */
 .mode-cards {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 0.6rem; align-items: stretch;
@@ -388,6 +415,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
     <button type="button" class="est-tab est-tab--active" role="tab" aria-selected="true" aria-controls="estimator-studio">Copilot Studio agents</button>
     <button type="button" class="est-tab est-tab--soon" role="tab" aria-selected="false" aria-disabled="true" disabled tabindex="-1" title="Coming soon">Microsoft 365 Copilot (Cowork)<span class="est-soon-badge">Coming soon</span></button>
   </div>
+  <button type="button" id="flight-toggle" class="flight-dot" aria-pressed="false" aria-label="Toggle preview features" title=""></button>
 </div>
 
 <!-- Hidden single source of truth for the active mode. credit-estimator.js init() guards the page
@@ -421,7 +449,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
     <span class="mode-card-sub">Upload a built agent</span>
     <span class="mode-card-best">Best when the agent is already built</span>
   </button>
-  <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="bulk" onclick="setEstimatorMode('bulk')">
+  <button type="button" class="mode-card mode-card--secret" id="mode-card-bulk" role="radio" aria-checked="false" data-mode="bulk" onclick="setEstimatorMode('bulk')">
     <span class="mode-card-title">Bulk generate</span>
     <span class="mode-card-sub">One starter .zip per agent</span>
     <span class="mode-card-best">Best for standing up many agents at once</span>
