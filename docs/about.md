@@ -1,6 +1,6 @@
 ---
 title: About / Disclaimer
-description: About the Copilot Ramp Playbook — a community-built, unofficial map of the Microsoft Copilot maturity journey, with the disclaimer, license, and how to contribute.
+description: About the Copilot Ramp Playbook — a community-built, unofficial map of the Microsoft Copilot maturity journey, plus the disclaimer, license, and how to help.
 ---
 
 # About this site
