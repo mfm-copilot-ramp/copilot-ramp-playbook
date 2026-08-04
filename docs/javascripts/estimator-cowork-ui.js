@@ -312,6 +312,21 @@
     setCoworkMode("detailed");
   }
   function cwReturnToQuick() { hideOrigin(); setCoworkMode("quick"); }
+  // Save the current Cowork Quick forecast into the durable "My estimates" cart (V2).
+  // Inputs-only (population + global dials) so Portfolio recomputes it live anywhere.
+  function cwSaveToWorkspace() {
+    var C = window.CoworkEstimator, W = window.WorkspaceUI;
+    if (!C || !W) return;
+    var qi = readQuickInput();
+    var r = C.quickEstimate(qi) || {};
+    var credits = Math.round(r.monthlyCredits || 0);
+    var label = fmt(Math.round(r.activeUsers || 0)) + " active Cowork users \u00b7 ~" + fmt(credits) + " credits/mo";
+    W.add({
+      kind: "estimate", producer: "cowork", label: label,
+      input: { cowork: qi },
+      meta: { monthlyCredits: credits, coworkSpend: Math.round(r.coworkSpend || 0) }
+    });
+  }
   function cwSaveToQuick() {
     var C = window.CoworkEstimator;
     if (!C || !cwState.origin || cwState.origin.kind !== "quick" || !(cwState.cohorts || []).length) { hideOrigin(); setCoworkMode("quick"); return; }
@@ -509,6 +524,7 @@
     window.cwOpenInDetailed = cwOpenInDetailed;
     window.cwReturnToQuick = cwReturnToQuick;
     window.cwSaveToQuick = cwSaveToQuick;
+    window.cwSaveToWorkspace = cwSaveToWorkspace;
     window.cwAddCohort = cwAddCohort;
     window.cwRemoveCohort = cwRemoveCohort;
     window.cwCohortSet = cwCohortSet;

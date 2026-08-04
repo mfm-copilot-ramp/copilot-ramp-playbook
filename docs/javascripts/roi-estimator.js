@@ -329,6 +329,101 @@
     roiRenderImportBanner(null);
   }
 
+  // ── portfolio ROI: aggregate every saved estimate from the "My estimates" cart ─
+  // Reached via the cart's "Send all to ROI →" (?from=workspace). Recomputes each
+  // saved item live (Portfolio.recomputeItem), sums a MIXED credits/cost total, then
+  // feeds ROICore ONE portfolio input (Portfolio.toRoiInput). Value is user-tunable.
+  var portfolioState = null; // { agg, ids }
+  function roiEngines() { return { EstimatorCore: window.EstimatorCore, CoworkEstimator: window.CoworkEstimator }; }
+
+  function roiPortfolioEstimate() {
+    if (!R) return;
+    var out = document.getElementById("roi-q-results");
+    if (!out) return;
+    var B = window.SiteBus, P = window.Portfolio;
+    if (!B || !P) {
+      out.innerHTML = '<p class="roi-note">The estimates cart isn\u2019t available here. Use the Quick or Detailed tab instead.</p>';
+      out.classList.remove("roi-hidden");
+      return;
+    }
+    var items = B.list();
+    if (!items.length) {
+      out.innerHTML = '<p class="roi-note">No saved estimates yet. Build estimates in the <a href="credit-estimator.md">Credit Estimator</a>, press <strong>Save to My estimates</strong>, then come back here to roll them into one ROI.</p>';
+      out.classList.remove("roi-hidden");
+      return;
+    }
+    var agg = P.aggregate(items, roiEngines());
+    var dials = { valueMonthly: agg.studioValueMonthly, EstimatorCore: window.EstimatorCore };
+    var input = P.toRoiInput(agg, dials);
+    var roi = R.computeROI(input);
+    portfolioState = { agg: agg, ids: items.map(function (i) { return i.id; }) };
+    quickState = { analysis: null, input: input, roi: roi }; // lets "Refine in Detailed" reuse it
+    out.innerHTML = roiRenderPortfolio(agg, input, roi);
+    out.classList.remove("roi-hidden");
+  }
+
+  // Re-run the portfolio ROI when the user tunes the aggregate value lever.
+  function roiPortfolioValue() {
+    if (!R || !portfolioState) return;
+    var P = window.Portfolio; if (!P) return;
+    var out = document.getElementById("roi-q-results"); if (!out) return;
+    var val = gn("roi-p-value");
+    var input = P.toRoiInput(portfolioState.agg, { valueMonthly: val, EstimatorCore: window.EstimatorCore });
+    var roi = R.computeROI(input);
+    quickState = { analysis: null, input: input, roi: roi };
+    out.innerHTML = roiRenderPortfolio(portfolioState.agg, input, roi);
+    out.classList.remove("roi-hidden");
+  }
+
+  function roiRenderPortfolio(agg, input, roi) {
+    var m = input._meta || {};
+    var credits = Math.round(num(m.realMonthlyCredits));
+    var cost = num(m.realMonthlyCostUSD);
+    var value = Math.round(num(m.valueMonthly));
+    var html = '<div class="roi-provenance">\uD83E\uDDFA Portfolio ROI \u2014 rolled up from ' + (agg.count || 0) + ' saved estimate' + (agg.count === 1 ? "" : "s") + "</div>";
+    html += '<div class="roi-read"><strong>What you\u2019ve saved</strong> \u2014 recomputed live from each estimate\u2019s inputs:';
+    html += '<ul class="roi-read-list">';
+    html += "<li>~<strong>" + credits.toLocaleString() + "</strong> credits / month across the set \u2192 <strong>" + money(cost) + "</strong> / month to run</li>";
+    // Per-producer split.
+    var bp = agg.byProducer || {};
+    var parts = [];
+    if (bp.studio) parts.push(bp.studio.count + " Studio (" + Math.round(bp.studio.monthlyCredits).toLocaleString() + " cr/mo)");
+    if (bp.cowork) parts.push(bp.cowork.count + " Cowork (" + Math.round(bp.cowork.monthlyCredits).toLocaleString() + " cr/mo)");
+    if (parts.length) html += "<li>" + esc(parts.join(" \u00b7 ")) + "</li>";
+    html += "</ul></div>";
+
+    // Tunable aggregate value lever.
+    html += '<div class="roi-pvalue"><label for="roi-p-value"><strong>Estimated value of this work</strong> ($/month)</label>' +
+      '<input type="number" id="roi-p-value" inputmode="numeric" value="' + value + '" onchange="roiPortfolioValue()" oninput="roiPortfolioValue()">' +
+      '<span class="roi-pvalue-hint">Studio estimates seed a time-saved value; Cowork measures consumption (no built-in value), so set the number your business case will stand behind.</span></div>';
+
+    html += cardsHtml(roi);
+    html += bandHtml(roi);
+
+    (agg.notes || []).forEach(function (n) { html += '<p class="roi-note">' + esc(n) + "</p>"; });
+    html += '<p class="roi-note">Run cost is the exact sum of every saved estimate (Studio credits + Cowork spend). Value is your single tunable lever above, ramping to steady state over ' + R.QUICK.rampMonths + " months.</p>";
+    html += '<div class="roi-actions"><button type="button" class="roi-btn roi-btn--ghost" onclick="roiQuickToDetailed()">Refine in Detailed \u2192</button></div>';
+    return html;
+  }
+
+  // Offer to roll the cart into a portfolio ROI (shown when items exist but no handoff).
+  function roiRenderPortfolioOffer(n) {
+    var host = document.getElementById("roi-import");
+    if (!host) return;
+    host.innerHTML =
+      '<div class="roi-import-inner">' +
+        '<span class="roi-import-icon" aria-hidden="true">\uD83E\uDDFA</span>' +
+        '<div class="roi-import-body">' +
+          '<strong>You have ' + n + ' saved estimate' + (n === 1 ? "" : "s") + '</strong>' +
+          '<span class="roi-import-label">Roll them into one portfolio ROI \u2014 mixed Studio + Cowork.</span>' +
+        '</div>' +
+        '<div class="roi-import-actions">' +
+          '<button type="button" class="roi-btn" onclick="roiPortfolioEstimate()">Build portfolio ROI</button>' +
+        '</div>' +
+      '</div>';
+    host.classList.remove("roi-hidden");
+  }
+
   // expose immediately so inline onclick handlers always resolve
   window.roiCalculate = roiCalculate;
   window.roiAddTimeRow = roiAddTimeRow;
@@ -341,6 +436,13 @@
   window.roiQuickToDetailed = roiQuickToDetailed;
   window.roiUseImport = roiUseImport;
   window.roiDismissImport = roiDismissImport;
+  window.roiPortfolioEstimate = roiPortfolioEstimate;
+  window.roiPortfolioValue = roiPortfolioValue;
+
+  function fromParam() {
+    try { return new URLSearchParams(window.location.search).get("from") || ""; }
+    catch (e) { return ""; }
+  }
 
   function init() {
     if (!document.getElementById("roi-detailed")) return; // only on the ROI page
@@ -349,6 +451,14 @@
     roiCalculate(); // compute the Detailed worked example (hidden until selected)
     var B = window.SiteBus || null;
     var UX = (B && B.UX) || {};
+
+    // Portfolio intake: the cart's "Send all to ROI →" lands here (?from=workspace).
+    if (fromParam() === "workspace" && B && window.Portfolio) {
+      roiSetMode("quick");
+      roiPortfolioEstimate();
+      return;
+    }
+
     var pending = B ? B.peekHandoff("estimate") : null;
     if (pending && pending.input && pending.input.text != null) {
       // A scenario was handed off — pre-fill the box, land in the target mode, and
@@ -370,6 +480,11 @@
     if (!(gv("roi-q-desc") || "").trim()) sv("roi-q-desc", QUICK_EXAMPLES[0]);
     roiQuickEstimate(); // seed the default Quick view
     roiSetMode("quick"); // Quick is the default landing mode
+    // No handoff pending, but the cart has saved estimates — offer the portfolio roll-up.
+    if (B && window.Portfolio) {
+      var saved = B.list();
+      if (saved.length) roiRenderPortfolioOffer(saved.length);
+    }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

@@ -738,6 +738,7 @@
             '<button type="button" class="qe-preset" onclick="qeAdvanced()">Advanced: edit all</button>') +
         '<button type="button" class="qe-preset" onclick="qeStartOver()">Start over</button>' +
         '<span class="spacer"></span>' +
+        '<button type="button" class="em-btn secondary" onclick="qeSaveToWorkspace()">🧺 Save to My estimates</button>' +
         '<button type="button" class="em-btn secondary" onclick="qeSendToRoi()">📈 Estimate ROI →</button>' +
         '<button type="button" class="em-btn" onclick="qeToDetailed()">Open in Detailed estimator →</button>' +
       "</div></div>";
@@ -1198,23 +1199,39 @@
   function qeSendToRoi() {
     var st = state.qe, B = window.SiteBus;
     if (!st || !B) return;
+    var item = qeEstimateItem();
+    if (item) B.handoff(item);
+    var nav = (B.UX && B.UX.nav) || "same-tab";
+    if (nav === "new-tab") window.open(roiHandoffUrl(), "_blank");
+    else window.location.href = roiHandoffUrl();
+  }
+  // Build a portable estimate envelope from the current Quick scenario (inputs-only:
+  // the NL text, so it recomputes live anywhere). Shared by the ROI handoff and the
+  // "Save to My estimates" cart.
+  function qeEstimateItem() {
+    var st = state.qe;
+    if (!st) return null;
     var a = EC.analyzeText(st.raw);
     var monthly = (a && a.estimate) ? Math.round(a.estimate.monthly) : 0;
     var gist = String(st.raw).replace(/\s+/g, " ").trim();
     if (gist.length > 64) gist = gist.slice(0, 61).replace(/\s+\S*$/, "") + "\u2026";
-    var label = gist + " \u00b7 ~" + monthly.toLocaleString() + " credits/mo";
-    B.handoff({
-      kind: "estimate", producer: "studio", label: label,
+    return {
+      kind: "estimate", producer: "studio",
+      label: gist + " \u00b7 ~" + monthly.toLocaleString() + " credits/mo",
       input: { text: st.raw },
       meta: {
         monthlyCredits: monthly,
         size: a ? a.size : null,
         regime: (a && a.estimate) ? a.estimate.regime : (st.vars && st.vars.archetype)
       }
-    });
-    var nav = (B.UX && B.UX.nav) || "same-tab";
-    if (nav === "new-tab") window.open(roiHandoffUrl(), "_blank");
-    else window.location.href = roiHandoffUrl();
+    };
+  }
+  // Save the current Quick estimate into the durable "My estimates" cart (V2).
+  function qeSaveToWorkspace() {
+    var st = state.qe, W = window.WorkspaceUI;
+    if (!st || !W) return;
+    var item = qeEstimateItem();
+    if (item) W.add(item);
   }
 
   // ── Solution package (upload) ─────────────────────────────────────────────
@@ -2261,6 +2278,7 @@
     window.qeRebuild = qeRebuild;
     window.qeToDetailed = qeToDetailed;
     window.qeSendToRoi = qeSendToRoi;
+    window.qeSaveToWorkspace = qeSaveToWorkspace;
     window.qePick = qePick;
     window.qeSetNum = qeSetNum;
     window.qeSetEscalationPct = qeSetEscalationPct;

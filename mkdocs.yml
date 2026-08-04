@@ -86,6 +86,9 @@ extra_javascript:
   - javascripts/estimator-cowork-ui.js
   - javascripts/roi-core.js
   - javascripts/roi-estimator.js
+  - javascripts/portfolio-core.js
+  - javascripts/workspace-ui.js
+  - javascripts/proposal.js
 
 hooks:
   - tooling/mkdocs_hooks.py       # regenerates docs/path-catalog.json before each build
@@ -236,6 +239,7 @@ nav:
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
       - ROI Estimator: roi-estimator.md
+      - "Proposal Composer": proposal.md
       - "What's New": whats-new.md
       - Resources: RESOURCES.md
       - Tags: tags.md

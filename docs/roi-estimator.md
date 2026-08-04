@@ -68,6 +68,10 @@ Everything runs in your browser; nothing is uploaded.
 .roi-import-label { font-size: .82rem; color: var(--md-default-fg-color--light); overflow: hidden; text-overflow: ellipsis; }
 .roi-import-actions { display: flex; gap: .4rem; flex-shrink: 0; }
 .roi-provenance { display: inline-block; font-size: .72rem; color: var(--md-primary-fg-color); border: 1px solid var(--md-primary-fg-color); border-radius: 1rem; padding: .1rem .55rem; margin: 0 0 .5rem; }
+.roi-pvalue { display: flex; flex-direction: column; gap: .25rem; border: 1px solid var(--md-default-fg-color--lightest); border-radius: .4rem; padding: .55rem .8rem; margin: .4rem 0 .6rem; }
+.roi-pvalue label { font-size: .85rem; }
+.roi-pvalue input { width: 12rem; max-width: 100%; padding: .35rem .5rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: .3rem; background: var(--md-default-bg-color); color: var(--md-default-fg-color); }
+.roi-pvalue-hint { font-size: .74rem; color: var(--md-default-fg-color--light); }
 @media (max-width: 559px) { .roi-time-row { grid-template-columns: 1fr 1fr; } .roi-band { grid-template-columns: 1fr; } }
 </style>
 
