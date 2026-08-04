@@ -761,6 +761,20 @@
       ? 'The <strong>new experience</strong> is the modern, instruction-driven Copilot Studio agent \u2014 a single reasoning agent with <strong>no topics</strong>, richer thinking, and instructions written straight into the agent. It imports cleanly as an unmanaged solution; add tools &amp; knowledge in the portal to extend it. <strong>Recommended.</strong>'
       : 'Generates the <strong>classic-experience</strong> agent (topics, settings &amp; system scaffolding \u2014 legacy authoring). Imports cleanly. Use only if you specifically need the classic builder.';
   }
+  // Work IQ pre-wires differently per experience: classic ships the two MCP tools inside
+  // the package; the new experience is tenant-gated, so checking it there only adds a
+  // NEXT-STEPS "turn it on after import" reminder. The pill + note flip with the experience
+  // so a checked box never implies "already wired" on the new-experience path.
+  function qeWorkIQPill(exp) {
+    return exp === "new"
+      ? '<span class="qe-pkg-workiq-pill qe-pkg-workiq-pill--toggle" id="qe-pkg-workiq-pill">Post-import toggle</span>'
+      : '<span class="qe-pkg-workiq-pill qe-pkg-workiq-pill--wired" id="qe-pkg-workiq-pill">Wired in</span>';
+  }
+  function qeWorkIQNote(exp) {
+    return exp === "new"
+      ? 'Grounds on the Microsoft&nbsp;365 tenant graph (people, meetings, mail &amp; files) instead of one-off connectors. <strong>Not pre-wired in the new experience</strong> \u2014 checking this adds a NEXT-STEPS reminder to switch Work&nbsp;IQ on in the portal (Knowledge &rarr; Work&nbsp;IQ) after import. Bills ~10 credits per response. Want it pre-wired now? Use <strong>Classic</strong>.'
+      : 'Grounds on the Microsoft&nbsp;365 tenant graph (people, meetings, mail &amp; files) instead of one-off connectors. <strong>Wired into the package</strong> \u2014 the two Work&nbsp;IQ MCP tools ship inside, ready to bind on the import Connections step. Bills ~10 credits per response.';
+  }
   function qeStarterHtml() {
     var exp = (state.qe && state.qe.pkgExp) || "new";
     return '<div class="qe-starter">' +
@@ -777,8 +791,9 @@
       '<label class="qe-pkg-workiq" for="qe-pkg-workiq">' +
         '<input type="checkbox" id="qe-pkg-workiq"' + (qeWorkIQDefault() ? ' checked' : '') + ' onchange="qePkgWorkIQChange(this.checked)">' +
         '<span>Ground on Microsoft&nbsp;365 with <strong>Work&nbsp;IQ</strong></span>' +
+        qeWorkIQPill(exp) +
       '</label>' +
-      '<div class="qe-seg-note hint" style="margin:.1rem 0 .55rem">Adds Work&nbsp;IQ (tenant-graph) tools for people, meetings, mail &amp; files instead of wiring one-off Microsoft&nbsp;365 connectors. Bills ~10 credits per response. Classic wires the tools in; the new experience adds a portal toggle note.</div>' +
+      '<div class="qe-seg-note hint" id="qe-pkg-workiq-note" style="margin:.1rem 0 .55rem">' + qeWorkIQNote(exp) + '</div>' +
       '<div class="qe-pkg-skills">' +
         '<label class="section-label qe-seg-label" for="qe-pkg-skills-input">Skills <span class="qe-pkg-skills-tag">new experience</span></label>' +
         '<textarea id="qe-pkg-skills-input" rows="2" oninput="qePkgSkillsChange(this.value)" placeholder="One skill per line \u2014 e.g. Meeting brief formatter: turns gathered context into an executive brief">' + esc((state.qe && state.qe.pkgSkills) || "") + '</textarea>' +
@@ -823,6 +838,15 @@
     }
     var note = document.getElementById("qe-pkg-exp-note");
     if (note) note.innerHTML = qeExpNote(exp);
+    // Keep the Work IQ note + status pill in sync with the experience so "Wired in"
+    // (classic) never lingers on the new-experience path (portal toggle, not pre-wired).
+    var wiqNote = document.getElementById("qe-pkg-workiq-note");
+    if (wiqNote) wiqNote.innerHTML = qeWorkIQNote(exp);
+    var wiqPill = document.getElementById("qe-pkg-workiq-pill");
+    if (wiqPill) {
+      wiqPill.className = "qe-pkg-workiq-pill qe-pkg-workiq-pill--" + (exp === "new" ? "toggle" : "wired");
+      wiqPill.textContent = exp === "new" ? "Post-import toggle" : "Wired in";
+    }
   }
   // Work IQ opt-in for the starter. Default reflects the emitter's own auto-detection
   // (EP.wantsWorkIQ) so the checkbox shows what WOULD happen; a user toggle records an
@@ -1944,6 +1968,21 @@
     return '<table class="qi-table"><thead><tr><th>Column</th><th>Applies</th><th>What to enter</th></tr></thead><tbody>' +
       rows + "</tbody></table>";
   }
+  // Assembles the "let Copilot fill the sheet" prompt with the column definitions inlined
+  // from EC.IMPORT_SCHEMA, so it's copy-paste-ready (no separate "paste the column text"
+  // step) and can never drift from the schema. The ONLY blank the user fills is their own
+  // agent list at the bottom. Copied verbatim by the "Copy prompt" button and used to
+  // (re)fill the on-page <pre> so what you see is exactly what you copy.
+  function qiPromptText() {
+    var schema = (EC && EC.IMPORT_SCHEMA) ? EC.IMPORT_SCHEMA : [];
+    var defs = schema.map(function (c) { return "- " + c.header + ": " + (c.hint || ""); }).join("\n");
+    return "You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator workbook. " +
+      "Use the 'Examples' sheet already in the workbook as the pattern. Create one row per agent from my list below, " +
+      "inferring each column from my descriptions; leave a cell blank if it isn't implied \u2014 don't invent enum or number values.\n\n" +
+      "Column definitions:\n" + defs + "\n\n" +
+      "My agents (one per line \u2014 for each, say what it does, who uses it, how often, the channel, any knowledge it grounds on, and roughly how many system actions it takes):\n1)\n2)";
+  }
+  function qiCopyPrompt() { copyText(qiPromptText(), "qiprompt", "Prompt copied \u2713"); }
 
   // ── Export / share (Copy summary · Download · Detailed share link) ─────────
   function pageUrl() { return location.origin + location.pathname; }
@@ -2188,6 +2227,7 @@
     window.emSetDeploy = emSetDeploy;
     window.qiDownloadTemplate = qiDownloadTemplate;
     window.qiDownloadCsv = qiDownloadCsv;
+    window.qiCopyPrompt = qiCopyPrompt;
     window.qiToggleDetail = qiToggleDetail;
     window.qiSetEscalationPct = qiSetEscalationPct;
     window.qiRowToDetailed = qiRowToDetailed;
@@ -2243,6 +2283,8 @@
     }
     var qiHelp = document.getElementById("qi-schema-help");
     if (qiHelp && !qiHelp.dataset.filled) { qiHelp.dataset.filled = "1"; qiHelp.innerHTML = qiSchemaHelpHtml(); }
+    var qiPromptEl = document.getElementById("qi-copilot-prompt");
+    if (qiPromptEl && !qiPromptEl.dataset.filled) { qiPromptEl.dataset.filled = "1"; qiPromptEl.textContent = qiPromptText(); }
 
     // Additive: report which estimator mode users actually pick (cookieless, no
     // PII). Delegated on the card group so it only fires on a real user click.
