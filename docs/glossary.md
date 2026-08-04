@@ -104,6 +104,30 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
 
 ---
 
+## Cost & consumption { #cost-consumption }
+
+- **Copilot Credit** *(formerly "message")* — the unit Copilot Studio meters agent usage in. Credits are
+  pooled across the whole tenant and funded through pay-as-you-go, prepurchase, or prepaid packs. The name
+  changed from *messages* on **September 1, 2025** (same quantity, same rate — just a new name). Learn the
+  model on [How Copilot Credits work](copilot-credits.md) and estimate yours in the
+  [Credit Estimator](credit-estimator.md).
+- **Classic vs generative answer** — a *classic* answer is a pre-authored, static reply (**1 credit**); a
+  *generative* answer has the AI read your knowledge and respond dynamically (**2 credits**). Most modern
+  agents are generative.
+- **Agent action** — a step where the agent *does* something — a [connector or flow](walkthroughs/studio-connector-action.md)
+  call, deep reasoning, or a topic transition — billed at **5 credits**.
+- **Tenant graph grounding** — retrieval-augmented generation over your tenant-wide Microsoft 365 Graph
+  (people, mail, meetings, files), billed at **10 credits** on top of the answer. Optional and toggled per
+  agent — the powerful-but-pricier grounding mode, distinct from *free* grounding over your own documents.
+- **Interactive vs autonomous (billing regimes)** — *interactive* agents bill per user interaction and can
+  be zero-rated for Microsoft 365 Copilot-licensed users; *autonomous / triggered* agents bill **per
+  event**, with no license discount. Which regime an agent is in usually dominates its bill.
+- **Build size (T-shirt)** — an XS → XL estimate of the *effort to build and own* an agent — **not** its
+  run cost. A cheap-to-run agent can be expensive to build, and a tiny agent at high volume can be
+  expensive to run; the [estimator](credit-estimator.md) reports the two axes separately.
+
+---
+
 ## Platform & governance
 
 - **Power Platform** — Microsoft's low-code suite (Power Apps, Power Automate, Power Pages, and Copilot
@@ -117,9 +141,8 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
 - **DLP (Data Loss Prevention)** — admin-defined policies that control which connectors and data an agent is
   allowed to touch — a core governance guardrail.
 - **Tenant** — your organization's instance of Microsoft 365. Licensing, admin settings, and feature
-  availability (including Frontier) are all set at the tenant level.
-- **Capacity / messages** — the unit Copilot Studio usage is metered in. Estimate yours with the
-  [Credit Estimator](credit-estimator.md).
+  availability (including Frontier) are all set at the tenant level. Copilot Studio usage is metered in
+  **Copilot Credits** — see [Cost & consumption](#cost-consumption) above.
 
 ---
 

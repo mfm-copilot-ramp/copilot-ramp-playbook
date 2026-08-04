@@ -738,6 +738,7 @@
             '<button type="button" class="qe-preset" onclick="qeAdvanced()">Advanced: edit all</button>') +
         '<button type="button" class="qe-preset" onclick="qeStartOver()">Start over</button>' +
         '<span class="spacer"></span>' +
+        '<button type="button" class="em-btn secondary" onclick="qeSendToRoi()">📈 Estimate ROI →</button>' +
         '<button type="button" class="em-btn" onclick="qeToDetailed()">Open in Detailed estimator →</button>' +
       "</div></div>";
   }
@@ -1183,6 +1184,37 @@
       ? { archetype: "autonomous", events: v.events || 0 }
       : { archetype: "interactive", users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
     seedDetailed(profile, scale, v.escalation || 0);
+  }
+
+  // ── Send this Quick estimate to the ROI Estimator (site-bus handoff) ──────────
+  // Carries INPUTS ONLY (the raw scenario text) so the ROI page recomputes credits
+  // with the same EstimatorCore engine — no frozen number, no drift. meta is a
+  // display-only cache for the import banner. See docs/javascripts/site-bus.js.
+  function roiHandoffUrl() {
+    // Both tools are sibling top-level pages; resolve relative to the current dir
+    // URL so it's correct under the GitHub Pages project path prefix too.
+    return "../roi-estimator/?from=estimate";
+  }
+  function qeSendToRoi() {
+    var st = state.qe, B = window.SiteBus;
+    if (!st || !B) return;
+    var a = EC.analyzeText(st.raw);
+    var monthly = (a && a.estimate) ? Math.round(a.estimate.monthly) : 0;
+    var gist = String(st.raw).replace(/\s+/g, " ").trim();
+    if (gist.length > 64) gist = gist.slice(0, 61).replace(/\s+\S*$/, "") + "\u2026";
+    var label = gist + " \u00b7 ~" + monthly.toLocaleString() + " credits/mo";
+    B.handoff({
+      kind: "estimate", producer: "studio", label: label,
+      input: { text: st.raw },
+      meta: {
+        monthlyCredits: monthly,
+        size: a ? a.size : null,
+        regime: (a && a.estimate) ? a.estimate.regime : (st.vars && st.vars.archetype)
+      }
+    });
+    var nav = (B.UX && B.UX.nav) || "same-tab";
+    if (nav === "new-tab") window.open(roiHandoffUrl(), "_blank");
+    else window.location.href = roiHandoffUrl();
   }
 
   // ── Solution package (upload) ─────────────────────────────────────────────
@@ -2228,6 +2260,7 @@
     window.qeRecompute = qeRecompute;
     window.qeRebuild = qeRebuild;
     window.qeToDetailed = qeToDetailed;
+    window.qeSendToRoi = qeSendToRoi;
     window.qePick = qePick;
     window.qeSetNum = qeSetNum;
     window.qeSetEscalationPct = qeSetEscalationPct;
