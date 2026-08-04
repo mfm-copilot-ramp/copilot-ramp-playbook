@@ -1,5 +1,6 @@
 ---
 title: PowerPoint
+description: Go from raw notes to a deck you can present with Copilot in PowerPoint — paste-a-prompt walkthroughs that skip the blank-slide stare, no setup required.
 hide: [toc]
 ---
 

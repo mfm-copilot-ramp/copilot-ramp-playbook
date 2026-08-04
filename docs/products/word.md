@@ -1,5 +1,6 @@
 ---
 title: Word
+description: Read less and draft faster with Copilot in Word — paste-a-prompt walkthroughs for drafting, summarizing, and rewriting documents, no setup required.
 hide: [toc]
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Resources
+description: A curated set of official Microsoft Copilot links, organized by journey stage so each resource slots into the matching stage of the ramp. Verified live.
 ---
 
 # Resources — curated Microsoft links

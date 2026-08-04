@@ -1,5 +1,6 @@
 ---
 title: Manager
+description: "The Copilot ramp for managers — run your team with less manual lift: better 1:1s, weekly planning, briefings, and onboarding, without drowning in prep."
 hide: [toc]
 ---
 

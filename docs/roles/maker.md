@@ -1,5 +1,6 @@
 ---
 title: Maker
+description: The Copilot ramp for makers — build low-code agents that do real work, with real knowledge sources, actions, and governance that hold up in production.
 hide: [toc]
 ---
 

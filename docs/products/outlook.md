@@ -1,5 +1,6 @@
 ---
 title: Outlook
+description: Put your inbox and calendar on autopilot with Copilot in Outlook — paste-a-prompt walkthroughs for triage, summaries, and replies, no setup required.
 hide: [toc]
 ---
 

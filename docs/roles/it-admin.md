@@ -1,5 +1,6 @@
 ---
 title: IT / admin
+description: "The Copilot ramp for IT and admins — govern agents safely at scale: security, identity, data boundaries, and correct production behavior across the org."
 hide: [toc]
 ---
 

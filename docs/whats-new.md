@@ -1,5 +1,6 @@
 ---
 title: What's New
+description: What's new in the Copilot Ramp Playbook — the latest walkthroughs, improvements, and structural changes to this community-built Microsoft Copilot ramp.
 hide: [toc]
 ---
 

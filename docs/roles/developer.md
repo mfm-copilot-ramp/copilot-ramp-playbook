@@ -1,5 +1,6 @@
 ---
 title: Developer
+description: "The Copilot ramp for developers — build agents as software on Azure with Microsoft Foundry: custom models, autonomous orchestration, evals, and MCP tools."
 hide: [toc]
 ---
 

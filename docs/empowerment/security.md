@@ -1,5 +1,6 @@
 ---
 title: Security & Governance
+description: Security and governance for Microsoft Copilot and agents — how identity, data boundaries, and controls are built in at every stage of the ramp, not bolted on.
 ---
 
 # Security & Governance

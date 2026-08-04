@@ -1,5 +1,6 @@
 ---
 title: Excel
+description: Turn numbers into answers you can explain with Copilot in Excel — paste-a-prompt walkthroughs for analysis, formulas, and insights, no setup required.
 hide: [toc]
 ---
 

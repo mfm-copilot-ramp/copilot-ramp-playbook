@@ -22,6 +22,11 @@ edit_uri: edit/main/docs/
 # Markdown source lives in docs/ (walkthroughs, catalog, resources, stage pages).
 docs_dir: docs
 
+# Thin utility/readme pages excluded from the published site (no SEO value —
+# keeps them out of the search index and sitemap).
+exclude_docs: |
+  screenshots/README.md
+
 theme:
   name: material
   custom_dir: overrides
@@ -159,6 +164,14 @@ extra:
   analytics:
     provider: custom
     property: copilot-ramp   # GoatCounter site code → copilot-ramp.goatcounter.com
+  # ── Search-engine ownership verification (read by overrides/main.html) ──────
+  # Google Search Console → add a URL-prefix property → "HTML tag" method → copy
+  # ONLY the content="..." value here. Bing Webmaster Tools → "Meta tag" → copy
+  # the msvalidate.01 content value. Leave blank to emit no tag. After deploying,
+  # submit sitemap.xml in each console so the sitemap is actually crawled (the
+  # project-path robots.txt is not authoritative on github.io).
+  google_site_verification: ""
+  bing_site_verification: ""
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook

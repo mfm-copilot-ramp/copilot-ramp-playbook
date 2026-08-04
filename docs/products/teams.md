@@ -1,5 +1,6 @@
 ---
 title: Teams
+description: Never lose a meeting outcome or channel decision again with Copilot in Teams — paste-a-prompt walkthroughs for recaps, follow-ups, and catch-up.
 hide: [toc]
 ---
 

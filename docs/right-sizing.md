@@ -1,5 +1,6 @@
 ---
 title: Right-sizing — when to drop back a stage
+description: Right-sizing your Copilot ramp — when a simpler stage beats a fancier agent, and how to drop back a rung so the tool matches the job in front of you.
 hide: [toc]
 ---
 

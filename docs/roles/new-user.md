@@ -1,5 +1,6 @@
 ---
 title: New user
+description: New to Copilot? Your first two weeks — quick wins that fit your existing day with no building or setup, the shortest line from license to indispensable.
 hide: [toc]
 ---
 

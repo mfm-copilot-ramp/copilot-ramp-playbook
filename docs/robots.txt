@@ -1,0 +1,11 @@
+# Copilot Ramp Playbook — robots directives
+#
+# Note: for a GitHub *project* Pages site, crawlers read the authoritative
+# robots.txt from the domain root (https://mfm-copilot-ramp.github.io/robots.txt),
+# which this project does not control. This file applies if the site is ever
+# served from its own domain root, and the sitemap is submitted directly in
+# Google Search Console / Bing Webmaster Tools regardless.
+User-agent: *
+Allow: /
+
+Sitemap: https://mfm-copilot-ramp.github.io/copilot-ramp-playbook/sitemap.xml

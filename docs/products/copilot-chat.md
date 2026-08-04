@@ -1,5 +1,6 @@
 ---
 title: Microsoft 365 Copilot Chat
+description: What you can do with Microsoft 365 Copilot Chat — the one place Copilot sees across all your work. Paste-a-prompt walkthroughs, no setup required.
 hide: [toc]
 ---
 

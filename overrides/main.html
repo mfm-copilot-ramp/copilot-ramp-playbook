@@ -1,5 +1,95 @@
 {% extends "base.html" %}
 
+{#- ── SEO: verification tags + JSON-LD structured data ─────────────────────── -#}
+{% block extrahead %}
+  {{ super() }}
+
+  {#- Search-engine ownership verification. Values are set in mkdocs.yml (extra);
+      a blank value emits nothing. -#}
+  {% if config.extra.google_site_verification %}
+  <meta name="google-site-verification" content="{{ config.extra.google_site_verification }}">
+  {% endif %}
+  {% if config.extra.bing_site_verification %}
+  <meta name="msvalidate.01" content="{{ config.extra.bing_site_verification }}">
+  {% endif %}
+
+  {#- WebSite + Organization graph (homepage only, so the entities are declared once). -#}
+  {% if page and page.is_homepage %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "{{ config.site_url }}#website",
+        "url": "{{ config.site_url }}",
+        "name": {{ config.site_name | tojson }},
+        "description": {{ config.site_description | tojson }},
+        "inLanguage": "en",
+        "publisher": { "@id": "{{ config.site_url }}#org" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "{{ config.site_url }}search.html?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "{{ config.site_url }}#org",
+        "name": {{ config.site_name | tojson }},
+        "url": "{{ config.site_url }}",
+        "description": {{ config.site_description | tojson }},
+        "sameAs": [ {{ config.repo_url | tojson }} ]
+      }
+    ]
+  }
+  </script>
+  {% endif %}
+
+  {#- BreadcrumbList on every interior page (Home → …ancestors with URLs… → page). -#}
+  {% if page and not page.is_homepage %}
+  {%- set ns = namespace(pos = 1) -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ config.site_url }}" }
+      {%- for a in page.ancestors | reverse -%}
+        {%- if a.title and a.url -%}
+          {%- set ns.pos = ns.pos + 1 -%}
+          , { "@type": "ListItem", "position": {{ ns.pos }}, "name": {{ a.title | tojson }}, "item": "{{ config.site_url }}{{ a.url }}" }
+        {%- endif -%}
+      {%- endfor -%}
+      , { "@type": "ListItem", "position": {{ ns.pos + 1 }}, "name": {{ page.title | tojson }}, "item": "{{ page.canonical_url }}" }
+    ]
+  }
+  </script>
+  {% endif %}
+
+  {#- TechArticle on the content-heavy pages (walkthroughs, stages, solutions). -#}
+  {% if page and page.file and (page.file.src_uri.startswith('walkthroughs/') or page.file.src_uri.startswith('stages/') or page.file.src_uri.startswith('solutions/')) and not page.file.src_uri.endswith('index.md') %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": {{ page.title | tojson }},
+    {% if page.meta and page.meta.description %}"description": {{ page.meta.description | tojson }},{% endif %}
+    "inLanguage": "en",
+    "url": "{{ page.canonical_url }}",
+    "mainEntityOfPage": "{{ page.canonical_url }}",
+    {% if page.meta and page.meta.git_revision_date_localized_raw_iso_datetime %}"dateModified": "{{ page.meta.git_revision_date_localized_raw_iso_datetime }}",{% endif %}
+    "isPartOf": { "@id": "{{ config.site_url }}#website" },
+    "author": { "@type": "Organization", "name": {{ config.site_name | tojson }} },
+    "publisher": { "@id": "{{ config.site_url }}#org" }
+  }
+  </script>
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   {{ super() }}
   {% if page and not page.is_homepage %}

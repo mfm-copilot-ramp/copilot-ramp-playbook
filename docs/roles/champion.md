@@ -1,5 +1,6 @@
 ---
 title: Team champion
+description: The Copilot ramp for team champions — build the habit in others, surface the wins, and turn one-off magic into a repeatable adoption routine across your org.
 hide: [toc]
 ---
 
