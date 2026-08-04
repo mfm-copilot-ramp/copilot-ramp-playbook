@@ -195,6 +195,21 @@
     };
   }
 
+  // Roll up all cohorts with each driver scaled by `factor` (e.g. 0.75 conservative,
+  // 1.25 liberal) — used to bracket the Detailed totals into a range.
+  function rollupAt(cohorts, g, factor) {
+    var licensed = 0, active = 0, credits = 0;
+    (cohorts || []).forEach(function (c) {
+      var lic = Math.max(0, num(c.licensedUsers, 0));
+      var mau = clampPct((has(c.mauPct) ? num(c.mauPct, DEFAULTS.mauPct) : DEFAULTS.mauPct) * factor);
+      var cpu = Math.max(0, resolveCreditsPerUser(c) * factor);
+      var a = activeUsers(lic, mau);
+      licensed += lic; active += a; credits += a * cpu;
+    });
+    var spend = creditsToSpend(credits, g);
+    return { licensedUsers: licensed, activeUsers: active, monthlyCredits: credits, coworkSpend: spend, annualCoworkSpend: spend * 12, purchase: purchasePlan(credits) };
+  }
+
   function detailedEstimate(input) {
     input = input || {};
     var g = normalizeGlobal(input.global);
@@ -207,7 +222,7 @@
       return a;
     }, { licensedUsers: 0, activeUsers: 0, monthlyCredits: 0, coworkSpend: 0 });
     var licenseFloor = g.licenseFloorEnabled ? t.licensedUsers * g.licensePricePerUser : 0;
-    return {
+    var res = {
       cohorts: cohorts,
       totals: {
         licensedUsers: t.licensedUsers,
@@ -224,6 +239,13 @@
       purchase: purchasePlan(t.monthlyCredits),
       budget: budgetUsage(t.coworkSpend, g.budgetCap)
     };
+    // Optional conservative–liberal range: bracket every cohort's drivers by ±buffer.
+    var buf = num(input.rangeBufferPct, 0);
+    if (buf > 0) {
+      var b = buf / 100;
+      res.totals.range = { low: rollupAt(input.cohorts, g, 1 - b), high: rollupAt(input.cohorts, g, 1 + b), bufferPct: buf };
+    }
+    return res;
   }
 
   // ── Forecast — adoption ramp over N months ──────────────────────────────────

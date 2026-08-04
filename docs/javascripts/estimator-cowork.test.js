@@ -111,5 +111,17 @@ ok("range high spend = $12000", near(rng.range.high.coworkSpend, 12000), rng.ran
 ok("range brackets the expected (750000)", rng.range.low.monthlyCredits <= rng.monthlyCredits && rng.monthlyCredits <= rng.range.high.monthlyCredits, [rng.range.low.monthlyCredits, rng.monthlyCredits, rng.range.high.monthlyCredits]);
 ok("no range key when not requested", C.quickEstimate({ licensedUsers: 100 }).range === undefined, "ok");
 
+// 16. Detailed range: ±25% buffer brackets the roll-up
+var dr = C.detailedEstimate({
+  cohorts: [{ name: "A", licensedUsers: 1000, mauPct: 20, creditsPerActiveUser: 4000 }],
+  rangeBufferPct: 25
+});
+// expected: active 200 × 4000 = 800,000 ; low: mau 15% → 150 × 3000 = 450,000 ; high: mau 25% → 250 × 5000 = 1,250,000
+ok("detailed expected credits = 800000", dr.totals.monthlyCredits === 800000, dr.totals.monthlyCredits);
+ok("detailed range low = 450000", dr.totals.range.low.monthlyCredits === 450000, dr.totals.range.low.monthlyCredits);
+ok("detailed range high = 1250000", dr.totals.range.high.monthlyCredits === 1250000, dr.totals.range.high.monthlyCredits);
+ok("detailed range brackets expected", dr.totals.range.low.monthlyCredits <= dr.totals.monthlyCredits && dr.totals.monthlyCredits <= dr.totals.range.high.monthlyCredits, "ok");
+ok("no detailed range without buffer", C.detailedEstimate({ cohorts: [{ licensedUsers: 100 }] }).totals.range === undefined, "ok");
+
 console.log("\n" + (fails === 0 ? "ALL PASSED" : (fails + " FAILED")));
 process.exit(fails === 0 ? 0 : 1);

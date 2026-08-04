@@ -1387,6 +1387,14 @@ recalc();
     <p class="cw-note">Credit &amp; price mechanics follow public Microsoft Learn. Active-usage % and credits/user are neutral planning anchors, not official Microsoft figures.</p>
   </details>
 
+  <div class="cw-range-toggle">
+    <label class="cw-switch"><input type="checkbox" id="cw-d-range-on" onchange="cwToggleDetailRange()"> Model a conservative–liberal range</label>
+    <span class="cw-sub" style="display:block">Optional — brackets every cohort's active usage and credits/user by ±buffer to show a roll-up range.</span>
+  </div>
+  <div class="cw-grid em-hidden" id="cw-d-range-fields" style="grid-template-columns:repeat(auto-fit,minmax(160px,220px))">
+    <div class="cw-field"><label for="cw-d-range-buf">Range buffer ±%</label><input type="number" id="cw-d-range-buf" min="0" max="100" step="5" value="25" oninput="recomputeDetailed()"><span class="cw-sub">Applied to both drivers, every cohort.</span></div>
+  </div>
+
   <div class="section-label">Roll-up</div>
   <div class="results-grid">
     <div class="result-card"><div class="val" id="cw-d-res-active">—</div><div class="lbl">Active users <span id="cw-d-res-of" class="hint"></span></div></div>
@@ -1397,6 +1405,7 @@ recalc();
   <div class="cw-purchase" id="cw-d-purchase"></div>
   <div class="cw-budget" id="cw-d-budget-out"></div>
   <p class="cw-note" id="cw-d-total-note" style="margin-top:0.6rem"></p>
+  <div class="cw-range-out em-hidden" id="cw-d-range-out"></div>
 
   <div class="section-label">6-month adoption forecast</div>
   <div class="cw-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,220px))">

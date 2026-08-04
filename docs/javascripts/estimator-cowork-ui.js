@@ -210,7 +210,9 @@
   function recomputeDetailed() {
     var C = window.CoworkEstimator; if (!C || !el("cw-cohorts")) return;
     var g = readDetailedGlobal();
-    var res = C.detailedEstimate({ cohorts: cwState.cohorts || [], global: g });
+    var estIn = { cohorts: cwState.cohorts || [], global: g };
+    if (chk("cw-d-range-on")) estIn.rangeBufferPct = val("cw-d-range-buf");
+    var res = C.detailedEstimate(estIn);
     res.cohorts.forEach(function (r, i) {
       setHtml("cw-cohort-out-" + i, fmt(r.activeUsers) + " active \u00b7 " + fmt(r.monthlyCredits) + " cr \u00b7 " + money(r.coworkSpend) + "/mo");
     });
@@ -230,7 +232,24 @@
     var note = "Annual Cowork \u2248 " + money(t.annualCoworkSpend) + ".";
     if (t.licenseFloor > 0) note += " With the license floor, total \u2248 " + money(t.totalSpend) + "/mo.";
     setText("cw-d-total-note", note);
+    var dro = el("cw-d-range-out");
+    if (dro) {
+      if (t.range) {
+        dro.classList.remove("em-hidden");
+        setHtml("cw-d-range-out",
+          "<strong>Range (conservative–liberal, \u00b1" + Math.round(t.range.bufferPct) + "%):</strong> " +
+          fmt(t.range.low.monthlyCredits) + "\u2013" + fmt(t.range.high.monthlyCredits) + " credits &middot; " +
+          money(t.range.low.coworkSpend) + "\u2013" + money(t.range.high.coworkSpend) + "/mo &middot; " +
+          money(t.range.low.annualCoworkSpend) + "\u2013" + money(t.range.high.annualCoworkSpend) + "/yr");
+      } else dro.classList.add("em-hidden");
+    }
     renderForecast(t.monthlyCredits, g, t.licensedUsers);
+  }
+
+  function cwToggleDetailRange() {
+    var on = chk("cw-d-range-on");
+    var f = el("cw-d-range-fields"); if (f) f.classList.toggle("em-hidden", !on);
+    recomputeDetailed();
   }
 
   function renderForecast(totalCredits, g, licensed) {
@@ -479,6 +498,7 @@
     window.cwRemoveCohort = cwRemoveCohort;
     window.cwCohortSet = cwCohortSet;
     window.recomputeDetailed = recomputeDetailed;
+    window.cwToggleDetailRange = cwToggleDetailRange;
     window.cwToggleIntensity = cwToggleIntensity;
     window.cwIntensityCalc = cwIntensityCalc;
     window.cwDownloadCohortsCsv = cwDownloadCohortsCsv;
