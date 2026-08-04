@@ -81,6 +81,8 @@ extra_javascript:
   - javascripts/estimator-xlsx.js
   - javascripts/estimator-batch.js
   - javascripts/credit-estimator.js
+  - javascripts/estimator-cowork.js
+  - javascripts/estimator-cowork-ui.js
 
 hooks:
   - tooling/mkdocs_hooks.py       # regenerates docs/path-catalog.json before each build

@@ -9,7 +9,7 @@ hide: [toc]
 !!! warning "Still being worked on — use with caution"
     This estimator is still under active development. Numbers, defaults, and logic may change, so treat the results as directional rather than final and double-check anything you rely on for planning or budgeting.
 
-Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio agents — pick an **estimation mode** below to match where you are: describe the agent in plain words, build the credit profile by hand, batch-size a portfolio from Excel, or upload a finished agent for a component-level analysis. Everything runs in your browser; nothing is uploaded. New to credit billing? See [**How Copilot Credits are billed**](#billing-details) for the official rates and licensing rules.
+Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio agents** or **Microsoft 365 Copilot (Cowork)** — use the **What are you estimating?** switch, then pick a mode to match where you are. For Studio: describe the agent in plain words, build the credit profile by hand, batch-size a portfolio from Excel, or upload a finished agent. For Cowork: forecast a population (licensed users × active-usage × credits per user) quickly, per-cohort, or straight from your M365 admin-center data. Everything runs in your browser; nothing is uploaded. New to credit billing? See [**How Copilot Credits are billed**](#billing-details) for the official rates and licensing rules.
 
 <a id="billing-details"></a>
 
@@ -27,9 +27,14 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 
     **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
 
+       ??? note "Microsoft 365 Copilot (Cowork) — usage-based billing"
+           **Microsoft 365 Copilot Chat** meters agent / Cowork usage as **Copilot Credits** through the same Copilot Studio pay-as-you-go meter ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-365/copilot/pay-as-you-go/meters)). On Microsoft 365 surfaces, users **with** an M365 Copilot license are covered by that license; **unlicensed** users on metered agents consume credits (pay-as-you-go). You can pay-as-you-go at the per-credit rate, buy **message packs**, or commit with a **pre-purchase**.
+
+           Unlike Studio, you don't inventory components for Cowork — you forecast a **population**: *licensed users × monthly active-usage % × avg credits per active user*. Ground it in your tenant's real numbers with the admin center's **[Copilot Chat usage report](https://learn.microsoft.com/microsoft-365/admin/activity-reports/microsoft-copilot-usage)** (active users, prompts/user) and **[Copilot Credits report](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-credits)** (measured credits/user); the **Import from M365** mode reads either CSV export. The active-usage % and credits/user *defaults* in this estimator are neutral planning anchors — **not** official Microsoft figures — so adjust them to your data.
+
 ??? note "New here? How to use this estimator"
 
-    First, pick **what you're estimating** — *Copilot Studio agents* today; *Microsoft 365 Copilot (Cowork)* is coming soon — then choose **how you want to estimate** using the cards below. Every mode runs locally in your browser; nothing is uploaded.
+    First, pick **what you're estimating** — *Copilot Studio agents* or *Microsoft 365 Copilot (Cowork)* — using the switch, then choose **how you want to estimate**. The two products use different methods (Studio inventories what you built; Cowork forecasts a population), so each has its own modes. Every mode runs locally in your browser; nothing is uploaded.
 
     | Mode | Best when… | What you provide | What you get |
     |------|-----------|------------------|--------------|
@@ -37,6 +42,14 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
     | **Quick + Import** | You're sizing many agents — a whole portfolio — at once. | An Excel workbook with one row per scenario. | Per-scenario sizes and credits, plus a portfolio roll-up. |
     | **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each conversation uses. | Credits per month and per user, ready for finance or IT. |
     | **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
+
+    **Estimating Microsoft 365 Copilot (Cowork) instead?** Flip the switch to **Microsoft 365 Copilot (Cowork)** — it uses a population-based method (model *licensed users × active-usage % × credits per active user*), with its own modes:
+
+    | Cowork mode | Best when… | What you provide | What you get |
+    |------|-----------|------------------|--------------|
+    | **Quick** | You want a fast org-wide ballpark. | Licensed users, an active-usage %, and avg credits/user. | Monthly credits, spend, annual, and a message-pack / pre-purchase plan. |
+    | **Detailed** | You want to model cohorts (roles, business units). | One row per cohort, tuned individually. | A roll-up plus a 6-month adoption forecast; open any Quick estimate here to refine. |
+    | **Import from M365** | You have real admin-center data. | The Copilot **Credits** or **Chat usage** CSV export (or the four dashboard totals). | Editable cohorts seeded from your measured credits/user, with power-user outliers flagged. |
 
     === "Quick"
 
@@ -416,16 +429,17 @@ Estimate monthly **Copilot Credits** (formerly "messages") for Copilot Studio ag
 .qi-flag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #b26a00; margin-left: 0.35rem; }
 </style>
 
-<div id="estimator-studio">
-
 <div class="est-switcher">
   <span class="est-switcher-label" id="est-switch-label">What are you estimating?</span>
   <div class="est-switcher-tabs" role="tablist" aria-labelledby="est-switch-label">
-    <button type="button" class="est-tab est-tab--active" role="tab" aria-selected="true" aria-controls="estimator-studio">Copilot Studio agents</button>
-    <button type="button" class="est-tab est-tab--soon" role="tab" aria-selected="false" aria-disabled="true" disabled tabindex="-1" title="Coming soon">Microsoft 365 Copilot (Cowork)<span class="est-soon-badge">Coming soon</span></button>
+    <button type="button" id="prod-tab-studio" class="est-tab est-tab--active" role="tab" aria-selected="true" aria-controls="estimator-studio" onclick="setEstimatorProduct('studio')">Copilot Studio agents</button>
+    <button type="button" id="prod-tab-cowork" class="est-tab" role="tab" aria-selected="false" aria-controls="estimator-cowork" onclick="setEstimatorProduct('cowork')">Microsoft 365 Copilot (Cowork)</button>
   </div>
   <button type="button" id="flight-toggle" class="flight-dot" aria-pressed="false" aria-label="Toggle preview features" title=""></button>
 </div>
+
+<div id="estimator-studio">
+
 
 <!-- Hidden single source of truth for the active mode. credit-estimator.js init() guards the page
      on #mode-select and keeps its .value in sync; the cards below drive setEstimatorMode(). -->
@@ -1197,6 +1211,224 @@ recalc();
 </div>
 
 </div>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     COWORK LANE — Microsoft 365 Copilot (Cowork) usage-based estimator.
+     Top-down macro model (population forecast), not a component inventory.
+     Driven by estimator-cowork-ui.js + window.CoworkEstimator. Hidden until the
+     product switcher flips to Cowork (setEstimatorProduct('cowork')).
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="estimator-cowork" class="em-hidden" markdown="0">
+
+<style>
+#estimator-cowork .cw-intro { font-size: 0.9rem; color: var(--md-default-fg-color--light); margin: 0.4rem 0 1rem; }
+#estimator-cowork .cw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.9rem; margin: 0.6rem 0 0.4rem; }
+#estimator-cowork .cw-field { display: flex; flex-direction: column; gap: 0.3rem; }
+#estimator-cowork .cw-field label { font-size: 0.8rem; font-weight: 600; }
+#estimator-cowork .cw-field .cw-sub { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); font-weight: 400; }
+#estimator-cowork .cw-field input[type="number"] {
+  font: inherit; padding: 0.45rem 0.55rem; border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 6px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); width: 100%;
+}
+#estimator-cowork .cw-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.15rem; }
+#estimator-cowork .cw-chip {
+  font: inherit; font-size: 0.74rem; cursor: pointer; padding: 0.2rem 0.55rem;
+  border: 1px solid var(--md-default-fg-color--lighter); border-radius: 20px;
+  background: var(--md-code-bg-color); color: var(--md-default-fg-color);
+}
+#estimator-cowork .cw-chip:hover { border-color: var(--md-primary-fg-color); }
+#estimator-cowork details.cw-adv { margin: 0.8rem 0; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px; padding: 0.2rem 0.7rem; background: var(--md-code-bg-color); }
+#estimator-cowork details.cw-adv summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; padding: 0.45rem 0; }
+#estimator-cowork .cw-note { font-size: 0.74rem; color: var(--md-default-fg-color--lighter); margin-top: 0.3rem; }
+#estimator-cowork .cw-purchase, #estimator-cowork .cw-budget { font-size: 0.84rem; margin-top: 0.7rem; }
+#estimator-cowork .cw-mode-soon { opacity: 0.55; }
+#estimator-cowork .cw-switch { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; }
+#estimator-cowork .cw-linkbtn { background: none; border: none; padding: 0; color: var(--md-primary-fg-color); cursor: pointer; font: inherit; text-decoration: underline; }
+#estimator-cowork .cw-cohort { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px; padding: 0.7rem 0.8rem; margin: 0.6rem 0; background: var(--md-default-bg-color); }
+#estimator-cowork .cw-cohort-head { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
+#estimator-cowork .cw-cohort-name { flex: 1; font: inherit; font-weight: 600; padding: 0.35rem 0.5rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); }
+#estimator-cowork .cw-cohort-del { border: none; background: none; cursor: pointer; font-size: 0.95rem; color: var(--md-default-fg-color--light); }
+#estimator-cowork .cw-cohort-out { align-self: flex-end; font-size: 0.8rem; color: var(--md-default-fg-color--light); }
+#estimator-cowork .cw-origin { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: space-between; margin: 0 0 1rem; padding: 0.7rem 0.9rem; border: 1px solid var(--md-accent-fg-color, #7c4dff); border-left: 4px solid var(--md-accent-fg-color, #7c4dff); border-radius: 8px; background: color-mix(in srgb, var(--md-accent-fg-color, #7c4dff) 8%, transparent); }
+#estimator-cowork .cw-origin-txt { flex: 1 1 16rem; font-size: 0.86rem; line-height: 1.35; }
+#estimator-cowork .cw-origin-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+#estimator-cowork table.cw-fc { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 0.4rem; }
+#estimator-cowork table.cw-fc th, #estimator-cowork table.cw-fc td { text-align: right; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+#estimator-cowork table.cw-fc th:first-child, #estimator-cowork table.cw-fc td:first-child { text-align: left; }
+#estimator-cowork table.cw-fc tfoot td { font-weight: 700; border-top: 2px solid var(--md-default-fg-color--lighter); }
+#estimator-cowork .cw-bar-cell { min-width: 90px; }
+#estimator-cowork .cw-bar { display: block; height: 7px; border-radius: 4px; background: var(--md-primary-fg-color); }
+#estimator-cowork .cw-drop { border: 2px dashed var(--md-default-fg-color--lighter); border-radius: 10px; padding: 1rem 1.1rem; text-align: center; background: var(--md-code-bg-color); }
+#estimator-cowork .cw-drop--over { border-color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 6%, transparent); }
+#estimator-cowork .cw-drop p { margin: 0.25rem 0; font-size: 0.86rem; }
+#estimator-cowork #cw-import-summary ul { margin: 0.3rem 0 0 1.1rem; font-size: 0.85rem; }
+#estimator-cowork #cw-import-summary li { margin: 0.15rem 0; }
+</style>
+
+<div class="est-switcher" style="margin-top:0">
+  <span class="est-switcher-label">How do you want to estimate?</span>
+  <div class="est-switcher-tabs" role="tablist" aria-label="Cowork estimation mode">
+    <button type="button" id="cw-tab-quick" class="est-tab est-tab--active" role="tab" aria-selected="true" onclick="setCoworkMode('quick')">Quick</button>
+    <button type="button" id="cw-tab-detailed" class="est-tab" role="tab" aria-selected="false" onclick="setCoworkMode('detailed')">Detailed</button>
+    <button type="button" id="cw-tab-import" class="est-tab" role="tab" aria-selected="false" onclick="setCoworkMode('import')">Import from M365</button>
+  </div>
+</div>
+
+<p class="cw-intro">Cowork is estimated <strong>top-down</strong>: model a population — <em>licensed users × how many are active × how many credits each active user burns a month</em>. These are directional planning numbers; tune every input. Everything runs in your browser.</p>
+
+<!-- ── COWORK · QUICK ── -->
+<div class="mode-panel" id="cw-panel-quick">
+  <div class="section-label">Model your population</div>
+  <div class="cw-grid">
+    <div class="cw-field">
+      <label for="cw-licensed">Licensed users</label>
+      <input type="number" id="cw-licensed" min="0" step="1" value="1000" oninput="cwQuickCalc()">
+      <span class="cw-sub">People you'd turn Cowork on for.</span>
+    </div>
+    <div class="cw-field">
+      <label for="cw-mau">Active usage rate %</label>
+      <input type="number" id="cw-mau" min="0" max="100" step="1" value="15" oninput="cwQuickCalc()">
+      <div class="cw-chips" id="cw-mau-chips"></div>
+      <span class="cw-sub">Share of licensed users active in a month.</span>
+    </div>
+    <div class="cw-field">
+      <label for="cw-cpu">Avg credits / active user / month</label>
+      <input type="number" id="cw-cpu" min="0" step="50" value="5000" oninput="cwQuickCalc()">
+      <span class="cw-sub">The primary driver. Planning default 5,000 — adjust to your data.</span>
+    </div>
+  </div>
+
+  <details class="cw-adv">
+    <summary>Global assumptions (price, discount, license floor, budget)</summary>
+    <div class="cw-grid">
+      <div class="cw-field">
+        <label for="cw-price">Price per credit ($)</label>
+        <input type="number" id="cw-price" min="0" step="0.001" value="0.01" oninput="cwQuickCalc()">
+        <span class="cw-sub">Pay-as-you-go list rate.</span>
+      </div>
+      <div class="cw-field">
+        <label for="cw-discount">Azure discount %</label>
+        <input type="number" id="cw-discount" min="0" max="100" step="1" value="0" oninput="cwQuickCalc()">
+      </div>
+      <div class="cw-field">
+        <label class="cw-switch"><input type="checkbox" id="cw-floor" onchange="cwQuickCalc()"> Include M365 Copilot license floor</label>
+        <input type="number" id="cw-floor-price" min="0" step="1" value="30" oninput="cwQuickCalc()">
+        <span class="cw-sub">Flat $ / licensed user / month, added to spend.</span>
+      </div>
+      <div class="cw-field">
+        <label for="cw-budget">Monthly budget cap ($)</label>
+        <input type="number" id="cw-budget" min="0" step="1000" value="0" oninput="cwQuickCalc()">
+        <span class="cw-sub">0 = no cap.</span>
+      </div>
+    </div>
+    <p class="cw-note">Credit &amp; price mechanics follow public Microsoft Learn (PAYG $0.01/credit; $200 / 25,000-credit pack). Active-usage % and credits/user are neutral planning anchors, not official Microsoft figures.</p>
+  </details>
+
+  <div class="section-label">Estimated monthly consumption</div>
+  <div class="results-grid">
+    <div class="result-card"><div class="val" id="cw-res-active">—</div><div class="lbl">Active users <span id="cw-res-of" class="hint"></span></div></div>
+    <div class="result-card"><div class="val" id="cw-res-credits">—</div><div class="lbl">Credits / month</div></div>
+    <div class="result-card"><div class="val" id="cw-res-spend">—</div><div class="lbl">Cowork spend / month</div></div>
+    <div class="result-card"><div class="val" id="cw-res-peruser">—</div><div class="lbl">Cost / active user / mo</div></div>
+  </div>
+  <div class="cw-purchase" id="cw-purchase"></div>
+  <div class="cw-budget" id="cw-budget-out"></div>
+  <p class="cw-note" id="cw-total-note" style="margin-top:0.6rem"></p>
+  <button type="button" class="em-btn secondary" style="margin-top:0.6rem" onclick="cwOpenInDetailed()">Open in Detailed &rarr;</button>
+</div>
+
+<!-- ── COWORK · DETAILED (per-cohort hub) ── -->
+<div class="mode-panel em-hidden" id="cw-panel-detailed">
+
+  <div class="cw-origin em-hidden" id="cw-origin">
+    <div class="cw-origin-txt" id="cw-origin-txt"></div>
+    <div class="cw-origin-actions" id="cw-origin-actions"></div>
+  </div>
+
+  <div class="section-label">Cohorts</div>
+  <p class="cw-note" style="margin-top:0">Split the population into groups (by role, region, or business unit) and tune each. <strong>Avg credits/user/mo</strong> is the primary driver. <button type="button" class="cw-linkbtn" onclick="cwToggleIntensity()">Need help estimating credits/user?</button></p>
+
+  <div class="cw-cohort em-hidden" id="cw-intensity-helper">
+    <div class="cw-cohort-head"><strong>Intensity helper</strong> <span class="cw-sub">optional — estimate a credits/user number from a prompt mix</span></div>
+    <div class="cw-grid">
+      <div class="cw-field"><label>Light prompts / mo</label><input type="number" id="cw-ih-light" min="0" step="1" value="20" oninput="cwIntensityCalc()"></div>
+      <div class="cw-field"><label>Medium prompts / mo</label><input type="number" id="cw-ih-medium" min="0" step="1" value="10" oninput="cwIntensityCalc()"></div>
+      <div class="cw-field"><label>Heavy prompts / mo</label><input type="number" id="cw-ih-heavy" min="0" step="1" value="3" oninput="cwIntensityCalc()"></div>
+      <div class="cw-field"><label>&asymp; credits / user / mo</label><div class="val" id="cw-ih-out" style="font-size:1.2rem">&mdash;</div><span class="cw-sub">Illustrative weights (125 / 500 / 2,500). Type this into a cohort.</span></div>
+    </div>
+  </div>
+
+  <div id="cw-cohorts"></div>
+  <button type="button" class="em-btn secondary" onclick="cwAddCohort()">+ Add cohort</button>
+
+  <details class="cw-adv">
+    <summary>Global assumptions (price, discount, license floor, budget)</summary>
+    <div class="cw-grid">
+      <div class="cw-field"><label for="cw-d-price">Price per credit ($)</label><input type="number" id="cw-d-price" min="0" step="0.001" value="0.01" oninput="recomputeDetailed()"></div>
+      <div class="cw-field"><label for="cw-d-discount">Azure discount %</label><input type="number" id="cw-d-discount" min="0" max="100" step="1" value="0" oninput="recomputeDetailed()"></div>
+      <div class="cw-field"><label class="cw-switch"><input type="checkbox" id="cw-d-floor" onchange="recomputeDetailed()"> Include M365 Copilot license floor</label><input type="number" id="cw-d-floor-price" min="0" step="1" value="30" oninput="recomputeDetailed()"></div>
+      <div class="cw-field"><label for="cw-d-budget">Monthly budget cap ($)</label><input type="number" id="cw-d-budget" min="0" step="1000" value="0" oninput="recomputeDetailed()"></div>
+    </div>
+    <p class="cw-note">Credit &amp; price mechanics follow public Microsoft Learn. Active-usage % and credits/user are neutral planning anchors, not official Microsoft figures.</p>
+  </details>
+
+  <div class="section-label">Roll-up</div>
+  <div class="results-grid">
+    <div class="result-card"><div class="val" id="cw-d-res-active">—</div><div class="lbl">Active users <span id="cw-d-res-of" class="hint"></span></div></div>
+    <div class="result-card"><div class="val" id="cw-d-res-credits">—</div><div class="lbl">Credits / month</div></div>
+    <div class="result-card"><div class="val" id="cw-d-res-spend">—</div><div class="lbl">Cowork spend / month</div></div>
+    <div class="result-card"><div class="val" id="cw-d-res-peruser">—</div><div class="lbl">Cost / active user / mo</div></div>
+  </div>
+  <div class="cw-purchase" id="cw-d-purchase"></div>
+  <div class="cw-budget" id="cw-d-budget-out"></div>
+  <p class="cw-note" id="cw-d-total-note" style="margin-top:0.6rem"></p>
+
+  <div class="section-label">6-month adoption forecast</div>
+  <div class="cw-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,220px))">
+    <div class="cw-field"><label for="cw-d-growth">Monthly growth %</label><input type="number" id="cw-d-growth" min="0" max="100" step="1" value="7" oninput="recomputeDetailed()"><span class="cw-sub">Adoption ramp, month over month.</span></div>
+  </div>
+  <div id="cw-forecast"></div>
+
+  <div class="em-export" role="group" aria-label="Export this Cowork estimate" style="margin-top:0.8rem">
+    <button type="button" class="em-btn secondary em-export-btn" onclick="cwDownloadCohortsCsv()">Download .csv</button>
+  </div>
+</div>
+
+<!-- ── COWORK · IMPORT (from M365 admin center) ── -->
+<div class="mode-panel em-hidden" id="cw-panel-import">
+  <p class="cw-intro">Start from your tenant's <strong>real numbers</strong>. In the Microsoft 365 admin center → <em>Reports → Usage → Microsoft 365 Copilot</em>, export the <strong>Credits</strong> report (measured credits per user) or the <strong>Copilot Chat usage</strong> report (active users &amp; prompts). Drop the CSV below — or paste the four dashboard totals, or a screenshot. Everything is parsed in your browser; nothing is uploaded.</p>
+
+  <div class="section-label">1 &middot; Bring in your data</div>
+  <div class="cw-drop" id="cw-drop">
+    <input type="file" id="cw-file" accept=".csv,image/*" class="em-visually-hidden" onchange="cwHandleFile(this.files &amp;&amp; this.files[0])">
+    <p><strong>Drop a CSV export</strong> (Credits or Chat usage) or a dashboard screenshot here, or <button type="button" class="cw-linkbtn" onclick="document.getElementById('cw-file').click()">choose a file</button>.</p>
+    <p class="cw-sub" id="cw-drop-status">CSV gives the richest result — per-user rows become measured credits/user and power-user outlier flags.</p>
+  </div>
+  <div id="cw-shot-preview" class="em-hidden"></div>
+  <button type="button" id="cw-ocr-btn" class="em-btn secondary em-hidden" style="margin-top:0.5rem" onclick="cwTryOcr()">Try auto-read (loads an OCR library)</button>
+
+  <details class="cw-adv" id="cw-paste-wrap">
+    <summary>…or paste the four dashboard numbers</summary>
+    <div class="cw-grid">
+      <div class="cw-field"><label for="cw-pa-active">Active users</label><input type="number" id="cw-pa-active" min="0" step="1"></div>
+      <div class="cw-field"><label for="cw-pa-daily">Avg daily active users</label><input type="number" id="cw-pa-daily" min="0" step="1"></div>
+      <div class="cw-field"><label for="cw-pa-total">Total prompts submitted</label><input type="number" id="cw-pa-total" min="0" step="1"></div>
+      <div class="cw-field"><label for="cw-pa-avg">Avg prompts / user</label><input type="number" id="cw-pa-avg" min="0" step="1"></div>
+    </div>
+    <button type="button" class="em-btn secondary" style="margin-top:0.5rem" onclick="cwUsePaste()">Use these numbers</button>
+  </details>
+
+  <div class="section-label">2 &middot; Licensed users in scope</div>
+  <div class="cw-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,260px))">
+    <div class="cw-field"><label for="cw-imp-licensed">Licensed users</label><input type="number" id="cw-imp-licensed" min="0" step="1" value="1000" oninput="renderImportSummary()"><span class="cw-sub">Admin reports only cover active/metered users. Enter the licensed population so we can compute active-usage %.</span></div>
+  </div>
+
+  <div class="section-label">3 &middot; What we found</div>
+  <div id="cw-import-summary"><p class="cw-sub">Import a file or paste totals above to see a summary.</p></div>
+  <button type="button" class="em-btn" id="cw-import-send" style="margin-top:0.7rem" onclick="cwImportToDetailed()" disabled>Send to Detailed &rarr;</button>
+</div>
+
+</div><!-- /#estimator-cowork -->
 
 ---
 
