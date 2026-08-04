@@ -134,7 +134,7 @@ Everything runs in your browser; nothing is uploaded.
 
 <div class="roi-section">
   <h3>2 · Value — cost avoidance <span class="roi-tag roi-tag--soft">SOFT</span></h3>
-  <p class="roi-hint">Optional, and softer than time saved — include only what you can defend. Leave a field at 0 to skip it.</p>
+  <p class="roi-hint">Optional, and softer than time saved — include only what you can defend. Leave a field at 0 to skip it. <strong>Don't double-count</strong>: if an hour is already in "time saved," don't also count it as a deflected case or an avoided FTE.</p>
   <div class="roi-grid">
     <div class="roi-field"><label>Cases / month</label><input type="number" id="roi-defl-cases" inputmode="numeric" value="1000"></div>
     <div class="roi-field"><label>Deflected %</label><input type="number" id="roi-defl-pct" inputmode="numeric" value="30"></div>

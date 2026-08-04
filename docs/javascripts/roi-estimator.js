@@ -85,6 +85,7 @@
     html += '<div class="roi-band-exp"><div class="roi-card-lbl">Expected</div><div><strong>' + pct(r.band.expected.roiPct) + "</strong></div>" + money(r.band.expected.net) + '<div class="roi-card-lbl">payback ' + payLabel(r.band.expected.paybackMonths) + "</div></div>";
     html += '<div><div class="roi-card-lbl">Optimistic</div><div><strong>' + pct(r.band.optimistic.roiPct) + "</strong></div>" + money(r.band.optimistic.net) + '<div class="roi-card-lbl">payback ' + payLabel(r.band.optimistic.paybackMonths) + "</div></div>";
     html += "</div>";
+    html += '<p class="roi-note">This band flexes the <em>value</em> you realize; run cost and adoption are held constant, and figures are <strong>not</strong> NPV-discounted \u2014 a dollar in year 3 counts the same as year 1.</p>';
     return html;
   }
 
