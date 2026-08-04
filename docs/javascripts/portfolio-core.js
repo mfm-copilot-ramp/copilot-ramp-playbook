@@ -52,13 +52,21 @@
     var basis = (item.meta && item.meta.basis) || "payg";
 
     if (item.producer === "cowork") {
-      if (!CE || typeof CE.quickEstimate !== "function" || !input.cowork) {
-        out.note = "cowork engine or input missing"; return out;
+      if (!CE || !input.cowork) { out.note = "cowork engine or input missing"; return out; }
+      var ci = input.cowork;
+      var isDetailed = ci.mode === "detailed" || (isArr(ci.cohorts) && ci.cohorts.length > 0);
+      if (isDetailed) {
+        if (typeof CE.detailedEstimate !== "function") { out.note = "cowork detailed engine missing"; return out; }
+        var dt = ((CE.detailedEstimate({ cohorts: ci.cohorts || [], global: ci.global || {} }) || {}).totals) || {};
+        out.monthlyCredits = round(dt.monthlyCredits);
+        // Cowork dollarizes via its OWN spend model (price/credit + Azure discount).
+        out.monthlyCostUSD = num(dt.coworkSpend);
+      } else {
+        if (typeof CE.quickEstimate !== "function") { out.note = "cowork engine or input missing"; return out; }
+        var r = CE.quickEstimate(ci) || {};
+        out.monthlyCredits = round(r.monthlyCredits);
+        out.monthlyCostUSD = num(r.coworkSpend);
       }
-      var r = CE.quickEstimate(input.cowork) || {};
-      out.monthlyCredits = round(r.monthlyCredits);
-      // Cowork dollarizes via its OWN spend model (price/credit + Azure discount).
-      out.monthlyCostUSD = num(r.coworkSpend);
       out.value = null; // consumption tool — value is user-driven, not task automation
       out.note = "Value user-driven (Cowork measures consumption, not task automation).";
       out.ok = true;

@@ -327,6 +327,23 @@
       meta: { monthlyCredits: credits, coworkSpend: Math.round(r.coworkSpend || 0) }
     });
   }
+  // Save the current Cowork DETAILED (per-cohort / imported) estimate into the cart.
+  // Carries the cohorts + globals so Portfolio recomputes the multi-cohort total live.
+  function cwSaveDetailedToWorkspace() {
+    var C = window.CoworkEstimator, W = window.WorkspaceUI;
+    if (!C || !W) return;
+    var cohorts = cwState.cohorts || [];
+    var global = readDetailedGlobal();
+    var t = (C.detailedEstimate({ cohorts: cohorts, global: global }) || {}).totals || {};
+    var credits = Math.round(t.monthlyCredits || 0);
+    var label = fmt(Math.round(t.activeUsers || 0)) + " active Cowork users \u00b7 " + cohorts.length +
+      " cohort" + (cohorts.length === 1 ? "" : "s") + " \u00b7 ~" + fmt(credits) + " credits/mo";
+    W.add({
+      kind: "estimate", producer: "cowork", label: label,
+      input: { cowork: { mode: "detailed", cohorts: cohorts, global: global } },
+      meta: { monthlyCredits: credits, coworkSpend: Math.round(t.coworkSpend || 0) }
+    });
+  }
   function cwSaveToQuick() {
     var C = window.CoworkEstimator;
     if (!C || !cwState.origin || cwState.origin.kind !== "quick" || !(cwState.cohorts || []).length) { hideOrigin(); setCoworkMode("quick"); return; }
@@ -525,6 +542,7 @@
     window.cwReturnToQuick = cwReturnToQuick;
     window.cwSaveToQuick = cwSaveToQuick;
     window.cwSaveToWorkspace = cwSaveToWorkspace;
+    window.cwSaveDetailedToWorkspace = cwSaveDetailedToWorkspace;
     window.cwAddCohort = cwAddCohort;
     window.cwRemoveCohort = cwRemoveCohort;
     window.cwCohortSet = cwCohortSet;

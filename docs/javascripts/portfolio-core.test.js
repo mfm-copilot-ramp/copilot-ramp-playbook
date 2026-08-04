@@ -1,0 +1,42 @@
+/* Smoke test for portfolio-core.js Cowork recompute — node portfolio-core.test.js */
+var P = require("./portfolio-core.js");
+var CE = require("./estimator-cowork.js");
+var engines = { CoworkEstimator: CE, EstimatorCore: null };
+var fails = 0;
+function ok(name, cond, got) { if (!cond) { fails++; console.log("FAIL: " + name + (got !== undefined ? "  got=" + JSON.stringify(got) : "")); } else console.log("pass: " + name); }
+function near(a, b, eps) { return Math.abs(a - b) <= (eps || 0.5); }
+
+// 1. Cowork QUICK item recompute (backward compatible)
+var quickItem = { producer: "cowork", input: { cowork: { licensedUsers: 1000, mauPct: 15, creditsPerActiveUser: 5000 } } };
+var rq = P.recomputeItem(quickItem, engines);
+ok("quick ok", rq.ok === true, rq.note);
+ok("quick credits = 750000", rq.monthlyCredits === 750000, rq.monthlyCredits);
+ok("quick cost = $7500", near(rq.monthlyCostUSD, 7500), rq.monthlyCostUSD);
+ok("quick value null (consumption)", rq.value === null, rq.value);
+
+// 2. Cowork DETAILED item recompute (per-cohort / imported) — the new path
+var detItem = { producer: "cowork", input: { cowork: { mode: "detailed", cohorts: [
+  { licensedUsers: 1000, mauPct: 20, creditsPerActiveUser: 4000 },
+  { licensedUsers: 200, mauPct: 50, creditsPerActiveUser: 3000 }
+], global: {} } } };
+// cohort1: 200 active × 4000 = 800,000 ; cohort2: 100 active × 3000 = 300,000 = 1,100,000
+var rd = P.recomputeItem(detItem, engines);
+ok("detailed ok", rd.ok === true, rd.note);
+ok("detailed credits = 1100000", rd.monthlyCredits === 1100000, rd.monthlyCredits);
+ok("detailed cost = $11000", near(rd.monthlyCostUSD, 11000), rd.monthlyCostUSD);
+
+// 3. cohorts array without explicit mode still detected as detailed
+var detNoMode = { producer: "cowork", input: { cowork: { cohorts: [{ licensedUsers: 500, mauPct: 10, creditsPerActiveUser: 2000 }], global: {} } } };
+var rn = P.recomputeItem(detNoMode, engines);
+ok("cohorts-without-mode → detailed (50×2000=100000)", rn.monthlyCredits === 100000, rn.monthlyCredits);
+
+// 4. Aggregate a mixed quick+detailed cowork set
+var agg = P.aggregate([quickItem, detItem], engines);
+ok("aggregate count = 2", agg.count === 2, agg.count);
+ok("aggregate credits = 1,850,000", agg.monthlyCredits === 1850000, agg.monthlyCredits);
+ok("aggregate cost = $18,500", near(agg.monthlyCostUSD, 18500), agg.monthlyCostUSD);
+ok("byProducer cowork count = 2", agg.byProducer.cowork && agg.byProducer.cowork.count === 2, agg.byProducer.cowork);
+ok("aggregate notes mention cowork value", (agg.notes.join(" ").toLowerCase().indexOf("cowork") >= 0), agg.notes);
+
+console.log("\n" + (fails === 0 ? "ALL PASSED" : (fails + " FAILED")));
+process.exit(fails === 0 ? 0 : 1);

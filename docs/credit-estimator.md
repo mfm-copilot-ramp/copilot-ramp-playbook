@@ -1415,6 +1415,7 @@ recalc();
   <div id="cw-forecast"></div>
 
   <div class="em-export" role="group" aria-label="Export this Cowork estimate" style="margin-top:0.8rem">
+    <button type="button" class="em-btn secondary em-export-btn" onclick="cwSaveDetailedToWorkspace()">🧺 Save to My estimates</button>
     <button type="button" class="em-btn secondary em-export-btn" onclick="cwDownloadCohortsCsv()">Download .csv</button>
   </div>
 </div>
