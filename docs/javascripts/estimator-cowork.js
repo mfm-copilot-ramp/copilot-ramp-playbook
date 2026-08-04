@@ -197,12 +197,21 @@
 
   // Roll up all cohorts with each driver scaled by `factor` (e.g. 0.75 conservative,
   // 1.25 liberal) — used to bracket the Detailed totals into a range.
-  function rollupAt(cohorts, g, factor) {
+  function rollupAt(cohorts, g, endpoint, factor) {
     var licensed = 0, active = 0, credits = 0;
     (cohorts || []).forEach(function (c) {
       var lic = Math.max(0, num(c.licensedUsers, 0));
-      var mau = clampPct((has(c.mauPct) ? num(c.mauPct, DEFAULTS.mauPct) : DEFAULTS.mauPct) * factor);
-      var cpu = Math.max(0, resolveCreditsPerUser(c) * factor);
+      var explicit = endpoint === "low" ? has(c.creditsLow) : has(c.creditsHigh);
+      var mau, cpu;
+      if (explicit) {
+        // Data-driven per-cohort bracket (e.g. imported median/p90): scale credits only,
+        // hold active-usage at the cohort's expected value.
+        mau = clampPct(has(c.mauPct) ? num(c.mauPct, DEFAULTS.mauPct) : DEFAULTS.mauPct);
+        cpu = Math.max(0, num(endpoint === "low" ? c.creditsLow : c.creditsHigh, 0));
+      } else {
+        mau = clampPct((has(c.mauPct) ? num(c.mauPct, DEFAULTS.mauPct) : DEFAULTS.mauPct) * factor);
+        cpu = Math.max(0, resolveCreditsPerUser(c) * factor);
+      }
       var a = activeUsers(lic, mau);
       licensed += lic; active += a; credits += a * cpu;
     });
@@ -239,11 +248,18 @@
       purchase: purchasePlan(t.monthlyCredits),
       budget: budgetUsage(t.coworkSpend, g.budgetCap)
     };
-    // Optional conservative–liberal range: bracket every cohort's drivers by ±buffer.
+    // Optional conservative–liberal range: per-cohort data-driven low/high when present
+    // (e.g. an imported Credits-report cohort's median→p90), else a ±buffer on both drivers.
+    var anyExplicit = (input.cohorts || []).some(function (c) { return has(c.creditsLow) || has(c.creditsHigh); });
     var buf = num(input.rangeBufferPct, 0);
-    if (buf > 0) {
+    if (buf > 0 || anyExplicit) {
       var b = buf / 100;
-      res.totals.range = { low: rollupAt(input.cohorts, g, 1 - b), high: rollupAt(input.cohorts, g, 1 + b), bufferPct: buf };
+      res.totals.range = {
+        low: rollupAt(input.cohorts, g, "low", 1 - b),
+        high: rollupAt(input.cohorts, g, "high", 1 + b),
+        bufferPct: buf,
+        dataDriven: anyExplicit
+      };
     }
     return res;
   }
@@ -441,6 +457,12 @@
       // If we know the licensed pop, MAU = measured active ÷ licensed.
       if (licensed > 0) out.mauPct = clampPct(imported.activeUsers / licensed * 100);
       out.distribution = imported.distribution;
+      // Data-driven range bounds from the real per-user spread: conservative = median,
+      // liberal = p90. Clamped so the range always brackets the expected (mean).
+      var d = imported.distribution || {};
+      var mean = round(imported.avgCreditsPerActiveUser);
+      if (d.median != null) out.creditsLow = Math.min(round(d.median), mean);
+      if (d.p90 != null) out.creditsHigh = Math.max(round(d.p90), mean);
     } else if (imported && imported.source === "chat-usage") {
       out.measuredActiveUsers = imported.activeUsers;
       if (licensed > 0) out.mauPct = clampPct(imported.activeUsers / licensed * 100);

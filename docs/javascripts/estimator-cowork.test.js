@@ -123,5 +123,22 @@ ok("detailed range high = 1250000", dr.totals.range.high.monthlyCredits === 1250
 ok("detailed range brackets expected", dr.totals.range.low.monthlyCredits <= dr.totals.monthlyCredits && dr.totals.monthlyCredits <= dr.totals.range.high.monthlyCredits, "ok");
 ok("no detailed range without buffer", C.detailedEstimate({ cohorts: [{ licensedUsers: 100 }] }).totals.range === undefined, "ok");
 
+// 17. Detailed data-driven range from per-cohort creditsLow/High (imported median→p90),
+// present even without a buffer
+var ddr = C.detailedEstimate({
+  cohorts: [{ name: "Imported", licensedUsers: 100, mauPct: 50, creditsPerActiveUser: 2000, creditsLow: 1000, creditsHigh: 3000 }]
+});
+ok("dd range present without buffer", !!ddr.totals.range, "ok");
+ok("dd range dataDriven flag", ddr.totals.range.dataDriven === true, ddr.totals.range && ddr.totals.range.dataDriven);
+ok("dd range low = 50000", ddr.totals.range.low.monthlyCredits === 50000, ddr.totals.range.low.monthlyCredits);
+ok("dd range high = 150000", ddr.totals.range.high.monthlyCredits === 150000, ddr.totals.range.high.monthlyCredits);
+ok("dd expected = 100000", ddr.totals.monthlyCredits === 100000, ddr.totals.monthlyCredits);
+
+// 18. importToSeed (credits report) yields data-driven bounds that bracket the mean
+var impSeed = C.importToSeed(cr, { licensedUsers: 40 });
+ok("importToSeed has creditsLow", impSeed.creditsLow != null, impSeed.creditsLow);
+ok("importToSeed has creditsHigh", impSeed.creditsHigh != null, impSeed.creditsHigh);
+ok("importToSeed bounds bracket mean", impSeed.creditsLow <= impSeed.creditsPerActiveUser && impSeed.creditsPerActiveUser <= impSeed.creditsHigh, [impSeed.creditsLow, impSeed.creditsPerActiveUser, impSeed.creditsHigh]);
+
 console.log("\n" + (fails === 0 ? "ALL PASSED" : (fails + " FAILED")));
 process.exit(fails === 0 ? 0 : 1);

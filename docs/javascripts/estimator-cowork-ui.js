@@ -234,10 +234,13 @@
     setText("cw-d-total-note", note);
     var dro = el("cw-d-range-out");
     if (dro) {
-      if (t.range) {
+      if (chk("cw-d-range-on") && t.range) {
         dro.classList.remove("em-hidden");
+        var lbl = t.range.dataDriven
+          ? "Range (data-driven — your Credits-report median\u2192p90" + (t.range.bufferPct > 0 ? ", \u00b1" + Math.round(t.range.bufferPct) + "% on other cohorts" : "") + "):"
+          : "Range (conservative–liberal, \u00b1" + Math.round(t.range.bufferPct) + "%):";
         setHtml("cw-d-range-out",
-          "<strong>Range (conservative–liberal, \u00b1" + Math.round(t.range.bufferPct) + "%):</strong> " +
+          "<strong>" + lbl + "</strong> " +
           fmt(t.range.low.monthlyCredits) + "\u2013" + fmt(t.range.high.monthlyCredits) + " credits &middot; " +
           money(t.range.low.coworkSpend) + "\u2013" + money(t.range.high.coworkSpend) + "/mo &middot; " +
           money(t.range.low.annualCoworkSpend) + "\u2013" + money(t.range.high.annualCoworkSpend) + "/yr");
@@ -407,10 +410,14 @@
     var h = "";
     if (r.source === "credits-report") {
       var d = r.distribution;
+      var mean = Math.round(r.avgCreditsPerActiveUser);
+      var med = Math.min(Math.round(r.medianCreditsPerActiveUser), mean);
+      var hi = Math.max(Math.round(d.p90), mean);
       h = "<p><strong>Credits report</strong> \u2014 " + fmt(active) + " metered users." + mauLine + "</p><ul>" +
-        "<li>Avg credits / active user / mo: <strong>" + fmt(Math.round(r.avgCreditsPerActiveUser)) + "</strong> (median " + fmt(Math.round(r.medianCreditsPerActiveUser)) + ")</li>" +
+        "<li>Avg credits / active user / mo: <strong>" + fmt(mean) + "</strong> (median " + fmt(Math.round(r.medianCreditsPerActiveUser)) + ")</li>" +
         "<li>Distribution: p90 " + fmt(Math.round(d.p90)) + " \u00b7 max " + fmt(Math.round(d.max)) + "</li>" +
-        "<li>Power-user outliers (&gt;3\u00d7 median): <strong>" + d.outliers.length + "</strong>" + (d.outliers.length ? " \u2014 they skew the average; consider a separate cohort." : "") + "</li></ul>";
+        "<li>Power-user outliers (&gt;3\u00d7 median): <strong>" + d.outliers.length + "</strong>" + (d.outliers.length ? " \u2014 they skew the average; consider a separate cohort." : "") + "</li>" +
+        "<li><strong>Data-driven range:</strong> conservative " + fmt(med) + " (median) \u2192 expected " + fmt(mean) + " (mean) \u2192 liberal " + fmt(hi) + " (p90). <em>Send to Detailed</em> pre-fills this range.</li></ul>";
     } else if (r.source === "chat-usage" || r.source === "aggregate") {
       h = "<p><strong>" + (r.source === "chat-usage" ? "Copilot Chat usage report" : "Pasted totals") + "</strong> \u2014 " + fmt(active) +
         " active users, avg " + fmt(Math.round(r.avgPromptsPerActiveUser)) + " prompts/user." + mauLine +
@@ -429,14 +436,22 @@
       mauPct: seed.mauPct != null ? Math.round(seed.mauPct) : 15,
       creditsPerActiveUser: seed.creditsPerActiveUser != null ? seed.creditsPerActiveUser : 5000
     };
+    var dataDriven = (seed.creditsLow != null && seed.creditsHigh != null && seed.creditsHigh > seed.creditsLow);
+    if (dataDriven) { cohort.creditsLow = seed.creditsLow; cohort.creditsHigh = seed.creditsHigh; }
     cwState.cohorts = [cohort];
     cwState.origin = { kind: "import", source: cwLastImport.source };
     var measured = cwLastImport.source === "credits-report"
       ? "Using your measured " + fmt(cohort.creditsPerActiveUser) + " credits/user. "
       : "No measured credits in this report \u2014 seeded the planning default; adjust as needed. ";
     var mau = licensed > 0 ? "Active usage \u2248 " + cohort.mauPct + "%. " : "Enter licensed users for a % \u2014 using the measured active count as the population. ";
+    var rangeMsg = "";
+    if (dataDriven) {
+      setChk("cw-d-range-on", true);
+      var rf = el("cw-d-range-fields"); if (rf) rf.classList.remove("em-hidden");
+      rangeMsg = "A data-driven range (median " + fmt(cohort.creditsLow) + " \u2192 p90 " + fmt(cohort.creditsHigh) + " credits/user) is enabled below. ";
+    }
     renderCohorts();
-    showOrigin("Imported from your M365 " + sourceLabel(cwLastImport.source) + ". " + measured + mau + "Split or tune the cohort below.", "import");
+    showOrigin("Imported from your M365 " + sourceLabel(cwLastImport.source) + ". " + measured + mau + rangeMsg + "Split or tune the cohort below.", "import");
     setCoworkMode("detailed");
   }
 
