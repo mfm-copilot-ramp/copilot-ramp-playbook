@@ -1,0 +1,82 @@
+[
+  {
+    "issue_number": 74,
+    "issue_title": "📡 New: OneDrive: Improved max path error experience on desktop",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/74",
+    "issue_type": "accuracy-risk",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=557563",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=557563",
+      "redirected": true,
+      "content_length": 629292,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/credit-estimator.md",
+      "docs/walkthroughs/autopilots-coordinate-meetings.md",
+      "docs/walkthroughs/autopilots-get-access.md",
+      "docs/walkthroughs/autopilots-track-deliverables.md",
+      "docs/walkthroughs/studio-functional-field-service-triage.md"
+    ],
+    "priority": 0
+  },
+  {
+    "issue_number": 73,
+    "issue_title": "📡 New: Microsoft Teams: Run SMB admin tasks faster with Microsoft 365 Admin Agent in Microsoft Teams",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/73",
+    "issue_type": "new-resource",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=558255",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=558255",
+      "redirected": true,
+      "content_length": 629292,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/RESOURCES.md",
+      "docs/about.md",
+      "docs/credit-estimator.md",
+      "docs/empowerment/security.md",
+      "docs/glossary.md",
+      "docs/index.md",
+      "docs/prerequisites.md",
+      "docs/quick-wins.md",
+      "docs/roles/it-admin.md"
+    ],
+    "priority": 1
+  },
+  {
+    "issue_number": 72,
+    "issue_title": "📡 New: Microsoft Teams: AI-generated meeting archive for knowledge retention",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/72",
+    "issue_type": "new-resource",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=558933",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=558933",
+      "redirected": true,
+      "content_length": 629292,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/empowerment/security.md",
+      "docs/glossary.md",
+      "docs/products/copilot-chat.md",
+      "docs/solutions/finance-expense-agent.md",
+      "docs/solutions/foundry-document-processing-agent.md",
+      "docs/solutions/it-access-request-agent.md",
+      "docs/solutions/it-helpdesk-triage-agent.md",
+      "docs/solutions/onboarding-buddy-agent.md",
+      "docs/solutions/policy-faq-agent.md"
+    ],
+    "priority": 1
+  }
+]
