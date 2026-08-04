@@ -1968,21 +1968,45 @@
     return '<table class="qi-table"><thead><tr><th>Column</th><th>Applies</th><th>What to enter</th></tr></thead><tbody>' +
       rows + "</tbody></table>";
   }
-  // Assembles the "let Copilot fill the sheet" prompt with the column definitions inlined
-  // from EC.IMPORT_SCHEMA, so it's copy-paste-ready (no separate "paste the column text"
-  // step) and can never drift from the schema. The ONLY blank the user fills is their own
-  // agent list at the bottom. Copied verbatim by the "Copy prompt" button and used to
-  // (re)fill the on-page <pre> so what you see is exactly what you copy.
-  function qiPromptText() {
+  // "Let Copilot fill the sheet" prompt — two variants so the box isn't a wall of text:
+  //   simple   (default): short; leans on the prefilled 'Examples' sheet, so the ONLY blank
+  //            the user fills is their own agent list. Friendly / non-intimidating.
+  //   detailed: same, but inlines every column definition from EC.IMPORT_SCHEMA (drift-proof)
+  //            for users who want the model handed the full column spec.
+  // Both are copy-paste-ready; the on-page <pre> shows whichever tab is selected, so what you
+  // see is exactly what "Copy prompt" copies.
+  var qiPromptVariant = "simple";
+  var QI_AGENT_SLOT = "My agents (one per line \u2014 for each, say what it does, who uses it, " +
+    "how often, the channel, any knowledge it grounds on, and roughly how many system actions it takes):\n1)\n2)";
+  function qiPromptSimple() {
+    return "You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator workbook. " +
+      "Use the prefilled 'Examples' sheet as the pattern and add one row per agent from my list below. " +
+      "Infer each column from my descriptions and leave a cell blank if it isn't implied \u2014 don't invent enum or number values.\n\n" +
+      QI_AGENT_SLOT;
+  }
+  function qiPromptDetailed() {
     var schema = (EC && EC.IMPORT_SCHEMA) ? EC.IMPORT_SCHEMA : [];
     var defs = schema.map(function (c) { return "- " + c.header + ": " + (c.hint || ""); }).join("\n");
     return "You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator workbook. " +
       "Use the 'Examples' sheet already in the workbook as the pattern. Create one row per agent from my list below, " +
       "inferring each column from my descriptions; leave a cell blank if it isn't implied \u2014 don't invent enum or number values.\n\n" +
       "Column definitions:\n" + defs + "\n\n" +
-      "My agents (one per line \u2014 for each, say what it does, who uses it, how often, the channel, any knowledge it grounds on, and roughly how many system actions it takes):\n1)\n2)";
+      QI_AGENT_SLOT;
   }
-  function qiCopyPrompt() { copyText(qiPromptText(), "qiprompt", "Prompt copied \u2713"); }
+  function qiPromptText(variant) {
+    return (variant || qiPromptVariant) === "detailed" ? qiPromptDetailed() : qiPromptSimple();
+  }
+  // Fill the on-page <pre> with the active variant and sync the Simple/Detailed tab states.
+  function qiRenderPrompt() {
+    var pre = document.getElementById("qi-copilot-prompt");
+    if (pre) pre.textContent = qiPromptText(qiPromptVariant);
+    ["simple", "detailed"].forEach(function (v) {
+      var b = document.getElementById("qi-prompt-tab-" + v);
+      if (b) { var on = v === qiPromptVariant; b.classList.toggle("qi-prompt-tab--active", on); b.setAttribute("aria-pressed", on ? "true" : "false"); }
+    });
+  }
+  function qiSetPromptVariant(v) { qiPromptVariant = v === "detailed" ? "detailed" : "simple"; qiRenderPrompt(); }
+  function qiCopyPrompt() { copyText(qiPromptText(qiPromptVariant), "qiprompt", "Prompt copied \u2713"); }
 
   // ── Export / share (Copy summary · Download · Detailed share link) ─────────
   function pageUrl() { return location.origin + location.pathname; }
@@ -2228,6 +2252,8 @@
     window.qiDownloadTemplate = qiDownloadTemplate;
     window.qiDownloadCsv = qiDownloadCsv;
     window.qiCopyPrompt = qiCopyPrompt;
+    window.qiSetPromptVariant = qiSetPromptVariant;
+    window.qiPromptText = qiPromptText;
     window.qiToggleDetail = qiToggleDetail;
     window.qiSetEscalationPct = qiSetEscalationPct;
     window.qiRowToDetailed = qiRowToDetailed;
@@ -2284,7 +2310,7 @@
     var qiHelp = document.getElementById("qi-schema-help");
     if (qiHelp && !qiHelp.dataset.filled) { qiHelp.dataset.filled = "1"; qiHelp.innerHTML = qiSchemaHelpHtml(); }
     var qiPromptEl = document.getElementById("qi-copilot-prompt");
-    if (qiPromptEl && !qiPromptEl.dataset.filled) { qiPromptEl.dataset.filled = "1"; qiPromptEl.textContent = qiPromptText(); }
+    if (qiPromptEl && !qiPromptEl.dataset.filled) { qiPromptEl.dataset.filled = "1"; qiRenderPrompt(); }
 
     // Additive: report which estimator mode users actually pick (cookieless, no
     // PII). Delegated on the card group so it only fires on a real user click.
