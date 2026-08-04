@@ -731,10 +731,9 @@
       '<ul class="em-build-list">' + steps + "</ul>" +
       '<div class="qe-note"><strong>Two independent numbers.</strong> <em>Build effort</em> is how hard the agent is to design and stand up in Studio. <em>Run cost</em> is credits per run × your volume. They move independently — grounding on documents is easy to build <em>and</em> free per run, while Microsoft&nbsp;365 tenant-graph grounding adds setup <em>and</em> ~10 credits per run.</div>' +
       '<div class="qe-axes">' +
-        '<div class="qe-axis"><h4>🔧 Build effort</h4><div id="qe-axis-build"></div></div>' +
+        '<div class="qe-axis"><h4>🔧 Build effort</h4><div id="qe-axis-build"></div><div id="qe-profile2"></div></div>' +
         '<div class="qe-axis"><h4>💳 Run cost</h4><div id="qe-axis-cost"></div></div>' +
       "</div>" +
-      '<div id="qe-profile2"></div>' +
       qeStarterHtml() +
       '<div class="qe-nav" style="margin-top:1.25rem">' +
         (adv
