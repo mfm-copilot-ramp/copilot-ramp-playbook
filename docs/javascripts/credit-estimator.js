@@ -720,6 +720,11 @@
     }).join("");
     return '<div id="qe-results-full">' +
       exportBarHtml("quick", {}) +
+      '<div class="em-primary-actions" style="display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 .75rem">' +
+        '<button type="button" class="em-btn" onclick="qeSaveToWorkspace()">🧺 Save to My estimates</button>' +
+        '<button type="button" class="em-btn" onclick="qeSendToRoi()">📈 Estimate ROI →</button>' +
+        '<button type="button" class="em-btn secondary" onclick="qeToDetailed()">Open in Detailed →</button>' +
+      '</div>' +
       (adv ? ('<div class="section-label">Edit all variables <span style="text-transform:none;font-weight:400">— every inference, in one place</span></div>' + qeQuizHtml(v, state.qe.why || {})) : "") +
       '<div class="section-label"' + (adv ? ' style="margin-top:1.25rem"' : "") + ">How this would be built in Copilot Studio</div>" +
       '<div id="qe-outline-head"></div>' +
@@ -737,10 +742,6 @@
           : '<button type="button" class="em-btn secondary" onclick="qeEdit()">← Edit answers</button>' +
             '<button type="button" class="qe-preset" onclick="qeAdvanced()">Advanced: edit all</button>') +
         '<button type="button" class="qe-preset" onclick="qeStartOver()">Start over</button>' +
-        '<span class="spacer"></span>' +
-        '<button type="button" class="em-btn secondary" onclick="qeSaveToWorkspace()">🧺 Save to My estimates</button>' +
-        '<button type="button" class="em-btn secondary" onclick="qeSendToRoi()">📈 Estimate ROI →</button>' +
-        '<button type="button" class="em-btn" onclick="qeToDetailed()">Open in Detailed estimator →</button>' +
       "</div></div>";
   }
   // ── Quick: export an importable Copilot Studio starter agent (.zip) ───────
@@ -1655,12 +1656,12 @@
     el.innerHTML =
       '<div class="section-label">Portfolio estimate</div>' +
       '<div class="qi-cards">' + cards + "</div>" +
+      exportBarHtml("import", { csv: true }) +
       (sizesBar ? '<p class="hint">Size mix: ' + sizesBar +
         (t.flagged ? ' \u00b7 <span class="qi-warn">' + t.flagged + " scenario(s) need attention</span>" : "") + "</p>" : "") +
       '<table class="qi-table"><thead><tr><th>Scenario</th><th>Type</th><th>Size</th>' +
       '<th class="qi-num">Volume</th><th class="qi-num">Credits/mo</th><th class="qi-num">$/mo</th></tr></thead><tbody>' +
       rows + "</tbody></table>" +
-      exportBarHtml("import", { csv: true }) +
       '<p class="hint">Click a scenario name for its build read-out and cost drivers, or open it in the Detailed estimator to fine-tune. $ shown is pay-as-you-go; prepaid is ~20% less.</p>';
     el.classList.remove("em-hidden");
   }

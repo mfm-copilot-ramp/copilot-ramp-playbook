@@ -362,6 +362,8 @@
     quickState = { analysis: null, input: input, roi: roi }; // lets "Refine in Detailed" reuse it
     out.innerHTML = roiRenderPortfolio(agg, input, roi);
     out.classList.remove("roi-hidden");
+    roiRenderImportBanner(null); // dismiss the "Build portfolio ROI" offer once it's built
+    try { out.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
   }
 
   // Re-run the portfolio ROI when the user tunes the aggregate value lever.
@@ -497,13 +499,12 @@
       return;
     }
     if (!(gv("roi-q-desc") || "").trim()) sv("roi-q-desc", QUICK_EXAMPLES[0]);
-    roiQuickEstimate(); // seed the default Quick view
     roiSetMode("quick"); // Quick is the default landing mode
-    // No handoff pending, but the cart has saved estimates — offer the portfolio roll-up.
-    if (B && window.Portfolio) {
-      var saved = B.list();
-      if (saved.length) roiRenderPortfolioOffer(saved.length);
-    }
+    // If the cart has saved estimates, lead with the portfolio offer (a clear CTA) instead
+    // of pre-rendering a default example that reads like a stray result.
+    var saved = (B && window.Portfolio) ? B.list() : [];
+    if (saved.length) roiRenderPortfolioOffer(saved.length);
+    else roiQuickEstimate(); // seed the default Quick view only when the cart is empty
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
