@@ -75,6 +75,7 @@ extra_javascript:
   - javascripts/feedback.js
   - javascripts/card-filter.js
   - javascripts/estimator-vocab.js
+  - javascripts/site-bus.js
   - javascripts/estimator-core.js
   - javascripts/estimator-package.js
   - javascripts/estimator-zip.js
@@ -83,6 +84,8 @@ extra_javascript:
   - javascripts/credit-estimator.js
   - javascripts/estimator-cowork.js
   - javascripts/estimator-cowork-ui.js
+  - javascripts/roi-core.js
+  - javascripts/roi-estimator.js
 
 hooks:
   - tooling/mkdocs_hooks.py       # regenerates docs/path-catalog.json before each build
@@ -230,7 +233,9 @@ nav:
       - "Licensing & Prerequisites": prerequisites.md
       - Glossary: glossary.md
       - "Skills Catalog": skills.md
+      - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
+      - ROI Estimator: roi-estimator.md
       - "What's New": whats-new.md
       - Resources: RESOURCES.md
       - Tags: tags.md
