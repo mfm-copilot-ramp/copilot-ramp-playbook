@@ -1263,6 +1263,9 @@ recalc();
 #estimator-cowork .cw-drop p { margin: 0.25rem 0; font-size: 0.86rem; }
 #estimator-cowork #cw-import-summary ul { margin: 0.3rem 0 0 1.1rem; font-size: 0.85rem; }
 #estimator-cowork #cw-import-summary li { margin: 0.15rem 0; }
+#estimator-cowork .cw-range-toggle { margin: 0.7rem 0 0.2rem; }
+#estimator-cowork .cw-range-out { margin-top: 0.7rem; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--md-default-fg-color--lightest); background: var(--md-code-bg-color); font-size: 0.86rem; }
+#estimator-cowork .cw-range-out strong { color: var(--md-primary-fg-color); }
 </style>
 
 <div class="est-switcher" style="margin-top:0">
@@ -1298,6 +1301,17 @@ recalc();
     </div>
   </div>
 
+  <div class="cw-range-toggle">
+    <label class="cw-switch"><input type="checkbox" id="cw-range-on" onchange="cwToggleRange()"> Model a conservative–liberal range</label>
+    <span class="cw-sub" style="display:block">Optional — set low/high ends for active usage and credits/user to bracket the estimate.</span>
+  </div>
+  <div class="cw-grid em-hidden" id="cw-range-fields">
+    <div class="cw-field"><label for="cw-mau-low">Active usage % — conservative</label><input type="number" id="cw-mau-low" min="0" max="100" step="1" oninput="cwQuickCalc()"></div>
+    <div class="cw-field"><label for="cw-mau-high">Active usage % — liberal</label><input type="number" id="cw-mau-high" min="0" max="100" step="1" oninput="cwQuickCalc()"></div>
+    <div class="cw-field"><label for="cw-cpu-low">Credits/user — conservative</label><input type="number" id="cw-cpu-low" min="0" step="50" oninput="cwQuickCalc()"></div>
+    <div class="cw-field"><label for="cw-cpu-high">Credits/user — liberal</label><input type="number" id="cw-cpu-high" min="0" step="50" oninput="cwQuickCalc()"></div>
+  </div>
+
   <details class="cw-adv">
     <summary>Global assumptions (price, discount, license floor, budget)</summary>
     <div class="cw-grid">
@@ -1331,6 +1345,7 @@ recalc();
     <div class="result-card"><div class="val" id="cw-res-spend">—</div><div class="lbl">Cowork spend / month</div></div>
     <div class="result-card"><div class="val" id="cw-res-peruser">—</div><div class="lbl">Cost / active user / mo</div></div>
   </div>
+  <div class="cw-range-out em-hidden" id="cw-range-out"></div>
   <div class="cw-purchase" id="cw-purchase"></div>
   <div class="cw-budget" id="cw-budget-out"></div>
   <p class="cw-note" id="cw-total-note" style="margin-top:0.6rem"></p>

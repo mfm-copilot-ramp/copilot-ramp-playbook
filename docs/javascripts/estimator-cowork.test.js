@@ -101,5 +101,15 @@ ok("detailed total spend = 3500", near(floorDet.totals.totalSpend, 3500), floorD
 var zero = C.purchasePlan(0);
 ok("purchasePlan(0) packs = 0", zero.packsNeeded === 0, zero.packsNeeded);
 
+// 15. Range: conservative–liberal bracket on the two drivers
+var rng = C.quickEstimate({ licensedUsers: 1000, mauPct: 15, creditsPerActiveUser: 5000,
+  range: { mauLow: 10, mauHigh: 20, cpuLow: 4000, cpuHigh: 6000 } });
+ok("range low credits = 400000", rng.range.low.monthlyCredits === 400000, rng.range.low.monthlyCredits);
+ok("range high credits = 1200000", rng.range.high.monthlyCredits === 1200000, rng.range.high.monthlyCredits);
+ok("range low spend = $4000", near(rng.range.low.coworkSpend, 4000), rng.range.low.coworkSpend);
+ok("range high spend = $12000", near(rng.range.high.coworkSpend, 12000), rng.range.high.coworkSpend);
+ok("range brackets the expected (750000)", rng.range.low.monthlyCredits <= rng.monthlyCredits && rng.monthlyCredits <= rng.range.high.monthlyCredits, [rng.range.low.monthlyCredits, rng.monthlyCredits, rng.range.high.monthlyCredits]);
+ok("no range key when not requested", C.quickEstimate({ licensedUsers: 100 }).range === undefined, "ok");
+
 console.log("\n" + (fails === 0 ? "ALL PASSED" : (fails + " FAILED")));
 process.exit(fails === 0 ? 0 : 1);

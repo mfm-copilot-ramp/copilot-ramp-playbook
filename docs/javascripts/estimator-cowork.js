@@ -124,6 +124,23 @@
   }
 
   // ── Quick / single-cohort estimate ──────────────────────────────────────────
+  // A single population scenario at a given active-usage % and credits/user.
+  function scenarioCredits(licensed, mauPct, cpu, g) {
+    var active = activeUsers(licensed, mauPct);
+    var credits = active * Math.max(0, num(cpu, 0));
+    var spend = creditsToSpend(credits, g);
+    return {
+      mauPct: clampPct(mauPct),
+      creditsPerActiveUser: Math.max(0, num(cpu, 0)),
+      activeUsers: active,
+      monthlyCredits: credits,
+      coworkSpend: spend,
+      annualCoworkSpend: spend * 12,
+      costPerActiveUser: active > 0 ? spend / active : 0,
+      purchase: purchasePlan(credits)
+    };
+  }
+
   function quickEstimate(input) {
     input = input || {};
     var g = normalizeGlobal(input.global || input);
@@ -134,7 +151,7 @@
     var monthlyCredits = active * cpu;
     var coworkSpend = creditsToSpend(monthlyCredits, g);
     var licenseFloor = g.licenseFloorEnabled ? licensed * g.licensePricePerUser : 0;
-    return {
+    var out = {
       licensedUsers: licensed,
       mauPct: mauPct,
       activeUsers: active,
@@ -150,6 +167,14 @@
       purchase: purchasePlan(monthlyCredits),
       budget: budgetUsage(coworkSpend, g.budgetCap)
     };
+    // Optional conservative–liberal range: bracket the two drivers at their low/high ends.
+    if (input.range) {
+      var r = input.range;
+      var s1 = scenarioCredits(licensed, has(r.mauLow) ? r.mauLow : mauPct, has(r.cpuLow) ? r.cpuLow : cpu, g);
+      var s2 = scenarioCredits(licensed, has(r.mauHigh) ? r.mauHigh : mauPct, has(r.cpuHigh) ? r.cpuHigh : cpu, g);
+      out.range = s1.coworkSpend <= s2.coworkSpend ? { low: s1, high: s2 } : { low: s2, high: s1 };
+    }
+    return out;
   }
 
   // ── Detailed / per-cohort estimate ──────────────────────────────────────────
@@ -413,6 +438,7 @@
     intensityToCredits: intensityToCredits, activeUsers: activeUsers, normalizeGlobal: normalizeGlobal,
     creditsToSpend: creditsToSpend, budgetUsage: budgetUsage, purchasePlan: purchasePlan,
     quickEstimate: quickEstimate, cohortRow: cohortRow, detailedEstimate: detailedEstimate, forecast: forecast,
+    scenarioCredits: scenarioCredits,
     seedDetailedFromQuick: seedDetailedFromQuick, seedCohortFromRow: seedCohortFromRow,
     parseCsv: parseCsv, distribution: distribution,
     parseCreditsReportCsv: parseCreditsReportCsv, parseChatUsageCsv: parseChatUsageCsv,

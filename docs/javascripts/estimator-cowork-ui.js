@@ -85,7 +85,7 @@
   // ── Quick estimate render ───────────────────────────────────────────────────
   function cwQuickCalc() {
     var C = window.CoworkEstimator; if (!C || !el("cw-licensed")) return;
-    var r = C.quickEstimate({
+    var input = {
       licensedUsers: val("cw-licensed"),
       mauPct: val("cw-mau"),
       creditsPerActiveUser: val("cw-cpu"),
@@ -96,7 +96,11 @@
         licensePricePerUser: val("cw-floor-price"),
         budgetCap: val("cw-budget")
       }
-    });
+    };
+    if (chk("cw-range-on")) {
+      input.range = { mauLow: val("cw-mau-low"), mauHigh: val("cw-mau-high"), cpuLow: val("cw-cpu-low"), cpuHigh: val("cw-cpu-high") };
+    }
+    var r = C.quickEstimate(input);
     setText("cw-res-active", fmt(r.activeUsers));
     setText("cw-res-of", "of " + fmt(r.licensedUsers) + " @ " + Math.round(r.mauPct) + "%");
     setText("cw-res-credits", fmt(r.monthlyCredits));
@@ -117,6 +121,30 @@
     var note = "Annual Cowork \u2248 " + money(r.annualCoworkSpend) + ".";
     if (r.licenseFloor > 0) note += " With the license floor, total \u2248 " + money(r.totalSpend) + "/mo.";
     setText("cw-total-note", note);
+
+    var ro = el("cw-range-out");
+    if (ro) {
+      if (r.range) {
+        ro.classList.remove("em-hidden");
+        setHtml("cw-range-out",
+          "<strong>Range (conservative–liberal):</strong> " + fmt(r.range.low.monthlyCredits) + "\u2013" + fmt(r.range.high.monthlyCredits) + " credits &middot; " +
+          money(r.range.low.coworkSpend) + "\u2013" + money(r.range.high.coworkSpend) + "/mo &middot; " +
+          money(r.range.low.annualCoworkSpend) + "\u2013" + money(r.range.high.annualCoworkSpend) + "/yr");
+      } else ro.classList.add("em-hidden");
+    }
+  }
+
+  function cwToggleRange() {
+    var on = chk("cw-range-on");
+    var f = el("cw-range-fields"); if (f) f.classList.toggle("em-hidden", !on);
+    if (on) {
+      var mau = parseFloat(val("cw-mau")) || 0, cpu = parseFloat(val("cw-cpu")) || 0;
+      if (!val("cw-mau-low")) setVal("cw-mau-low", Math.max(0, Math.round(mau * 0.75)));
+      if (!val("cw-mau-high")) setVal("cw-mau-high", Math.min(100, Math.round(mau * 1.25)));
+      if (!val("cw-cpu-low")) setVal("cw-cpu-low", Math.round(cpu * 0.75));
+      if (!val("cw-cpu-high")) setVal("cw-cpu-high", Math.round(cpu * 1.25));
+    }
+    cwQuickCalc();
   }
 
   // ── Detailed (per-cohort hub) ───────────────────────────────────────────────
@@ -443,6 +471,7 @@
     window.setCoworkMode = setCoworkMode;
     window.cwQuickCalc = cwQuickCalc;
     window.cwSetMau = cwSetMau;
+    window.cwToggleRange = cwToggleRange;
     window.cwOpenInDetailed = cwOpenInDetailed;
     window.cwReturnToQuick = cwReturnToQuick;
     window.cwSaveToQuick = cwSaveToQuick;
