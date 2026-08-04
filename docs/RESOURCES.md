@@ -157,6 +157,7 @@ any snapshot. Most teams reach Foundry only when low-code genuinely can't expres
 |----------|-----------|------|
 | **Agent governance whitepaper + Agent 365** | Lifecycle, compliance, data security, responsible AI for agents at scale | https://aka.ms/agent365/resources |
 | **Copilot Studio admin & governance docs** | Environments, DLP/data policies, authentication, analytics | https://learn.microsoft.com/en-us/microsoft-copilot-studio/ |
+| **Microsoft Teams: AI-generated meeting archive for knowledge retention** | Official Microsoft resource — Microsoft 365 Roadmap | Microsoft 365 | [www.microsoft.com/microsoft-365/roadmap?id=558933...](https://www.microsoft.com/microsoft-365/roadmap?id=558933) |
 
 ---
 
