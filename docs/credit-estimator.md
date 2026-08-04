@@ -1349,6 +1349,7 @@ recalc();
   <div class="cw-purchase" id="cw-purchase"></div>
   <div class="cw-budget" id="cw-budget-out"></div>
   <p class="cw-note" id="cw-total-note" style="margin-top:0.6rem"></p>
+  <button type="button" class="em-btn secondary" style="margin-top:0.6rem" onclick="cwSaveToWorkspace()">🧺 Save to My estimates</button>
   <button type="button" class="em-btn secondary" style="margin-top:0.6rem" onclick="cwOpenInDetailed()">Open in Detailed &rarr;</button>
 </div>
 
