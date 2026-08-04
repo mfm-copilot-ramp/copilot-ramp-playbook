@@ -38,5 +38,14 @@ ok("aggregate cost = $18,500", near(agg.monthlyCostUSD, 18500), agg.monthlyCostU
 ok("byProducer cowork count = 2", agg.byProducer.cowork && agg.byProducer.cowork.count === 2, agg.byProducer.cowork);
 ok("aggregate notes mention cowork value", (agg.notes.join(" ").toLowerCase().indexOf("cowork") >= 0), agg.notes);
 
+// 5. Cowork value seed: activeUsers exposed + suggested value model
+ok("recompute exposes cowork activeUsers (quick 150)", rq.activeUsers === 150, rq.activeUsers);
+ok("recompute exposes cowork activeUsers (detailed 300)", rd.activeUsers === 300, rd.activeUsers);
+// aggregate coworkActiveUsers = 150 + 300 = 450 ; suggested = 450 × 15 × 22 × 50 / 60
+var expectSuggest = Math.round(450 * 15 * 22 * 50 / 60);
+ok("aggregate coworkActiveUsers = 450", agg.coworkActiveUsers === 450, agg.coworkActiveUsers);
+ok("aggregate suggestedCoworkValueMonthly = " + expectSuggest, agg.suggestedCoworkValueMonthly === expectSuggest, agg.suggestedCoworkValueMonthly);
+ok("suggestCoworkValue(100) = " + Math.round(100*15*22*50/60), P.suggestCoworkValue(100) === Math.round(100 * 15 * 22 * 50 / 60), P.suggestCoworkValue(100));
+
 console.log("\n" + (fails === 0 ? "ALL PASSED" : (fails + " FAILED")));
 process.exit(fails === 0 ? 0 : 1);

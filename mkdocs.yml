@@ -230,16 +230,17 @@ nav:
           - empowerment/decision-tree.md
           - "Path Finder (interactive)": empowerment/wizard.md
       - "Security & Governance": empowerment/security.md
+  - Business Case:
+      - "How Copilot Credits work": copilot-credits.md
+      - Credit Estimator: credit-estimator.md
+      - ROI Estimator: roi-estimator.md
+      - "Proposal Composer": proposal.md
   - Resources:
       - Use-Case Catalog: CATALOG.md
       - Quick Wins: quick-wins.md
       - "Licensing & Prerequisites": prerequisites.md
       - Glossary: glossary.md
       - "Skills Catalog": skills.md
-      - "How Copilot Credits work": copilot-credits.md
-      - Credit Estimator: credit-estimator.md
-      - ROI Estimator: roi-estimator.md
-      - "Proposal Composer": proposal.md
       - "What's New": whats-new.md
       - Resources: RESOURCES.md
       - Tags: tags.md

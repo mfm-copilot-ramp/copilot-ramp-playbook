@@ -153,7 +153,15 @@
     if (id) { var s = loadSaved(id); if (s) { state = s; stripParams(); return; } }
     state = defaultState();
     var from = param("from");
-    if (from === "workspace" || from === "estimate") { state.items = seedFromWorkspace(); stripParams(); }
+    if (from === "roi") {
+      // Committed from the ROI Estimator (Tier 1.5): pull the cart AND adopt the tuned dials
+      // so the proposal's ROI matches what the user tuned (value / basis / horizon).
+      state.items = seedFromWorkspace();
+      var pv = param("value"); if (pv !== "") state.dials.valueMonthly = num(pv);
+      var pb = param("basis"); if (pb === "prepaid" || pb === "payg") state.dials.basis = pb;
+      var ph = param("horizon"); if (ph !== "") state.dials.horizonMonths = Math.max(1, num(ph));
+      stripParams();
+    } else if (from === "workspace" || from === "estimate") { state.items = seedFromWorkspace(); stripParams(); }
     else { state.items = seedFromWorkspace(); } // default: pull whatever's in the cart
   }
 
@@ -166,8 +174,11 @@
     var eng = engines();
     var rows = (state.items || []).map(function (it) { return { it: it, r: p.recomputeItem(it, eng) }; });
     var agg = p.aggregate(includedItems(), eng);
-    // Seed the value lever once from aggregate studio value so it shows a real number.
-    if (state.dials.valueMonthly == null) state.dials.valueMonthly = Math.round(num(agg.studioValueMonthly));
+    // Seed the value lever once — from aggregate Studio value, or (Cowork-only) the
+    // suggested Cowork value so it doesn't start at $0.
+    if (state.dials.valueMonthly == null) {
+      state.dials.valueMonthly = Math.round(num(agg.studioValueMonthly) || num(agg.suggestedCoworkValueMonthly));
+    }
     var value = num(state.dials.valueMonthly);
     var input = p.toRoiInput(agg, {
       valueMonthly: value, basis: state.dials.basis,

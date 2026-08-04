@@ -353,7 +353,8 @@
       return;
     }
     var agg = P.aggregate(items, roiEngines());
-    var dials = { valueMonthly: agg.studioValueMonthly, EstimatorCore: window.EstimatorCore };
+    var seedValue = agg.studioValueMonthly > 0 ? agg.studioValueMonthly : agg.suggestedCoworkValueMonthly;
+    var dials = { valueMonthly: seedValue, EstimatorCore: window.EstimatorCore };
     var input = P.toRoiInput(agg, dials);
     var roi = R.computeROI(input);
     portfolioState = { agg: agg, ids: items.map(function (i) { return i.id; }) };
@@ -396,14 +397,30 @@
     html += '<div class="roi-pvalue"><label for="roi-p-value"><strong>Estimated value of this work</strong> ($/month)</label>' +
       '<input type="number" id="roi-p-value" inputmode="numeric" value="' + value + '" onchange="roiPortfolioValue()" oninput="roiPortfolioValue()">' +
       '<span class="roi-pvalue-hint">Studio estimates seed a time-saved value; Cowork measures consumption (no built-in value), so set the number your business case will stand behind.</span></div>';
+    if ((agg.studioValueMonthly || 0) <= 0 && (agg.coworkActiveUsers || 0) > 0) {
+      html += '<p class="roi-note">\uD83D\uDCA1 Value seeded from ~' + Math.round(agg.coworkActiveUsers).toLocaleString() +
+        ' active Cowork users \u00d7 15 min/day \u00d7 $50/hr \u2014 a starting suggestion; tune it to your business case.</p>';
+    }
 
     html += cardsHtml(roi);
     html += bandHtml(roi);
 
     (agg.notes || []).forEach(function (n) { html += '<p class="roi-note">' + esc(n) + "</p>"; });
     html += '<p class="roi-note">Run cost is the exact sum of every saved estimate (Studio credits + Cowork spend). Value is your single tunable lever above, ramping to steady state over ' + R.QUICK.rampMonths + " months.</p>";
-    html += '<div class="roi-actions"><button type="button" class="roi-btn roi-btn--ghost" onclick="roiQuickToDetailed()">Refine in Detailed \u2192</button></div>';
+    html += '<div class="roi-actions">' +
+      '<button type="button" class="roi-btn" onclick="roiPortfolioToProposal()">\uD83D\uDCC4 Add to proposal \u2192</button>' +
+      '<button type="button" class="roi-btn roi-btn--ghost" onclick="roiQuickToDetailed()">Refine in Detailed \u2192</button></div>';
     return html;
+  }
+
+  // Tier 1.5: commit the tuned portfolio ROI into a proposal. The estimates are already
+  // in the cart (the proposal re-reads them); we carry the tuned value/basis/horizon dials
+  // via URL so the proposal honors YOUR ROI instead of reseeding from scratch.
+  function roiPortfolioToProposal() {
+    var v = Math.round(num(gn("roi-p-value")));
+    var basis = gv("roi-q-basis") === "prepaid" ? "prepaid" : "payg";
+    var url = "../proposal/?from=roi&value=" + encodeURIComponent(v) + "&basis=" + basis + "&horizon=36";
+    try { window.location.href = url; } catch (e) {}
   }
 
   // Offer to roll the cart into a portfolio ROI (shown when items exist but no handoff).
@@ -438,6 +455,7 @@
   window.roiDismissImport = roiDismissImport;
   window.roiPortfolioEstimate = roiPortfolioEstimate;
   window.roiPortfolioValue = roiPortfolioValue;
+  window.roiPortfolioToProposal = roiPortfolioToProposal;
 
   function fromParam() {
     try { return new URLSearchParams(window.location.search).get("from") || ""; }

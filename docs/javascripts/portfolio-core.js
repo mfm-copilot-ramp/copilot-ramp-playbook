@@ -61,11 +61,13 @@
         out.monthlyCredits = round(dt.monthlyCredits);
         // Cowork dollarizes via its OWN spend model (price/credit + Azure discount).
         out.monthlyCostUSD = num(dt.coworkSpend);
+        out.activeUsers = round(dt.activeUsers);
       } else {
         if (typeof CE.quickEstimate !== "function") { out.note = "cowork engine or input missing"; return out; }
         var r = CE.quickEstimate(ci) || {};
         out.monthlyCredits = round(r.monthlyCredits);
         out.monthlyCostUSD = num(r.coworkSpend);
+        out.activeUsers = round(r.activeUsers);
       }
       out.value = null; // consumption tool — value is user-driven, not task automation
       out.note = "Value user-driven (Cowork measures consumption, not task automation).";
@@ -106,6 +108,15 @@
   }
 
   // ── aggregate a set of items ──────────────────────────────────────────────
+  // A neutral, editable starting suggestion for the VALUE of Cowork adoption, so a
+  // Cowork-only portfolio's value lever doesn't start at $0. NOT a Microsoft figure —
+  // conservative planning anchors the user should tune: minutes saved per active user
+  // per working day × ~22 workdays × a loaded hourly rate.
+  var COWORK_VALUE = { minutesPerUserPerDay: 15, workdaysPerMonth: 22, loadedRatePerHour: 50 };
+  function suggestCoworkValue(activeUsers) {
+    return round(num(activeUsers) * COWORK_VALUE.minutesPerUserPerDay * COWORK_VALUE.workdaysPerMonth * COWORK_VALUE.loadedRatePerHour / 60);
+  }
+
   function aggregate(items, engines, opts) {
     opts = opts || {};
     var rows = [];
@@ -116,6 +127,7 @@
     var agg = {
       count: rows.length, rows: rows,
       monthlyCredits: 0, monthlyCostUSD: 0, studioValueMonthly: 0,
+      coworkActiveUsers: 0, suggestedCoworkValueMonthly: 0,
       byProducer: {}, notes: []
     };
     var hasCowork = false;
@@ -123,7 +135,7 @@
       agg.monthlyCredits += r.monthlyCredits;
       agg.monthlyCostUSD += r.monthlyCostUSD;
       if (r.value) agg.studioValueMonthly += num(r.value.monthly);
-      if (r.producer === "cowork") hasCowork = true;
+      if (r.producer === "cowork") { hasCowork = true; agg.coworkActiveUsers += num(r.activeUsers); }
       var p = r.producer || "studio";
       if (!agg.byProducer[p]) agg.byProducer[p] = { count: 0, monthlyCredits: 0, monthlyCostUSD: 0 };
       agg.byProducer[p].count += 1;
@@ -131,6 +143,8 @@
       agg.byProducer[p].monthlyCostUSD += r.monthlyCostUSD;
     });
     agg.monthlyCredits = round(agg.monthlyCredits);
+    agg.coworkActiveUsers = round(agg.coworkActiveUsers);
+    agg.suggestedCoworkValueMonthly = suggestCoworkValue(agg.coworkActiveUsers);
     if (hasCowork) agg.notes.push("Cowork items contribute cost only — their value is user-driven, so tune the value lever below to reflect it.");
     return agg;
   }
@@ -248,6 +262,8 @@
     recomputeItem: recomputeItem,
     quickVolume: quickVolume,
     aggregate: aggregate,
+    suggestCoworkValue: suggestCoworkValue,
+    COWORK_VALUE: COWORK_VALUE,
     toRoiInput: toRoiInput,
     encodeWorkspace: encodeWorkspace,
     decodeWorkspace: decodeWorkspace,
