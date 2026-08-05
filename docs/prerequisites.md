@@ -18,13 +18,14 @@ stage actually needs.
 
 ## At a glance
 
-| Stage | Core requirement | Special access | Who enables it |
-| --- | --- | --- | --- |
-| **[1 · Chat](stages/stage-1-chat.md)** | Microsoft 365 Copilot license *(for work-grounded answers)* | — | IT assigns the license |
-| **[2 · First-Party Agents](stages/stage-2-first-party.md)** | Microsoft 365 Copilot license | Some agents roll out in waves | IT + the agent's admin controls |
-| **[3 · Cowork](stages/stage-3-cowork.md)** | Microsoft 365 Copilot license | **Frontier** enrollment for the full feature set | Account team / Global Admin |
-| **[4 · Agent Builder](stages/stage-4-agent-builder.md)** | Microsoft 365 Copilot license | Agent Builder enabled for makers | IT (maker permissions) |
-| **[6 · Copilot Studio](stages/stage-6-studio.md)** | Copilot Studio license + Power Platform environment | Connectors, auth, publishing rights | IT / Power Platform admin |
+| Stage | Core requirement | Special access | Who enables it | How it's billed |
+| --- | --- | --- | --- | --- |
+| **[1 · Chat](stages/stage-1-chat.md)** | Microsoft 365 Copilot license *(for work-grounded answers)* | — | IT assigns the license | Per-user M365 Copilot license |
+| **[2 · First-Party Agents](stages/stage-2-first-party.md)** | Microsoft 365 Copilot license | Some agents roll out in waves | IT + the agent's admin controls | Included in the M365 Copilot license |
+| **[3 · Cowork](stages/stage-3-cowork.md)** | Microsoft 365 Copilot license | **Frontier** enrollment for the full feature set | Account team / Global Admin | License covers licensed users; unlicensed usage metered as Copilot Credits |
+| **[4 · Agent Builder](stages/stage-4-agent-builder.md)** | Microsoft 365 Copilot license | Agent Builder enabled for makers | IT (maker permissions) | Included in the license; metered features (e.g. tenant-graph grounding) accrue Copilot Credits |
+| **[6 · Copilot Studio](stages/stage-6-studio.md)** | Copilot Studio license + Power Platform environment | Connectors, auth, publishing rights | IT / Power Platform admin | Copilot Credits — pay-as-you-go, message packs, or pre-purchase |
+| **[7 · Foundry](stages/stage-7-foundry.md)** | Azure subscription + Microsoft Foundry project | Developer skills, Azure RBAC, CI/CD | Engineering / Azure admin | Azure consumption — model inference tokens + Azure resources |
 
 ---
 

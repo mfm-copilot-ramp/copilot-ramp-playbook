@@ -110,6 +110,11 @@ more you're building and the more control (and responsibility) shifts to you.
     - **Sensitivity labels are honored.** If Purview encryption protects a file, the agent needs explicit
       rights to use it — the label travels with the data.
 
+!!! tip "Need the *billing* dimension too?"
+    This page is about **control**. To see each surface's control plane lined up next to **how it's billed**
+    — license vs. Copilot Credits vs. Azure consumption — in one table, see
+    [Build Surfaces: Control & Billing](build-surfaces.md).
+
 ---
 
 ## What Agent 365 adds

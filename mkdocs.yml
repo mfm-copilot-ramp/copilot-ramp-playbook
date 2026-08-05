@@ -243,6 +243,7 @@ nav:
           - empowerment/decision-tree.md
           - "Path Finder (interactive)": empowerment/wizard.md
       - "Security & Governance": empowerment/security.md
+      - "Build Surfaces: Control & Billing": empowerment/build-surfaces.md
   - Business Case:
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
