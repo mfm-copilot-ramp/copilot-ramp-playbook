@@ -56,7 +56,7 @@ routinely conflate them with the build surfaces — so here they are in the same
 
 ---
 
-## The two things Amy's question is really about
+## The two things to get right — control and billing
 
 ### 1 · Where you control — the governance planes
 
