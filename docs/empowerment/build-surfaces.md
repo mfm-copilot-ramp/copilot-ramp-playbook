@@ -1,6 +1,6 @@
 ---
 title: "Build Surfaces: Control & Billing"
-description: One reference that lines up every place you can build a Microsoft Copilot agent with who controls it and how it's billed — so governance and cost are answered in the same look.
+description: Every place you can build a Microsoft Copilot agent, lined up with who controls it and how it's billed - governance and cost in one look.
 ---
 
 # Build surfaces — where you build, who controls it, how it's billed
