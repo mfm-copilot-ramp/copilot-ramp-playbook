@@ -209,6 +209,7 @@ nav:
       - "Stage 4 · Agent Builder": stages/stage-4-agent-builder.md
       - "Stage 5 · Autopilots": stages/stage-5-autopilots.md
       - "Stage 6 · Copilot Studio": stages/stage-6-studio.md
+      - "Pick the engine (Studio harnesses)": pick-the-engine.md
       - "Stage 7 · Foundry": stages/stage-7-foundry.md
       - "Right-sizing — drop back a stage": right-sizing.md
 
@@ -244,7 +245,6 @@ nav:
       - "Choose the Right Path":
           - empowerment/decision-tree.md
           - "Path Finder (interactive)": empowerment/wizard.md
-          - "Pick the Engine": empowerment/pick-the-engine.md
       - "Security & Governance": empowerment/security.md
       - "Build Surfaces: Control & Billing": empowerment/build-surfaces.md
   - Business Case:

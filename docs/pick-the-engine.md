@@ -1,19 +1,18 @@
 ---
-title: Pick the Engine
-description: Copilot Studio agents can run on different harnesses — the engine that decides how an agent reasons, publishes, and bills. Compare the GitHub Copilot, Standard, and Copilot chat harnesses and pick the right one for the job.
+title: Pick the Studio harness
+description: In Copilot Studio, every agent runs on a harness — the engine that decides how it reasons, publishes, and bills. Compare the GitHub Copilot, Standard, and Copilot chat harnesses and pick the right one for the job.
 ---
 
 # Pick the engine for the job
 
-You've decided to **build an agent** — the [decision tree](decision-tree.md) got you here. The next choice is
-which **harness** powers it. A harness is the *engine* underneath your agent: it decides how the agent reasons,
-what it can touch, where you can publish it, and how it bills. Same builder, different engines — and the right
-one depends on the job.
+When you build an agent in **Copilot Studio**, one choice shapes everything else: which **harness** powers it.
+A harness is the *engine* underneath your agent — it decides how the agent reasons, what it can touch, where you
+can publish it, and how it bills. Same builder, different engines, and the right one depends on the job.
 
 !!! warning "Unofficial — confirm before you commit"
     This is community guidance, not a Microsoft prescription. Harness capabilities, packaging, and billing evolve
     quickly. Use this to *start* the conversation, then confirm against
-    [Licensing & Prerequisites](../prerequisites.md) and Microsoft's
+    [Licensing & Prerequisites](prerequisites.md) and Microsoft's
     [Copilot Studio documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/).
 
 <div class="eng-head" markdown="0">
@@ -161,17 +160,11 @@ The same considerations, compared across all three harnesses. Find the row that 
 1. **The harness is a capability choice, not just a setting.** Autonomy, file-handling, and where you can publish
    are all downstream of which engine you pick — so choose for the *job*, not the default.
 2. **They bill differently.** Copilot Credits, Copilot Studio licensing, and M365 Copilot USLs are not the same
-   meter. Sort out billing before you scale, not after — see [Licensing & Prerequisites](../prerequisites.md)
-   and the [Credit Estimator](../credit-estimator.md).
-
-!!! tip "Still deciding *whether* to build at all?"
-    If you're not yet sure an agent is even the right answer, step back to
-    **[Choose the Right Path](decision-tree.md)** — it routes your process to the right *stage* first. This page
-    picks up once you've landed on *build an agent*.
+   meter. Sort out billing before you scale, not after — see [Licensing & Prerequisites](prerequisites.md)
+   and the [Credit Estimator](credit-estimator.md).
 
 > **📚 Learn more.**
 >
 > - [Microsoft Copilot Studio documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/) — the official product hub.
 > - [Extend Microsoft 365 Copilot — options compared](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) — declarative vs. custom-engine agents.
-> - [Stage 6 · Copilot Studio](../stages/stage-6-studio.md) — where you actually build, test, publish, and govern these agents.
-> - [Stage 7 · Foundry](../stages/stage-7-foundry.md) — when even the most autonomous low-code harness isn't enough.
+> - [Stage 6 · Copilot Studio](stages/stage-6-studio.md) — where you build, test, publish, and govern these agents.

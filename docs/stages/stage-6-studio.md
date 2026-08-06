@@ -19,7 +19,7 @@ Your declarative agents are bumping into limits: you need a real action against 
 !!! tip "Which engine will power it?"
     Studio agents can run on different **harnesses** — the engine that sets how autonomously an agent reasons,
     what files it can touch, where you publish it, and how it bills. Before you build, see
-    **[Pick the Engine](../empowerment/pick-the-engine.md)** to choose the right one for the job.
+    **[Pick the engine for the job](../pick-the-engine.md)** to choose the right one.
 
 !!! question "Going the wrong way?"
     Studio is for agents with real actions, multi-topic logic, or org-wide publishing. If yours is just
