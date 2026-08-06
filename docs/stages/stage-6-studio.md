@@ -16,6 +16,11 @@ stage: studio
 
 Your declarative agents are bumping into limits: you need a real action against a system of record, an MCP tool, multiple topics, custom logic, or proper publishing and governance. You're ready to build, test, publish, and manage agents like products.
 
+!!! tip "Which engine will power it?"
+    Studio agents can run on different **harnesses** — the engine that sets how autonomously an agent reasons,
+    what files it can touch, where you publish it, and how it bills. Before you build, see
+    **[Pick the Engine](../empowerment/pick-the-engine.md)** to choose the right one for the job.
+
 !!! question "Going the wrong way?"
     Studio is for agents with real actions, multi-topic logic, or org-wide publishing. If yours is just
     **one knowledge source plus instructions** for you and a few teammates, you've overshot —

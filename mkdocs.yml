@@ -71,6 +71,7 @@ extra_css:
   - stylesheets/role-path.css
   - stylesheets/cards.css
   - stylesheets/callouts.css
+  - stylesheets/engine-cards.css
 
 extra_javascript:
   - javascripts/catalog.js
@@ -89,6 +90,7 @@ extra_javascript:
   - javascripts/credit-estimator.js
   - javascripts/estimator-cowork.js
   - javascripts/estimator-cowork-ui.js
+  - javascripts/engine-cards.js
   - javascripts/roi-core.js
   - javascripts/roi-estimator.js
   - javascripts/portfolio-core.js
@@ -242,6 +244,7 @@ nav:
       - "Choose the Right Path":
           - empowerment/decision-tree.md
           - "Path Finder (interactive)": empowerment/wizard.md
+          - "Pick the Engine": empowerment/pick-the-engine.md
       - "Security & Governance": empowerment/security.md
       - "Build Surfaces: Control & Billing": empowerment/build-surfaces.md
   - Business Case:

@@ -74,6 +74,7 @@ This section is the **org-level companion** to the individual ladder:
 - Not sure a use case is even licensed? Check [Licensing & Prerequisites](../prerequisites.md).
 - Unsure of a term? The [Glossary](../glossary.md) links every concept back to where it shows up.
 - **Have an idea and want to route it?** Go straight to **[Choose the Right Path](decision-tree.md)** — or click through the **[Path Finder](wizard.md)**.
+- **Already landed on "build an agent"?** See **[Pick the Engine](pick-the-engine.md)** — which harness (engine) to power it with, and how each one reasons, publishes, and bills.
 - **Wondering if agents are safe?** See **[Security & Governance](security.md)** — what each environment protects by default, and how Agent 365 governs them all.
 
 > **📚 Learn more.**

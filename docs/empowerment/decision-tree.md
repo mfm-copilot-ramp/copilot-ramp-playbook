@@ -78,6 +78,11 @@ Prefer words to boxes? Find the row whose **need** matches yours — frequency f
     Agent Builder agent into Studio later than to over-build on day one. Each stage is designed to make the next
     feel obvious — see [Start Here](../start-here.md).
 
+!!! tip "Landed on Agent Builder or Studio?"
+    Once the answer is *build an agent*, the next choice is which **engine** powers it. See
+    **[Pick the Engine](pick-the-engine.md)** — the GitHub Copilot, Standard, and Copilot chat harnesses compared
+    on autonomy, files, publishing, and billing.
+
 > **📚 Learn more.**
 >
 > - [Which Copilot is right for you](https://learn.microsoft.com/en-us/copilot/) — Microsoft's official front door.
