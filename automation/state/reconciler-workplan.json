@@ -1,0 +1,82 @@
+[
+  {
+    "issue_number": 74,
+    "issue_title": "ðŸ“¡ New: OneDrive: Improved max path error experience on desktop",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/74",
+    "issue_type": "accuracy-risk",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=557563",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=557563",
+      "redirected": true,
+      "content_length": 629200,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/credit-estimator.md",
+      "docs/walkthroughs/autopilots-coordinate-meetings.md",
+      "docs/walkthroughs/autopilots-get-access.md",
+      "docs/walkthroughs/autopilots-track-deliverables.md",
+      "docs/walkthroughs/studio-functional-field-service-triage.md"
+    ],
+    "priority": 0
+  },
+  {
+    "issue_number": 80,
+    "issue_title": "ðŸ“¡ New: SharePoint: Viva Connections multi-home site management moving to SharePoint admin center",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/80",
+    "issue_type": "new-resource",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=567887",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=567887",
+      "redirected": true,
+      "content_length": 629200,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/RESOURCES.md",
+      "docs/credit-estimator.md",
+      "docs/empowerment/security.md",
+      "docs/glossary.md",
+      "docs/prerequisites.md",
+      "docs/right-sizing.md",
+      "docs/roles/champion.md",
+      "docs/roles/it-admin.md",
+      "docs/start-by-role.md"
+    ],
+    "priority": 1
+  },
+  {
+    "issue_number": 79,
+    "issue_title": "ðŸ“¡ New: Microsoft Viva: Copilot Dashboard - Targeted Audience Surveys",
+    "issue_url": "https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/79",
+    "issue_type": "new-resource",
+    "source_url": "https://www.microsoft.com/microsoft-365/roadmap?id=568072",
+    "source_verified": {
+      "reachable": true,
+      "status_code": 200,
+      "final_url": "https://www.microsoft.com/en-us/microsoft-365/roadmap?id=568072",
+      "redirected": true,
+      "content_length": 629200,
+      "title": "Microsoft 365 Roadmap | Microsoft 365"
+    },
+    "affected_files": [
+      "docs/CATALOG.md",
+      "docs/index.md",
+      "docs/products/powerpoint.md",
+      "docs/products/word.md",
+      "docs/quick-wins.md",
+      "docs/right-sizing.md",
+      "docs/roles/it-admin.md",
+      "docs/roles/maker.md",
+      "docs/solutions/support-deflection-agent.md",
+      "docs/start-by-product.md"
+    ],
+    "priority": 1
+  }
+]

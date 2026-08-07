@@ -192,9 +192,13 @@ def run_quality_checks() -> bool:
         log.error(f"  check-content.py failed: {result.stdout}\n{result.stderr}")
         return False
 
-    # mkdocs build --strict
+    # mkdocs build --strict (use CI config to avoid requiring system Cairo libs)
+    ci_config = REPO_ROOT / "mkdocs-ci.yml"
+    mkdocs_args = ["python", "-m", "mkdocs", "build", "--strict"]
+    if ci_config.exists():
+        mkdocs_args += ["--config-file", str(ci_config)]
     result = subprocess.run(
-        ["python", "-m", "mkdocs", "build", "--strict"],
+        mkdocs_args,
         capture_output=True, text=True, cwd=REPO_ROOT, timeout=300,
     )
     if result.returncode != 0:
