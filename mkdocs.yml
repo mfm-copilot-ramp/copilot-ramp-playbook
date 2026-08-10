@@ -93,6 +93,8 @@ extra_javascript:
   - javascripts/engine-cards.js
   - javascripts/roi-core.js
   - javascripts/roi-estimator.js
+  - javascripts/ai-builder-rates.js
+  - javascripts/ai-builder-estimator.js
   - javascripts/portfolio-core.js
   - javascripts/workspace-ui.js
   - javascripts/proposal.js
@@ -250,6 +252,7 @@ nav:
   - Business Case:
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
+      - "AI Builder → Copilot Credits": ai-builder-estimator.md
       - ROI Estimator: roi-estimator.md
       - "Proposal Composer": proposal.md
   - Resources:

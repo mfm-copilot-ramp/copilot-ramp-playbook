@@ -165,6 +165,7 @@ Estimating high and the number scares you? That's often a **right-sizing** signa
 
 - [Stage 6 · Copilot Studio](stages/stage-6-studio.md) — where credit-bearing agents get built.
 - [Credit Estimator](credit-estimator.md) — turn this model into a real number.
+- [AI Builder → Copilot Credits](ai-builder-estimator.md) — already use AI Builder? Map that usage to the Copilot Credits you'll need.
 - [Right-sizing](right-sizing.md) — the cheapest agent is the one you didn't need to build.
 
 ---
