@@ -1,6 +1,6 @@
 ---
 title: Pick the Studio harness
-description: In Copilot Studio, every agent runs on a harness — the engine that decides how it reasons, publishes, and bills. Compare the GitHub Copilot, Standard, and Copilot chat harnesses and pick the right one for the job.
+description: Every Copilot Studio agent runs on a harness — the engine that shapes how it reasons, publishes, and bills. Compare the options and pick the right one.
 ---
 
 # Pick the engine for the job
