@@ -1,0 +1,19 @@
+INHERIT: mkdocs.yml
+
+# CI override: disable the social plugin (requires native Cairo/libcairo-2.dll
+# which is not available in all environments). Social cards are generated only
+# in the deploy workflow where the system Cairo libraries are installed.
+plugins:
+  - search
+  - tags:
+      tags_file: tags.md
+  - rss:
+      match_path: "walkthroughs/.*"
+      use_git: false
+      date_from_meta:
+        as_creation: updated
+      length: 20
+  - git-revision-date-localized:
+      type: date
+      enable_creation_date: false
+      fallback_to_build_date: true
