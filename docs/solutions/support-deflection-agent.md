@@ -18,6 +18,13 @@ updated: 2026-06-05
 
 ---
 
+!!! info "Two harnesses for this use case"
+    This template's system prompt and topic specs target the **standard harness** — predictable and covered
+    by a Microsoft 365 Copilot license inside Microsoft 365 channels. The same use case also has a
+    **[GitHub Copilot harness version](../walkthroughs/studio-functional-support-deflection-generative.md)** that plans and runs the task with
+    generative orchestration (autonomous; bills **Copilot Credits for all usage**, and a license never
+    covers it). [Compare the engines](../pick-the-engine.md).
+
 ## What the agent does
 
 | Capability | Detail |
