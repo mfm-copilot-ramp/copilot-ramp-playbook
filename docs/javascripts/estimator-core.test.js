@@ -39,8 +39,8 @@ ok("standard: covered = true", q1.covered === true);
 ok("standard: coveredUsers = 600", q1.coveredUsers === 600);
 
 var q2 = EC.computeQuick(per2, { archetype: "interactive", harness: "github-copilot",
-  deployment: "embedded", users: 1000, licensePct: 60, interactions: 10 });
-ok("github: gross == net == 20000 (no coverage)",
+  deployment: "embedded", users: 1000, licensePct: 60, interactions: 10, ghSteps: 1, ghReasonK: 0 });
+ok("github: gross == net == 20000 (no coverage; amplifier off)",
    near(q2.grossMonthly, 20000) && near(q2.netMonthly, 20000));
 ok("github: covered = false", q2.covered === false);
 
@@ -55,8 +55,35 @@ var e1 = EC.computeEstimate(per2, { harness: "standard", deployment: "embedded",
 ok("computeEstimate: net = 8000, gross = 20000",
    near(e1.netMonthly, 8000) && near(e1.grossMonthly, 20000));
 var e2 = EC.computeEstimate(per2, { harness: "github-copilot", deployment: "embedded",
-  users: 1000, licensePct: 60, interactions: 10 });
-ok("computeEstimate github: net == gross == 20000", near(e2.netMonthly, e2.grossMonthly) && near(e2.netMonthly, 20000));
+  users: 1000, licensePct: 60, interactions: 10, ghSteps: 1, ghReasonK: 0 });
+ok("computeEstimate github: net == gross == 20000 (amplifier off)", near(e2.netMonthly, e2.grossMonthly) && near(e2.netMonthly, 20000));
+
+// ── GitHub Copilot harness per-task amplifier ───────────────────
+var per7 = [{ uses: 1, credits: 2 }, { uses: 1, credits: 5 }]; // base per = 7
+ok("ghPerTask default (7×3 + 3×10 = 51)", EC.ghPerTask(7, {}) === 51);
+ok("ghPerTask simple (7×1 + 1×10 = 17)", EC.ghPerTask(7, { ghSteps: 1, ghReasonK: 1 }) === 17);
+ok("ghPerTask complex (7×6 + 8×10 = 122)", EC.ghPerTask(7, { ghSteps: 6, ghReasonK: 8 }) === 122);
+ok("effPerInteraction standard = base 7", EC.effPerInteraction(7, "standard", {}) === 7);
+ok("effPerInteraction github = amplified 51", EC.effPerInteraction(7, "github-copilot", {}) === 51);
+
+var gq = EC.computeQuick(per7, { archetype: "interactive", harness: "github-copilot",
+  deployment: "embedded", users: 1000, licensePct: 60, interactions: 10 });
+ok("github interactive perTask = 51", near(gq.perTask, 51));
+ok("github interactive net = gross = 510000", near(gq.netMonthly, 510000) && near(gq.grossMonthly, 510000));
+ok("github build/test = 40×51 = 2040", gq.buildTestCredits === 2040);
+ok("github basePerUnit preserved = 7", near(gq.basePerUnit, 7));
+
+var sq2 = EC.computeQuick(per7, { archetype: "interactive", harness: "standard",
+  deployment: "embedded", users: 1000, licensePct: 60, interactions: 10 });
+ok("standard perTask unchanged = 7", near(sq2.perTask, 7));
+ok("standard net = 400×10×7 = 28000 (unchanged)", near(sq2.netMonthly, 28000));
+ok("standard build/test = 0", sq2.buildTestCredits === 0);
+
+var ge = EC.computeEstimate(per7, { harness: "github-copilot", deployment: "embedded",
+  users: 1000, licensePct: 60, interactions: 10, ghSteps: 1, ghReasonK: 1, ghBuildRuns: 20 });
+ok("computeEstimate github simple perTask = 17", near(ge.perTask, 17));
+ok("computeEstimate github net = gross = 170000", near(ge.netMonthly, 170000) && near(ge.grossMonthly, 170000));
+ok("computeEstimate github build/test = 20×17 = 340", ge.buildTestCredits === 340);
 
 console.log(failures === 0 ? "\nALL PASS" : "\n" + failures + " FAILURE(S)");
 process.exit(failures > 0 ? 1 : 0);

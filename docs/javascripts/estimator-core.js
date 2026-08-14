@@ -169,15 +169,40 @@
       : scale.users;
     return Math.max(0, Math.round(n));
   }
+  // GitHub Copilot harness: one user interaction triggers a multi-step agentic TASK
+  // (the planner reasons, calls tools, retries). Model the base per-interaction feature
+  // work as repeated across `steps` reasoning steps, plus a reasoning-model token premium
+  // (Learn "Text & generative AI tools (premium)" meter = 10 credits / 1K tokens). Composed
+  // from the PUBLISHED rate card — Microsoft bills the harness per task by complexity, with
+  // ranges shown in a billing-doc diagram. All inputs are tunable planning assumptions.
+  var GH_DEFAULTS = { steps: 3, reasonK: 3, buildRuns: 40 };
+  function ghNum(x, d) { x = parseFloat(x); return isFinite(x) ? x : d; }
+  function ghPerTask(per, v) {
+    v = v || {};
+    var steps = Math.max(1, ghNum(v.ghSteps, GH_DEFAULTS.steps));
+    var reasonK = Math.max(0, ghNum(v.ghReasonK, GH_DEFAULTS.reasonK));
+    return per * steps + reasonK * CREDIT.reasoningPremium;
+  }
+  function effPerInteraction(per, harness, v) {
+    return harness === "github-copilot" ? ghPerTask(per, v) : per;
+  }
+  function ghBuildTestCredits(perTask, harness, v) {
+    if (harness !== "github-copilot") return 0;
+    var runs = Math.max(0, ghNum((v || {}).ghBuildRuns, GH_DEFAULTS.buildRuns));
+    return Math.round(runs * perTask);
+  }
   function computeEstimate(profile, scale) {
     var per = perInteractionCredits(profile);
+    var harness = scale.harness || "standard";
+    var effPer = effPerInteraction(per, harness, scale);
     var billed = billedUsers(scale);
     var gross = grossUsers(scale);
-    var net = billed * scale.interactions * per;
-    var grossMonthly = gross * scale.interactions * per;
-    return { perInteraction: per, billed: billed, monthly: net,
-      grossMonthly: grossMonthly, netMonthly: net,
-      covered: grossMonthly - net > 0.0001, harness: scale.harness || "standard" };
+    var net = billed * scale.interactions * effPer;
+    var grossMonthly = gross * scale.interactions * effPer;
+    return { perInteraction: effPer, basePerInteraction: per, billed: billed, monthly: net,
+      grossMonthly: grossMonthly, netMonthly: net, perTask: effPer,
+      buildTestCredits: ghBuildTestCredits(effPer, harness, scale),
+      covered: grossMonthly - net > 0.0001, harness: harness };
   }
   function creditRange(monthly) {
     return { low: monthly * 0.6, mid: monthly, high: monthly * 1.6 };
@@ -191,23 +216,26 @@
   function computeQuick(profile, v) {
     var per = perInteractionCredits(profile);
     var harness = v.harness || "standard";
+    var effPer = effPerInteraction(per, harness, v);
     if (v.archetype === "autonomous") {
       var events = Math.max(0, Math.round(v.events || 0));
-      var m = events * per;
+      var m = events * effPer;
       // Autonomous events bill per event with no license discount on ANY harness → net == gross.
-      return { regime: "autonomous", perUnit: per, units: events, billed: null,
-        monthly: m, grossMonthly: m, netMonthly: m, covered: false, harness: harness };
+      return { regime: "autonomous", perUnit: effPer, basePerUnit: per, units: events, billed: null,
+        monthly: m, grossMonthly: m, netMonthly: m, covered: false, harness: harness,
+        perTask: effPer, buildTestCredits: ghBuildTestCredits(effPer, harness, v) };
     }
     var scale = { deployment: v.deployment, users: v.users, licensePct: v.licensePct, harness: harness };
     var billed = billedUsers(scale);
     var gross = grossUsers(scale);
     var interactions = Math.max(0, v.interactions || 0);
     var escExtra = ((v.escalation || 0) / 100) * (v.escalationCredits || 0);
-    var rate = (per + escExtra);
+    var rate = (effPer + escExtra);
     var net = billed * interactions * rate;
     var grossMonthly = gross * interactions * rate;
-    return { regime: "interactive", perUnit: per, units: billed * interactions, billed: billed,
-      monthly: net, grossMonthly: grossMonthly, netMonthly: net,
+    return { regime: "interactive", perUnit: effPer, basePerUnit: per, units: billed * interactions, billed: billed,
+      monthly: net, grossMonthly: grossMonthly, netMonthly: net, perTask: effPer,
+      buildTestCredits: ghBuildTestCredits(effPer, harness, v),
       covered: grossMonthly - net > 0.0001, coveredUsers: gross - billed, harness: harness };
   }
 
@@ -1408,6 +1436,7 @@
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
     harnessCovered: harnessCovered, grossUsers: grossUsers,
+    GH_DEFAULTS: GH_DEFAULTS, ghPerTask: ghPerTask, effPerInteraction: effPerInteraction,
     computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
     costDrivers: costDrivers, QUICK_WIZARD: QUICK_WIZARD,
     detectUsers: detectUsers, detectInteractions: detectInteractions, detectDeployment: detectDeployment,

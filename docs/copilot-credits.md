@@ -124,7 +124,10 @@ The exceptions that **still bill**, even for licensed users:
 - **GitHub Copilot harness agents** — the autonomous, agentic engine is **never** covered by a Microsoft 365
   Copilot license. Every interaction — *plus building and testing the agent* — bills Copilot Credits,
   regardless of channel or who's licensed. Only the **standard** and **Copilot chat** harnesses are zero-rated.
-  See [Pick the engine](pick-the-engine.md).
+  Microsoft bills this harness **per task, by complexity** — a single interaction is a multi-step agentic task
+  (reasoning + tools + files), so it costs materially more per turn than a standard topic. See
+  [Pick the engine](pick-the-engine.md); the [Credit Estimator](credit-estimator.md) models it with tunable
+  reasoning-steps/tokens per task plus a one-time build &amp; test cost.
 - **Autonomous / triggered runs** — no interactive licensed user in the loop.
 - **Agent flows** on any trigger other than **"When an agent calls the flow."**
 - **Computer-Using Agent (CUA)** actions — never included in the Microsoft 365 Copilot license.

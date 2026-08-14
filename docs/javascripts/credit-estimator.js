@@ -321,24 +321,26 @@
     // to one escalation action (Phase B). At 0% (default) blendMonthly === avgMonthly, so the
     // base estimate is preserved; nothing tagged escalation-only → escExtra 0 → no buffer.
     var escCredits = st.toolPaths ? escExtra : ESC_DEFAULT_CREDITS;
-    var split = escSplit(avgPer, est.billed * scale.interactions, st.escalation || 0, escCredits);
+    var effAvgPer = scale.harness === "github-copilot" ? EC.ghPerTask(avgPer, scale) : avgPer;
+    var split = escSplit(effAvgPer, est.billed * scale.interactions, st.escalation || 0, escCredits);
     var monthly = split.blendMonthly;
     var rng = EC.creditRange(monthly);
     var cost = EC.costUSD(monthly);
     setText(p + "-billed", fmt(est.billed));
     setText(p + "-credits", fmt(monthly));
-    setText(p + "-peruser", fmtDec(scale.interactions * avgPer));
+    setText(p + "-peruser", fmtDec(scale.interactions * effAvgPer));
     setText(p + "-range", "Range: " + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month");
     setText(p + "-cost-payg", money(cost.payg));
     setText(p + "-cost-pre", money(cost.prepaid));
     var grossBilled = EC.grossUsers(scale);
-    var grossSplit = escSplit(avgPer, grossBilled * scale.interactions, st.escalation || 0, escCredits);
+    var grossSplit = escSplit(effAvgPer, grossBilled * scale.interactions, st.escalation || 0, escCredits);
     var grossMonthly = grossSplit.blendMonthly;
+    var buildTest = scale.harness === "github-copilot" ? Math.round(EC.GH_DEFAULTS.buildRuns * effAvgPer) : 0;
     var hName = scale.harness === "github-copilot" ? "GitHub Copilot harness"
       : scale.harness === "chat" ? "Copilot chat harness" : "Standard harness";
     var covHtml;
     if (scale.harness === "github-copilot") {
-      covHtml = "<strong>" + hName + " — never license-covered.</strong> Net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month. Building and testing also consume credits.";
+      covHtml = "<strong>" + hName + " — never license-covered.</strong> \u2248 <strong>" + fmtDec(effAvgPer) + "</strong> credits/task (agentic multi-step; assumes a medium task \u2014 tune steps in the Detailed estimator). Net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month. One-time build &amp; test \u2248 <strong>" + fmt(buildTest) + "</strong> credits.";
     } else if (scale.deployment === "embedded" && grossMonthly - monthly > 0.5) {
       var covPct = grossMonthly > 0 ? Math.round((1 - monthly / grossMonthly) * 100) : 0;
       covHtml = "<strong>" + hName + " — covered in M365 channels.</strong> Gross <strong>" + fmt(grossMonthly) + "</strong> \u2192 net billable <strong>" + fmt(monthly) + "</strong> credits / month (" + covPct + "% zero-rated). On the GitHub Copilot harness, or standalone, you would pay the full " + fmt(grossMonthly) + ".";
@@ -449,6 +451,11 @@
         (v.channel === "voice" ? numField("qe-voicemin", "Avg voice minutes / conversation", v.voiceMinutes != null ? v.voiceMinutes : 5, "Voice is billed per minute; core answer/action activity during the call is included.") : "") +
         selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
         selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "Copilot chat (extend M365)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard / chat are covered in M365 channels.") +
+        (v.harness === "github-copilot" ? (
+          numField("qe-ghsteps", "GH: reasoning steps / task", v.ghSteps != null ? v.ghSteps : 3, "Agentic multi-step loop. Simple 1 · Medium 3 · Complex 6.") +
+          numField("qe-ghreason", "GH: reasoning tokens / task (×1K)", v.ghReasonK != null ? v.ghReasonK : 3, "Premium reasoning meter: 10 credits / 1K tokens.") +
+          numField("qe-ghbuild", "GH: build & test runs (one-time)", v.ghBuildRuns != null ? v.ghBuildRuns : 40, "Build/test/eval consume credits before you publish.")
+        ) : "") +
         selField("qe-know", "Knowledge grounding", [["none", "None"], ["docs", "Documents / KB"], ["tenantGraph", "M365 tenant graph"]], v.knowledge, why.knowledge || "") +
         numField("qe-actions", "# system actions / run", v.actionsCount, "Connector calls: route, create, update, notify…") +
         numField("qe-systems", "# systems touched", v.systemsCount, "Distinct back-end systems.") +
@@ -500,6 +507,9 @@
     if (el("qe-interactions")) v.interactions = Math.max(0, parseFloat(el("qe-interactions").value) || 0);
     if (el("qe-deploy")) v.deployment = el("qe-deploy").value;
     if (el("qe-harness")) v.harness = el("qe-harness").value;
+    if (el("qe-ghsteps")) v.ghSteps = Math.max(1, parseFloat(el("qe-ghsteps").value) || 3);
+    if (el("qe-ghreason")) v.ghReasonK = Math.max(0, parseFloat(el("qe-ghreason").value) || 0);
+    if (el("qe-ghbuild")) v.ghBuildRuns = Math.max(0, parseFloat(el("qe-ghbuild").value) || 0);
     if (el("qe-lic")) v.licensePct = Math.min(100, Math.max(0, parseFloat(el("qe-lic").value) || 0));
     if (el("qe-events")) v.events = Math.max(0, Math.round(parseFloat(el("qe-events").value) || 0));
     if (el("qe-genanswers")) v.genAnswers = Math.max(0, Math.round(parseFloat(el("qe-genanswers").value) || 0));
@@ -743,7 +753,7 @@
     if (v.archetype === "autonomous") {
       cov = '<div class="em-why"><strong>' + harnessName + '.</strong> Autonomous runs bill per event with no license discount on any harness — <strong>net billable = gross</strong> (' + fmt(est.grossMonthly) + " credits / mo).</div>";
     } else if (est.harness === "github-copilot") {
-      cov = '<div class="em-why"><strong>' + harnessName + " — never license-covered.</strong> An M365 Copilot license does not cover this harness, so <strong>net billable = gross = " + fmt(est.grossMonthly) + "</strong> credits / mo. Building and testing also consume credits.</div>";
+      cov = '<div class="em-why"><strong>' + harnessName + " — never license-covered.</strong> \u2248 <strong>" + fmtDec(est.perTask) + "</strong> credits/task (agentic multi-step; tune under Advanced). Net billable = gross = <strong>" + fmt(est.grossMonthly) + "</strong> credits / mo. One-time build &amp; test \u2248 <strong>" + fmt(est.buildTestCredits) + "</strong> credits.</div>";
     } else if (est.covered) {
       var pct = est.grossMonthly > 0 ? Math.round((1 - est.netMonthly / est.grossMonthly) * 100) : 0;
       cov = '<div class="em-why"><strong>' + harnessName + " — covered in M365 channels.</strong> Gross " + fmt(est.grossMonthly) + " \u2192 <strong>net billable " + fmt(est.netMonthly) + "</strong> credits / mo. " + pct + "% zero-rated (" + fmt(est.coveredUsers) + " licensed users in M365 channels). On the GitHub Copilot harness, or outside M365 channels, you would pay the full " + fmt(est.grossMonthly) + ".</div>";

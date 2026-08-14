@@ -21,7 +21,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
     ??? note "Zero-rating exceptions"
         A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
 
-        - **GitHub Copilot harness agents** are **never** covered by a Microsoft 365 Copilot license — every interaction, *plus building and testing the agent*, bills Copilot Credits regardless of channel. Only the **standard** and **Copilot chat** harnesses are zero-rated. Use the **Harness** selector to model it.
+        - **GitHub Copilot harness agents** are **never** covered by a Microsoft 365 Copilot license — every interaction, *plus building and testing the agent*, bills Copilot Credits regardless of channel. Only the **standard** and **Copilot chat** harnesses are zero-rated. Use the **Harness** selector to model it. Because Microsoft bills this harness **per task by complexity**, the estimator models a GitHub-harness interaction as a **multi-step agentic task** — tunable *reasoning steps* and *reasoning tokens* per task — plus a one-time **build &amp; test** cost. Defaults are planning assumptions composed from the published rate card, not Microsoft's per-tier figures.
         - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
         - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
         - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
@@ -863,6 +863,26 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <button type="button" id="harness-chat" data-harness="chat" class="deploy-btn" onclick="setHarnessMode('chat')">Copilot chat</button>
 </div>
 <p class="deploy-hint" id="harness-hint">Standard &amp; Copilot chat are covered by an M365 Copilot license in M365 channels. The <strong>GitHub Copilot harness is never covered</strong> — every interaction bills credits, so net billable = gross.</p>
+<div id="gh-realism" style="display:none;margin-top:.6rem">
+<div class="section-label" style="font-size:.72rem">Agentic task realism — GitHub Copilot harness</div>
+<div class="deploy-toggle" id="gh-complexity" style="margin-bottom:.5rem">
+  <button type="button" class="deploy-btn" data-c="simple" onclick="setGhComplexity('simple')">Simple</button>
+  <button type="button" class="deploy-btn active" data-c="medium" onclick="setGhComplexity('medium')">Medium</button>
+  <button type="button" class="deploy-btn" data-c="complex" onclick="setGhComplexity('complex')">Complex</button>
+</div>
+<div class="calc-grid">
+  <div class="calc-field"><label for="ghSteps">Reasoning steps / task</label>
+    <input type="number" id="ghSteps" min="1" step="1" value="3" oninput="markGhCustom();recalc()">
+    <div class="hint">One user request is a multi-step agentic task — the planner repeats the per-interaction work this many times.</div></div>
+  <div class="calc-field"><label for="ghReasonK">Reasoning tokens / task (×1K)</label>
+    <input type="number" id="ghReasonK" min="0" step="1" value="3" oninput="markGhCustom();recalc()">
+    <div class="hint">Premium reasoning meter — 10 credits per 1K tokens, on top.</div></div>
+  <div class="calc-field"><label for="ghBuildRuns">Build &amp; test runs (one-time)</label>
+    <input type="number" id="ghBuildRuns" min="0" step="5" value="40" oninput="recalc()">
+    <div class="hint">Building, testing &amp; evaluating consume credits before you publish.</div></div>
+</div>
+<p class="deploy-hint">Composed from Microsoft's published rate card (generative 2 · agent action 5 · reasoning premium 10 / 1K tokens). Microsoft bills the GitHub Copilot harness <strong>per task by complexity</strong> — these are tunable planning assumptions, not published per-tier figures.</p>
+</div>
 </div>
 <p id="deploy-hint" class="deploy-hint">On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
 
@@ -1111,11 +1131,16 @@ function recalc() {
     var unlicensed = total - licensed;
     var billedBase = covered ? unlicensed : total;
     var active     = billedBase;
+    var ghSteps    = Math.max(1, parseFloat((document.getElementById('ghSteps')||{}).value) || 3);
+    var ghReasonK  = Math.max(0, parseFloat((document.getElementById('ghReasonK')||{}).value) || 0);
+    var ghBuildRuns= Math.max(0, parseFloat((document.getElementById('ghBuildRuns')||{}).value) || 0);
+    var effCpud    = harness === 'github-copilot' ? (totalCpud * ghSteps + ghReasonK * 10) : totalCpud;
+    var buildTest  = harness === 'github-copilot' ? Math.round(ghBuildRuns * effCpud) : 0;
 
     var monthlyP = active * avgInt;
-    monthlyC = active * avgInt * totalCpud;          // net billable
-    var grossC = total * avgInt * totalCpud;         // gross consumption (all users)
-    var perUser  = avgInt * totalCpud;
+    monthlyC = active * avgInt * effCpud;            // net billable
+    var grossC = total * avgInt * effCpud;           // gross consumption (all users)
+    var perUser  = avgInt * effCpud;
 
     detSetText('lbl-billed', covered ? 'Unlicensed users (billed)' : 'Users billed (all)');
     detSetText('lbl-interactions', 'Total interactions / month');
@@ -1131,7 +1156,7 @@ function recalc() {
       var hName = harness === 'github-copilot' ? 'GitHub Copilot harness'
         : harness === 'chat' ? 'Copilot chat harness' : 'Standard harness';
       if (harness === 'github-copilot') {
-        covEl.innerHTML = '<strong>' + hName + ' — never license-covered.</strong> Net billable = gross = <strong>' + fmt(grossC) + '</strong> credits / mo. Building and testing also consume credits.';
+        covEl.innerHTML = '<strong>' + hName + ' — never license-covered.</strong> \u2248 <strong>' + fmt(effCpud) + '</strong> credits/task (' + fmtDec(totalCpud) + ' base \u00d7 ' + ghSteps + ' steps + ' + ghReasonK + 'K reasoning tokens). Net billable = gross = <strong>' + fmt(grossC) + '</strong> credits / mo. One-time <strong>build &amp; test \u2248 ' + fmt(buildTest) + '</strong> credits.';
       } else if (covered && grossC - monthlyC > 0.5) {
         var pct = grossC > 0 ? Math.round((1 - monthlyC / grossC) * 100) : 0;
         covEl.innerHTML = '<strong>' + hName + ' — covered in M365 channels.</strong> Gross <strong>' + fmt(grossC) + '</strong> \u2192 net billable <strong>' + fmt(monthlyC) + '</strong> credits / mo (' + pct + '% zero-rated, ' + fmt(licensed) + ' licensed users). On the GitHub Copilot harness, or standalone, you would pay the full ' + fmt(grossC) + '.';
@@ -1202,7 +1227,25 @@ function setHarnessMode(mode) {
     var b = document.getElementById('harness-' + m);
     if (b) b.classList.toggle('active', m === mode);
   });
+  var gh = document.getElementById('gh-realism');
+  if (gh) gh.style.display = (mode === 'github-copilot') ? 'block' : 'none';
   recalc();
+}
+function setGhComplexity(c) {
+  var presets = { simple: { s: 1, k: 1 }, medium: { s: 3, k: 3 }, complex: { s: 6, k: 8 } };
+  var p = presets[c] || presets.medium;
+  var se = document.getElementById('ghSteps'), ke = document.getElementById('ghReasonK');
+  if (se) se.value = p.s;
+  if (ke) ke.value = p.k;
+  var box = document.getElementById('gh-complexity');
+  if (box) Array.prototype.forEach.call(box.querySelectorAll('.deploy-btn'), function (b) {
+    b.classList.toggle('active', b.getAttribute('data-c') === c);
+  });
+  recalc();
+}
+function markGhCustom() {
+  var box = document.getElementById('gh-complexity');
+  if (box) Array.prototype.forEach.call(box.querySelectorAll('.deploy-btn'), function (b) { b.classList.remove('active'); });
 }
 
 var scenarios = {
