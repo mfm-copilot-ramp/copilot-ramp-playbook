@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-14T14:43:10Z",
+  "generated": "2026-08-14T16:25:45Z",
   "items": [
     {
       "path": "walkthroughs/agent-builder-faq-agent/",
@@ -1121,6 +1121,21 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/studio-functional-engineering-oncall-generative/",
+      "title": "Engineering: Autonomous alert-to-runbook-to-escalation on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "developer",
+        "it-admin"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "4–5 hours",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/studio-functional-engineering-oncall/",
       "title": "Engineering: alert to runbook to escalation",
       "stage": "studio",
@@ -1136,6 +1151,20 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/studio-functional-events-coordination-generative/",
+      "title": "Workplace: Plan an internal event end to end on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "it-admin"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/studio-functional-events-coordination/",
       "title": "Workplace: plan an internal event end to end",
       "stage": "studio",
@@ -1147,6 +1176,20 @@
       "fn": [],
       "level": "intermediate",
       "time": "3–4 hours",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/studio-functional-field-service-triage-generative/",
+      "title": "Field Service: Autonomous symptom-to-dispatch triage on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "it-admin"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "4–5 hours",
       "kind": "walkthrough"
     },
     {
@@ -1232,6 +1275,23 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/studio-functional-it-access-request-generative/",
+      "title": "IT: Autonomous access-request handling on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "it-admin",
+        "champion"
+      ],
+      "fn": [
+        "it"
+      ],
+      "level": "intermediate",
+      "time": "4–5 hours",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/studio-functional-it-access-request/",
       "title": "IT: Self-service software and hardware access requests",
       "stage": "studio",
@@ -1246,6 +1306,22 @@
       ],
       "level": "intermediate",
       "time": "4–5 hours",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/studio-functional-it-helpdesk-generative/",
+      "title": "IT: Autonomous helpdesk triage on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "it-admin"
+      ],
+      "fn": [
+        "it"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
       "kind": "walkthrough"
     },
     {
@@ -1299,6 +1375,20 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/studio-functional-marketing-campaign-generative/",
+      "title": "Marketing: Brief-to-campaign generation on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "marketer"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/studio-functional-marketing-campaign/",
       "title": "Marketing: brief to campaign drafts",
       "stage": "studio",
@@ -1308,6 +1398,22 @@
         "marketer"
       ],
       "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/studio-functional-procurement-sourcing-generative/",
+      "title": "Procurement: Autonomous sourcing intake on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "it-admin"
+      ],
+      "fn": [
+        "finance"
+      ],
       "level": "intermediate",
       "time": "3–4 hours",
       "kind": "walkthrough"
@@ -1346,6 +1452,23 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/studio-functional-sales-proposal-generative/",
+      "title": "Sales: Autonomous proposal and RFP drafting on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "champion",
+        "manager"
+      ],
+      "fn": [
+        "sales"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/studio-functional-sales-proposal/",
       "title": "Sales: Build proposals and RFP responses with your approved content",
       "stage": "studio",
@@ -1358,6 +1481,20 @@
       "fn": [
         "sales"
       ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/studio-functional-support-deflection-generative/",
+      "title": "Customer Support: Autonomous deflect-and-draft on the GitHub Copilot harness",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "maker",
+        "it-admin"
+      ],
+      "fn": [],
       "level": "intermediate",
       "time": "3–4 hours",
       "kind": "walkthrough"
