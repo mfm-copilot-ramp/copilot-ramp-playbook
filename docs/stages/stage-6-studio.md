@@ -36,7 +36,7 @@ Your declarative agents are bumping into limits: you need a real action against 
 
 ## Start here — if you only do three things
 
-Build a real designed agent, give it an action against a real system, then ship it with a governance checklist.
+Learn the fundamentals on the license-covered standard harness, step up to an autonomous generative agent on the GitHub Copilot harness, then ship it with a governance checklist.
 
 <div class="grid cards rc-pinned" markdown>
 
@@ -44,17 +44,17 @@ Build a real designed agent, give it an action against a real system, then ship 
 
     **[Build your first Studio agent with knowledge + a topic](../walkthroughs/studio-first-agent.md)**
 
-    Go from Agent Builder to a real designed conversation with topics and grounding.
+    Learn the fundamentals on the **standard harness** — a designed conversation, topics, and grounding — covered by your M365 Copilot license inside M365 channels.
 
     <span class="rc-meta" data-time="45" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   <span class="rc-habit">Habit 2<small>Week 1</small></span>
 
-    **[Give a Studio agent a real action with a connector](../walkthroughs/studio-connector-action.md)**
+    **[Build a generative agent on the GitHub Copilot harness](../walkthroughs/studio-generative-agent.md)**
 
-    Let the agent do things, not just answer — look up records, create tickets, trigger workflows.
+    Step up from a designed conversation to an agent that plans and runs a multi-step task on its own. The direction to grow into — credits apply for all usage, and it's not license-covered.
 
-    <span class="rc-meta" data-time="25" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 25 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-time="40" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 40 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   <span class="rc-habit">Habit 3<small>Month 1</small></span>
 
@@ -88,6 +88,12 @@ Everything that makes a Studio agent real — designed conversation, tools and a
     Go from Agent Builder to a real designed conversation with topics and grounding.
 
     <span class="rc-meta" data-time="45" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span> <span class="rc-chip rc-chip-star">★ Starter</span></span>
+
+-   **[Build a generative agent on the GitHub Copilot harness](../walkthroughs/studio-generative-agent.md)**
+
+    Describe the outcome and let generative orchestration plan and run a multi-step task — the autonomous engine to grow into. Bills credits for all usage; not license-covered.
+
+    <span class="rc-meta" data-time="40" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 40 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Design a multi-turn conversation with fallback and clarification](../walkthroughs/studio-multi-turn-conversation.md)**
 

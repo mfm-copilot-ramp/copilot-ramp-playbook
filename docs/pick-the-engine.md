@@ -17,11 +17,15 @@ can publish it, and how it bills. Same builder, different engines, and the right
 
 !!! info "Where it's heading — and the honest tradeoff"
     Microsoft is investing most in the **GitHub Copilot harness**, and new agent capability tends to land
-    there first — so for complex, multi-step work it's increasingly the engine to grow into. Weigh two facts
-    with equal honesty: it is the **only** harness a Microsoft 365 Copilot license does **not** cover, and it
-    bills **Copilot Credits for all usage — creation *and* runtime**. The **standard** and **chat** harnesses
-    are covered by a Microsoft 365 Copilot license inside Microsoft 365 channels. Pick for the job *and* the
-    budget — the [Credit Estimator](credit-estimator.md) models the real net cost of each.
+    there first. Reach for it when the job is a **complex, multi-step process** a rules script can't handle
+    gracefully: it reasons through the whole goal on its own, **retries and finds another path when a step
+    fails**, works directly across **Word, Excel, PowerPoint, and PDF** files, and carries context with
+    **skills and memory**. That capability is why it's the engine to grow into. Weigh two facts with equal
+    honesty: it is the **only** harness a Microsoft 365 Copilot license does **not** cover, and it bills
+    **Copilot Credits for all usage — creation *and* runtime**. The **standard** and **chat** harnesses are
+    covered by a Microsoft 365 Copilot license inside Microsoft 365 channels and cost less for predictable,
+    rules-based work. Pick for the job *and* the budget — the [Credit Estimator](credit-estimator.md) models
+    the real net cost of each.
 
 <div class="eng-head" markdown="0">
   <span class="eng-eyebrow">Pick the engine for the job</span>

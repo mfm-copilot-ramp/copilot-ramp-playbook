@@ -2,6 +2,7 @@
 title: Build your first Studio agent with a knowledge source + topic
 description: Build your first Copilot Studio agent with a knowledge source and a topic, adding designed conversations and logic you can ship to hundreds of people.
 stage: studio
+harness: standard
 roles: [maker]
 tags: [copilot-studio, topics, knowledge, low-code, destination]
 level: advanced
@@ -17,6 +18,20 @@ updated: 2026-06-03
 > and structured logic, the kind you ship to hundreds of people.
 
 **Stage:** Copilot Studio · **For:** Maker · **Level:** Advanced · **Time:** 45 min
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: *you* author the topics and rules, the conversation is
+    predictable, and for Microsoft 365 Copilot–licensed users **it's covered inside Microsoft 365 channels**
+    (no extra credits). That makes it the right, lowest-cost choice for structured, rules-based flows.
+
+    Reach for the **GitHub Copilot harness** instead when the job is a *complex, multi-step process* rules
+    can't script cleanly: it **reasons through the whole goal on its own**, **retries and finds another path
+    when a step fails**, works directly across your **Word, Excel, PowerPoint, and PDF** files, and keeps
+    context with **skills and memory** — so you describe the outcome instead of wiring every branch. That
+    power is why it's the engine to grow into. The honest tradeoff: it bills **Copilot Credits for all usage
+    (creation *and* runtime)** and a Microsoft 365 Copilot license **never** covers it.
+    [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 This is the low-code destination. Everything before this — using Chat, delegating to agents, building a
