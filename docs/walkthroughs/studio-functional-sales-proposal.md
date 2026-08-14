@@ -2,6 +2,7 @@
 title: "Sales: Build proposals and RFP responses with your approved content"
 description: Build a Copilot Studio agent that helps reps assemble proposals and RFP responses from your approved content, so the first draft takes 30 minutes not 3 hours.
 stage: studio
+harness: standard
 roles: [maker, champion, manager]
 tags: [copilot-studio, sales, proposal, rfp, content-assembly, functional]
 level: intermediate
@@ -17,6 +18,18 @@ updated: 2026-06-04
 **Stage:** Copilot Studio · **For:** Maker, Champion, Manager · **Level:** Intermediate · **Time:** 3–4 hours
 
 > **📐 Full blueprint & test plan →** [Sales Proposal & RFP Agent](../solutions/sales-proposal-rfp-agent.md) — the copy-paste system prompt, topic specs, and test-case table behind this build.
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: you author the topics and rules, the flow is predictable,
+    and for Microsoft 365 Copilot-licensed users **it's covered inside Microsoft 365 channels** (no extra
+    credits) — the lowest-cost choice for structured, rules-based work.
+
+    Want the same use case to **reason through the task on its own** — planning multi-step work, recovering
+    when a step fails, and working across your files? Build the
+    **[GitHub Copilot harness version](studio-functional-sales-proposal-generative.md)** instead. It's the autonomous engine to grow into; the
+    honest tradeoff is that it bills **Copilot Credits for all usage** and a Microsoft 365 Copilot license
+    never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 

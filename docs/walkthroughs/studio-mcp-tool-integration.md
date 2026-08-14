@@ -19,6 +19,12 @@ updated: 2026-06-03
 
 **Stage:** Copilot Studio · **For:** Maker · **Level:** Advanced · **Time:** 20 min
 
+!!! info "Works on any harness — cost and coverage differ"
+    This is a platform skill that applies whichever [harness](../pick-the-engine.md) powers your agent. Keep
+    one thing in mind: the **standard** and **chat** harnesses are covered by a Microsoft 365 Copilot license
+    inside Microsoft 365 channels, while the **GitHub Copilot harness** bills **Copilot Credits for all
+    usage** and a license never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
+
 ## When to use this
 Your agent answers questions well, but users keep asking it to *do* things — "check the order status,"
 "create the ticket," "pull the current inventory." Grounding on documents can't do that; it only knows what

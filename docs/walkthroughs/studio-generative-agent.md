@@ -1,6 +1,6 @@
 ---
 title: Build a generative agent on the GitHub Copilot harness
-description: Build a Copilot Studio agent on the GitHub Copilot harness that uses generative orchestration to plan and run a multi-step task from instructions, knowledge, and tools.
+description: Build a Copilot Studio agent on the GitHub Copilot harness: use generative orchestration to plan and run a multi-step task from instructions and tools.
 stage: studio
 harness: github-copilot
 roles: [maker]

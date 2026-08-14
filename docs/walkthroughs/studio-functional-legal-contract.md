@@ -2,6 +2,7 @@
 title: "Legal: Guide employees through contract routing and requirements"
 description: Build a Copilot Studio agent that gives employees a clear path for getting contracts reviewed, what type, what Legal needs, and where to submit, before intake.
 stage: studio
+harness: standard
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, legal, contracts, routing, process-navigation, functional]
 level: intermediate
@@ -17,6 +18,17 @@ updated: 2026-06-04
 **Stage:** Copilot Studio · **For:** Maker, IT Admin, Champion · **Level:** Intermediate · **Time:** 2–3 hours
 
 > **🧱 Build-only walkthrough.** A hands-on Studio build with no separate solution-template blueprint — the steps below are the complete spec.
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: you author the topics and rules, the flow is predictable,
+    and for Microsoft 365 Copilot-licensed users **it's covered inside Microsoft 365 channels** (no extra
+    credits) — the right, lowest-cost choice for structured, knowledge-driven work like this.
+
+    When a job needs to **reason through a multi-step task on its own**, step up to the **GitHub Copilot
+    harness** — see [Build a generative agent](studio-generative-agent.md). It's the autonomous engine to
+    grow into; the honest tradeoff is that it bills **Copilot Credits for all usage** and a Microsoft 365
+    Copilot license never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 
