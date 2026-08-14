@@ -855,14 +855,14 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <button id="toggle-standalone" class="deploy-btn" onclick="setDeployMode('standalone')">Standalone / other channel</button>
 </div>
 
-<div class="calc-field" id="harness-field" style="margin-top:.7rem">
-  <label for="detHarness">Harness (Copilot Studio engine)</label>
-  <select id="detHarness" onchange="recalc()">
-    <option value="standard">Standard — topics/rules · covered by an M365 Copilot license in M365 channels</option>
-    <option value="github-copilot">GitHub Copilot — autonomous · Copilot Credits for all usage, never license-covered</option>
-    <option value="chat">Copilot chat — extend M365 Copilot · included in M365 Copilot USLs</option>
-  </select>
-  <div class="hint">The GitHub Copilot harness is never zero-rated by an M365 Copilot license — every interaction bills credits, so net billable = gross.</div>
+<div id="harness-field" style="margin-top:.9rem">
+<div class="section-label">Harness (Copilot Studio engine)</div>
+<div class="deploy-toggle" id="harness-toggle">
+  <button type="button" id="harness-standard" data-harness="standard" class="deploy-btn active" onclick="setHarnessMode('standard')">Standard</button>
+  <button type="button" id="harness-github-copilot" data-harness="github-copilot" class="deploy-btn" onclick="setHarnessMode('github-copilot')">GitHub Copilot</button>
+  <button type="button" id="harness-chat" data-harness="chat" class="deploy-btn" onclick="setHarnessMode('chat')">Copilot chat</button>
+</div>
+<p class="deploy-hint" id="harness-hint">Standard &amp; Copilot chat are covered by an M365 Copilot license in M365 channels. The <strong>GitHub Copilot harness is never covered</strong> — every interaction bills credits, so net billable = gross.</p>
 </div>
 <p id="deploy-hint" class="deploy-hint">On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
 
@@ -1104,7 +1104,8 @@ function recalc() {
     var licPct   = Math.min(100, Math.max(0, parseFloat(document.getElementById('licensePct').value)   || 0));
     var avgInt   = Math.max(0, parseFloat(document.getElementById('avgInteractions').value) || 0);
     var embedded   = document.getElementById('toggle-embedded').classList.contains('active');
-    var harness    = (document.getElementById('detHarness') || {}).value || 'standard';
+    var harnessBtn = document.querySelector('#harness-toggle .deploy-btn.active');
+    var harness    = harnessBtn ? harnessBtn.getAttribute('data-harness') : 'standard';
     var covered    = (harness !== 'github-copilot') && embedded;
     var licensed   = Math.round(total * licPct / 100);
     var unlicensed = total - licensed;
@@ -1193,6 +1194,14 @@ function setDeployMode(mode) {
     : 'All users generate credits regardless of M365 Copilot license status. The <em>% with M365 Copilot license</em> slider has no effect on credit calculation.';
   var licField = document.getElementById('license-field');
   if (licField) licField.style.opacity = isEmbedded ? '1' : '0.45';
+  recalc();
+}
+
+function setHarnessMode(mode) {
+  ['standard', 'github-copilot', 'chat'].forEach(function (m) {
+    var b = document.getElementById('harness-' + m);
+    if (b) b.classList.toggle('active', m === mode);
+  });
   recalc();
 }
 

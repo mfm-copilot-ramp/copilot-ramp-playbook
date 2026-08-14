@@ -191,12 +191,11 @@
             '<input type="number" min="0" max="100" id="' + p + '-lic" value="' + scale.licensePct + '" oninput="document.getElementById(\'' + p + '-lic-slider\').value=this.value;' + p + 'Recompute()"><span>%</span>' +
           '</div><div class="hint">Embedded: licensed users accrue 0 credits.</div></div>' +
         '<div class="calc-field"><label>Harness (engine)</label>' +
-          '<select id="' + p + '-harness" onchange="' + p + 'Recompute()">' +
-            '<option value="standard"' + (scale.harness === "github-copilot" || scale.harness === "chat" ? "" : " selected") + '>Standard — license-covered in M365 channels</option>' +
-            '<option value="github-copilot"' + (scale.harness === "github-copilot" ? " selected" : "") + '>GitHub Copilot — credits for all usage, never covered</option>' +
-            '<option value="chat"' + (scale.harness === "chat" ? " selected" : "") + '>Copilot chat — included in M365 Copilot USLs</option>' +
-          '</select>' +
-          '<div class="hint">GitHub Copilot harness is never zero-rated — net billable = gross.</div></div>' +
+          '<div class="deploy-toggle" id="' + p + '-harness-toggle">' +
+            '<button type="button" class="deploy-btn' + (scale.harness === "github-copilot" || scale.harness === "chat" ? "" : " active") + '" id="' + p + '-harness-standard" data-harness="standard" onclick="emSetHarness(\'' + p + '\',\'standard\')">Standard</button>' +
+            '<button type="button" class="deploy-btn' + (scale.harness === "github-copilot" ? " active" : "") + '" id="' + p + '-harness-github" data-harness="github-copilot" onclick="emSetHarness(\'' + p + '\',\'github-copilot\')">GitHub Copilot</button>' +
+            '<button type="button" class="deploy-btn' + (scale.harness === "chat" ? " active" : "") + '" id="' + p + '-harness-chat" data-harness="chat" onclick="emSetHarness(\'' + p + '\',\'chat\')">Copilot chat</button>' +
+          '</div><div class="hint">GitHub Copilot harness is never zero-rated — net billable = gross.</div></div>' +
       '</div>';
   }
 
@@ -272,7 +271,7 @@
       interactions: Math.max(0, parseFloat(getVal(p + "-interactions")) || 0),
       deployment: dep,
       licensePct: Math.min(100, Math.max(0, parseFloat(getVal(p + "-lic")) || 0)),
-      harness: (document.getElementById(p + "-harness") || {}).value || "standard"
+      harness: (function () { var b = document.querySelector('#' + p + '-harness-toggle .deploy-btn.active'); return b ? b.getAttribute("data-harness") : "standard"; })()
     };
   }
 
@@ -355,6 +354,14 @@
     var b = document.getElementById(p + "-dep-standalone");
     if (a) a.classList.toggle("active", mode === "embedded");
     if (b) b.classList.toggle("active", mode === "standalone");
+    recompute(p);
+  }
+
+  function emSetHarness(p, mode) {
+    var t = document.getElementById(p + "-harness-toggle");
+    if (t) Array.prototype.forEach.call(t.querySelectorAll(".deploy-btn"), function (btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-harness") === mode);
+    });
     recompute(p);
   }
 
@@ -2343,6 +2350,7 @@
     window.spSetToolPath = spSetToolPath;
     window.spToDetailed = spToDetailed;
     window.emSetDeploy = emSetDeploy;
+    window.emSetHarness = emSetHarness;
     window.qiDownloadTemplate = qiDownloadTemplate;
     window.qiDownloadCsv = qiDownloadCsv;
     window.qiCopyPrompt = qiCopyPrompt;
