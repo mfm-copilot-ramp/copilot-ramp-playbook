@@ -16,11 +16,12 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 ??? info "How Copilot Credits are billed — rates & licensing ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management))"
     Rates are sourced from the **Microsoft Copilot Studio Billing rates and management** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
 
-    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario.
+    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario. **This zero-rating applies to the *standard* and *Copilot chat* harnesses only — the *GitHub Copilot harness* is never covered.** Pick the **Harness** in either mode and the estimator shows **gross consumption vs. net billable** side by side.
 
     ??? note "Zero-rating exceptions"
         A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
 
+        - **GitHub Copilot harness agents** are **never** covered by a Microsoft 365 Copilot license — every interaction, *plus building and testing the agent*, bills Copilot Credits regardless of channel. Only the **standard** and **Copilot chat** harnesses are zero-rated. Use the **Harness** selector to model it.
         - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
         - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
         - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
@@ -853,6 +854,16 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <button id="toggle-embedded" class="deploy-btn active" onclick="setDeployMode('embedded')">Microsoft 365 (Teams · Copilot Chat · SharePoint)</button>
   <button id="toggle-standalone" class="deploy-btn" onclick="setDeployMode('standalone')">Standalone / other channel</button>
 </div>
+
+<div class="calc-field" id="harness-field" style="margin-top:.7rem">
+  <label for="detHarness">Harness (Copilot Studio engine)</label>
+  <select id="detHarness" onchange="recalc()">
+    <option value="standard">Standard — topics/rules · covered by an M365 Copilot license in M365 channels</option>
+    <option value="github-copilot">GitHub Copilot — autonomous · Copilot Credits for all usage, never license-covered</option>
+    <option value="chat">Copilot chat — extend M365 Copilot · included in M365 Copilot USLs</option>
+  </select>
+  <div class="hint">The GitHub Copilot harness is never zero-rated by an M365 Copilot license — every interaction bills credits, so net billable = gross.</div>
+</div>
 <p id="deploy-hint" class="deploy-hint">On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
 
 <hr class="calc-divider">
@@ -947,6 +958,8 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <div class="result-card"><div class="val" id="res-credits">—</div><div class="lbl"><span id="lbl-credits-month">Credits / month (org)</span></div></div>
   <div class="result-card"><div class="val" id="res-per-user">—</div><div class="lbl"><span id="lbl-per-user">Credits / user / month</span></div></div>
 </div>
+
+<div id="det-coverage" class="deploy-hint" style="margin-top:.5rem"></div>
 
 <div class="em-export" role="group" aria-label="Export or share this Detailed estimate">
   <button type="button" class="em-btn secondary em-export-btn" onclick="emCopySummary('detailed')" aria-label="Copy a plain-text summary of this estimate to the clipboard">Copy summary</button>
@@ -1091,24 +1104,40 @@ function recalc() {
     var licPct   = Math.min(100, Math.max(0, parseFloat(document.getElementById('licensePct').value)   || 0));
     var avgInt   = Math.max(0, parseFloat(document.getElementById('avgInteractions').value) || 0);
     var embedded   = document.getElementById('toggle-embedded').classList.contains('active');
+    var harness    = (document.getElementById('detHarness') || {}).value || 'standard';
+    var covered    = (harness !== 'github-copilot') && embedded;
     var licensed   = Math.round(total * licPct / 100);
     var unlicensed = total - licensed;
-    var billedBase = embedded ? unlicensed : total;
+    var billedBase = covered ? unlicensed : total;
     var active     = billedBase;
 
     var monthlyP = active * avgInt;
-    monthlyC = active * avgInt * totalCpud;
+    monthlyC = active * avgInt * totalCpud;          // net billable
+    var grossC = total * avgInt * totalCpud;         // gross consumption (all users)
     var perUser  = avgInt * totalCpud;
 
-    detSetText('lbl-billed', embedded ? 'Unlicensed users (billed)' : 'Total users (all billed)');
+    detSetText('lbl-billed', covered ? 'Unlicensed users (billed)' : 'Users billed (all)');
     detSetText('lbl-interactions', 'Total interactions / month');
-    detSetText('lbl-credits-month', 'Credits / month (org)');
+    detSetText('lbl-credits-month', 'Net billable credits / mo');
     detSetText('lbl-per-user', 'Credits / user / month');
 
     document.getElementById('res-licensed').textContent        = fmt(billedBase);
     document.getElementById('res-monthly-prompts').textContent = fmt(monthlyP);
     document.getElementById('res-credits').textContent         = fmt(monthlyC);
     document.getElementById('res-per-user').textContent        = fmt(perUser);
+    var covEl = document.getElementById('det-coverage');
+    if (covEl) {
+      var hName = harness === 'github-copilot' ? 'GitHub Copilot harness'
+        : harness === 'chat' ? 'Copilot chat harness' : 'Standard harness';
+      if (harness === 'github-copilot') {
+        covEl.innerHTML = '<strong>' + hName + ' — never license-covered.</strong> Net billable = gross = <strong>' + fmt(grossC) + '</strong> credits / mo. Building and testing also consume credits.';
+      } else if (covered && grossC - monthlyC > 0.5) {
+        var pct = grossC > 0 ? Math.round((1 - monthlyC / grossC) * 100) : 0;
+        covEl.innerHTML = '<strong>' + hName + ' — covered in M365 channels.</strong> Gross <strong>' + fmt(grossC) + '</strong> \u2192 net billable <strong>' + fmt(monthlyC) + '</strong> credits / mo (' + pct + '% zero-rated, ' + fmt(licensed) + ' licensed users). On the GitHub Copilot harness, or standalone, you would pay the full ' + fmt(grossC) + '.';
+      } else {
+        covEl.innerHTML = '<strong>' + hName + '.</strong> No license coverage applies here (standalone channel or 0% licensed) \u2014 net billable = gross = <strong>' + fmt(grossC) + '</strong> credits / mo.';
+      }
+    }
     reduceHint = 'Reduce interactions per user, escalation rate, or the credit mix.';
   }
 

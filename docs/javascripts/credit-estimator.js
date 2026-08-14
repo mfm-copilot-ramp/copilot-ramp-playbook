@@ -190,6 +190,13 @@
             '<input type="range" min="0" max="100" id="' + p + '-lic-slider" value="' + scale.licensePct + '" oninput="document.getElementById(\'' + p + '-lic\').value=this.value;' + p + 'Recompute()">' +
             '<input type="number" min="0" max="100" id="' + p + '-lic" value="' + scale.licensePct + '" oninput="document.getElementById(\'' + p + '-lic-slider\').value=this.value;' + p + 'Recompute()"><span>%</span>' +
           '</div><div class="hint">Embedded: licensed users accrue 0 credits.</div></div>' +
+        '<div class="calc-field"><label>Harness (engine)</label>' +
+          '<select id="' + p + '-harness" onchange="' + p + 'Recompute()">' +
+            '<option value="standard"' + (scale.harness === "github-copilot" || scale.harness === "chat" ? "" : " selected") + '>Standard — license-covered in M365 channels</option>' +
+            '<option value="github-copilot"' + (scale.harness === "github-copilot" ? " selected" : "") + '>GitHub Copilot — credits for all usage, never covered</option>' +
+            '<option value="chat"' + (scale.harness === "chat" ? " selected" : "") + '>Copilot chat — included in M365 Copilot USLs</option>' +
+          '</select>' +
+          '<div class="hint">GitHub Copilot harness is never zero-rated — net billable = gross.</div></div>' +
       '</div>';
   }
 
@@ -227,6 +234,7 @@
         '<div class="result-card"><div class="val" id="' + p + '-credits">—</div><div class="lbl">Credits / month</div></div>' +
         '<div class="result-card"><div class="val" id="' + p + '-peruser">—</div><div class="lbl">' + c3 + '</div></div>' +
       '</div>' +
+      '<div class="em-range" id="' + p + '-coverage"></div>' +
       '<div class="em-range" id="' + p + '-range"></div>' +
       '<div id="' + p + '-esc-readout" class="em-esc-wrap"></div>' +
       '<div class="section-label" style="margin-top:1.25rem">Estimated cost</div>' +
@@ -263,7 +271,8 @@
       users: Math.max(0, parseFloat(getVal(p + "-users")) || 0),
       interactions: Math.max(0, parseFloat(getVal(p + "-interactions")) || 0),
       deployment: dep,
-      licensePct: Math.min(100, Math.max(0, parseFloat(getVal(p + "-lic")) || 0))
+      licensePct: Math.min(100, Math.max(0, parseFloat(getVal(p + "-lic")) || 0)),
+      harness: (document.getElementById(p + "-harness") || {}).value || "standard"
     };
   }
 
@@ -300,6 +309,7 @@
       setText(p + "-cost-payg", money(costA.payg));
       setText(p + "-cost-pre", money(costA.prepaid));
       setHtml(p + "-esc-readout", "");
+      setHtml(p + "-coverage", "<strong>Autonomous.</strong> Billed per run — no M365 Copilot license discount on any harness. Net billable = gross.");
       return;
     }
 
@@ -321,6 +331,21 @@
     setText(p + "-range", "Range: " + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month");
     setText(p + "-cost-payg", money(cost.payg));
     setText(p + "-cost-pre", money(cost.prepaid));
+    var grossBilled = EC.grossUsers(scale);
+    var grossSplit = escSplit(avgPer, grossBilled * scale.interactions, st.escalation || 0, escCredits);
+    var grossMonthly = grossSplit.blendMonthly;
+    var hName = scale.harness === "github-copilot" ? "GitHub Copilot harness"
+      : scale.harness === "chat" ? "Copilot chat harness" : "Standard harness";
+    var covHtml;
+    if (scale.harness === "github-copilot") {
+      covHtml = "<strong>" + hName + " — never license-covered.</strong> Net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month. Building and testing also consume credits.";
+    } else if (scale.deployment === "embedded" && grossMonthly - monthly > 0.5) {
+      var covPct = grossMonthly > 0 ? Math.round((1 - monthly / grossMonthly) * 100) : 0;
+      covHtml = "<strong>" + hName + " — covered in M365 channels.</strong> Gross <strong>" + fmt(grossMonthly) + "</strong> \u2192 net billable <strong>" + fmt(monthly) + "</strong> credits / month (" + covPct + "% zero-rated). On the GitHub Copilot harness, or standalone, you would pay the full " + fmt(grossMonthly) + ".";
+    } else {
+      covHtml = "<strong>" + hName + ".</strong> No license coverage applies here \u2014 net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month.";
+    }
+    setHtml(p + "-coverage", covHtml);
     setHtml(p + "-esc-readout", escReadoutHtml(split,
       { editable: true, unit: "interaction", onchange: p + "SetEscalationPct(this.value)" }));
   }
@@ -414,6 +439,7 @@
         selField("qe-channel", "Channel", [["chat", "Chat / text"], ["voice", "Voice / phone"]], v.channel, "") +
         (v.channel === "voice" ? numField("qe-voicemin", "Avg voice minutes / conversation", v.voiceMinutes != null ? v.voiceMinutes : 5, "Voice is billed per minute; core answer/action activity during the call is included.") : "") +
         selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
+        selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "Copilot chat (extend M365)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard / chat are covered in M365 channels.") +
         selField("qe-know", "Knowledge grounding", [["none", "None"], ["docs", "Documents / KB"], ["tenantGraph", "M365 tenant graph"]], v.knowledge, why.knowledge || "") +
         numField("qe-actions", "# system actions / run", v.actionsCount, "Connector calls: route, create, update, notify…") +
         numField("qe-systems", "# systems touched", v.systemsCount, "Distinct back-end systems.") +
@@ -464,6 +490,7 @@
     if (el("qe-users")) v.users = Math.max(0, parseFloat(el("qe-users").value) || 0);
     if (el("qe-interactions")) v.interactions = Math.max(0, parseFloat(el("qe-interactions").value) || 0);
     if (el("qe-deploy")) v.deployment = el("qe-deploy").value;
+    if (el("qe-harness")) v.harness = el("qe-harness").value;
     if (el("qe-lic")) v.licensePct = Math.min(100, Math.max(0, parseFloat(el("qe-lic").value) || 0));
     if (el("qe-events")) v.events = Math.max(0, Math.round(parseFloat(el("qe-events").value) || 0));
     if (el("qe-genanswers")) v.genAnswers = Math.max(0, Math.round(parseFloat(el("qe-genanswers").value) || 0));
@@ -475,6 +502,7 @@
   function qeNormalizeVars() {
     if (!state.qe) return;
     var v = state.qe.vars;
+    if (v.harness == null) v.harness = "standard";
     var auto = v.archetype === "autonomous";
     if (v.pagesPerDoc == null) v.pagesPerDoc = 1;
     if (v.flowActionsPerRun == null) v.flowActionsPerRun = 5;
@@ -667,6 +695,7 @@
       "</div>" +
       '<div class="lbl">Credits / month</div><div class="big">' + fmt(est.monthly) + "</div>" +
       '<div class="hint" title="Directional band, roughly 0.6× to 1.6× the midpoint — not a hard min/max">' + fmt(rng.low) + " – " + fmt(rng.high) + " range</div>" +
+      '<div class="hint">' + (est.harness === "github-copilot" ? "GitHub Copilot harness — no license coverage; net = gross" : (est.covered ? "net billable, after M365 license coverage (gross " + fmt(est.grossMonthly) + ")" : "net = gross (no coverage applies)")) + "</div>" +
       '<div class="lbl" style="margin-top:0.7rem">Cost / month</div>' +
       "<div>" + money(cost.payg) + ' <span class="hint">PAYG</span> &middot; ' + money(cost.prepaid) + ' <span class="hint">prepaid</span></div>' +
       '<div class="qe-note" style="margin-top:0.85rem">Size = build effort. Cost = credits × volume. They move independently.</div>';
@@ -698,9 +727,23 @@
     var cost = EC.costUSD(est.monthly);
     var cards = (v.archetype === "autonomous")
       ? qeCard(fmt(est.units), "Events / mo") + qeCard(fmtDec(est.perUnit), "Credits / event") + qeCard(fmt(est.monthly), "Credits / mo")
-      : qeCard(fmt(est.billed), "Billed users") + qeCard(fmt(est.monthly), "Credits / mo") + qeCard(fmtDec((v.interactions || 0) * est.perUnit), "Cr / user / mo");
+      : qeCard(fmt(est.grossMonthly), "Gross credits / mo") + qeCard(fmt(est.netMonthly), "Net billable / mo") + qeCard(fmt(est.billed), "Billed users");
+    var harnessName = est.harness === "github-copilot" ? "GitHub Copilot harness"
+      : est.harness === "chat" ? "Copilot chat harness" : "Standard harness";
+    var cov;
+    if (v.archetype === "autonomous") {
+      cov = '<div class="em-why"><strong>' + harnessName + '.</strong> Autonomous runs bill per event with no license discount on any harness — <strong>net billable = gross</strong> (' + fmt(est.grossMonthly) + " credits / mo).</div>";
+    } else if (est.harness === "github-copilot") {
+      cov = '<div class="em-why"><strong>' + harnessName + " — never license-covered.</strong> An M365 Copilot license does not cover this harness, so <strong>net billable = gross = " + fmt(est.grossMonthly) + "</strong> credits / mo. Building and testing also consume credits.</div>";
+    } else if (est.covered) {
+      var pct = est.grossMonthly > 0 ? Math.round((1 - est.netMonthly / est.grossMonthly) * 100) : 0;
+      cov = '<div class="em-why"><strong>' + harnessName + " — covered in M365 channels.</strong> Gross " + fmt(est.grossMonthly) + " \u2192 <strong>net billable " + fmt(est.netMonthly) + "</strong> credits / mo. " + pct + "% zero-rated (" + fmt(est.coveredUsers) + " licensed users in M365 channels). On the GitHub Copilot harness, or outside M365 channels, you would pay the full " + fmt(est.grossMonthly) + ".</div>";
+    } else {
+      cov = '<div class="em-why"><strong>' + harnessName + ".</strong> No license coverage applies here (standalone channel or 0% licensed), so <strong>net billable = gross = " + fmt(est.grossMonthly) + "</strong> credits / mo.</div>";
+    }
     var drivers = EC.costDrivers(profile, v).map(qeFmtCostDriver);
     return '<div class="results-grid">' + cards + "</div>" +
+      cov +
       '<div class="em-range">Range: ' + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month (directional band, ~0.6×–1.6× the midpoint).</div>" +
       '<div class="em-cost">' +
         '<div class="card"><div class="v">' + money(cost.payg) + '</div><div class="sub">/ mo · PAYG ($0.01)</div></div>' +
@@ -709,7 +752,7 @@
       (drivers.length ? '<div class="em-why"><strong>Why this cost:</strong> ' + drivers.join(" · ") + "</div>" : "") +
       escReadoutHtml(escSplit(est.perUnit, est.units || 0, v.escalation || 0, escCreditsOf(v)),
         { editable: true, unit: "interaction", onchange: "qeSetEscalationPct(this.value)", autonomous: v.archetype === "autonomous" }) +
-      '<p class="hint">Credits only — excludes M365 license fees.' + (v.archetype === "autonomous" ? " Autonomous runs are billed even for licensed users." : "") + "</p>";
+      '<p class="hint">Cost shown is <strong>net billable</strong> credits (what you pay) — excludes M365 license fees.' + (v.archetype === "autonomous" ? " Autonomous runs are billed even for licensed users." : "") + "</p>";
   }
 
   function qeResultsHtml() {

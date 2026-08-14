@@ -154,8 +154,17 @@
   function perInteractionCredits(profile) {
     return profile.reduce(function (sum, r) { return sum + r.uses * r.credits; }, 0);
   }
+  // ── Harness-aware licensing ───────────────────────────────────────────────
+  // A Microsoft 365 Copilot license can zero-rate interactive usage ONLY on the
+  // standard and Copilot chat harnesses, and only inside M365 channels (embedded).
+  // The GitHub Copilot harness is NEVER covered — every interaction (and building
+  // and testing) bills Copilot Credits regardless of license. See MS Learn:
+  // "Manage costs for agents powered by the GitHub Copilot harness".
+  function harnessCovered(harness) { return harness !== "github-copilot"; }
+  function grossUsers(scale) { return Math.max(0, Math.round(scale.users || 0)); }
   function billedUsers(scale) {
-    var n = scale.deployment === "embedded"
+    var covered = harnessCovered(scale.harness) && scale.deployment === "embedded";
+    var n = covered
       ? scale.users * (1 - (scale.licensePct || 0) / 100)
       : scale.users;
     return Math.max(0, Math.round(n));
@@ -163,8 +172,12 @@
   function computeEstimate(profile, scale) {
     var per = perInteractionCredits(profile);
     var billed = billedUsers(scale);
-    var monthly = billed * scale.interactions * per;
-    return { perInteraction: per, billed: billed, monthly: monthly };
+    var gross = grossUsers(scale);
+    var net = billed * scale.interactions * per;
+    var grossMonthly = gross * scale.interactions * per;
+    return { perInteraction: per, billed: billed, monthly: net,
+      grossMonthly: grossMonthly, netMonthly: net,
+      covered: grossMonthly - net > 0.0001, harness: scale.harness || "standard" };
   }
   function creditRange(monthly) {
     return { low: monthly * 0.6, mid: monthly, high: monthly * 1.6 };
@@ -177,16 +190,25 @@
   // autonomous:  events/month × perUnit (billed regardless of licensing — no discount).
   function computeQuick(profile, v) {
     var per = perInteractionCredits(profile);
+    var harness = v.harness || "standard";
     if (v.archetype === "autonomous") {
       var events = Math.max(0, Math.round(v.events || 0));
-      return { regime: "autonomous", perUnit: per, units: events, billed: null, monthly: events * per };
+      var m = events * per;
+      // Autonomous events bill per event with no license discount on ANY harness → net == gross.
+      return { regime: "autonomous", perUnit: per, units: events, billed: null,
+        monthly: m, grossMonthly: m, netMonthly: m, covered: false, harness: harness };
     }
-    var scale = { deployment: v.deployment, users: v.users, licensePct: v.licensePct };
+    var scale = { deployment: v.deployment, users: v.users, licensePct: v.licensePct, harness: harness };
     var billed = billedUsers(scale);
+    var gross = grossUsers(scale);
     var interactions = Math.max(0, v.interactions || 0);
     var escExtra = ((v.escalation || 0) / 100) * (v.escalationCredits || 0);
-    var monthly = billed * interactions * (per + escExtra);
-    return { regime: "interactive", perUnit: per, units: billed * interactions, billed: billed, monthly: monthly };
+    var rate = (per + escExtra);
+    var net = billed * interactions * rate;
+    var grossMonthly = gross * interactions * rate;
+    return { regime: "interactive", perUnit: per, units: billed * interactions, billed: billed,
+      monthly: net, grossMonthly: grossMonthly, netMonthly: net,
+      covered: grossMonthly - net > 0.0001, coveredUsers: gross - billed, harness: harness };
   }
 
   // "Why this cost" — structured drivers ranked by monthly-credit impact. Volume
@@ -1052,6 +1074,11 @@
       enum: { interactive: ["interactive", "user", "user-led", "userled", "chat", "person", "reactive", "attended"],
               autonomous: ["autonomous", "auto", "event", "event-driven", "eventdriven", "unattended", "trigger", "triggered", "batch", "background"] },
       hint: "Interactive = a person drives it. Autonomous = it fires on each event, no user." },
+    { key: "harness", header: "Harness", type: "enum", applies: "all", def: "standard",
+      enum: { "github-copilot": ["github-copilot", "github copilot", "github", "githubcopilot", "autonomous harness", "generative harness", "agentic"],
+              "standard": ["standard", "topics", "topic", "topic-based", "classic", "rules", "rule-based"],
+              "chat": ["chat", "copilot chat", "m365 chat", "bizchat", "extend copilot"] },
+      hint: "Copilot Studio engine. GitHub Copilot harness bills Copilot Credits for ALL usage and is never covered by an M365 Copilot license; standard/chat are covered in M365 channels for licensed users." },
     { key: "channel", header: "Channel", type: "enum", applies: "interactive", def: "chat",
       enum: { chat: ["chat", "text", "teams", "web", "message", "messaging"], voice: ["voice", "phone", "call", "telephony", "ivr"] },
       hint: "Interactive only. Voice turns cost more and add build effort." },
@@ -1380,6 +1407,7 @@
     CREDIT: CREDIT, RATE_PAYG: RATE_PAYG, RATE_PREPAID: RATE_PREPAID, ROW: ROW,
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
+    harnessCovered: harnessCovered, grossUsers: grossUsers,
     computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
     costDrivers: costDrivers, QUICK_WIZARD: QUICK_WIZARD,
     detectUsers: detectUsers, detectInteractions: detectInteractions, detectDeployment: detectDeployment,
