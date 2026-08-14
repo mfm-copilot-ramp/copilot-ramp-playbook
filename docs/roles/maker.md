@@ -10,6 +10,13 @@ hide: [toc]
 
 The maker path is a build sequence: know when to graduate past Agent Builder, stand up your first Studio agent, wire it to real actions and tools, test it honestly, then publish and govern it. Pick your **function** and it adds a matched functional walkthrough *and* a ready-made solution template; raise your **comfort** to add advanced tooling, or push your **goal** to add the ship-and-govern steps — and a bridge into Foundry. Trim with **×**, or add more from **+ Add to my path**.
 
+!!! tip "One choice shapes every Studio agent — its harness"
+    Before you build in Studio, decide which **[harness](../pick-the-engine.md)** (engine) powers the agent: the
+    **standard** harness (authored topics/rules — predictable and covered by a Microsoft 365 Copilot license in
+    M365 channels), the **Copilot chat** harness, or the autonomous **GitHub Copilot harness** (generative
+    orchestration — the direction to grow into, but it bills Copilot Credits for all usage and a license never
+    covers it). [Estimate the net cost](../credit-estimator.md) before you scale.
+
 <div id="role-path"></div>
 
 <script id="role-path-config" type="application/json">
