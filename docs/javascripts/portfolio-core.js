@@ -75,6 +75,20 @@
       return out;
     }
 
+    // Studio, frozen estimate (e.g. a solution-package upload / import — no NL text to
+    // re-derive from). Trust the stored credits; still dollarize + apply the value lever.
+    if (input.text == null && input.credits != null) {
+      out.monthlyCredits = round(input.credits);
+      out.regime = (item.meta && item.meta.regime) || null;
+      out.size = (item.meta && item.meta.size) || null;
+      var cuF = (EC && typeof EC.costUSD === "function") ? EC.costUSD(out.monthlyCredits) : { payg: 0, prepaid: 0 };
+      out.monthlyCostUSD = num(basis === "prepaid" ? cuF.prepaid : cuF.payg);
+      var dF = (item.meta && item.meta.dials) || {};
+      var mF = num(dF.minutesSaved, 8), rF = num(dF.loadedRate, 45), vF = round(num(item.meta && item.meta.volume));
+      out.value = { monthly: (mF * vF / 60) * rF, minutesPer: mF, perMonth: vF, loadedRatePerHour: rF };
+      out.ok = true; out.note = "Frozen estimate (imported / uploaded solution).";
+      return out;
+    }
     // default / "studio": recompute from the natural-language scenario text.
     if (!EC || typeof EC.analyzeText !== "function" || input.text == null) {
       out.note = "studio engine or input.text missing"; return out;

@@ -299,6 +299,7 @@
 
     if (scale.regime === "autonomous") {
       var monthly = scale.runs * per;
+      st.netMonthly = monthly; st.grossMonthly = monthly; st.volume = scale.runs;
       var rngA = EC.creditRange(monthly);
       var costA = EC.costUSD(monthly);
       setText(p + "-billed", fmt(scale.runs));
@@ -345,6 +346,7 @@
       covHtml = "<strong>" + hName + ".</strong> No license coverage applies here \u2014 net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month.";
     }
     setHtml(p + "-coverage", covHtml);
+    st.netMonthly = monthly; st.grossMonthly = grossMonthly; st.volume = grossBilled * scale.interactions;
     setHtml(p + "-esc-readout", escReadoutHtml(split,
       { editable: true, unit: "interaction", onchange: p + "SetEscalationPct(this.value)" }));
   }
@@ -810,8 +812,8 @@
   // render and the change handler never drift.
   function qeExpNote(exp) {
     return exp === "new"
-      ? 'The <strong>new experience</strong> is the modern, instruction-driven Copilot Studio agent \u2014 a single reasoning agent with <strong>no topics</strong>, richer thinking, and instructions written straight into the agent. It imports cleanly as an unmanaged solution; add tools &amp; knowledge in the portal to extend it. <strong>Recommended.</strong>'
-      : 'Generates the <strong>classic-experience</strong> agent (topics, settings &amp; system scaffolding \u2014 legacy authoring). Imports cleanly. Use only if you specifically need the classic builder.';
+      ? 'The <strong>GitHub Copilot harness</strong> is the modern, instruction-driven Copilot Studio agent \u2014 a single reasoning agent with <strong>no topics</strong>, generative orchestration, and instructions written straight into the agent. It imports cleanly as an unmanaged solution; add tools &amp; knowledge in the portal to extend it. Bills <strong>Copilot Credits for all usage</strong> (never license-covered). <strong>Recommended.</strong>'
+      : 'Generates a <strong>standard-harness</strong> agent (topics &amp; rules you author \u2014 predictable, and covered by a Microsoft 365 Copilot license in M365 channels). Imports cleanly. Use when you want a deterministic, rules-based build.';
   }
   // Work IQ pre-wires differently per experience: classic ships the two MCP tools inside
   // the package; the new experience is tenant-gated, so checking it there only adds a
@@ -824,7 +826,7 @@
   }
   function qeWorkIQNote(exp) {
     return exp === "new"
-      ? 'Grounds on the Microsoft&nbsp;365 tenant graph (people, meetings, mail &amp; files) instead of one-off connectors. <strong>Not pre-wired in the new experience</strong> \u2014 checking this adds a NEXT-STEPS reminder to switch Work&nbsp;IQ on in the portal (Knowledge &rarr; Work&nbsp;IQ) after import. Bills ~10 credits per response. Want it pre-wired now? Use <strong>Classic</strong>.'
+      ? 'Grounds on the Microsoft&nbsp;365 tenant graph (people, meetings, mail &amp; files) instead of one-off connectors. <strong>Not pre-wired on the GitHub Copilot harness</strong> \u2014 checking this adds a NEXT-STEPS reminder to switch Work&nbsp;IQ on in the portal (Knowledge &rarr; Work&nbsp;IQ) after import. Bills ~10 credits per response. Want it pre-wired now? Use the <strong>standard harness</strong>.'
       : 'Grounds on the Microsoft&nbsp;365 tenant graph (people, meetings, mail &amp; files) instead of one-off connectors. <strong>Wired into the package</strong> \u2014 the two Work&nbsp;IQ MCP tools ship inside, ready to bind on the import Connections step. Bills ~10 credits per response.';
   }
   function qeStarterHtml() {
@@ -833,10 +835,10 @@
       '<div class="section-label">Get a head start — export a Copilot Studio agent</div>' +
       '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: a tailored role &amp; instructions, agent settings, and any knowledge sources. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend with tools &amp; knowledge and publish, not a finished agent.</p>' +
       '<div class="qe-seg-field">' +
-        '<div class="section-label qe-seg-label" id="qe-pkg-exp-label">Authoring experience</div>' +
+        '<div class="section-label qe-seg-label" id="qe-pkg-exp-label">Harness (Copilot Studio engine)</div>' +
         '<div class="qe-seg" role="radiogroup" aria-labelledby="qe-pkg-exp-label" id="qe-pkg-experience">' +
-          qeSegOpt("classic", "Classic experience", "Topics, settings &amp; system scaffolding \u2014 legacy authoring.", exp) +
-          qeSegOpt("new", "New experience", "Single instruction-driven agent, enhanced reasoning.", exp) +
+          qeSegOpt("classic", "Standard harness", "Topics &amp; rules you author \u2014 predictable, license-covered.", exp) +
+          qeSegOpt("new", "GitHub Copilot harness", "Instruction-driven, generative orchestration \u2014 credits for all usage.", exp) +
         '</div>' +
         '<div class="qe-seg-note hint" id="qe-pkg-exp-note">' + qeExpNote(exp) + '</div>' +
       '</div>' +
@@ -847,9 +849,9 @@
       '</label>' +
       '<div class="qe-seg-note hint" id="qe-pkg-workiq-note" style="margin:.1rem 0 .55rem">' + qeWorkIQNote(exp) + '</div>' +
       '<div class="qe-pkg-skills">' +
-        '<label class="section-label qe-seg-label" for="qe-pkg-skills-input">Skills <span class="qe-pkg-skills-tag">new experience</span></label>' +
+        '<label class="section-label qe-seg-label" for="qe-pkg-skills-input">Skills <span class="qe-pkg-skills-tag">GitHub Copilot harness</span></label>' +
         '<textarea id="qe-pkg-skills-input" rows="2" oninput="qePkgSkillsChange(this.value)" placeholder="One skill per line \u2014 e.g. Meeting brief formatter: turns gathered context into an executive brief">' + esc((state.qe && state.qe.pkgSkills) || "") + '</textarea>' +
-        '<div class="qe-seg-note hint" style="margin:.1rem 0 .55rem">Reusable, named instruction modules the agent invokes by name. Format each line <code>Name: what it does</code>. Emitted as editable <strong>Skills</strong> on new-experience agents (classic gets a note to switch experience).</div>' +
+        '<div class="qe-seg-note hint" style="margin:.1rem 0 .55rem">Reusable, named instruction modules the agent invokes by name. Format each line <code>Name: what it does</code>. Emitted as editable <strong>Skills</strong> on GitHub Copilot harness agents (the standard harness gets a note to switch).</div>' +
       '</div>' +
       '<button type="button" class="em-btn" onclick="qeDownloadPackage()" aria-label="Download a Copilot Studio starter agent as a solution package ZIP file">\u2b07 Download agent starter (.zip)</button>' +
       '<span class="em-export-status" id="qe-pkg-status" role="status" aria-live="polite" style="margin-left:.6rem"></span>' +
@@ -966,7 +968,7 @@
       '<div class="qe-rev-title">Review what will be generated</div>' +
       '<div class="qe-rev-meta">' +
         '<span><strong>Agent:</strong> ' + esc(a.name) + '</span>' +
-        '<span><strong>Experience:</strong> ' + (a.experience === "new" ? "New agent experience" : "Classic experience") + '</span>' +
+        '<span><strong>Harness:</strong> ' + (a.experience === "new" ? "GitHub Copilot harness" : "Standard harness") + '</span>' +
         '<span><strong>Type:</strong> ' + (a.archetype === "autonomous" ? "Autonomous (triggered)" : "Interactive (chat)") + '</span>' +
       '</div>' +
       '<p class="hint" style="margin:.3rem 0 .5rem">Uncheck anything you don\u2019t want. Only the checked items are written into the package, its instructions, and <code>NEXT-STEPS.md</code>.</p>' +
@@ -1052,7 +1054,7 @@
         }).join("") +
         '<div class="qe-rev-empty">Reusable instruction modules the agent invokes by name \u2014 refine each in Studio.</div></div>');
     } else if (a.skills && a.skills.gatedClassic) {
-      out.push('<p class="hint" style="margin:.2rem 0"><strong>Skills</strong> need the <strong>new experience</strong> \u2014 switch the authoring experience above to ship them (see NEXT-STEPS).</p>');
+      out.push('<p class="hint" style="margin:.2rem 0"><strong>Skills</strong> need the <strong>GitHub Copilot harness</strong> \u2014 switch the harness above to ship them (see NEXT-STEPS).</p>');
     }
     if (hasPlaceholder) {
       out.push('<p class="hint" style="margin:.2rem 0"><strong>Note:</strong> items flagged <em>placeholder URL</em> use an example address \u2014 update it in Copilot Studio after import.</p>');
@@ -1113,7 +1115,7 @@
       if (host) { host.innerHTML = ""; host.style.display = "none"; }
       var nRemoved = exclude.connectors.length + exclude.knowledge.length + exclude.capabilities.length;
       qePkgStatus(okDl
-        ? ("Built \u2713 " + pkg.filename + " (" + (opts.experience === "new" ? "new experience" : "classic experience") + (nRemoved ? ", " + nRemoved + " removed" : "") + ")")
+        ? ("Built \u2713 " + pkg.filename + " (" + (opts.experience === "new" ? "GitHub Copilot harness" : "standard harness") + (nRemoved ? ", " + nRemoved + " removed" : "") + ")")
         : "Downloads aren't supported in this browser.");
     } catch (e) {
       qePkgStatus("Couldn't build the package: " + (e && e.message ? e.message : String(e)));
@@ -1289,9 +1291,9 @@
     var k = f.knowledgeTypes.length ? f.knowledgeTypes.join(", ") : "none identified";
     var lines = [
       "Regime:                         " + (f.regime === "autonomous" ? "autonomous (per-run)" : "interactive (per-user)"),
-      "Authoring experience:           " + (f.newExperience
-        ? "New (cliagent" + (f.modelSeries ? ", model " + f.modelSeries : "") + (f.reasoningModel ? ", reasoning" : "") + ", generative runtime)"
-        : "Classic"),
+      "Harness:                        " + (f.newExperience
+        ? "GitHub Copilot (cliagent" + (f.modelSeries ? ", model " + f.modelSeries : "") + (f.reasoningModel ? ", reasoning" : "") + ", generative runtime)"
+        : "Standard (topics)"),
       "Topics (AdaptiveDialog):        " + f.topics,
       "Triggers:                       " + f.triggers,
       "Generative answer nodes:        " + f.genAnswers,
@@ -1342,12 +1344,12 @@
     // render nothing here). model series + reasoning flag + web-search + agent-flow tools
     // all come straight from the shared verified vocabulary, not keyword guessing.
     if (f.newExperience) {
-      var badges = '<span class="sp-chip">New agent experience</span>' +
+      var badges = '<span class="sp-chip">GitHub Copilot harness</span>' +
         '<span class="sp-chip">Generative runtime</span>';
       if (f.modelSeries) badges += '<span class="sp-chip">Model · ' + esc(f.modelSeries) + (f.reasoningModel ? " · reasoning" : "") + '</span>';
       if (f.webSearch) badges += '<span class="sp-chip">Web search on</span>';
       if (f.workflowTools) badges += '<span class="sp-chip">' + f.workflowTools + ' agent-flow tool' + (f.workflowTools > 1 ? "s" : "") + '</span>';
-      out.push('<div class="section-label" style="margin-top:1.25rem">Authoring experience</div><div class="sp-chips">' + badges + '</div>');
+      out.push('<div class="section-label" style="margin-top:1.25rem">Harness</div><div class="sp-chips">' + badges + '</div>');
     }
     if (a.flows && a.flows.length) {
       out.push('<div class="section-label" style="margin-top:1.25rem">Flows detected</div>');
@@ -1379,7 +1381,7 @@
     if (!recs.length) {
       return head +
         '<div class="sp-rec sp-rec--ok"><div class="sp-rec-title">\u2713 Already following current best practices</div>' +
-        '<div class="sp-rec-body">This agent uses the new experience with generative orchestration and shows no obvious one-off Microsoft 365 reads to consolidate. Nice work.</div></div></div>';
+        '<div class="sp-rec-body">This agent uses the GitHub Copilot harness (generative orchestration) and shows no obvious one-off Microsoft 365 reads to consolidate. Nice work.</div></div></div>';
     }
     var body = recs.map(function (r) {
       var tag = SP_REC_TAG[r.severity] || "Tip";
@@ -1451,6 +1453,10 @@
       profileTableHtml("sp", state.sp.profile, auto ? {} : { withPaths: true, paths: state.sp.toolPaths }) +
       '<p class="hint">Per-' + (auto ? "run" : "interaction") + ' <em>uses</em> are assumptions — a solution shows which capabilities <em>exist</em>, not how often each fires. Tune them to your real ' + (auto ? "runs" : "flows") + '.</p>' +
       estimateHtml("sp", auto) +
+      '<div class="em-primary-actions" style="display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0 .25rem">' +
+        '<button type="button" class="em-btn" onclick="spSaveToWorkspace()">\ud83e\uddfa Save to My estimates</button>' +
+        '<button type="button" class="em-btn" onclick="spSendToRoi()">\ud83d\udcc8 Estimate ROI \u2192</button>' +
+      '</div>' +
       exportBarHtml("complex", {}) +
       '<details class="em-details"><summary>Component inventory (full transparency)</summary><div class="em-complist">' + esc(componentSummary(f)) + "</div></details>";
     res.classList.remove("em-hidden");
@@ -1458,6 +1464,33 @@
     scrollToResults("sp-results");
   }
   function spRecompute() { recompute("sp"); }
+
+  // Build a portable estimate envelope from the uploaded solution. Unlike Quick (which
+  // stores NL text to re-derive live), an uploaded package has no text, so we freeze the
+  // computed net-billable credits (Portfolio.recomputeItem handles input.credits).
+  function spEstimateItem() {
+    var st = state.sp;
+    if (!st) return null;
+    var monthly = Math.round(st.netMonthly || 0);
+    var size = (st.tshirt && st.tshirt.size) || null;
+    var label = "Uploaded solution" + (size ? " \u00b7 " + size : "") + " \u00b7 ~" + monthly.toLocaleString() + " credits/mo";
+    return {
+      kind: "estimate", producer: "studio", label: label,
+      input: { credits: monthly },
+      meta: { monthlyCredits: monthly, size: size, regime: st.regime, volume: Math.round(st.volume || 0) }
+    };
+  }
+  function spSaveToWorkspace() {
+    var W = window.WorkspaceUI, it = spEstimateItem();
+    if (W && it) W.add(it);
+  }
+  function spSendToRoi() {
+    var W = window.WorkspaceUI, it = spEstimateItem();
+    if (W && it) W.add(it);
+    // Route through the cart's portfolio ROI (?from=workspace) — the frozen item can't
+    // recompute from text, so the aggregate path (Portfolio.recomputeItem) is the fit.
+    window.location.href = "../roi-estimator/?from=workspace";
+  }
   // Phase D: guided precision intro for the average-vs-escalation questionnaire.
   function spPrecisionIntroHtml() {
     return '<div class="em-precision"><div class="em-precision-head">Refine precision — average vs escalation</div>' +
@@ -1845,7 +1878,7 @@
       '</tr></thead><tbody>' + rows + '</tbody>' +
       '<tfoot><tr><td colspan="8">Portfolio credits / month</td><td class="num">' + fmt(t.monthly) + '</td><td></td></tr></tfoot>' +
       '</table></div>' +
-      '<p class="hint">*Tools/connectors your description implied. In the new experience these are added as Tools in Copilot Studio after import — each package\'s NEXT-STEPS.md lists them. Sizes and credits are directional starting points (same engine as Quick), not a real LLM analysis. These are starter agents to extend, not production-ready.</p>';
+      '<p class="hint">*Tools/connectors your description implied. On the GitHub Copilot harness these are added as Tools in Copilot Studio after import — each package\'s NEXT-STEPS.md lists them. Sizes and credits are directional starting points (same engine as Quick), not a real LLM analysis. These are starter agents to extend, not production-ready.</p>';
     el.classList.remove("em-hidden");
   }
 
@@ -2329,6 +2362,8 @@
     window.qeToDetailed = qeToDetailed;
     window.qeSendToRoi = qeSendToRoi;
     window.qeSaveToWorkspace = qeSaveToWorkspace;
+    window.spSaveToWorkspace = spSaveToWorkspace;
+    window.spSendToRoi = spSendToRoi;
     window.qePick = qePick;
     window.qeSetNum = qeSetNum;
     window.qeSetEscalationPct = qeSetEscalationPct;
