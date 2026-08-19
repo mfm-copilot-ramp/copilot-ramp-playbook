@@ -151,17 +151,24 @@ The exceptions that **still bill**, even for licensed users:
 
 ## How you get credits { #buying }
 
-There are three ways an organization funds its credit pool:
+Copilot Credits are funded at the **tenant** level, and there are **three ways to buy them.** You can mix them — and when more than one is available they're drawn down in a fixed order (below). All three fund the *same* pool that Copilot Studio, Microsoft 365 Copilot, SharePoint agents, and Cowork usage meter against.
 
-- **Pay-as-you-go** — link an environment to an Azure subscription and pay monthly for exactly what you
-  used. No upfront commitment; best for getting started.
-- **Prepurchase plan** — a one-year, prepaid pool of Copilot Credit Commit Units, bought in the Azure
-  portal.
-- **Copilot Credit prepaid packs** — a tenant subscription that pre-buys a fixed pool.
+| Model | What it is | Commitment | Where you buy it | Best for |
+| --- | --- | --- | --- | --- |
+| **Capacity packs** | License-based blocks of prepaid credits | Subscription | Microsoft 365 Marketplace — managed & allocated in the **Power Platform admin center** | A steady, known monthly baseline |
+| **Pre‑Purchase Plan (P3)** | A commitment of **discounted** credit units for a one‑year term | 1‑year prepay | Azure portal or Microsoft 365 admin center — shows as a **reservation** in Azure Cost Management | Committed annual volume you want to discount |
+| **Pay‑as‑you‑go (PAYG)** | Metered billing to a linked Azure subscription | None | An **Azure subscription** linked to the environment | Getting started, spiky usage, and covering overflow |
 
-For the **dollar** conversion behind these, use the [Credit Estimator](credit-estimator.md) (it shows
-both pay-as-you-go and prepaid pricing on every estimate) or the
-[Licensing Guide](https://go.microsoft.com/fwlink/?linkid=2320995) for the authoritative rates.
+!!! info "The draw-down order — why it matters for your bill"
+    When more than one source is available, Microsoft consumes them in a **fixed order** so spend stays predictable:
+
+    **1. Capacity packs → 2. P3 prepaid credits → 3. Pay‑as‑you‑go.**
+
+    PAYG only kicks in *after* your prepaid capacity (packs and P3) is exhausted — which is exactly why a small always-on PAYG link makes a useful **safety net** on top of prepaid capacity rather than a runaway cost.
+
+**P3 vs. packs — the quick read:** both are *prepaid*, but **capacity packs** are a license subscription you buy in the M365 Marketplace and allocate per environment, while a **Pre‑Purchase Plan (P3)** is an Azure **reservation** — a one‑year commitment that trades flexibility for a **discount** on the credit rate. **PAYG** is the no‑commitment meter that backs both and catches the overflow.
+
+For the **dollar** conversion behind these, use the [Credit Estimator](credit-estimator.md) (it shows both pay‑as‑you‑go and prepaid pricing on every estimate) or the [Copilot Studio Licensing Guide](https://go.microsoft.com/fwlink/?linkid=2320995) for the authoritative rates.
 
 ---
 
@@ -198,6 +205,7 @@ All product and rate claims on this page are grounded in official Microsoft docu
 | --- | --- | --- |
 | Copilot Credits are the metering unit; full rate card (1 / 2 / 5 / 10 credits, flows 13/100, AI tools, 8/page, voice 10/35/75 per min); 10+2=12 stacking example; reasoning-model dual meter | [Billing rates — Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) | 2026-08-04 |
 | "messages → Copilot Credits" rename (Sept 1, 2025); credits pooled per tenant; pay-as-you-go / prepurchase / prepaid packs; monthly enforcement, no carryover; Microsoft 365 Copilot zero-rating in Chat/Teams/SharePoint | [Standard harness licensing — Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing) | 2026-08-04 |
+| Three purchasing plans — **Capacity packs**, **Pre‑Purchase Plan (P3)**, **Pay‑as‑you‑go**; P3 is a one‑year discounted **reservation**; capacity packs bought in the M365 Marketplace & allocated in the Power Platform admin center; fixed draw‑down order **packs → P3 → PAYG** | [Manage usage-based billing — M365 Copilot](https://learn.microsoft.com/microsoft-365/copilot/usage-based-billing-manage-copilot-credits) · [Capacity packs](https://learn.microsoft.com/microsoft-365/copilot/pay-as-you-go/copilot-capacity-packs) · [Pre‑Purchase Plan (P3)](https://learn.microsoft.com/azure/cost-management-billing/reservations/copilot-credit-p3) | 2026-08-19 |
 
 > **Unofficial and community-built.** This page is not endorsed by or affiliated with Microsoft. It
 > summarizes public documentation to help you learn — always confirm customer-facing numbers against the
