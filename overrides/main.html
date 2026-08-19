@@ -139,32 +139,6 @@
       </p>
     </div>
   {% endif %}
-  {#- ── Share this page — each channel carries a utm_source so GoatCounter can
-        attribute traffic back to how it was shared. Rendered server-side so the
-        social links work without JavaScript; share.js only enhances "Copy link". -#}
-  {%- set _u = page.canonical_url -%}
-  {%- if _u -%}
-    {%- set _sep = '&' if '?' in _u else '?' -%}
-    {%- set _t = page.title or config.site_name -%}
-    {%- set _teams_t = _u ~ _sep ~ 'utm_source=teams&utm_medium=share' -%}
-    {%- set _li_t = _u ~ _sep ~ 'utm_source=linkedin&utm_medium=share' -%}
-    {%- set _x_t = _u ~ _sep ~ 'utm_source=x&utm_medium=share' -%}
-    {%- set _copy_t = _u ~ _sep ~ 'utm_source=copy&utm_medium=share' -%}
-  <div class="md-typeset page-share" data-share>
-    <span class="ps-label">Share</span>
-    <button type="button" class="ps-btn" data-share-copy data-copy-url="{{ _copy_t }}" aria-label="Copy a link to this page">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM17 7h-4v1.9h4A3.1 3.1 0 0 1 17 15h-4V17h4a5 5 0 0 0 0-10zm-9 4h8v2H8z"/></svg>
-      Copy link
-    </button>
-    <a class="ps-btn" data-share-channel="teams" target="_blank" rel="noopener noreferrer"
-       href="https://teams.microsoft.com/share?href={{ _teams_t | urlencode }}&amp;msgText={{ _t | urlencode }}">Teams</a>
-    <a class="ps-btn" data-share-channel="linkedin" target="_blank" rel="noopener noreferrer"
-       href="https://www.linkedin.com/sharing/share-offsite/?url={{ _li_t | urlencode }}">LinkedIn</a>
-    <a class="ps-btn" data-share-channel="x" target="_blank" rel="noopener noreferrer"
-       href="https://twitter.com/intent/tweet?url={{ _x_t | urlencode }}&amp;text={{ _t | urlencode }}">X</a>
-    <span class="ps-copied" data-copied role="status" aria-live="polite"></span>
-  </div>
-  {%- endif -%}
   <div class="md-typeset page-foot-links">
     <p>
       Found an issue or want to suggest an improvement?
