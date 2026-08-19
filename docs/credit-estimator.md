@@ -14,8 +14,8 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 
 <a id="billing-details"></a>
 
-??? info "How Copilot Credits are billed — rates & licensing ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management))"
-    Rates are sourced from the **Microsoft Copilot Studio Billing rates and management** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
+??? info "How Copilot Credits are billed — rates & licensing"
+    Rates are sourced from the **[Microsoft Copilot Studio Billing rates and management](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management)** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
 
     **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario. **This zero-rating applies to the *standard* and *Copilot chat* harnesses only — the *GitHub Copilot harness* is never covered.** Pick the **Harness** in either mode and the estimator shows **gross consumption vs. net billable** side by side.
 
@@ -183,7 +183,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 }
 .mode-panel { margin-top: 1.25rem; }
 .em-hidden { display: none !important; }
-#panel-quick .hint, #panel-complex .hint { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); }
+#panel-quick .hint, #panel-complex .hint { font-size: 0.72rem; color: var(--md-default-fg-color--light); }
 
 /* bulk generate — portfolio table + per-agent downloads */
 .bulk-summary { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; align-items: baseline; margin: 0.25rem 0 0.75rem; }
@@ -700,7 +700,7 @@ My agents (one per line — what it does, who uses it, how often, channel, knowl
   text-transform: uppercase; letter-spacing: 0.04em;
   color: var(--md-default-fg-color--light); margin-bottom: 0.35rem;
 }
-.calc-field .hint { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); margin-top: 0.25rem; }
+.calc-field .hint { font-size: 0.72rem; color: var(--md-default-fg-color--light); margin-top: 0.25rem; }
 .calc-field input[type=number] {
   width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem;
   border: 1px solid var(--md-default-fg-color--lighter); border-radius: 4px;
