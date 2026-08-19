@@ -74,6 +74,7 @@ extra_css:
   - stylesheets/engine-cards.css
   - stylesheets/feedback-widget.css
   - stylesheets/share.css
+  - stylesheets/a11y.css   # loaded last: WCAG-AA contrast overrides win over components
 
 extra_javascript:
   - javascripts/catalog.js
