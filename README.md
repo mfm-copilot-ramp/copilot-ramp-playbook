@@ -1,5 +1,7 @@
 # Copilot Ramp Playbook
 
+> **▶ Live site: [aka.ms/CopilotRampPlaybook](https://aka.ms/CopilotRampPlaybook)** · Credit estimator: [aka.ms/MFMCreditEstimator](https://aka.ms/MFMCreditEstimator)
+>
 > A public, community-built guide to getting started with Microsoft Copilot — and growing from your
 > first chat all the way to building production agents in Copilot Studio.
 >

@@ -1,0 +1,61 @@
+/* ── "Share this page" row ────────────────────────────────────────────────────
+   A small share cluster in the page footer (copy link / Teams / LinkedIn / X).
+   Each channel carries a utm_source so GoatCounter can attribute traffic back to
+   how it was shared. Styled to sit quietly above the existing feedback / GitHub
+   footer links, themed with Material tokens. */
+
+.page-share {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 1.4rem 0 .2rem;
+}
+.page-share .ps-label {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--md-default-fg-color--light, #666);
+  margin-right: .15rem;
+}
+.page-share .ps-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .28rem .6rem;
+  font-size: .72rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--md-default-fg-color);
+  background: var(--md-default-fg-color--lightest, rgba(0, 0, 0, .05));
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.page-share a.ps-btn { text-decoration: none; }
+.page-share .ps-btn:hover {
+  background: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color, #fff);
+}
+.page-share .ps-btn:focus-visible {
+  outline: 3px solid var(--md-accent-fg-color, #526cfe);
+  outline-offset: 2px;
+}
+.page-share .ps-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* Tiny "Copied!" confirmation. */
+.page-share .ps-copied {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.page-share .ps-copied[data-show="true"] { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-share .ps-btn, .page-share .ps-copied { transition: none; }
+}
