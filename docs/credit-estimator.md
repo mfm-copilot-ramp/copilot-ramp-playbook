@@ -2,6 +2,7 @@
 title: Copilot Credit Estimator
 description: An interactive estimator for Microsoft Copilot credit consumption, giving directional planning numbers across the ramp. Still under active development.
 hide: [toc]
+wide: true
 ---
 
 # Copilot Credit Estimator

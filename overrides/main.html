@@ -4,6 +4,21 @@
 {% block extrahead %}
   {{ super() }}
 
+  {#- Wide layout: pages that set `wide: true` (or `wide: <css-width>`) in front matter get a
+      larger content column, so app-like/tool pages (estimator, catalog, ROI…) use the horizontal
+      space instead of leaving a wide empty margin. Prose pages keep the default readable measure. -#}
+  {% if page and page.meta and page.meta.wide %}
+  <style>
+    .md-grid { max-width: {{ page.meta.wide if page.meta.wide is string else '84rem' }}; }
+    /* Keep plain prose at a readable measure while custom-HTML widgets (divs, tables, cards)
+       use the full widened column. */
+    .md-content__inner.md-typeset > p,
+    .md-content__inner.md-typeset > ul,
+    .md-content__inner.md-typeset > ol,
+    .md-content__inner.md-typeset > blockquote { max-width: 46rem; }
+  </style>
+  {% endif %}
+
   {#- Search-engine ownership verification. Values are set in mkdocs.yml (extra);
       a blank value emits nothing. -#}
   {% if config.extra.google_site_verification %}

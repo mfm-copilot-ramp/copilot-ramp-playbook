@@ -2,6 +2,7 @@
 title: AI Builder → Copilot Credits Estimator
 description: "Map your existing Microsoft AI Builder usage to Copilot Studio Copilot Credits in seconds. Grounded in Microsoft's official AI Builder Capability Rate table."
 hide: [toc]
+wide: true
 ---
 
 # AI Builder → Copilot Credits Estimator
