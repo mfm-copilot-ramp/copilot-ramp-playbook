@@ -1,61 +1,64 @@
-/* ── "Share this page" row ────────────────────────────────────────────────────
-   A small share cluster in the page footer (copy link / Teams / LinkedIn / X).
-   Each channel carries a utm_source so GoatCounter can attribute traffic back to
-   how it was shared. Styled to sit quietly above the existing feedback / GitHub
-   footer links, themed with Material tokens. */
+/* ── Header "Share this page" control ─────────────────────────────────────────
+   A single share icon-button in the top bar (styled like Material's other
+   header buttons) that opens a small popover with Copy link / Teams / LinkedIn /
+   X. Each channel carries a utm_source so GoatCounter can attribute traffic to
+   how a page was shared. The popover is appended to <body> and fixed-positioned
+   under the button so the sticky header never clips it. */
 
-.page-share {
+/* Wrapper keeps the button in the header action row. */
+.cf-share { display: flex; align-items: center; }
+
+/* The trigger reuses Material's header-button look (currentColor icon). */
+.cf-sharebtn svg { width: 1.2rem; height: 1.2rem; fill: currentColor; }
+.cf-sharebtn[aria-expanded="true"] { background: rgba(255, 255, 255, .1); border-radius: 100%; }
+
+/* Popover menu. */
+.cf-sharemenu {
+  position: fixed;
+  z-index: 30;
+  min-width: 190px;
+  padding: .35rem;
+  background: var(--md-default-bg-color, #fff);
+  border: 1px solid var(--md-default-fg-color--lightest, rgba(0, 0, 0, .1));
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .28);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .14s ease, transform .14s ease;
+}
+.cf-sharemenu[data-open="true"] { opacity: 1; transform: none; }
+.cf-sharemenu[hidden] { display: none; }
+
+.cf-sharemenu .cf-mi {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: .5rem;
-  margin: 1.4rem 0 .2rem;
-}
-.page-share .ps-label {
-  font-size: .7rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--md-default-fg-color--light, #666);
-  margin-right: .15rem;
-}
-.page-share .ps-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  padding: .28rem .6rem;
-  font-size: .72rem;
+  gap: .55rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: .5rem .6rem;
+  font-size: .78rem;
   font-weight: 600;
   line-height: 1;
+  text-align: left;
   color: var(--md-default-fg-color);
-  background: var(--md-default-fg-color--lightest, rgba(0, 0, 0, .05));
-  border: 1px solid transparent;
-  border-radius: 999px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
   text-decoration: none;
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
-.page-share a.ps-btn { text-decoration: none; }
-.page-share .ps-btn:hover {
-  background: var(--md-primary-fg-color);
-  color: var(--md-primary-bg-color, #fff);
-}
-.page-share .ps-btn:focus-visible {
-  outline: 3px solid var(--md-accent-fg-color, #526cfe);
-  outline-offset: 2px;
-}
-.page-share .ps-btn svg { width: 14px; height: 14px; fill: currentColor; }
+.cf-sharemenu a.cf-mi { text-decoration: none; }
+.cf-sharemenu .cf-mi:hover { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color, #fff); }
+.cf-sharemenu .cf-mi:focus-visible { outline: 3px solid var(--md-accent-fg-color, #526cfe); outline-offset: -2px; }
+.cf-sharemenu .cf-mi svg { width: 15px; height: 15px; fill: currentColor; flex: 0 0 auto; }
 
-/* Tiny "Copied!" confirmation. */
-.page-share .ps-copied {
-  font-size: .72rem;
+.cf-sharemenu .cf-mi-copied {
+  padding: .3rem .6rem .1rem;
+  font-size: .7rem;
   font-weight: 600;
   color: var(--md-primary-fg-color);
-  opacity: 0;
-  transition: opacity .15s ease;
 }
-.page-share .ps-copied[data-show="true"] { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-share .ps-btn, .page-share .ps-copied { transition: none; }
+  .cf-sharemenu { transition: none; }
 }
