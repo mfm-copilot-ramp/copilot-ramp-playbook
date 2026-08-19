@@ -73,6 +73,7 @@ extra_css:
   - stylesheets/callouts.css
   - stylesheets/engine-cards.css
   - stylesheets/feedback-widget.css
+  - stylesheets/share.css
 
 extra_javascript:
   - javascripts/catalog.js
@@ -81,6 +82,7 @@ extra_javascript:
   - javascripts/role-path.js
   - javascripts/feedback.js
   - javascripts/feedback-widget.js
+  - javascripts/share.js
   - javascripts/card-filter.js
   - javascripts/estimator-vocab.js
   - javascripts/site-bus.js
