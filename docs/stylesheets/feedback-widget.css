@@ -1,0 +1,114 @@
+/* ── "Send feedback" widget ──────────────────────────────────────────────────
+   A floating button on every page that opens a modal embedding the Microsoft
+   Forms feedback form. The current page URL is passed to the form's "Page"
+   question so each submission is tagged with where it came from.
+   Themed with Material design tokens so it tracks light/dark mode automatically. */
+
+/* Floating trigger button (bottom-right, above the footer / back-to-top). */
+.cf-fab {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .6rem .95rem;
+  font: 600 .72rem/1 var(--md-text-font-family, inherit);
+  letter-spacing: .01em;
+  color: var(--md-primary-bg-color, #fff);
+  background: var(--md-primary-fg-color);
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .28);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.cf-fab:hover { box-shadow: 0 5px 16px rgba(0, 0, 0, .34); transform: translateY(-1px); }
+.cf-fab:focus-visible { outline: 3px solid var(--md-accent-fg-color, #526cfe); outline-offset: 2px; }
+.cf-fab svg { width: 16px; height: 16px; fill: currentColor; }
+.cf-fab-label { white-space: nowrap; }
+
+/* On narrow screens, collapse to an icon-only circle to stay out of the way. */
+@media screen and (max-width: 44.9375em) {
+  .cf-fab { padding: .7rem; }
+  .cf-fab-label { display: none; }
+}
+
+/* Overlay + dialog. */
+.cf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, .5);
+  opacity: 0;
+  visibility: hidden;
+  /* Fade opacity, but flip visibility only AFTER the fade-out finishes so the
+     dialog stays in the a11y tree while closing — and becomes focusable the
+     instant it opens (see [data-open] below). */
+  transition: opacity .18s ease, visibility 0s linear .18s;
+}
+.cf-overlay[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .18s ease, visibility 0s linear 0s;
+}
+
+.cf-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(680px, 96vw);
+  height: min(760px, 90vh);
+  background: var(--md-default-bg-color, #fff);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .4);
+  overflow: hidden;
+  transform: translateY(8px) scale(.99);
+  transition: transform .18s ease;
+}
+.cf-overlay[data-open="true"] .cf-dialog { transform: none; }
+
+.cf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .7rem .5rem .7rem 1rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest, rgba(0, 0, 0, .1));
+}
+.cf-title { margin: 0; font-size: .95rem; font-weight: 700; color: var(--md-default-fg-color); }
+.cf-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--md-default-fg-color--light, #555);
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.cf-close:hover { background: var(--md-default-fg-color--lightest, rgba(0, 0, 0, .07)); }
+.cf-close:focus-visible { outline: 3px solid var(--md-accent-fg-color, #526cfe); outline-offset: 2px; }
+.cf-close svg { width: 18px; height: 18px; fill: currentColor; }
+
+.cf-body { flex: 1 1 auto; min-height: 0; background: #f6f8fb; }
+.cf-frame { width: 100%; height: 100%; border: 0; display: block; }
+
+/* Loading hint shown behind the iframe until it paints. */
+.cf-loading {
+  padding: 1.2rem;
+  font-size: .8rem;
+  color: var(--md-default-fg-color--light, #666);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-fab, .cf-overlay, .cf-dialog { transition: none; }
+}
