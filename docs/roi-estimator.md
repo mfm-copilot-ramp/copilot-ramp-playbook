@@ -2,6 +2,7 @@
 title: Copilot ROI Estimator
 description: An interactive ROI estimator for Microsoft Copilot Studio agents — model value, cost, payback and return in one frame. Still under active development.
 hide: [toc]
+wide: true
 ---
 
 # Copilot ROI Estimator

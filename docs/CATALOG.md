@@ -1,6 +1,7 @@
 ---
 title: Use-Case Catalog
 description: The full Copilot use-case catalog across the journey — paste-a-prompt walkthroughs with title, value, sample prompt, and step-by-step guidance for each.
+wide: true
 ---
 
 # Use-Case Catalog
