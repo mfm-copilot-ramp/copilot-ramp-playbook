@@ -2,7 +2,6 @@
 title: Copilot Proposal Composer
 description: Turn saved Copilot Studio and Cowork estimates into a shareable business case — sizing, cost, ROI and narrative in one exportable proposal. In development.
 hide: [toc]
-wide: true
 ---
 
 # Copilot Proposal Composer

@@ -64,6 +64,7 @@ theme:
         name: Switch to light mode
 
 extra_css:
+  - stylesheets/layout.css
   - stylesheets/home.css
   - stylesheets/catalog.css
   - stylesheets/mermaid.css

@@ -1,0 +1,14 @@
+/* ── Standard content width ───────────────────────────────────────────────────
+   Every page uses the same, roomier grid (previously an opt-in "wide" layout on
+   tool pages only) so the site width is consistent everywhere — tool widgets,
+   tables and cards get the horizontal space instead of leaving a wide empty
+   margin. Plain prose is still capped at a comfortable reading measure so body
+   text lines don't get too long on big screens. */
+.md-grid { max-width: 84rem; }
+
+/* Keep running prose readable while custom-HTML widgets, tables and cards use
+   the full widened column. */
+.md-content__inner.md-typeset > p,
+.md-content__inner.md-typeset > ul,
+.md-content__inner.md-typeset > ol,
+.md-content__inner.md-typeset > blockquote { max-width: 46rem; }
