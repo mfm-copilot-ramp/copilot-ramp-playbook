@@ -2,6 +2,7 @@
 title: "Sales: Product intel and objection handling for sales reps"
 description: Build a Copilot Studio agent that gives reps the right product story, competitive positioning, and objection responses mid-call, grounded on your content.
 stage: studio
+harness: standard
 roles: [maker, champion, manager]
 tags: [copilot-studio, sales, product-knowledge, competitive-intel, objections, functional]
 level: intermediate
@@ -17,6 +18,17 @@ updated: 2026-06-04
 **Stage:** Copilot Studio · **For:** Maker, Champion, Manager · **Level:** Intermediate · **Time:** 3–4 hours
 
 > **📐 Full blueprint & test plan →** [Sales Enablement Agent](../solutions/sales-enablement-agent.md) — the copy-paste system prompt, topic specs, and test-case table behind this build.
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: you author the topics and rules, the flow is predictable,
+    and for Microsoft 365 Copilot-licensed users **it's covered inside Microsoft 365 channels** (no extra
+    credits) — the right, lowest-cost choice for structured, knowledge-driven work like this.
+
+    When a job needs to **reason through a multi-step task on its own**, step up to the **GitHub Copilot
+    harness** — see [Build a generative agent](studio-generative-agent.md). It's the autonomous engine to
+    grow into; the honest tradeoff is that it bills **Copilot Credits for all usage** and a Microsoft 365
+    Copilot license never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 

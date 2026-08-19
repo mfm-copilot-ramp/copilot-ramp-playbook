@@ -110,7 +110,9 @@ volume depends on the agent's regime:
 ## The Microsoft 365 Copilot discount (zero-rating) { #m365-discount }
 
 If your users already hold a **Microsoft 365 Copilot** license, a large slice of agent usage is
-**zero-rated** — it doesn't draw down the credit pool at all.
+**zero-rated** — it doesn't draw down the credit pool at all. **One caveat up front:** this coverage
+applies only to agents on the **standard** and **Copilot chat** harnesses. The **GitHub Copilot harness is
+never covered** — see the first exception below and [Pick the engine](pick-the-engine.md).
 
 Per Microsoft's [licensing doc](https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing)
 (retrieved 2026-08-04): when a Microsoft 365 Copilot-licensed user interacts with an agent in **Copilot
@@ -119,9 +121,26 @@ tenant grounding** are zero-rated (employee-facing usage, running under that use
 
 The exceptions that **still bill**, even for licensed users:
 
+- **GitHub Copilot harness agents** — the autonomous, agentic engine is **never** covered by a Microsoft 365
+  Copilot license. Every interaction — *plus building and testing the agent* — bills Copilot Credits,
+  regardless of channel or who's licensed. Only the **standard** and **Copilot chat** harnesses are zero-rated.
+  Microsoft bills this harness **per task, by complexity** and publishes only credit **ranges** — **Light 100–300 ·
+  Medium 300–500 · Heavy &gt;500 credits per task** — that bundle model tokens, tools, and the harness itself. A single
+  interaction is a multi-step agentic task (reasoning + tools + files), so it costs materially more per turn than a
+  standard topic, and there is **no per-action rate card** for this harness. See
+  [Pick the engine](pick-the-engine.md); the [Credit Estimator](credit-estimator.md) models it with an editable
+  **credits-per-task** anchor seeded from the complexity tier (biased to the high end of each published band) plus a
+  one-time build &amp; test cost.
 - **Autonomous / triggered runs** — no interactive licensed user in the loop.
 - **Agent flows** on any trigger other than **"When an agent calls the flow."**
 - **Computer-Using Agent (CUA)** actions — never included in the Microsoft 365 Copilot license.
+
+!!! info "Gross vs. net — what you actually pay"
+    Because coverage flips entirely on the harness, the *same* agent at the *same* volume can cost very
+    different real money. On the **standard / chat** harnesses, licensed users in Microsoft 365 channels are
+    zero-rated, so **net billable** can be far below **gross consumption** — sometimes ~$0 incremental. On the
+    **GitHub Copilot harness**, net always equals gross. The [Credit Estimator](credit-estimator.md) now models
+    both: pick your harness and it shows gross consumption and net billable side by side.
 
 !!! warning "Where over-runs come from"
     Capacity is enforced **monthly** and **unused credits don't carry over**. Surprises almost always

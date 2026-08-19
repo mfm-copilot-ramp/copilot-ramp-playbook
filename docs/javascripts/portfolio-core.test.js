@@ -47,5 +47,19 @@ ok("aggregate coworkActiveUsers = 450", agg.coworkActiveUsers === 450, agg.cowor
 ok("aggregate suggestedCoworkValueMonthly = " + expectSuggest, agg.suggestedCoworkValueMonthly === expectSuggest, agg.suggestedCoworkValueMonthly);
 ok("suggestCoworkValue(100) = " + Math.round(100*15*22*50/60), P.suggestCoworkValue(100) === Math.round(100 * 15 * 22 * 50 / 60), P.suggestCoworkValue(100));
 
+// 6. Frozen studio estimate (uploaded solution / import — no NL text, uses input.credits)
+var EC = require("./estimator-core.js");
+var engines2 = { CoworkEstimator: CE, EstimatorCore: EC };
+var frozen = { producer: "studio", input: { credits: 12000 }, meta: { size: "M", regime: "interactive", volume: 5000 } };
+var rf = P.recomputeItem(frozen, engines2);
+ok("frozen ok", rf.ok === true, rf.note);
+ok("frozen credits = 12000", rf.monthlyCredits === 12000, rf.monthlyCredits);
+ok("frozen cost = $120 (payg)", near(rf.monthlyCostUSD, 120), rf.monthlyCostUSD);
+ok("frozen value from meta.volume (8min×5000/60×45=30000)", near(rf.value.monthly, 8 * 5000 / 60 * 45, 1), rf.value.monthly);
+ok("frozen size passthrough", rf.size === "M", rf.size);
+var agg2 = P.aggregate([frozen, quickItem], engines2);
+ok("aggregate studio(frozen)+cowork credits = 762000", agg2.monthlyCredits === 762000, agg2.monthlyCredits);
+ok("byProducer studio present", !!agg2.byProducer.studio, agg2.byProducer);
+
 console.log("\n" + (fails === 0 ? "ALL PASSED" : (fails + " FAILED")));
 process.exit(fails === 0 ? 0 : 1);

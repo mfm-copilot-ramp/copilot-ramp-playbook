@@ -46,7 +46,7 @@
     // Applied only when a reasoning model is detected; assumes REASON_TOKENS_K.
     reasoningPremium: 10
   };
-  var REASON_TOKENS_K = 2;   // assumed premium tokens (×1K) per reasoning step
+  var REASON_TOKENS_K = 5;   // assumed premium tokens (×1K) per reasoning step (Solution mode)
   // Voice is billed PER MINUTE (Learn "Voice billing rate/minute": 10 / 35 / 75). This is
   // an editable planning assumption for the average voice minutes per conversation — NOT a
   // Microsoft-published figure. Tune it to your average handle time.
@@ -154,17 +154,71 @@
   function perInteractionCredits(profile) {
     return profile.reduce(function (sum, r) { return sum + r.uses * r.credits; }, 0);
   }
+  // ── Harness-aware licensing ───────────────────────────────────────────────
+  // A Microsoft 365 Copilot license can zero-rate interactive usage ONLY on the
+  // standard and Copilot chat harnesses, and only inside M365 channels (embedded).
+  // The GitHub Copilot harness is NEVER covered — every interaction (and building
+  // and testing) bills Copilot Credits regardless of license. See MS Learn:
+  // "Manage costs for agents powered by the GitHub Copilot harness".
+  function harnessCovered(harness) { return harness !== "github-copilot"; }
+  function grossUsers(scale) { return Math.max(0, Math.round(scale.users || 0)); }
   function billedUsers(scale) {
-    var n = scale.deployment === "embedded"
+    var covered = harnessCovered(scale.harness) && scale.deployment === "embedded";
+    var n = covered
       ? scale.users * (1 - (scale.licensePct || 0) / 100)
       : scale.users;
     return Math.max(0, Math.round(n));
   }
+  // GitHub Copilot harness: Microsoft publishes NO per-action rate card for this harness — only
+  // per-task credit RANGES by task complexity (Light 100–300 · Medium 300–500 · Heavy >500), which
+  // BUNDLE LLM tokens + tools (knowledge/MCP) + the harness itself. So we do NOT decompose the
+  // standard rate-card grid here (that grid has no published basis on this harness). Instead we price
+  // a task at an editable tier ANCHOR, biased toward the high end of each published band to lean
+  // over- rather than under-estimate; Heavy is open-ended (>500) so its anchor is editable upward
+  // with no cap. The base grid `per` is intentionally ignored on this harness. See MS Learn:
+  // "Overview of billing for agents powered by the GitHub Copilot harness".
+  var GH_TIERS = { simple: 300, medium: 500, complex: 800 };
+  var GH_DEFAULTS = { tier: "complex", perTask: 800, buildRuns: 40 };
+  function ghNum(x, d) { x = parseFloat(x); return isFinite(x) ? x : d; }
+  function ghTierCredits(tier) {
+    return Object.prototype.hasOwnProperty.call(GH_TIERS, tier) ? GH_TIERS[tier] : GH_TIERS[GH_DEFAULTS.tier];
+  }
+  // Map a build-complexity t-shirt size to the published GitHub task tier, so the GitHub
+  // estimate follows the SCENARIO instead of always assuming the most expensive (Heavy) tier.
+  // XS/S → Light (simple) · M → Medium · L/XL → Heavy (complex).
+  function ghTierForSize(size) {
+    if (size === "XS" || size === "S") return "simple";
+    if (size === "M") return "medium";
+    return "complex"; // L, XL
+  }
+  // Effective per-task credits on the GitHub harness. An explicit (edited) per-task value wins;
+  // otherwise the selected tier's anchor. The grid `per` is not used on this harness.
+  function ghPerTask(per, v) {
+    v = v || {};
+    var explicit = parseFloat(v.ghPerTask);
+    if (isFinite(explicit) && explicit >= 0) return explicit;
+    return ghTierCredits(v.ghTier || GH_DEFAULTS.tier);
+  }
+  function effPerInteraction(per, harness, v) {
+    return harness === "github-copilot" ? ghPerTask(per, v) : per;
+  }
+  function ghBuildTestCredits(perTask, harness, v) {
+    if (harness !== "github-copilot") return 0;
+    var runs = Math.max(0, ghNum((v || {}).ghBuildRuns, GH_DEFAULTS.buildRuns));
+    return Math.round(runs * perTask);
+  }
   function computeEstimate(profile, scale) {
     var per = perInteractionCredits(profile);
+    var harness = scale.harness || "standard";
+    var effPer = effPerInteraction(per, harness, scale);
     var billed = billedUsers(scale);
-    var monthly = billed * scale.interactions * per;
-    return { perInteraction: per, billed: billed, monthly: monthly };
+    var gross = grossUsers(scale);
+    var net = billed * scale.interactions * effPer;
+    var grossMonthly = gross * scale.interactions * effPer;
+    return { perInteraction: effPer, basePerInteraction: per, billed: billed, monthly: net,
+      grossMonthly: grossMonthly, netMonthly: net, perTask: effPer,
+      buildTestCredits: ghBuildTestCredits(effPer, harness, scale),
+      covered: grossMonthly - net > 0.0001, harness: harness };
   }
   function creditRange(monthly) {
     return { low: monthly * 0.6, mid: monthly, high: monthly * 1.6 };
@@ -177,16 +231,28 @@
   // autonomous:  events/month × perUnit (billed regardless of licensing — no discount).
   function computeQuick(profile, v) {
     var per = perInteractionCredits(profile);
+    var harness = v.harness || "standard";
+    var effPer = effPerInteraction(per, harness, v);
     if (v.archetype === "autonomous") {
       var events = Math.max(0, Math.round(v.events || 0));
-      return { regime: "autonomous", perUnit: per, units: events, billed: null, monthly: events * per };
+      var m = events * effPer;
+      // Autonomous events bill per event with no license discount on ANY harness → net == gross.
+      return { regime: "autonomous", perUnit: effPer, basePerUnit: per, units: events, billed: null,
+        monthly: m, grossMonthly: m, netMonthly: m, covered: false, harness: harness,
+        perTask: effPer, buildTestCredits: ghBuildTestCredits(effPer, harness, v) };
     }
-    var scale = { deployment: v.deployment, users: v.users, licensePct: v.licensePct };
+    var scale = { deployment: v.deployment, users: v.users, licensePct: v.licensePct, harness: harness };
     var billed = billedUsers(scale);
+    var gross = grossUsers(scale);
     var interactions = Math.max(0, v.interactions || 0);
     var escExtra = ((v.escalation || 0) / 100) * (v.escalationCredits || 0);
-    var monthly = billed * interactions * (per + escExtra);
-    return { regime: "interactive", perUnit: per, units: billed * interactions, billed: billed, monthly: monthly };
+    var rate = (effPer + escExtra);
+    var net = billed * interactions * rate;
+    var grossMonthly = gross * interactions * rate;
+    return { regime: "interactive", perUnit: effPer, basePerUnit: per, units: billed * interactions, billed: billed,
+      monthly: net, grossMonthly: grossMonthly, netMonthly: net, perTask: effPer,
+      buildTestCredits: ghBuildTestCredits(effPer, harness, v),
+      covered: grossMonthly - net > 0.0001, coveredUsers: gross - billed, harness: harness };
   }
 
   // "Why this cost" — structured drivers ranked by monthly-credit impact. Volume
@@ -438,8 +504,13 @@
 
     if (v.hasContent)
       profile.push(row("content", ROW.content, Math.max(1, v.pagesPerDoc || 1), CREDIT.contentPage, "document processing (per page)"));
-    if (v.hasAI)
-      profile.push(row("aiStandard", ROW.aiStandard, 1, CREDIT.aiStandard, "generative content tool"));
+    if (v.hasAI) {
+      var aiTier = v.aiTier || "standard";
+      var aiCredit = aiTier === "basic" ? CREDIT.aiBasic : aiTier === "premium" ? CREDIT.aiPremium : CREDIT.aiStandard;
+      var aiName = aiTier === "basic" ? "Text/generative basic" : aiTier === "premium" ? "Text/generative premium" : ROW.aiStandard;
+      var aiKey = aiTier === "basic" ? "aiBasic" : aiTier === "premium" ? "aiPremium" : "aiStandard";
+      profile.push(row(aiKey, aiName, 1, aiCredit, "generative content tool — " + aiTier + " tier"));
+    }
     if (v.hasFlow)
       profile.push(row("flow", ROW.flow, Math.max(1, v.flowActionsPerRun || 5), CREDIT.flowAction, "agent flow actions"));
 
@@ -1052,6 +1123,11 @@
       enum: { interactive: ["interactive", "user", "user-led", "userled", "chat", "person", "reactive", "attended"],
               autonomous: ["autonomous", "auto", "event", "event-driven", "eventdriven", "unattended", "trigger", "triggered", "batch", "background"] },
       hint: "Interactive = a person drives it. Autonomous = it fires on each event, no user." },
+    { key: "harness", header: "Harness", type: "enum", applies: "all", def: "standard",
+      enum: { "github-copilot": ["github-copilot", "github copilot", "github", "githubcopilot", "autonomous harness", "generative harness", "agentic"],
+              "standard": ["standard", "topics", "topic", "topic-based", "classic", "rules", "rule-based"],
+              "chat": ["chat", "copilot chat", "m365 chat", "bizchat", "extend copilot"] },
+      hint: "Copilot Studio engine. GitHub Copilot harness bills Copilot Credits for ALL usage and is never covered by an M365 Copilot license; standard/chat are covered in M365 channels for licensed users." },
     { key: "channel", header: "Channel", type: "enum", applies: "interactive", def: "chat",
       enum: { chat: ["chat", "text", "teams", "web", "message", "messaging"], voice: ["voice", "phone", "call", "telephony", "ivr"] },
       hint: "Interactive only. Voice turns cost more and add build effort." },
@@ -1380,6 +1456,9 @@
     CREDIT: CREDIT, RATE_PAYG: RATE_PAYG, RATE_PREPAID: RATE_PREPAID, ROW: ROW,
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
+    harnessCovered: harnessCovered, grossUsers: grossUsers,
+    GH_DEFAULTS: GH_DEFAULTS, GH_TIERS: GH_TIERS, ghTierCredits: ghTierCredits, ghTierForSize: ghTierForSize,
+    ghPerTask: ghPerTask, effPerInteraction: effPerInteraction,
     computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
     costDrivers: costDrivers, QUICK_WIZARD: QUICK_WIZARD,
     detectUsers: detectUsers, detectInteractions: detectInteractions, detectDeployment: detectDeployment,

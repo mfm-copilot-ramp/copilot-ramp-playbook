@@ -2,6 +2,7 @@
 title: Design a multi-turn conversation with fallback and clarification
 description: Design a Copilot Studio agent that asks what it needs to know before answering and recovers gracefully when a user says something unexpected.
 stage: studio
+harness: standard
 roles: [maker]
 tags: [studio, conversation-design, topics, fallback]
 level: intermediate
@@ -16,6 +17,17 @@ updated: 2026-06-03
 > Build an agent that asks what it needs to know before it answers — and recovers gracefully when a user says something unexpected.
 
 **Stage:** Copilot Studio · **For:** Maker · **Level:** Intermediate · **Time:** 30 min
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: you author the topics and rules, the flow is predictable,
+    and for Microsoft 365 Copilot-licensed users **it's covered inside Microsoft 365 channels** (no extra
+    credits) — the right, lowest-cost choice for structured, knowledge-driven work like this.
+
+    When a job needs to **reason through a multi-step task on its own**, step up to the **GitHub Copilot
+    harness** — see [Build a generative agent](studio-generative-agent.md). It's the autonomous engine to
+    grow into; the honest tradeoff is that it bills **Copilot Credits for all usage** and a Microsoft 365
+    Copilot license never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 

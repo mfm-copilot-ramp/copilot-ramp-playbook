@@ -35,6 +35,46 @@ into the Detailed calculator** so you can fine-tune from any starting point.
 
 ## August 2026
 
+### GitHub Copilot harness — refresh across walkthroughs, use cases, and the estimator
+*August 14, 2026*
+
+Copilot Studio agents run on one of three **harnesses** (engines): the **standard** harness (authored
+topics/rules), the **Copilot chat** harness (extend Microsoft 365 Copilot), and the newer **GitHub Copilot
+harness** (autonomous, generative orchestration). This release makes that choice — and its real cost —
+first-class:
+
+- **[Pick the engine](pick-the-engine.md)** now shows a **"Covered by your M365 Copilot license?"** row and a
+  factual "where it's heading" note. The standard and chat harnesses are covered in Microsoft 365 channels;
+  the **GitHub Copilot harness is never covered** — it bills Copilot Credits for *all* usage.
+- A new flagship, **[Build a generative agent on the GitHub Copilot harness](walkthroughs/studio-generative-agent.md)**,
+  is now Stage 6's Week-1 habit — plus **9 GitHub-harness "twin" walkthroughs** of the multi-step functional
+  use cases, each kept alongside its standard-harness version and cross-linked.
+- Every Studio walkthrough and solution template is now **tagged with its harness**, with a benefit-forward
+  callout and the honest cost/coverage tradeoff.
+- The **[Credit Estimator](credit-estimator.md)** gained a **harness selector** and now shows **gross
+  consumption vs. net billable** side by side — modelling exactly what a Microsoft 365 Copilot license does
+  and doesn't cover.
+
+### Credit Estimator — GitHub harness re-grounded to Microsoft's published tiers
+*August 18, 2026*
+
+Follow-up to the harness refresh: the GitHub Copilot harness estimate is now grounded **only** in what Microsoft
+publishes. Microsoft prices this harness **per task by complexity** and publishes credit **ranges** — not a
+per-action rate card — so the estimator was reworked to match:
+
+- The per-action **grid is hidden** on the GitHub harness (it has no published basis there). A task is priced at an
+  editable **credits-per-task** anchor seeded from a **complexity tier**: **Simple → Light (100–300) · Medium
+  (300–500) · Complex → Heavy (&gt;500)**. Anchors sit toward the high end of each band to lean slightly
+  conservative, and Heavy is open-ended (editable upward, no cap).
+- The earlier "reasoning steps / reasoning tokens per task" knobs — which borrowed the *standard* harness rate card
+  Microsoft never published for this engine — are **removed**.
+- The one-time **build &amp; test** cost is retained (Microsoft confirms building/testing/evaluating consume credits),
+  now expressed as build runs × credits-per-task.
+- Quick mode adds a **Basic / Standard / Premium** picker for AI content-tool metering, and the Solution-package
+  reasoning-model premium assumption was tuned to lean conservative.
+
+---
+
 ### Content-ops automation pipeline
 *August 2, 2026*
 

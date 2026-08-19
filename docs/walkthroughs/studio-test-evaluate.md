@@ -17,6 +17,13 @@ updated: 2026-06-03
 
 **Stage:** Copilot Studio · **For:** Maker, Champion · **Level:** Intermediate · **Time:** 30 min
 
+!!! info "Works on any harness — cost and coverage differ"
+    This is a platform skill that applies whichever [harness](../pick-the-engine.md) powers your agent. Keep
+    one thing in mind: the **standard** and **chat** harnesses are covered by a Microsoft 365 Copilot license
+    inside Microsoft 365 channels, while the **GitHub Copilot harness** bills **Copilot Credits for all
+    usage** — and on that harness **testing and evaluation themselves consume credits**, so factor test-run
+    volume into your estimate. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
+
 ## When to use this
 
 You've built a Studio agent and it works in demos. You tested it with your own questions and it answered correctly. Now you're about to share it with your entire organization — and you realize you don't know what happens when it encounters a question you didn't think of, a frustrated user, or a topic it handles badly.

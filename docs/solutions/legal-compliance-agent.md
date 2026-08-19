@@ -18,6 +18,13 @@ updated: 2026-06-04
 
 ---
 
+!!! info "Which harness? Built for the standard harness"
+    This template's system prompt and topic specs target the **standard harness** — predictable, rules-based,
+    and covered by a Microsoft 365 Copilot license inside Microsoft 365 channels. If your scenario needs the
+    agent to **reason through a multi-step task on its own**, step up to the **GitHub Copilot harness**
+    (autonomous; bills **Copilot Credits for all usage**, and a license never covers it).
+    [Compare the engines](../pick-the-engine.md).
+
 ## What the agent does
 
 | Capability | Detail |

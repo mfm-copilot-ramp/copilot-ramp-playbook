@@ -36,7 +36,7 @@ Your declarative agents are bumping into limits: you need a real action against 
 
 ## Start here — if you only do three things
 
-Build a real designed agent, give it an action against a real system, then ship it with a governance checklist.
+Learn the fundamentals on the license-covered standard harness, step up to an autonomous generative agent on the GitHub Copilot harness, then ship it with a governance checklist.
 
 <div class="grid cards rc-pinned" markdown>
 
@@ -44,17 +44,17 @@ Build a real designed agent, give it an action against a real system, then ship 
 
     **[Build your first Studio agent with knowledge + a topic](../walkthroughs/studio-first-agent.md)**
 
-    Go from Agent Builder to a real designed conversation with topics and grounding.
+    Learn the fundamentals on the **standard harness** — a designed conversation, topics, and grounding — covered by your M365 Copilot license inside M365 channels.
 
-    <span class="rc-meta" data-time="45" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="45" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   <span class="rc-habit">Habit 2<small>Week 1</small></span>
 
-    **[Give a Studio agent a real action with a connector](../walkthroughs/studio-connector-action.md)**
+    **[Build a generative agent on the GitHub Copilot harness](../walkthroughs/studio-generative-agent.md)**
 
-    Let the agent do things, not just answer — look up records, create tickets, trigger workflows.
+    Step up from a designed conversation to an agent that plans and runs a multi-step task on its own. The direction to grow into — credits apply for all usage, and it's not license-covered.
 
-    <span class="rc-meta" data-time="25" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 25 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="github-copilot" data-time="40" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 40 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   <span class="rc-habit">Habit 3<small>Month 1</small></span>
 
@@ -62,7 +62,7 @@ Build a real designed agent, give it an action against a real system, then ship 
 
     Ship to Teams and the web with a governance checklist.
 
-    <span class="rc-meta" data-time="20" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="any" data-time="20" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 </div>
 
@@ -87,73 +87,79 @@ Everything that makes a Studio agent real — designed conversation, tools and a
 
     Go from Agent Builder to a real designed conversation with topics and grounding.
 
-    <span class="rc-meta" data-time="45" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span> <span class="rc-chip rc-chip-star">★ Starter</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="45" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span> <span class="rc-chip rc-chip-star">★ Starter</span></span>
+
+-   **[Build a generative agent on the GitHub Copilot harness](../walkthroughs/studio-generative-agent.md)**
+
+    Describe the outcome and let generative orchestration plan and run a multi-step task — the autonomous engine to grow into. Bills credits for all usage; not license-covered.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="40" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 40 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Design a multi-turn conversation with fallback and clarification](../walkthroughs/studio-multi-turn-conversation.md)**
 
     Build an agent that asks what it needs to know and recovers gracefully.
 
-    <span class="rc-meta" data-time="30" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="30" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Add an MCP tool integration to your Studio agent](../walkthroughs/studio-mcp-tool-integration.md)**
 
     Extend the agent with external tools.
 
-    <span class="rc-meta" data-time="20" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="any" data-time="20" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Give a Studio agent a real action with a connector](../walkthroughs/studio-connector-action.md)**
 
     Let the agent do things, not just answer — look up records, create tickets, trigger workflows.
 
-    <span class="rc-meta" data-time="25" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 25 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="any" data-time="25" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 25 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Trigger a Power Automate flow from inside a Studio agent](../walkthroughs/studio-power-automate-flow.md)**
 
     Connect your agent to real business systems via Power Automate.
 
-    <span class="rc-meta" data-time="30" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="any" data-time="30" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Connect a Studio agent to a Microsoft Fabric data agent](../walkthroughs/studio-fabric-agent.md)**
 
     Ground the agent on your warehouse and semantic models — answer questions from data, not just documents.
 
-    <span class="rc-meta" data-time="40" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 40 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="any" data-time="40" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 40 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Configure an autonomous event-triggered agent](../walkthroughs/studio-autonomous-triggers.md)**
 
     Build an agent that acts when something happens — no user prompt required.
 
-    <span class="rc-meta" data-time="45" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="github-copilot" data-time="45" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 45 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Secure a Studio agent with authentication](../walkthroughs/studio-authentication.md)**
 
     Ensure only the right people can use your agent.
 
-    <span class="rc-meta" data-time="30" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 IT</span></span>
+    <span class="rc-meta" data-harness="any" data-time="30" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 IT</span></span>
 
 -   **[Test and evaluate a Studio agent before publishing](../walkthroughs/studio-test-evaluate.md)**
 
     Structured test cases before broad rollout.
 
-    <span class="rc-meta" data-time="30" data-roles="maker champion"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="any" data-time="30" data-roles="maker champion"><span class="rc-chip rc-chip-time">⏱ 30 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Publish and govern your agent](../walkthroughs/studio-publish.md)**
 
     Ship to Teams and the web with a governance checklist.
 
-    <span class="rc-meta" data-time="20" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="any" data-time="20" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Govern and monitor your agents at scale](../walkthroughs/studio-govern-monitor.md)**
 
     ALM, analytics, and guardrails for a fleet of agents.
 
-    <span class="rc-meta" data-time="20" data-roles="it-admin"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 IT</span></span>
+    <span class="rc-meta" data-harness="any" data-time="20" data-roles="it-admin"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 IT</span></span>
 
 -   **[Make the ROI case for your agent](../walkthroughs/studio-roi-business-case.md)**
 
     Tie agent usage to outcomes.
 
-    <span class="rc-meta" data-time="15" data-roles="manager champion"><span class="rc-chip rc-chip-time">⏱ 15 min</span> <span class="rc-chip rc-chip-role">👤 Manager</span></span>
+    <span class="rc-meta" data-harness="any" data-time="15" data-roles="manager champion"><span class="rc-chip rc-chip-time">⏱ 15 min</span> <span class="rc-chip rc-chip-role">👤 Manager</span></span>
 
 </div>
 
@@ -180,37 +186,37 @@ Function-specific agents that answer routine questions and run guided requests. 
 
     A 24/7 HR FAQ agent grounded on your policy docs — consistent, cited answers and a structured escalation path.
 
-    <span class="rc-meta" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[HR: Guide new starters through a personalised first week](../walkthroughs/studio-functional-hr-onboarding.md)**
 
     A first-week companion that adapts the checklist and guidance to a new hire's role, team, and start week.
 
-    <span class="rc-meta" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[IT: Triage support requests and answer from the knowledge base](../walkthroughs/studio-functional-it-helpdesk.md)**
 
     Deflect tier-1 tickets with instant KB answers — and raise a complete ticket automatically when a human is needed.
 
-    <span class="rc-meta" data-time="270" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="270" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[IT: Self-service software and hardware access requests](../walkthroughs/studio-functional-it-access-request.md)**
 
     Guided software, hardware, and access requests — validated and auto-routed to the right IT queue.
 
-    <span class="rc-meta" data-time="270" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="270" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Finance: Self-service expense and procurement guidance](../walkthroughs/studio-functional-finance-expense.md)**
 
     Instant answers on expense policy and procurement rules — and a guided path into the right process.
 
-    <span class="rc-meta" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Finance: Spend and budget Q&A for budget owners](../walkthroughs/studio-functional-finance-budget-qa.md)**
 
     Instant answers on spend position, variance from plan, and the approval process — without waiting on Finance.
 
-    <span class="rc-meta" data-time="210" data-roles="maker champion manager"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker champion manager"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 </div>
 
@@ -227,19 +233,19 @@ Agents that put approved content and intel in front of the people who sell and m
 
     Give every rep the right product story, competitive positioning, and objection responses — mid-call.
 
-    <span class="rc-meta" data-time="210" data-roles="maker champion manager"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker champion manager"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Sales: Build proposals and RFP responses](../walkthroughs/studio-functional-sales-proposal.md)**
 
     Assemble proposal and RFP content from your approved library — first draft in 30 minutes, not 3 hours.
 
-    <span class="rc-meta" data-time="210" data-roles="maker champion manager"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker champion manager"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Marketing: Turn a brief into a checklist and draft copy](../walkthroughs/studio-functional-marketing-campaign.md)**
 
     Turn a one-paragraph brief into an asset checklist and on-brand first-draft copy, with claims flagged for review.
 
-    <span class="rc-meta" data-time="210" data-roles="maker marketer"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker marketer"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 </div>
 
@@ -256,43 +262,108 @@ Agents that navigate process, deflect support load, and coordinate operational w
 
     Instant answers on compliance policies and legal processes — with strict scope and a clear escalation path.
 
-    <span class="rc-meta" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Legal: Guide employees through contract routing](../walkthroughs/studio-functional-legal-contract.md)**
 
     A clear, consistent process for getting contracts reviewed — type, requirements, and where to submit.
 
-    <span class="rc-meta" data-time="150" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 2–3 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="150" data-roles="maker it-admin champion"><span class="rc-chip rc-chip-time">⏱ 2–3 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Customer Support: Deflect common questions and draft replies](../walkthroughs/studio-functional-support-deflection.md)**
 
     Answer from approved help content, draft send-ready replies, deflect the easy ones, and escalate the edge cases.
 
-    <span class="rc-meta" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Procurement: Sourcing requests with vendor shortlists](../walkthroughs/studio-functional-procurement-sourcing.md)**
 
     Take a purchase request, return a shortlist of approved vendors, and apply the policy gates automatically.
 
-    <span class="rc-meta" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Field Service: Triage symptoms to dispatch path](../walkthroughs/studio-functional-field-service-triage.md)**
 
     Take a symptom or fault code, return the likely cause, and recommend the right dispatch path — behind a hard safety rule.
 
-    <span class="rc-meta" data-time="270" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="270" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Engineering: Match alerts to runbook steps and escalation](../walkthroughs/studio-functional-engineering-oncall.md)**
 
     Match an alert to the right runbook step, guide the fix one step at a time, and know exactly who to escalate to.
 
-    <span class="rc-meta" data-time="270" data-roles="maker developer it-admin"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="270" data-roles="maker developer it-admin"><span class="rc-chip rc-chip-time">⏱ 4–5 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 -   **[Workplace: Plan an internal event end to end](../walkthroughs/studio-functional-events-coordination.md)**
 
     Turn "I'm running an all-hands" into an organised plan — logistics, bookings, and drafted comms — within policy.
 
-    <span class="rc-meta" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+    <span class="rc-meta" data-harness="standard" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+</div>
+
+</section>
+
+<section class="rc-bucket" markdown>
+
+### The same use cases — on the GitHub Copilot harness
+The functional agents above are built on the **standard harness** (authored topics, covered by an M365 Copilot license in M365 channels). Here are the **same use cases rebuilt on the GitHub Copilot harness** with generative orchestration — the planner runs the multi-step task on its own instead of following authored paths. More capable and the direction to grow into, but they bill **Copilot Credits for all usage** and a Microsoft 365 Copilot license doesn't cover them. Each links back to its standard-harness twin; [compare the engines](../pick-the-engine.md) or [estimate the net cost](../credit-estimator.md).
+
+<div class="grid cards rc-grid" markdown>
+
+-   **[IT: Autonomous helpdesk triage](../walkthroughs/studio-functional-it-helpdesk-generative.md)**
+
+    The planner decides KB-answer vs. ticket, gathers the fields, and raises a clean ticket — no authored triage topic.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[IT: Autonomous access-request handling](../walkthroughs/studio-functional-it-access-request-generative.md)**
+
+    Reasons through eligibility and routing, then raises or explains the request — recovering when a step fails.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Customer Support: Autonomous deflect-and-draft](../walkthroughs/studio-functional-support-deflection-generative.md)**
+
+    Deflects what it can, drafts a reply, and escalates the rest — planning the path per case.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Sales: Autonomous proposal & RFP drafting](../walkthroughs/studio-functional-sales-proposal-generative.md)**
+
+    Finds approved content, assembles the response across files, and cites sources — one multi-part request at a time.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker champion manager"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Marketing: Brief-to-campaign generation](../walkthroughs/studio-functional-marketing-campaign-generative.md)**
+
+    Turns a brief into drafts across channels, on brand, working over your content files.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker champion"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Procurement: Autonomous sourcing intake](../walkthroughs/studio-functional-procurement-sourcing-generative.md)**
+
+    Takes a request through vendor shortlisting and policy gates to a requisition — recovering when content is missing.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Field Service: Autonomous symptom-to-dispatch triage](../walkthroughs/studio-functional-field-service-triage-generative.md)**
+
+    Reasons from symptoms to the right dispatch path, gathering what it needs along the way.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Engineering: Autonomous alert-to-runbook-to-escalation](../walkthroughs/studio-functional-engineering-oncall-generative.md)**
+
+    Matches an alert to the runbook, walks it step by step, and escalates when confidence is low — inside documented procedures.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Workplace: Plan an internal event end to end](../walkthroughs/studio-functional-events-coordination-generative.md)**
+
+    Plans logistics, bookings, and comms as one multi-step task — within policy, not one authored topic at a time.
+
+    <span class="rc-meta" data-harness="github-copilot" data-time="210" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 3–4 hrs</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 </div>
 

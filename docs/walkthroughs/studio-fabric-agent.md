@@ -25,6 +25,12 @@ updated: 2026-06-04
     [Fabric data agent docs](https://learn.microsoft.com/en-us/fabric/data-science/concept-data-agent)
     and the [Copilot Studio knowledge sources docs](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio).
 
+!!! info "Works on any harness — cost and coverage differ"
+    This is a platform skill that applies whichever [harness](../pick-the-engine.md) powers your agent. Keep
+    one thing in mind: the **standard** and **chat** harnesses are covered by a Microsoft 365 Copilot license
+    inside Microsoft 365 channels, while the **GitHub Copilot harness** bills **Copilot Credits for all
+    usage** and a license never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
+
 ## When to use this
 Document grounding answers "what's our policy?" A **Fabric data agent** answers "what were last quarter's
 returns by region?" — questions whose answers live in structured data, not a PDF. When your users keep

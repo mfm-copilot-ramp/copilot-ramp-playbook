@@ -22,6 +22,7 @@ Full schema for **content pages**:
 title: Turn a meeting into tracked follow-ups        # human title
 description: Capture decisions, owners, and due dates in five minutes    # plain-text SEO meta description — required; see note below
 stage: chat                                          # chat | first-party | cowork | agent-builder | autopilots | studio | foundry
+# harness: github-copilot                            # OPTIONAL, studio stage only — github-copilot | standard | chat
 roles: [end-user, champion]                          # any of: end-user, champion, manager, maker, developer, it-admin
 tags: [meetings, productivity, teams, outlook]       # free-form, used for the filter chips
 level: starter                                       # starter | intermediate | advanced
@@ -35,6 +36,9 @@ updated: 2026-06-03
 **Controlled vocabularies** (keep these tight so filters stay clean):
 
 - `stage`: `chat`, `first-party`, `cowork`, `agent-builder`, `autopilots`, `studio`, `foundry`
+- `harness` *(optional; `studio` stage only)*: `github-copilot`, `standard`, `chat` — the Copilot Studio
+  engine the page targets, used for the harness filter chip. Omit on non-studio content. When a studio page
+  applies to more than one engine, tag the **primary** one it teaches and note the alternative in the body.
 - `roles`: `end-user`, `champion`, `manager`, `maker`, `developer`, `it-admin`
 - `level`: `starter`, `intermediate`, `advanced`
 - `status`: `stub` (catalog entry only) → `walkthrough` (fully expanded page)

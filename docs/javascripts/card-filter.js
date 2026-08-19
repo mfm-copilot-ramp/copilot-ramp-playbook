@@ -22,6 +22,11 @@
     { id: "15",   label: "\u2264 15 min", test: function (t) { return t > 0 && t <= 15; } },
     { id: "long", label: "Longer",   test: function (t) { return t > 15; } }
   ];
+  // Harness filter (studio stage). Cards tagged data-harness="any" (platform how-tos
+  // that work on every engine) always show; harness-specific cards show under their
+  // own chip or "All". The group only appears when a page actually mixes harnesses.
+  var HARNESS_ORDER = ["github-copilot", "standard", "chat"];
+  var HARNESS_LABEL = { "github-copilot": "GitHub Copilot", "standard": "Standard", "chat": "Copilot chat" };
 
   function init() {
     var mount = document.getElementById("rc-filterbar");
@@ -35,7 +40,8 @@
         var roles = (meta && meta.getAttribute("data-roles"))
           ? meta.getAttribute("data-roles").trim().split(/\s+/) : [];
         var time = meta ? (parseInt(meta.getAttribute("data-time"), 10) || 0) : 0;
-        cards.push({ li: li, roles: roles, time: time });
+        var harness = meta ? (meta.getAttribute("data-harness") || "") : "";
+        cards.push({ li: li, roles: roles, time: time, harness: harness });
       });
     });
     if (!cards.length) { return; }
@@ -44,7 +50,11 @@
     cards.forEach(function (c) { c.roles.forEach(function (r) { present[r] = true; }); });
     var roleButtons = ROLE_ORDER.filter(function (r) { return present[r]; });
 
-    var state = { role: "all", time: "all" };
+    var harnessPresent = {};
+    cards.forEach(function (c) { if (c.harness && c.harness !== "any") { harnessPresent[c.harness] = true; } });
+    var harnessButtons = HARNESS_ORDER.filter(function (h) { return harnessPresent[h]; });
+
+    var state = { role: "all", time: "all", harness: "all" };
 
     mount.classList.add("rc-filter");
     mount.innerHTML = "";
@@ -54,6 +64,12 @@
       }))));
     mount.appendChild(buildGroup("Time", "time",
       TIME_OPTS.map(function (o) { return { id: o.id, label: o.label }; })));
+    if (harnessButtons.length > 1) {
+      mount.appendChild(buildGroup("Harness", "harness",
+        [{ id: "all", label: "All" }].concat(harnessButtons.map(function (h) {
+          return { id: h, label: HARNESS_LABEL[h] || h };
+        }))));
+    }
 
     var count = document.createElement("span");
     count.className = "rc-filter-count";
@@ -93,7 +109,9 @@
     function apply() {
       var visible = 0;
       cards.forEach(function (c) {
-        var ok = (state.role === "all" || c.roles.indexOf(state.role) !== -1) && timeTest(c.time);
+        var ok = (state.role === "all" || c.roles.indexOf(state.role) !== -1) &&
+          timeTest(c.time) &&
+          (state.harness === "all" || c.harness === "any" || c.harness === state.harness);
         c.li.hidden = !ok;
         if (ok) { visible++; }
       });

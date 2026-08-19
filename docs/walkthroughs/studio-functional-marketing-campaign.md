@@ -2,6 +2,7 @@
 title: "Marketing: brief to campaign drafts"
 description: Build a Copilot Studio agent that turns a short brief into an asset checklist and on-brand first-draft copy, so the team starts from a draft not a blank page.
 stage: studio
+harness: standard
 roles: [maker, marketer]
 tags: [copilot-studio, marketing, campaign, content, brand, functional]
 level: intermediate
@@ -19,6 +20,18 @@ updated: 2026-06-05
 > **📐 Full blueprint & test plan →** [Marketing Campaign Agent](../solutions/marketing-campaign-agent.md) — the copy-paste system prompt, topic specs, and test-case table behind this build.
 
 ---
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: you author the topics and rules, the flow is predictable,
+    and for Microsoft 365 Copilot-licensed users **it's covered inside Microsoft 365 channels** (no extra
+    credits) — the lowest-cost choice for structured, rules-based work.
+
+    Want the same use case to **reason through the task on its own** — planning multi-step work, recovering
+    when a step fails, and working across your files? Build the
+    **[GitHub Copilot harness version](studio-functional-marketing-campaign-generative.md)** instead. It's the autonomous engine to grow into; the
+    honest tradeoff is that it bills **Copilot Credits for all usage** and a Microsoft 365 Copilot license
+    never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 

@@ -18,6 +18,12 @@ updated: 2026-06-03
 
 **Stage:** Copilot Studio · **For:** Maker, IT/Admin · **Level:** Advanced · **Time:** 25 min
 
+!!! info "Works on any harness — cost and coverage differ"
+    This is a platform skill that applies whichever [harness](../pick-the-engine.md) powers your agent. Keep
+    one thing in mind: the **standard** and **chat** harnesses are covered by a Microsoft 365 Copilot license
+    inside Microsoft 365 channels, while the **GitHub Copilot harness** bills **Copilot Credits for all
+    usage** and a license never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
+
 ## When to use this
 Every agent up to now has *answered*. A Copilot Studio agent can *act* — look up an order, file a ticket,
 update a record, kick off a flow — by calling a **connector** into a real line-of-business system. This is

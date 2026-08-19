@@ -2,6 +2,7 @@
 title: "HR: Guide new starters through a personalised first-week experience"
 description: Build a Copilot Studio agent that gives every new employee a 24/7 first-week companion that knows their role, team, and start week, cutting handbook hunting.
 stage: studio
+harness: standard
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, hr, onboarding, personalisation, conversation-variables, functional]
 level: intermediate
@@ -17,6 +18,17 @@ updated: 2026-06-04
 **Stage:** Copilot Studio · **For:** Maker, IT Admin, Champion · **Level:** Intermediate · **Time:** 3–4 hours
 
 > **📐 Full blueprint & test plan →** [Onboarding Buddy Agent](../solutions/onboarding-buddy-agent.md) — the copy-paste system prompt, topic specs, and test-case table behind this build.
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: you author the topics and rules, the flow is predictable,
+    and for Microsoft 365 Copilot-licensed users **it's covered inside Microsoft 365 channels** (no extra
+    credits) — the right, lowest-cost choice for structured, knowledge-driven work like this.
+
+    When a job needs to **reason through a multi-step task on its own**, step up to the **GitHub Copilot
+    harness** — see [Build a generative agent](studio-generative-agent.md). It's the autonomous engine to
+    grow into; the honest tradeoff is that it bills **Copilot Credits for all usage** and a Microsoft 365
+    Copilot license never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 

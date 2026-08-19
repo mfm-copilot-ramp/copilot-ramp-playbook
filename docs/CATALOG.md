@@ -432,6 +432,7 @@ Deploy an HR FAQ agent grounded on your policy docs — consistent, cited answer
 Deflect tier-1 IT tickets with instant KB answers — and for anything that needs a human, collect the right information and raise the ticket automatically.
 **Sample prompt:** `Design a Copilot Studio IT helpdesk triage agent. KB: [IT SharePoint]. Top self-serviceable requests: [list 20]. When a ticket is needed, collect: category, urgency, description. Submit via Power Automate to [helpdesk system].`
 → Fully written: `walkthroughs/studio-functional-it-helpdesk.md`
+→ Also on the GitHub Copilot harness: `walkthroughs/studio-functional-it-helpdesk-generative.md`
 
 ### Finance: Self-service expense and procurement guidance → walkthrough
 **For:** maker, it-admin, champion · `status: walkthrough`
@@ -568,6 +569,7 @@ Personalised first-week experience using conversation variables (role, team, sta
 **For:** maker, it-admin, champion · `stage: studio` · `status: walkthrough`
 Software, hardware, and system access requests via guided conversation — approved list validation, structured field collection, ITSM ticket creation via Power Automate. Includes privileged access escalation pattern.
 → Fully written: `walkthroughs/studio-functional-it-access-request.md`
+→ Also on the GitHub Copilot harness: `walkthroughs/studio-functional-it-access-request-generative.md`
 
 ### Finance: Budget Q&A for budget owners → functional walkthrough
 **For:** maker, champion, manager · `stage: studio` · `status: walkthrough`
@@ -578,6 +580,7 @@ Policy and process layer for budget owners: Finance deadlines, overspend approva
 **For:** maker, champion, manager · `stage: studio` · `status: walkthrough`
 Content library grounding pattern for proposals: RFP question lookup, solution brief retrieval, case study finder. Covers output format decisions, approved content perimeter, and content freshness requirements.
 → Fully written: `walkthroughs/studio-functional-sales-proposal.md`
+→ Also on the GitHub Copilot harness: `walkthroughs/studio-functional-sales-proposal-generative.md`
 
 ### Legal: Contract Routing and Requirements → functional walkthrough
 **For:** maker, it-admin, champion · `stage: studio` · `status: walkthrough`

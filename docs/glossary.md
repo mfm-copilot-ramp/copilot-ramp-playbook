@@ -71,6 +71,21 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
 - **Custom engine agent** — an agent with its own orchestration logic and (optionally) its own model, built
   in Copilot Studio or Microsoft Foundry. More power, more responsibility — for when a declarative agent
   isn't enough.
+- **Harness (Studio engine)** — the **engine underneath a Copilot Studio agent**: it sets how autonomously
+  the agent reasons, what files it can touch, where you can publish it, and — critically — *how it bills and
+  whether your existing licenses cover it*. Same builder, three engines today:
+    - **GitHub Copilot harness** — autonomous and agentic: reasons through a goal step by step, retries,
+      works with Word/Excel/PowerPoint/PDF files, and has skills and memory. The modern direction for
+      complex, multi-step work. Bills **Copilot Credits for *all* usage — creation *and* runtime — and is
+      *never* covered by a Microsoft 365 Copilot license.**
+    - **Standard harness** — follows the **topics and rules you author**: predictable, structured
+      conversations. Usage is **covered by a Microsoft 365 Copilot license when it runs inside Microsoft 365
+      channels** (billed only for unlicensed users or use outside those channels).
+    - **Copilot chat harness** — extends **Microsoft 365 Copilot Chat** with your enterprise knowledge;
+      included in Microsoft 365 Copilot USLs / consumption.
+
+    Pick for the *job*, then confirm the cost and coverage implications — see
+    [Pick the engine for the job](pick-the-engine.md) and [How Copilot Credits work](copilot-credits.md).
 
 ---
 
@@ -119,9 +134,12 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
 - **Tenant graph grounding** — retrieval-augmented generation over your tenant-wide Microsoft 365 Graph
   (people, mail, meetings, files), billed at **10 credits** on top of the answer. Optional and toggled per
   agent — the powerful-but-pricier grounding mode, distinct from *free* grounding over your own documents.
-- **Interactive vs autonomous (billing regimes)** — *interactive* agents bill per user interaction and can
-  be zero-rated for Microsoft 365 Copilot-licensed users; *autonomous / triggered* agents bill **per
-  event**, with no license discount. Which regime an agent is in usually dominates its bill.
+- **Interactive vs autonomous (billing regimes)** — *interactive* agents bill per user interaction; on the
+  **standard harness** those interactions are **zero-rated for Microsoft 365 Copilot-licensed users inside
+  Microsoft 365 channels**. *Autonomous / triggered* agents bill **per event**, with no license discount.
+  This regime interacts with your **[harness](#journey-concepts)** choice: the **GitHub Copilot harness is
+  never license-covered** — every interaction consumes Copilot Credits regardless of license. Which regime
+  *and* harness an agent uses usually dominates its bill.
 - **Build size (T-shirt)** — an XS → XL estimate of the *effort to build and own* an agent — **not** its
   run cost. A cheap-to-run agent can be expensive to build, and a tiny agent at high volume can be
   expensive to run; the [estimator](credit-estimator.md) reports the two axes separately.

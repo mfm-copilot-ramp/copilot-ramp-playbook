@@ -16,11 +16,12 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 ??? info "How Copilot Credits are billed — rates & licensing ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management))"
     Rates are sourced from the **Microsoft Copilot Studio Billing rates and management** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
 
-    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario.
+    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario. **This zero-rating applies to the *standard* and *Copilot chat* harnesses only — the *GitHub Copilot harness* is never covered.** Pick the **Harness** in either mode and the estimator shows **gross consumption vs. net billable** side by side.
 
     ??? note "Zero-rating exceptions"
         A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
 
+        - **GitHub Copilot harness agents** are **never** covered by a Microsoft 365 Copilot license — every interaction, *plus building and testing the agent*, bills Copilot Credits regardless of channel. Only the **standard** and **Copilot chat** harnesses are zero-rated. Use the **Harness** selector to model it. Microsoft bills this harness **per task by complexity** and publishes only credit **ranges** — **Light 100–300 · Medium 300–500 · Heavy &gt;500** — that bundle model tokens, tools, and the harness itself (there is **no per-action rate card** for this harness, so the estimator hides the per-action grid and prices a task at an editable **credits-per-task** anchor seeded from the tier). The anchors sit toward the high end of each band to lean slightly conservative, and Heavy is open-ended (editable upward, no cap). A one-time **build &amp; test** cost is added on top.
         - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
         - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
         - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
@@ -214,7 +215,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 }
 .em-chip:hover { border-color: var(--md-primary-fg-color); color: var(--md-primary-fg-color); }
 .em-btn {
-  cursor: pointer; padding: 0.5rem 1.2rem; border-radius: 6px; border: none;
+  cursor: pointer; padding: 0.5rem 1.2rem; border-radius: 6px; border: 1.5px solid transparent;
   background: var(--md-primary-fg-color); color: var(--md-primary-bg-color);
   font-size: 0.9rem; font-weight: 600; font-family: inherit; transition: opacity 0.15s;
 }
@@ -342,6 +343,23 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 .qe-inferred { margin: 0.7rem 0 0; padding: 0.4rem 0.65rem; border-left: 3px solid var(--md-primary-fg-color); background: var(--md-default-fg-color--lightest); border-radius: 0 5px 5px 0; font-size: 0.78rem; color: var(--md-default-fg-color--light); line-height: 1.5; }
 .qe-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-top: 1.1rem; }
 .qe-nav .spacer { flex: 1 1 auto; }
+/* Grouped action bar at the TOP of the Quick results — two labeled clusters, one place. */
+.qe-actions { margin: 0 0 1.3rem; display: grid; gap: 0.9rem; }
+.qe-action-group { border-top: 1px solid var(--md-default-fg-color--lightest); padding-top: 0.75rem; }
+.qe-action-group:first-child { border-top: 0; padding-top: 0; }
+.qe-action-label { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--md-default-fg-color--light); margin-bottom: 0.5rem; }
+/* Single line, no spillover: keep the row on one line; scroll horizontally on very narrow screens
+   rather than wrapping to a second row. Buttons are compact so the full set fits at desktop width. */
+.qe-action-row { display: flex; flex-wrap: nowrap; gap: 0.5rem; align-items: center; overflow-x: auto; }
+.qe-action-row .em-btn { padding: 0.4rem 0.8rem; font-size: 0.8rem; white-space: nowrap; flex: 0 0 auto; }
+.qe-action-status { display: block; min-height: 1.1em; margin-top: 0.35rem; }
+/* Download dropdown in the Quick actions — menu uses fixed positioning (set in JS) to escape the
+   action row's overflow clipping. */
+.qe-dl { position: relative; display: inline-flex; flex: 0 0 auto; }
+.qe-dl-menu { display: flex; flex-direction: column; min-width: 160px; background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.16); padding: 4px; z-index: 60; }
+.qe-dl-menu[hidden] { display: none; }
+.qe-dl-menu button { text-align: left; background: transparent; border: none; padding: 7px 11px; font-size: 0.82rem; color: var(--md-default-fg-color); border-radius: 4px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.qe-dl-menu button:hover { background: var(--md-code-bg-color); color: var(--md-primary-fg-color); }
 .qe-preview { position: sticky; top: 4rem; background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 1rem 1.1rem; }
 .qe-preview .lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--md-default-fg-color--light); font-weight: 700; }
 .qe-preview .big { font-size: 1.7rem; font-weight: 700; color: var(--md-primary-fg-color); line-height: 1.1; }
@@ -774,6 +792,9 @@ My agents (one per line — what it does, who uses it, how often, channel, knowl
   transition: background 0.15s, color 0.15s;
 }
 .deploy-btn.active { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); }
+/* Tight segmented toggle used in the Quick run-cost box — 3 buttons on one line, no spillover. */
+.qe-seg-toggle { flex-wrap: nowrap; gap: 0.3rem; }
+.qe-seg-toggle .deploy-btn { flex: 1 1 0; min-width: 0; padding: 0.35rem 0.25rem; font-size: 0.74rem; text-align: center; white-space: nowrap; }
 .deploy-hint { font-size: 0.8rem; color: var(--md-default-fg-color--light); margin: 0.4rem 0 1rem; line-height: 1.5; }
 
 /* results */
@@ -853,6 +874,33 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <button id="toggle-embedded" class="deploy-btn active" onclick="setDeployMode('embedded')">Microsoft 365 (Teams · Copilot Chat · SharePoint)</button>
   <button id="toggle-standalone" class="deploy-btn" onclick="setDeployMode('standalone')">Standalone / other channel</button>
 </div>
+
+<div id="harness-field" style="margin-top:.9rem">
+<div class="section-label">Harness (Copilot Studio engine)</div>
+<div class="deploy-toggle" id="harness-toggle">
+  <button type="button" id="harness-standard" data-harness="standard" class="deploy-btn active" onclick="setHarnessMode('standard')">Standard</button>
+  <button type="button" id="harness-github-copilot" data-harness="github-copilot" class="deploy-btn" onclick="setHarnessMode('github-copilot')">GitHub Copilot</button>
+  <button type="button" id="harness-chat" data-harness="chat" class="deploy-btn" onclick="setHarnessMode('chat')">Copilot chat</button>
+</div>
+<p class="deploy-hint" id="harness-hint">Standard &amp; Copilot chat are covered by an M365 Copilot license in M365 channels. The <strong>GitHub Copilot harness is never covered</strong> — every interaction bills credits, so net billable = gross.</p>
+<div id="gh-realism" style="display:none;margin-top:.6rem">
+<div class="section-label" style="font-size:.72rem">Agentic task complexity — GitHub Copilot harness</div>
+<div class="deploy-toggle" id="gh-complexity" style="margin-bottom:.5rem">
+  <button type="button" class="deploy-btn" data-c="simple" onclick="setGhComplexity('simple')">Simple · Light (100–300)</button>
+  <button type="button" class="deploy-btn" data-c="medium" onclick="setGhComplexity('medium')">Medium (300–500)</button>
+  <button type="button" class="deploy-btn active" data-c="complex" onclick="setGhComplexity('complex')">Complex · Heavy (&gt;500)</button>
+</div>
+<div class="calc-grid">
+  <div class="calc-field"><label for="ghPerTask">Credits per task</label>
+    <input type="number" id="ghPerTask" min="0" step="10" value="800" oninput="markGhCustom();recalc()">
+    <div class="hint">Seeded from the tier; edit upward with <strong>no cap</strong> for heavier tasks — Heavy is open-ended (&gt;500).</div></div>
+  <div class="calc-field"><label for="ghBuildRuns">Build &amp; test runs (one-time)</label>
+    <input type="number" id="ghBuildRuns" min="0" step="5" value="40" oninput="recalc()">
+    <div class="hint">Building, testing &amp; evaluating consume credits before you publish.</div></div>
+</div>
+<p class="deploy-hint">Microsoft bills the GitHub Copilot harness <strong>per task by complexity</strong> and publishes only credit <strong>ranges</strong> (Light 100–300 · Medium 300–500 · Heavy &gt;500) that bundle model tokens, tools, and the harness itself — <strong>not</strong> a per-action rate card. These anchors sit toward the high end of each band to lean conservative (slightly over- rather than under-estimate). The per-action grid below doesn't apply on this harness, so it's hidden.</p>
+</div>
+</div>
 <p id="deploy-hint" class="deploy-hint">On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
 
 <hr class="calc-divider">
@@ -899,11 +947,11 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
 <hr class="calc-divider">
 
 <!-- ── Prompt table ── -->
-<div class="section-label">Edit rows or add your own process steps</div>
+<div class="section-label" id="grid-section-label">Edit rows or add your own process steps</div>
 
-<p class="hint" style="margin:-0.3rem 0 0.6rem">📞 <strong>Voice rows are per minute.</strong> In the <em>Uses / interaction</em> column, enter the average voice <strong>minutes per conversation</strong> — it's multiplied by your interactions × users to get the monthly total (credits = rate × minutes). The per-minute voice rate already <strong>includes</strong> the classic / generative answers and agent actions that occur during the call, so don't also fill in those rows for a voice agent. Tenant-graph grounding, content processing, AI tools, and agent flows are billed <strong>separately on top</strong>.</p>
+<p class="hint" id="grid-voice-hint" style="margin:-0.3rem 0 0.6rem">📞 <strong>Voice rows are per minute.</strong> In the <em>Uses / interaction</em> column, enter the average voice <strong>minutes per conversation</strong> — it's multiplied by your interactions × users to get the monthly total (credits = rate × minutes). The per-minute voice rate already <strong>includes</strong> the classic / generative answers and agent actions that occur during the call, so don't also fill in those rows for a voice agent. Tenant-graph grounding, content processing, AI tools, and agent flows are billed <strong>separately on top</strong>.</p>
 
-<div class="prompt-table-wrap">
+<div class="prompt-table-wrap" id="grid-wrap">
   <table id="prompt-table">
     <thead>
       <tr>
@@ -947,6 +995,8 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <div class="result-card"><div class="val" id="res-credits">—</div><div class="lbl"><span id="lbl-credits-month">Credits / month (org)</span></div></div>
   <div class="result-card"><div class="val" id="res-per-user">—</div><div class="lbl"><span id="lbl-per-user">Credits / user / month</span></div></div>
 </div>
+
+<div id="det-coverage" class="deploy-hint" style="margin-top:.5rem"></div>
 
 <div class="em-export" role="group" aria-label="Export or share this Detailed estimate">
   <button type="button" class="em-btn secondary em-export-btn" onclick="emCopySummary('detailed')" aria-label="Copy a plain-text summary of this estimate to the clipboard">Copy summary</button>
@@ -1091,24 +1141,47 @@ function recalc() {
     var licPct   = Math.min(100, Math.max(0, parseFloat(document.getElementById('licensePct').value)   || 0));
     var avgInt   = Math.max(0, parseFloat(document.getElementById('avgInteractions').value) || 0);
     var embedded   = document.getElementById('toggle-embedded').classList.contains('active');
+    var harnessBtn = document.querySelector('#harness-toggle .deploy-btn.active');
+    var harness    = harnessBtn ? harnessBtn.getAttribute('data-harness') : 'standard';
+    var covered    = (harness !== 'github-copilot') && embedded;
     var licensed   = Math.round(total * licPct / 100);
     var unlicensed = total - licensed;
-    var billedBase = embedded ? unlicensed : total;
+    var billedBase = covered ? unlicensed : total;
     var active     = billedBase;
+    var ghPerTaskV = Math.max(0, parseFloat((document.getElementById('ghPerTask')||{}).value) || 800);
+    var ghBuildRuns= Math.max(0, parseFloat((document.getElementById('ghBuildRuns')||{}).value) || 0);
+    // GitHub harness: Microsoft publishes only per-task credit ranges by complexity — the
+    // per-action grid does not apply, so we price at the (editable) tier anchor, not totalCpud.
+    var effCpud    = harness === 'github-copilot' ? ghPerTaskV : totalCpud;
+    var buildTest  = harness === 'github-copilot' ? Math.round(ghBuildRuns * effCpud) : 0;
 
     var monthlyP = active * avgInt;
-    monthlyC = active * avgInt * totalCpud;
-    var perUser  = avgInt * totalCpud;
+    monthlyC = active * avgInt * effCpud;            // net billable
+    var grossC = total * avgInt * effCpud;           // gross consumption (all users)
+    var perUser  = avgInt * effCpud;
 
-    detSetText('lbl-billed', embedded ? 'Unlicensed users (billed)' : 'Total users (all billed)');
+    detSetText('lbl-billed', covered ? 'Unlicensed users (billed)' : 'Users billed (all)');
     detSetText('lbl-interactions', 'Total interactions / month');
-    detSetText('lbl-credits-month', 'Credits / month (org)');
+    detSetText('lbl-credits-month', 'Net billable credits / mo');
     detSetText('lbl-per-user', 'Credits / user / month');
 
     document.getElementById('res-licensed').textContent        = fmt(billedBase);
     document.getElementById('res-monthly-prompts').textContent = fmt(monthlyP);
     document.getElementById('res-credits').textContent         = fmt(monthlyC);
     document.getElementById('res-per-user').textContent        = fmt(perUser);
+    var covEl = document.getElementById('det-coverage');
+    if (covEl) {
+      var hName = harness === 'github-copilot' ? 'GitHub Copilot harness'
+        : harness === 'chat' ? 'Copilot chat harness' : 'Standard harness';
+      if (harness === 'github-copilot') {
+        covEl.innerHTML = '<strong>' + hName + ' — never license-covered.</strong> \u2248 <strong>' + fmt(effCpud) + '</strong> credits/task. Microsoft publishes per-task ranges by complexity (Light 100–300 · Medium 300–500 · Heavy &gt;500) that bundle model tokens, tools &amp; the harness — not a per-action rate card. Net billable = gross = <strong>' + fmt(grossC) + '</strong> credits / mo. One-time <strong>build &amp; test \u2248 ' + fmt(buildTest) + '</strong> credits.';
+      } else if (covered && grossC - monthlyC > 0.5) {
+        var pct = grossC > 0 ? Math.round((1 - monthlyC / grossC) * 100) : 0;
+        covEl.innerHTML = '<strong>' + hName + ' — covered in M365 channels.</strong> Gross <strong>' + fmt(grossC) + '</strong> \u2192 net billable <strong>' + fmt(monthlyC) + '</strong> credits / mo (' + pct + '% zero-rated, ' + fmt(licensed) + ' licensed users). On the GitHub Copilot harness, or standalone, you would pay the full ' + fmt(grossC) + '.';
+      } else {
+        covEl.innerHTML = '<strong>' + hName + '.</strong> No license coverage applies here (standalone channel or 0% licensed) \u2014 net billable = gross = <strong>' + fmt(grossC) + '</strong> credits / mo.';
+      }
+    }
     reduceHint = 'Reduce interactions per user, escalation rate, or the credit mix.';
   }
 
@@ -1165,6 +1238,37 @@ function setDeployMode(mode) {
   var licField = document.getElementById('license-field');
   if (licField) licField.style.opacity = isEmbedded ? '1' : '0.45';
   recalc();
+}
+
+function setHarnessMode(mode) {
+  ['standard', 'github-copilot', 'chat'].forEach(function (m) {
+    var b = document.getElementById('harness-' + m);
+    if (b) b.classList.toggle('active', m === mode);
+  });
+  var gh = document.getElementById('gh-realism');
+  if (gh) gh.style.display = (mode === 'github-copilot') ? 'block' : 'none';
+  // Per-action grid does not apply on the GitHub harness — hide it entirely there.
+  var isGh = mode === 'github-copilot';
+  ['grid-section-label', 'grid-voice-hint', 'grid-wrap'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = isGh ? 'none' : '';
+  });
+  recalc();
+}
+function setGhComplexity(c) {
+  var anchors = { simple: 300, medium: 500, complex: 800 };
+  var pt = anchors[c] || anchors.complex;
+  var pe = document.getElementById('ghPerTask');
+  if (pe) pe.value = pt;
+  var box = document.getElementById('gh-complexity');
+  if (box) Array.prototype.forEach.call(box.querySelectorAll('.deploy-btn'), function (b) {
+    b.classList.toggle('active', b.getAttribute('data-c') === c);
+  });
+  recalc();
+}
+function markGhCustom() {
+  var box = document.getElementById('gh-complexity');
+  if (box) Array.prototype.forEach.call(box.querySelectorAll('.deploy-btn'), function (b) { b.classList.remove('active'); });
 }
 
 var scenarios = {

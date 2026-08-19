@@ -15,6 +15,18 @@ can publish it, and how it bills. Same builder, different engines, and the right
     [Licensing & Prerequisites](prerequisites.md) and Microsoft's
     [Copilot Studio documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/).
 
+!!! info "Where it's heading — and the honest tradeoff"
+    Microsoft is investing most in the **GitHub Copilot harness**, and new agent capability tends to land
+    there first. Reach for it when the job is a **complex, multi-step process** a rules script can't handle
+    gracefully: it reasons through the whole goal on its own, **retries and finds another path when a step
+    fails**, works directly across **Word, Excel, PowerPoint, and PDF** files, and carries context with
+    **skills and memory**. That capability is why it's the engine to grow into. Weigh two facts with equal
+    honesty: it is the **only** harness a Microsoft 365 Copilot license does **not** cover, and it bills
+    **Copilot Credits for all usage — creation *and* runtime**. The **standard** and **chat** harnesses are
+    covered by a Microsoft 365 Copilot license inside Microsoft 365 channels and cost less for predictable,
+    rules-based work. Pick for the job *and* the budget — the [Credit Estimator](credit-estimator.md) models
+    the real net cost of each.
+
 <div class="eng-head" markdown="0">
   <span class="eng-eyebrow">Pick the engine for the job</span>
   <p class="eng-lede">Every harness reasons, publishes, and bills differently. Click any card to see how it works and where it shines — or jump to the <a href="#side-by-side">side-by-side</a>.</p>
@@ -41,6 +53,7 @@ can publish it, and how it bills. Same builder, different engines, and the right
           <dt>Skills &amp; memory</dt><dd>Yes.</dd>
           <dt>Publishing</dt><dd>Internal teams or external customers.</dd>
           <dt>Billing</dt><dd>Copilot Credits.</dd>
+          <dt>M365 Copilot license covers it?</dt><dd class="eng-na">No — credits for all usage, creation and runtime, regardless of license.</dd>
         </dl>
       </div>
     </div>
@@ -64,6 +77,7 @@ can publish it, and how it bills. Same builder, different engines, and the right
           <dt>Skills &amp; memory</dt><dd class="eng-na">Not a focus.</dd>
           <dt>Publishing</dt><dd>Internal teams or external customers.</dd>
           <dt>Billing</dt><dd>See Copilot Studio licensing.</dd>
+          <dt>M365 Copilot license covers it?</dt><dd>Yes — inside Microsoft 365 channels (billed for unlicensed users or use outside those channels).</dd>
         </dl>
       </div>
     </div>
@@ -87,6 +101,7 @@ can publish it, and how it bills. Same builder, different engines, and the right
           <dt>Skills &amp; memory</dt><dd class="eng-na">Not a focus.</dd>
           <dt>Publishing</dt><dd>Internal teams.</dd>
           <dt>Billing</dt><dd>Consumption, or included in Microsoft 365 Copilot USLs.</dd>
+          <dt>M365 Copilot license covers it?</dt><dd>Yes — included in Microsoft 365 Copilot USLs.</dd>
         </dl>
       </div>
     </div>
@@ -146,6 +161,12 @@ The same considerations, compared across all three harnesses. Find the row that 
       <td>Internal teams</td>
     </tr>
     <tr>
+      <th scope="row">Covered by your M365 Copilot license?</th>
+      <td class="eng-na">No — credits for all usage</td>
+      <td>Yes — inside M365 channels</td>
+      <td>Yes — included in M365 Copilot USLs</td>
+    </tr>
+    <tr>
       <th scope="row">Billing</th>
       <td>Copilot Credits</td>
       <td>See Copilot Studio licensing</td>
@@ -159,9 +180,11 @@ The same considerations, compared across all three harnesses. Find the row that 
 
 1. **The harness is a capability choice, not just a setting.** Autonomy, file-handling, and where you can publish
    are all downstream of which engine you pick — so choose for the *job*, not the default.
-2. **They bill differently.** Copilot Credits, Copilot Studio licensing, and M365 Copilot USLs are not the same
-   meter. Sort out billing before you scale, not after — see [Licensing & Prerequisites](prerequisites.md)
-   and the [Credit Estimator](credit-estimator.md).
+2. **They bill — and are *covered* — differently.** Copilot Credits, Copilot Studio licensing, and M365
+   Copilot USLs are not the same meter, and only the standard and chat harnesses are covered by a Microsoft
+   365 Copilot license (in M365 channels) — the **GitHub Copilot harness never is**. Sort out cost and
+   coverage before you scale, not after — see [Licensing & Prerequisites](prerequisites.md) and the
+   [Credit Estimator](credit-estimator.md).
 
 > **📚 Learn more.**
 >

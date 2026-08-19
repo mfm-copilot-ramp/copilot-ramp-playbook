@@ -2,6 +2,7 @@
 title: "IT: Self-service software and hardware access requests"
 description: Build a Copilot Studio agent that guides software, hardware, and system access requests, validated against policy and routed to the right IT queue.
 stage: studio
+harness: standard
 roles: [maker, it-admin, champion]
 tags: [copilot-studio, it, access-request, software, hardware, itsm, functional]
 level: intermediate
@@ -17,6 +18,18 @@ updated: 2026-06-04
 **Stage:** Copilot Studio · **For:** Maker, IT Admin, Champion · **Level:** Intermediate · **Time:** 4–5 hours
 
 > **📐 Full blueprint & test plan →** [IT Access Request Agent](../solutions/it-access-request-agent.md) — the copy-paste system prompt, topic specs, and test-case table behind this build.
+
+!!! abstract "Which harness? This one uses the standard harness"
+    Every Copilot Studio agent runs on a [harness](../pick-the-engine.md) — the engine underneath it. This
+    walkthrough builds on the **standard harness**: you author the topics and rules, the flow is predictable,
+    and for Microsoft 365 Copilot-licensed users **it's covered inside Microsoft 365 channels** (no extra
+    credits) — the lowest-cost choice for structured, rules-based work.
+
+    Want the same use case to **reason through the task on its own** — planning multi-step work, recovering
+    when a step fails, and working across your files? Build the
+    **[GitHub Copilot harness version](studio-functional-it-access-request-generative.md)** instead. It's the autonomous engine to grow into; the
+    honest tradeoff is that it bills **Copilot Credits for all usage** and a Microsoft 365 Copilot license
+    never covers it. [Compare the engines](../pick-the-engine.md) · [estimate the net cost](../credit-estimator.md).
 
 ## When to use this
 

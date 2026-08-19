@@ -449,8 +449,46 @@
     return (matrix || []).map(function (r) { return (r || []).map(cell).join(","); }).join("\r\n");
   }
 
+  /* Generic single-or-multi-sheet workbook from plain matrices.
+   * sheets = [{ name, rows:[[...]], opts:{ boldRows, cols } }]. Reuses the same
+   * zip/sheet machinery as buildTemplate but with dynamic sheet names/count. */
+  function sanitizeSheetName(n, i) {
+    var s = String(n == null ? "" : n).replace(/[\\\/\*\?\:\[\]]/g, " ").trim();
+    if (!s) s = "Sheet" + (i + 1);
+    return s.slice(0, 31);
+  }
+  function buildWorkbook(sheets) {
+    sheets = (sheets && sheets.length) ? sheets : [{ name: "Sheet1", rows: [] }];
+    var n = sheets.length, i;
+    var ct = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">',
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>',
+      '<Default Extension="xml" ContentType="application/xml"/>',
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'];
+    for (i = 0; i < n; i++) ct.push('<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>');
+    ct.push('<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>', "</Types>");
+    var wb = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'];
+    for (i = 0; i < n; i++) wb.push('<sheet name="' + esc(sanitizeSheetName(sheets[i].name, i)) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>');
+    wb.push("</sheets></workbook>");
+    var wr = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'];
+    for (i = 0; i < n; i++) wr.push('<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>');
+    wr.push('<Relationship Id="rId' + (n + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>', "</Relationships>");
+    var files = [
+      { name: "[Content_Types].xml", data: strBytes(ct.join("")) },
+      { name: "_rels/.rels", data: strBytes(ROOT_RELS) },
+      { name: "xl/workbook.xml", data: strBytes(wb.join("")) },
+      { name: "xl/_rels/workbook.xml.rels", data: strBytes(wr.join("")) },
+      { name: "xl/styles.xml", data: strBytes(STYLES) }
+    ];
+    for (i = 0; i < n; i++) files.push({ name: "xl/worksheets/sheet" + (i + 1) + ".xml", data: strBytes(sheetXml(sheets[i].rows || [], sheets[i].opts || {})) });
+    return zipStore(files);
+  }
+
   var api = {
     buildTemplate: buildTemplate,
+    buildWorkbook: buildWorkbook,
     parseXlsx: parseXlsx,
     parseCsv: parseCsv,
     buildCsv: buildCsv,

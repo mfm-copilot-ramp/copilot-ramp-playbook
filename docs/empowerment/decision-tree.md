@@ -69,7 +69,10 @@ Prefer words to boxes? Find the row whose **need** matches yours — frequency f
 - **[Stage 4 · Agent Builder](../stages/stage-4-agent-builder.md)** — the right home when the same delegated task
   keeps recurring and a prompt-plus-files agent solves it. No code, personal or team scope.
 - **[Stage 6 · Copilot Studio](../stages/stage-6-studio.md)** — where agents grow up: real knowledge sources,
-  connectors and actions, publishing, monitoring, and governance for org-wide use.
+  connectors and actions, publishing, monitoring, and governance for org-wide use. Once here, one more choice
+  shapes cost and capability — **which [harness](../pick-the-engine.md)** powers the agent: the standard
+  harness (rules-based, license-covered in M365 channels), the Copilot chat harness, or the autonomous
+  **GitHub Copilot harness** (credits for all usage, never license-covered).
 - **[Stage 7 · Foundry](../stages/stage-7-foundry.md)** — the pro-code frontier:
   autonomous and triggered agents, custom models, evaluation, and MCP tools at scale.
 
