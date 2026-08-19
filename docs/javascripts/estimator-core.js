@@ -46,7 +46,7 @@
     // Applied only when a reasoning model is detected; assumes REASON_TOKENS_K.
     reasoningPremium: 10
   };
-  var REASON_TOKENS_K = 2;   // assumed premium tokens (×1K) per reasoning step
+  var REASON_TOKENS_K = 5;   // assumed premium tokens (×1K) per reasoning step (Solution mode)
   // Voice is billed PER MINUTE (Learn "Voice billing rate/minute": 10 / 35 / 75). This is
   // an editable planning assumption for the average voice minutes per conversation — NOT a
   // Microsoft-published figure. Tune it to your average handle time.
@@ -169,19 +169,35 @@
       : scale.users;
     return Math.max(0, Math.round(n));
   }
-  // GitHub Copilot harness: one user interaction triggers a multi-step agentic TASK
-  // (the planner reasons, calls tools, retries). Model the base per-interaction feature
-  // work as repeated across `steps` reasoning steps, plus a reasoning-model token premium
-  // (Learn "Text & generative AI tools (premium)" meter = 10 credits / 1K tokens). Composed
-  // from the PUBLISHED rate card — Microsoft bills the harness per task by complexity, with
-  // ranges shown in a billing-doc diagram. All inputs are tunable planning assumptions.
-  var GH_DEFAULTS = { steps: 3, reasonK: 3, buildRuns: 40 };
+  // GitHub Copilot harness: Microsoft publishes NO per-action rate card for this harness — only
+  // per-task credit RANGES by task complexity (Light 100–300 · Medium 300–500 · Heavy >500), which
+  // BUNDLE LLM tokens + tools (knowledge/MCP) + the harness itself. So we do NOT decompose the
+  // standard rate-card grid here (that grid has no published basis on this harness). Instead we price
+  // a task at an editable tier ANCHOR, biased toward the high end of each published band to lean
+  // over- rather than under-estimate; Heavy is open-ended (>500) so its anchor is editable upward
+  // with no cap. The base grid `per` is intentionally ignored on this harness. See MS Learn:
+  // "Overview of billing for agents powered by the GitHub Copilot harness".
+  var GH_TIERS = { simple: 300, medium: 500, complex: 800 };
+  var GH_DEFAULTS = { tier: "complex", perTask: 800, buildRuns: 40 };
   function ghNum(x, d) { x = parseFloat(x); return isFinite(x) ? x : d; }
+  function ghTierCredits(tier) {
+    return Object.prototype.hasOwnProperty.call(GH_TIERS, tier) ? GH_TIERS[tier] : GH_TIERS[GH_DEFAULTS.tier];
+  }
+  // Map a build-complexity t-shirt size to the published GitHub task tier, so the GitHub
+  // estimate follows the SCENARIO instead of always assuming the most expensive (Heavy) tier.
+  // XS/S → Light (simple) · M → Medium · L/XL → Heavy (complex).
+  function ghTierForSize(size) {
+    if (size === "XS" || size === "S") return "simple";
+    if (size === "M") return "medium";
+    return "complex"; // L, XL
+  }
+  // Effective per-task credits on the GitHub harness. An explicit (edited) per-task value wins;
+  // otherwise the selected tier's anchor. The grid `per` is not used on this harness.
   function ghPerTask(per, v) {
     v = v || {};
-    var steps = Math.max(1, ghNum(v.ghSteps, GH_DEFAULTS.steps));
-    var reasonK = Math.max(0, ghNum(v.ghReasonK, GH_DEFAULTS.reasonK));
-    return per * steps + reasonK * CREDIT.reasoningPremium;
+    var explicit = parseFloat(v.ghPerTask);
+    if (isFinite(explicit) && explicit >= 0) return explicit;
+    return ghTierCredits(v.ghTier || GH_DEFAULTS.tier);
   }
   function effPerInteraction(per, harness, v) {
     return harness === "github-copilot" ? ghPerTask(per, v) : per;
@@ -488,8 +504,13 @@
 
     if (v.hasContent)
       profile.push(row("content", ROW.content, Math.max(1, v.pagesPerDoc || 1), CREDIT.contentPage, "document processing (per page)"));
-    if (v.hasAI)
-      profile.push(row("aiStandard", ROW.aiStandard, 1, CREDIT.aiStandard, "generative content tool"));
+    if (v.hasAI) {
+      var aiTier = v.aiTier || "standard";
+      var aiCredit = aiTier === "basic" ? CREDIT.aiBasic : aiTier === "premium" ? CREDIT.aiPremium : CREDIT.aiStandard;
+      var aiName = aiTier === "basic" ? "Text/generative basic" : aiTier === "premium" ? "Text/generative premium" : ROW.aiStandard;
+      var aiKey = aiTier === "basic" ? "aiBasic" : aiTier === "premium" ? "aiPremium" : "aiStandard";
+      profile.push(row(aiKey, aiName, 1, aiCredit, "generative content tool — " + aiTier + " tier"));
+    }
     if (v.hasFlow)
       profile.push(row("flow", ROW.flow, Math.max(1, v.flowActionsPerRun || 5), CREDIT.flowAction, "agent flow actions"));
 
@@ -1436,7 +1457,8 @@
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
     harnessCovered: harnessCovered, grossUsers: grossUsers,
-    GH_DEFAULTS: GH_DEFAULTS, ghPerTask: ghPerTask, effPerInteraction: effPerInteraction,
+    GH_DEFAULTS: GH_DEFAULTS, GH_TIERS: GH_TIERS, ghTierCredits: ghTierCredits, ghTierForSize: ghTierForSize,
+    ghPerTask: ghPerTask, effPerInteraction: effPerInteraction,
     computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
     costDrivers: costDrivers, QUICK_WIZARD: QUICK_WIZARD,
     detectUsers: detectUsers, detectInteractions: detectInteractions, detectDeployment: detectDeployment,

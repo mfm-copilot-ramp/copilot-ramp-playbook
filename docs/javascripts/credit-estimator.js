@@ -340,7 +340,7 @@
       : scale.harness === "chat" ? "Copilot chat harness" : "Standard harness";
     var covHtml;
     if (scale.harness === "github-copilot") {
-      covHtml = "<strong>" + hName + " — never license-covered.</strong> \u2248 <strong>" + fmtDec(effAvgPer) + "</strong> credits/task (agentic multi-step; assumes a medium task \u2014 tune steps in the Detailed estimator). Net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month. One-time build &amp; test \u2248 <strong>" + fmt(buildTest) + "</strong> credits.";
+      covHtml = "<strong>" + hName + " — never license-covered.</strong> \u2248 <strong>" + fmtDec(effAvgPer) + "</strong> credits/task. Microsoft publishes per-task ranges by complexity (Light 100–300 · Medium 300–500 · Heavy &gt;500) — this defaults to the Heavy anchor; tune the tier in the Detailed estimator. Net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month. One-time build &amp; test \u2248 <strong>" + fmt(buildTest) + "</strong> credits.";
     } else if (scale.deployment === "embedded" && grossMonthly - monthly > 0.5) {
       var covPct = grossMonthly > 0 ? Math.round((1 - monthly / grossMonthly) * 100) : 0;
       covHtml = "<strong>" + hName + " — covered in M365 channels.</strong> Gross <strong>" + fmt(grossMonthly) + "</strong> \u2192 net billable <strong>" + fmt(monthly) + "</strong> credits / month (" + covPct + "% zero-rated). On the GitHub Copilot harness, or standalone, you would pay the full " + fmt(grossMonthly) + ".";
@@ -425,12 +425,12 @@
     if (t) { t.value = QE_EXAMPLES[k] || ""; qeAnalyze(); }
   }
 
-  function selField(id, label, opts, val, hint) {
+  function selField(id, label, opts, val, hint, onchangeFn) {
     var o = opts.map(function (op) {
       return '<option value="' + op[0] + '"' + (op[0] === val ? " selected" : "") + ">" + esc(op[1]) + "</option>";
     }).join("");
     return '<div class="calc-field"><label>' + esc(label) + "</label>" +
-      '<select id="' + id + '" onchange="qeRebuild()">' + o + "</select>" +
+      '<select id="' + id + '" onchange="' + (onchangeFn || "qeRebuild()") + '">' + o + "</select>" +
       (hint ? '<div class="hint">' + esc(hint) + "</div>" : "") + "</div>";
   }
   function numField(id, label, val, hint, step) {
@@ -438,9 +438,9 @@
       '<input type="number" min="0" ' + (step ? 'step="' + step + '" ' : "") + 'id="' + id + '" value="' + val + '" oninput="qeRebuild()">' +
       '<div class="hint">' + esc(hint || "") + "</div></div>";
   }
-  function chkField(id, label, checked) {
+  function chkField(id, label, checked, onchangeFn) {
     return '<label class="em-chk"><input type="checkbox" id="' + id + '"' + (checked ? " checked" : "") +
-      ' onchange="qeRebuild()"> ' + esc(label) + "</label>";
+      ' onchange="' + (onchangeFn || "qeRebuild()") + '"> ' + esc(label) + "</label>";
   }
 
   function qeQuizHtml(v, why) {
@@ -450,11 +450,11 @@
         selField("qe-channel", "Channel", [["chat", "Chat / text"], ["voice", "Voice / phone"]], v.channel, "") +
         (v.channel === "voice" ? numField("qe-voicemin", "Avg voice minutes / conversation", v.voiceMinutes != null ? v.voiceMinutes : 5, "Voice is billed per minute; core answer/action activity during the call is included.") : "") +
         selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
-        selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "Copilot chat (extend M365)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard / chat are covered in M365 channels.") +
+        selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "Copilot chat (extend M365)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard / chat are covered in M365 channels.", "qeRebuildStructural()") +
         (v.harness === "github-copilot" ? (
-          numField("qe-ghsteps", "GH: reasoning steps / task", v.ghSteps != null ? v.ghSteps : 3, "Agentic multi-step loop. Simple 1 · Medium 3 · Complex 6.") +
-          numField("qe-ghreason", "GH: reasoning tokens / task (×1K)", v.ghReasonK != null ? v.ghReasonK : 3, "Premium reasoning meter: 10 credits / 1K tokens.") +
-          numField("qe-ghbuild", "GH: build & test runs (one-time)", v.ghBuildRuns != null ? v.ghBuildRuns : 40, "Build/test/eval consume credits before you publish.")
+          selField("qe-ghtier", "GitHub task complexity (published tier)", [["simple", "Simple — Light (100–300)"], ["medium", "Medium (300–500)"], ["complex", "Complex — Heavy (>500)"]], v.ghTier || "complex", "Microsoft publishes per-task credit RANGES by complexity — not a per-action rate card. The tier seeds the credits-per-task anchor (biased high; Heavy is open-ended).", "qeRebuildStructural()") +
+          numField("qe-ghpertask", "Credits per task", v.ghPerTask != null ? v.ghPerTask : 800, "Seeded from the tier; edit upward with no cap for heavier tasks. Overrides the tier anchor.") +
+          numField("qe-ghbuild", "Build & test runs (one-time)", v.ghBuildRuns != null ? v.ghBuildRuns : 40, "Build/test/eval consume credits before you publish.")
         ) : "") +
         selField("qe-know", "Knowledge grounding", [["none", "None"], ["docs", "Documents / KB"], ["tenantGraph", "M365 tenant graph"]], v.knowledge, why.knowledge || "") +
         numField("qe-actions", "# system actions / run", v.actionsCount, "Connector calls: route, create, update, notify…") +
@@ -470,9 +470,10 @@
         numField("qe-events", "Events / month", v.events != null ? v.events : 500, why.volume || ("How many " + (v.eventUnit || "event") + "s the agent processes monthly.")) +
         numField("qe-genanswers", "Generative steps / event", v.genAnswers != null ? v.genAnswers : 1, "Classify / summarize / answer operations per run.") +
       "</div>" +
+      (v.hasAI ? '<div class="calc-grid">' + selField("qe-aitier", "AI content tool tier", [["basic", "Basic (0.1 / 1K tok)"], ["standard", "Standard (1.5 / 1K tok)"], ["premium", "Premium / reasoning (10 / 1K tok)"]], v.aiTier || "standard", "Which Text/generative AI tools meter the content tool bills at: Basic 0.1 · Standard 1.5 · Premium 10 credits per 1K tokens.") + "</div>" : "") +
       '<div class="em-toggles">' +
         chkField("qe-content", "Document processing (extract fields)", v.hasContent) +
-        chkField("qe-ai", "Generative content tool (draft / summarize)", v.hasAI) +
+        chkField("qe-ai", "Generative content tool (draft / summarize)", v.hasAI, "qeRebuildStructural()") +
         chkField("qe-flow", "Approval / multi-step flow", v.hasFlow) +
         chkField("qe-esc", "Escalates to a human", v.hasEscalation) +
       "</div></div>";
@@ -507,9 +508,10 @@
     if (el("qe-interactions")) v.interactions = Math.max(0, parseFloat(el("qe-interactions").value) || 0);
     if (el("qe-deploy")) v.deployment = el("qe-deploy").value;
     if (el("qe-harness")) v.harness = el("qe-harness").value;
-    if (el("qe-ghsteps")) v.ghSteps = Math.max(1, parseFloat(el("qe-ghsteps").value) || 3);
-    if (el("qe-ghreason")) v.ghReasonK = Math.max(0, parseFloat(el("qe-ghreason").value) || 0);
+    if (el("qe-ghtier")) { v.ghTier = el("qe-ghtier").value; v.ghTierUserSet = true; }
+    if (el("qe-ghpertask")) v.ghPerTask = Math.max(0, parseFloat(el("qe-ghpertask").value) || 0);
     if (el("qe-ghbuild")) v.ghBuildRuns = Math.max(0, parseFloat(el("qe-ghbuild").value) || 0);
+    if (el("qe-aitier")) v.aiTier = el("qe-aitier").value;
     if (el("qe-lic")) v.licensePct = Math.min(100, Math.max(0, parseFloat(el("qe-lic").value) || 0));
     if (el("qe-events")) v.events = Math.max(0, Math.round(parseFloat(el("qe-events").value) || 0));
     if (el("qe-genanswers")) v.genAnswers = Math.max(0, Math.round(parseFloat(el("qe-genanswers").value) || 0));
@@ -522,6 +524,15 @@
     if (!state.qe) return;
     var v = state.qe.vars;
     if (v.harness == null) v.harness = "standard";
+    // GitHub harness: default the task tier from the scenario's complexity (t-shirt size) unless
+    // the user explicitly picked one; the tier seeds the editable credits-per-task anchor.
+    if (v.harness === "github-copilot") {
+      if (!(v.ghTierUserSet && v.ghTier)) v.ghTier = EC.ghTierForSize(EC.sizeFromDrivers(v).size);
+      if (v._ghTierPrev !== v.ghTier || v.ghPerTask == null) v.ghPerTask = EC.ghTierCredits(v.ghTier);
+      v._ghTierPrev = v.ghTier;
+      if (v.ghBuildRuns == null) v.ghBuildRuns = EC.GH_DEFAULTS.buildRuns;
+    }
+    if (v.aiTier == null) v.aiTier = "standard";
     var auto = v.archetype === "autonomous";
     if (v.pagesPerDoc == null) v.pagesPerDoc = 1;
     if (v.flowActionsPerRun == null) v.flowActionsPerRun = 5;
@@ -741,27 +752,69 @@
     return esc(d.label) + " (" + fmtDec(d.value) + " " + d.unit + ")";
   }
   function qeCostHtml(profile, v) {
+    var isAuto = v.archetype === "autonomous";
+    // Derive the GitHub task tier from the SCENARIO's build-complexity t-shirt size unless the
+    // user explicitly picked one — so GitHub doesn't always assume the priciest (Heavy) tier.
+    var sizeInfo = EC.sizeFromDrivers(v);
+    var derivedTier = EC.ghTierForSize(sizeInfo.size);
+    var effTier = (v.ghTierUserSet && v.ghTier) ? v.ghTier : derivedTier;
+    if (!isAuto && v.harness === "github-copilot") {
+      v.ghTier = effTier; v.ghPerTask = EC.ghTierCredits(effTier);
+    }
     var est = EC.computeQuick(profile, v);
     var rng = EC.creditRange(est.monthly);
     var cost = EC.costUSD(est.monthly);
-    var cards = (v.archetype === "autonomous")
+    var cards = isAuto
       ? qeCard(fmt(est.units), "Events / mo") + qeCard(fmtDec(est.perUnit), "Credits / event") + qeCard(fmt(est.monthly), "Credits / mo")
       : qeCard(fmt(est.grossMonthly), "Gross credits / mo") + qeCard(fmt(est.netMonthly), "Net billable / mo") + qeCard(fmt(est.billed), "Billed users");
     var harnessName = est.harness === "github-copilot" ? "GitHub Copilot harness"
       : est.harness === "chat" ? "Copilot chat harness" : "Standard harness";
-    var cov;
-    if (v.archetype === "autonomous") {
-      cov = '<div class="em-why"><strong>' + harnessName + '.</strong> Autonomous runs bill per event with no license discount on any harness — <strong>net billable = gross</strong> (' + fmt(est.grossMonthly) + " credits / mo).</div>";
-    } else if (est.harness === "github-copilot") {
-      cov = '<div class="em-why"><strong>' + harnessName + " — never license-covered.</strong> \u2248 <strong>" + fmtDec(est.perTask) + "</strong> credits/task (agentic multi-step; tune under Advanced). Net billable = gross = <strong>" + fmt(est.grossMonthly) + "</strong> credits / mo. One-time build &amp; test \u2248 <strong>" + fmt(est.buildTestCredits) + "</strong> credits.</div>";
-    } else if (est.covered) {
-      var pct = est.grossMonthly > 0 ? Math.round((1 - est.netMonthly / est.grossMonthly) * 100) : 0;
-      cov = '<div class="em-why"><strong>' + harnessName + " — covered in M365 channels.</strong> Gross " + fmt(est.grossMonthly) + " \u2192 <strong>net billable " + fmt(est.netMonthly) + "</strong> credits / mo. " + pct + "% zero-rated (" + fmt(est.coveredUsers) + " licensed users in M365 channels). On the GitHub Copilot harness, or outside M365 channels, you would pay the full " + fmt(est.grossMonthly) + ".</div>";
-    } else {
-      cov = '<div class="em-why"><strong>' + harnessName + ".</strong> No license coverage applies here (standalone channel or 0% licensed), so <strong>net billable = gross = " + fmt(est.grossMonthly) + "</strong> credits / mo.</div>";
+
+    // ── Inline harness switch (interactive only) — themed segmented buttons, no native <select>.
+    // Flipping re-renders just this box so the cost updates in place (no need to open Advanced).
+    var switchHtml = "";
+    if (!isAuto) {
+      var cur = v.harness || "standard";
+      var hbtn = function (val, label) {
+        return '<button type="button" class="deploy-btn' + (cur === val ? " active" : "") +
+          '" onclick="qeSetHarness(\'' + val + '\')">' + label + "</button>";
+      };
+      switchHtml = '<div class="section-label" style="font-size:.72rem;margin:0 0 .35rem">Harness (engine) — flip to compare the cost</div>' +
+        '<div class="deploy-toggle qe-seg-toggle">' + hbtn("standard", "Standard") + hbtn("chat", "Copilot chat") + hbtn("github-copilot", "GitHub Copilot") + "</div>";
+      if (cur === "github-copilot") {
+        var tbtn = function (val, label) {
+          return '<button type="button" class="deploy-btn' + (effTier === val ? " active" : "") +
+            '" onclick="qeSetGhTier(\'' + val + '\')">' + label + "</button>";
+        };
+        switchHtml += '<div class="deploy-toggle qe-seg-toggle" style="margin-top:.35rem">' +
+          tbtn("simple", "Simple") + tbtn("medium", "Medium") + tbtn("complex", "Complex") + "</div>" +
+          '<div class="hint" style="margin:.2rem 0 .1rem">Task tier defaulted to <strong>' + esc(derivedTier) + '</strong> from this agent\u2019s complexity (' + esc(sizeInfo.size) + ')' + (v.ghTierUserSet ? ' \u2014 overridden to <strong>' + esc(effTier) + '</strong>' : "") + '. Adjust if your tasks are heavier or lighter.</div>';
+      }
     }
+
+    // ── Single unified "cost by harness" box (interactive): both regimes, selected one bolded.
+    var cov;
+    if (isAuto) {
+      cov = '<div class="em-why"><strong>' + harnessName + '.</strong> Autonomous runs bill per event with no license discount on any harness — <strong>net billable = gross</strong> (' + fmt(est.grossMonthly) + " credits / mo).</div>";
+    } else {
+      var covV = {}; for (var k1 in v) covV[k1] = v[k1]; covV.harness = "standard";
+      var covEst = EC.computeQuick(profile, covV);
+      var covPct = covEst.grossMonthly > 0 ? Math.round((1 - covEst.netMonthly / covEst.grossMonthly) * 100) : 0;
+      var ghV = {}; for (var k2 in v) ghV[k2] = v[k2];
+      ghV.harness = "github-copilot"; ghV.ghTier = effTier; ghV.ghPerTask = EC.ghTierCredits(effTier);
+      var ghEst = EC.computeQuick(profile, ghV);
+      var isGh = (v.harness || "standard") === "github-copilot";
+      var covLine = '<span' + (isGh ? "" : ' style="font-weight:700"') + '>&bull; <strong>Standard / Copilot chat</strong> (covered in Teams &middot; Copilot Chat &middot; SharePoint): net billable <strong>' + fmt(covEst.netMonthly) + '</strong> / mo <span class="hint" style="display:inline">(gross ' + fmt(covEst.grossMonthly) + '; ' + covPct + '% zero-rated for licensed users)</span></span>';
+      var ghLine = '<span' + (isGh ? ' style="font-weight:700"' : "") + '>&bull; <strong>GitHub Copilot</strong> (never covered): net = gross <strong>' + fmt(ghEst.grossMonthly) + '</strong> / mo <span class="hint" style="display:inline">&asymp; ' + fmtDec(ghEst.perTask) + '/task &middot; ' + effTier + ' tier &middot; + one-time build &amp; test ' + fmt(ghEst.buildTestCredits) + '</span></span>';
+      cov = '<div class="em-why" style="border-left:3px solid var(--md-primary-fg-color);padding-left:.6rem">' +
+        '<strong>Cost by harness \u2014 same agent &amp; volume</strong> <span class="hint" style="display:inline">(showing ' + harnessName + ')</span><br>' +
+        covLine + '<br>' + ghLine +
+        '</div>';
+    }
+
     var drivers = EC.costDrivers(profile, v).map(qeFmtCostDriver);
     return '<div class="results-grid">' + cards + "</div>" +
+      switchHtml +
       cov +
       '<div class="em-range">Range: ' + fmt(rng.low) + " – " + fmt(rng.high) + " credits / month (directional band, ~0.6×–1.6× the midpoint).</div>" +
       '<div class="em-cost">' +
@@ -781,12 +834,7 @@
       return "<li><b>" + (i + 1) + ". " + esc(s.label) + "</b><span>" + esc(s.build) + "</span></li>";
     }).join("");
     return '<div id="qe-results-full">' +
-      exportBarHtml("quick", {}) +
-      '<div class="em-primary-actions" style="display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 .75rem">' +
-        '<button type="button" class="em-btn" onclick="qeSaveToWorkspace()">🧺 Save to My estimates</button>' +
-        '<button type="button" class="em-btn" onclick="qeSendToRoi()">📈 Estimate ROI →</button>' +
-        '<button type="button" class="em-btn secondary" onclick="qeToDetailed()">Open in Detailed →</button>' +
-      '</div>' +
+      qeActionsHtml(adv) +
       (adv ? ('<div class="section-label">Edit all variables <span style="text-transform:none;font-weight:400">— every inference, in one place</span></div>' + qeQuizHtml(v, state.qe.why || {})) : "") +
       '<div class="section-label"' + (adv ? ' style="margin-top:1.25rem"' : "") + ">How this would be built in Copilot Studio</div>" +
       '<div id="qe-outline-head"></div>' +
@@ -797,13 +845,41 @@
         '<div class="qe-axis"><h4>💳 Run cost</h4><div id="qe-axis-cost"></div></div>' +
       "</div>" +
       qeStarterHtml() +
-      '<div class="qe-nav" style="margin-top:1.25rem">' +
-        (adv
-          ? '<button type="button" class="em-btn secondary" onclick="qeAdvanced()">← Back to guided</button>'
-          : '<button type="button" class="em-btn secondary" onclick="qeEdit()">← Edit answers</button>' +
-            '<button type="button" class="qe-preset" onclick="qeAdvanced()">Advanced: edit all</button>') +
-        '<button type="button" class="qe-preset" onclick="qeStartOver()">Start over</button>' +
-      "</div></div>";
+      "</div>";
+  }
+
+  // Two clearly-labeled action groups shown ONCE at the bottom of the Quick results, replacing
+  // the old top export bar + primary-actions + bottom nav (which were scattered and inconsistently
+  // styled). Group 1 = refine the current estimate; Group 2 = save it / hand it off elsewhere.
+  // Styling encodes role: exactly one filled primary per group (the likely next action), the rest
+  // uniform outline — so what each button does, and which group it belongs to, is self-evident.
+  function qeActionsHtml(adv) {
+    var refine = adv
+      ? '<button type="button" class="em-btn" onclick="qeAdvanced()">\u2190 Back to guided</button>' +
+        '<button type="button" class="em-btn secondary" onclick="qeStartOver()">Start over</button>'
+      : '<button type="button" class="em-btn" onclick="qeEdit()">\u2190 Edit answers</button>' +
+        '<button type="button" class="em-btn secondary" onclick="qeAdvanced()">Fine-tune inputs</button>' +
+        '<button type="button" class="em-btn secondary" onclick="qeStartOver()">Start over</button>';
+    var takeItFurther =
+      '<button type="button" class="em-btn secondary" onclick="emCopySummary(\'quick\')" aria-label="Copy a plain-text summary of this estimate to the clipboard">Copy summary</button>' +
+      '<span class="qe-dl">' +
+        '<button type="button" id="qe-dl-btn" class="em-btn secondary" onclick="qeToggleDownloadMenu(event)" aria-haspopup="true" aria-expanded="false" aria-label="Download this estimate — choose a format">Download \u25be</button>' +
+        '<div class="qe-dl-menu" id="qe-dl-menu" role="menu" hidden>' +
+          '<button type="button" role="menuitem" onclick="qeDownload(\'md\')">Markdown (.md)</button>' +
+          '<button type="button" role="menuitem" onclick="qeDownload(\'csv\')">CSV (.csv)</button>' +
+          '<button type="button" role="menuitem" onclick="qeDownload(\'xlsx\')">Excel (.xlsx)</button>' +
+        '</div>' +
+      '</span>' +
+      '<button type="button" class="em-btn secondary" onclick="qeSaveToWorkspace()">Save to My estimates</button>' +
+      '<button type="button" class="em-btn secondary" onclick="qeToDetailed()">Open in Detailed</button>' +
+      '<button type="button" class="em-btn" onclick="qeSendToRoi()">Estimate ROI \u2192</button>';
+    return '<div class="qe-actions">' +
+      '<div class="qe-action-group"><div class="qe-action-label">Refine this estimate</div>' +
+        '<div class="qe-action-row">' + refine + '</div></div>' +
+      '<div class="qe-action-group"><div class="qe-action-label">Save it or take it further</div>' +
+        '<div class="qe-action-row">' + takeItFurther + '</div>' +
+        '<span class="em-export-status qe-action-status" id="em-export-status-quick" role="status" aria-live="polite"></span></div>' +
+      '</div>';
   }
   // ── Quick: export an importable Copilot Studio starter agent (.zip) ───────
   // Renders one option in the "Authoring experience" segmented control (see CSS in
@@ -1163,6 +1239,16 @@
     if (document.getElementById("qe-results-full")) qeRenderResultsInner();
   }
 
+  // Structural change (harness, GH tier, AI-tool toggle) — re-render the form so conditional
+  // fields (GH tier/per-task, AI-tool tier) appear or disappear, then recompute. Safe to
+  // re-render here because these are selects/checkboxes, not focus-sensitive text inputs.
+  function qeRebuildStructural() {
+    if (!state.qe) return;
+    state.qe.vars = qeReadVars();
+    qeNormalizeVars();
+    qeRender();
+  }
+
   function qeRender() {
     var res = document.getElementById("qe-results"); if (!res || !state.qe) return;
     res.classList.remove("em-hidden");
@@ -1215,6 +1301,24 @@
       state.qe.vars.hasEscalation = true;
       if (!(state.qe.vars.escalationCredits > 0)) state.qe.vars.escalationCredits = ESC_DEFAULT_CREDITS;
     }
+    if (document.getElementById("qe-results-full")) qeRenderResultsInner();
+  }
+
+  // Inline harness switch on the Quick RESULTS cost box. Updates the harness (and GH tier)
+  // on state.qe.vars and re-renders only the results, so the cost updates in place without
+  // opening the "Fine-tune inputs" (advanced) form.
+  function qeSetHarness(h) {
+    if (!state.qe) return;
+    state.qe.vars.harness = h;
+    // Tier is derived from the scenario's t-shirt size inside qeCostHtml — don't force a tier here.
+    if (document.getElementById("qe-results-full")) qeRenderResultsInner();
+  }
+  function qeSetGhTier(t) {
+    if (!state.qe) return;
+    state.qe.vars.harness = "github-copilot";
+    state.qe.vars.ghTier = t;
+    state.qe.vars.ghTierUserSet = true;   // explicit pick — stop deriving from size
+    state.qe.vars.ghPerTask = EC.ghTierCredits(t);
     if (document.getElementById("qe-results-full")) qeRenderResultsInner();
   }
 
@@ -2261,7 +2365,11 @@
       if (!state.qi || !state.qi.scenarios || !state.qi.scenarios.length) return null;
       out.push(["Scenario", "Type", "Size", "Volume per month", "Credits per month", "PAYG $ / month", "Prepaid $ / month"]);
       state.qi.scenarios.forEach(function (s) { out.push([s.name, scenType(s), s.size, plainVolume(s), Math.round(s.estimate.monthly), round2(s.cost.payg), round2(s.cost.prepaid)]); });
-    } else { return null; }
+    } else {
+      var gm = buildEstimateMatrix(mode);
+      if (!gm) return null;
+      return gm.map(function (r) { return (r || []).map(csvCell).join(","); }).join("\r\n");
+    }
     return out.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n");
   }
   function csvCell(v) { var s = String(v == null ? "" : v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
@@ -2304,6 +2412,82 @@
     if (c == null) { flashStatus(mode, "No line items to export yet."); return; }
     var ok = downloadBlob("\uFEFF" + c, "copilot-credit-estimate-" + mode + ".csv", "text/csv;charset=utf-8");
     flashStatus(mode, ok ? "Downloaded .csv \u2713" : "Download not supported in this browser.");
+  }
+  // Shared row matrix for CSV + XLSX export of a single estimate (quick / detailed / complex).
+  // Numeric cells stay numbers so Excel renders them as values, not text.
+  function emNum(x) { var n = parseFloat(x); return isFinite(n) ? n : x; }
+  function buildEstimateMatrix(mode) {
+    var d = collectEstimate(mode); if (!d) return null;
+    var rng = EC.creditRange(d.monthly), cost = EC.costUSD(d.monthly), rows = [];
+    rows.push(["Copilot Credit Estimate", d.label]);
+    if (d.size) rows.push(["T-shirt size", d.size + (d.sizeName ? " (" + d.sizeName + " build)" : "")]);
+    rows.push([]);
+    rows.push(["Volume & assumptions"]);
+    d.scale.forEach(function (kv) { rows.push([kv[0], kv[1]]); });
+    rows.push([]);
+    rows.push(["Per-" + d.unit + " credit profile"]);
+    rows.push(["Feature", "Uses / " + d.unit, "Credits / use", "Credits"]);
+    d.profile.forEach(function (r) {
+      rows.push([(r.type === "escalation" ? "\u21b3 " : "") + r.name, emNum(r.uses), emNum(r.credits), round2((r.uses || 0) * (r.credits || 0))]);
+    });
+    rows.push([]);
+    rows.push(["Monthly estimate"]);
+    rows.push(["Credits / month", Math.round(d.monthly)]);
+    if (d.metric && d.metric[1] && d.metric[1] !== "\u2014") rows.push([d.metric[0], d.metric[1]]);
+    rows.push(["Credit range low (~0.6\u00d7 midpoint)", Math.round(rng.low)]);
+    rows.push(["Credit range high (~1.6\u00d7 midpoint)", Math.round(rng.high)]);
+    rows.push(["Cost / month \u2014 pay-as-you-go ($0.01/credit)", round2(cost.payg)]);
+    rows.push(["Cost / month \u2014 prepaid ($0.008/credit)", round2(cost.prepaid)]);
+    return rows;
+  }
+  function emBoldRows(m) {
+    var map = {};
+    (m || []).forEach(function (r, i) {
+      var nonEmpty = (r || []).filter(function (c) { return c != null && c !== ""; });
+      if (nonEmpty.length === 1 || (r && r[0] === "Feature")) map[i + 1] = true;
+    });
+    return map;
+  }
+  function emDownloadXlsx(mode) {
+    if (!EX || !EX.buildWorkbook) { flashStatus(mode, "Excel export isn't available in this browser."); return; }
+    var m = buildEstimateMatrix(mode);
+    if (!m) { flashStatus(mode, "Generate an estimate first."); return; }
+    try {
+      var bytes = EX.buildWorkbook([{ name: "Estimate", rows: m, opts: { boldRows: emBoldRows(m), cols: [46, 16, 14, 12] } }]);
+      var ok = downloadBlob(bytes, "copilot-credit-estimate-" + mode + ".xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      flashStatus(mode, ok ? "Downloaded .xlsx \u2713" : "Download not supported in this browser.");
+    } catch (e) { flashStatus(mode, "Excel export failed."); }
+  }
+  // ── Quick results: Download dropdown (.md / .csv / .xlsx) ──────────────────
+  function closeQeDownloadMenu() {
+    var m = document.getElementById("qe-dl-menu"); if (!m) return;
+    m.setAttribute("hidden", "");
+    var btn = document.getElementById("qe-dl-btn"); if (btn) btn.setAttribute("aria-expanded", "false");
+    document.removeEventListener("click", closeQeDownloadMenu);
+  }
+  function qeToggleDownloadMenu(ev) {
+    if (ev) ev.stopPropagation();
+    var m = document.getElementById("qe-dl-menu"); if (!m) return;
+    var willOpen = m.hasAttribute("hidden");
+    closeQeDownloadMenu();
+    if (willOpen) {
+      var btn = document.getElementById("qe-dl-btn");
+      var r = btn.getBoundingClientRect();
+      // Fixed position so the menu escapes the action row's overflow clipping.
+      m.style.position = "fixed";
+      m.style.top = (r.bottom + 4) + "px";
+      m.style.left = r.left + "px";
+      m.removeAttribute("hidden");
+      btn.setAttribute("aria-expanded", "true");
+      setTimeout(function () { document.addEventListener("click", closeQeDownloadMenu); }, 0);
+    }
+  }
+  function qeDownload(fmt) {
+    closeQeDownloadMenu();
+    if (fmt === "csv") emDownloadCsv("quick");
+    else if (fmt === "xlsx") emDownloadXlsx("quick");
+    else emDownloadSummary("quick");
   }
   function exportBarHtml(mode, opts) {
     opts = opts || {};
@@ -2369,6 +2553,9 @@
     window.qeExample = qeExample;
     window.qeRecompute = qeRecompute;
     window.qeRebuild = qeRebuild;
+    window.qeRebuildStructural = qeRebuildStructural;
+    window.qeSetHarness = qeSetHarness;
+    window.qeSetGhTier = qeSetGhTier;
     window.qeToDetailed = qeToDetailed;
     window.qeSendToRoi = qeSendToRoi;
     window.qeSaveToWorkspace = qeSaveToWorkspace;
@@ -2482,6 +2669,9 @@
     window.emCopySummary = emCopySummary;
     window.emDownloadSummary = emDownloadSummary;
     window.emDownloadCsv = emDownloadCsv;
+    window.emDownloadXlsx = emDownloadXlsx;
+    window.qeToggleDownloadMenu = qeToggleDownloadMenu;
+    window.qeDownload = qeDownload;
     window.emCopyLink = emCopyLink;
     window.toggleBulkFlight = toggleBulkFlight;
     window.applyBulkFlight = applyBulkFlight;

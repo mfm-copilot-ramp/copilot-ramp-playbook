@@ -55,6 +55,24 @@ first-class:
   consumption vs. net billable** side by side — modelling exactly what a Microsoft 365 Copilot license does
   and doesn't cover.
 
+### Credit Estimator — GitHub harness re-grounded to Microsoft's published tiers
+*August 18, 2026*
+
+Follow-up to the harness refresh: the GitHub Copilot harness estimate is now grounded **only** in what Microsoft
+publishes. Microsoft prices this harness **per task by complexity** and publishes credit **ranges** — not a
+per-action rate card — so the estimator was reworked to match:
+
+- The per-action **grid is hidden** on the GitHub harness (it has no published basis there). A task is priced at an
+  editable **credits-per-task** anchor seeded from a **complexity tier**: **Simple → Light (100–300) · Medium
+  (300–500) · Complex → Heavy (&gt;500)**. Anchors sit toward the high end of each band to lean slightly
+  conservative, and Heavy is open-ended (editable upward, no cap).
+- The earlier "reasoning steps / reasoning tokens per task" knobs — which borrowed the *standard* harness rate card
+  Microsoft never published for this engine — are **removed**.
+- The one-time **build &amp; test** cost is retained (Microsoft confirms building/testing/evaluating consume credits),
+  now expressed as build runs × credits-per-task.
+- Quick mode adds a **Basic / Standard / Premium** picker for AI content-tool metering, and the Solution-package
+  reasoning-model premium assumption was tuned to lean conservative.
+
 ---
 
 ### Content-ops automation pipeline

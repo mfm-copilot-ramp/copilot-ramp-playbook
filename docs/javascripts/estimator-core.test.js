@@ -39,8 +39,8 @@ ok("standard: covered = true", q1.covered === true);
 ok("standard: coveredUsers = 600", q1.coveredUsers === 600);
 
 var q2 = EC.computeQuick(per2, { archetype: "interactive", harness: "github-copilot",
-  deployment: "embedded", users: 1000, licensePct: 60, interactions: 10, ghSteps: 1, ghReasonK: 0 });
-ok("github: gross == net == 20000 (no coverage; amplifier off)",
+  deployment: "embedded", users: 1000, licensePct: 60, interactions: 10, ghPerTask: 2 });
+ok("github: explicit perTask=2 → gross == net == 20000 (no coverage)",
    near(q2.grossMonthly, 20000) && near(q2.netMonthly, 20000));
 ok("github: covered = false", q2.covered === false);
 
@@ -55,35 +55,80 @@ var e1 = EC.computeEstimate(per2, { harness: "standard", deployment: "embedded",
 ok("computeEstimate: net = 8000, gross = 20000",
    near(e1.netMonthly, 8000) && near(e1.grossMonthly, 20000));
 var e2 = EC.computeEstimate(per2, { harness: "github-copilot", deployment: "embedded",
-  users: 1000, licensePct: 60, interactions: 10, ghSteps: 1, ghReasonK: 0 });
-ok("computeEstimate github: net == gross == 20000 (amplifier off)", near(e2.netMonthly, e2.grossMonthly) && near(e2.netMonthly, 20000));
+  users: 1000, licensePct: 60, interactions: 10, ghPerTask: 2 });
+ok("computeEstimate github: explicit perTask=2 → net == gross == 20000", near(e2.netMonthly, e2.grossMonthly) && near(e2.netMonthly, 20000));
 
-// ── GitHub Copilot harness per-task amplifier ───────────────────
-var per7 = [{ uses: 1, credits: 2 }, { uses: 1, credits: 5 }]; // base per = 7
-ok("ghPerTask default (7×3 + 3×10 = 51)", EC.ghPerTask(7, {}) === 51);
-ok("ghPerTask simple (7×1 + 1×10 = 17)", EC.ghPerTask(7, { ghSteps: 1, ghReasonK: 1 }) === 17);
-ok("ghPerTask complex (7×6 + 8×10 = 122)", EC.ghPerTask(7, { ghSteps: 6, ghReasonK: 8 }) === 122);
-ok("effPerInteraction standard = base 7", EC.effPerInteraction(7, "standard", {}) === 7);
-ok("effPerInteraction github = amplified 51", EC.effPerInteraction(7, "github-copilot", {}) === 51);
+// ── GitHub Copilot harness — published-tier per-task model ──────
+// Microsoft publishes only per-task credit RANGES by complexity (Light 100–300 · Medium 300–500
+// · Heavy >500). We price at editable tier anchors 300 / 500 / 800 and IGNORE the grid `per`.
+ok("GH_TIERS anchors 300/500/800", EC.GH_TIERS.simple === 300 && EC.GH_TIERS.medium === 500 && EC.GH_TIERS.complex === 800);
+ok("ghTierCredits simple = 300", EC.ghTierCredits("simple") === 300);
+ok("ghTierCredits medium = 500", EC.ghTierCredits("medium") === 500);
+ok("ghTierCredits complex = 800", EC.ghTierCredits("complex") === 800);
+ok("ghTierCredits unknown → complex default 800", EC.ghTierCredits("???") === 800);
 
-var gq = EC.computeQuick(per7, { archetype: "interactive", harness: "github-copilot",
-  deployment: "embedded", users: 1000, licensePct: 60, interactions: 10 });
-ok("github interactive perTask = 51", near(gq.perTask, 51));
-ok("github interactive net = gross = 510000", near(gq.netMonthly, 510000) && near(gq.grossMonthly, 510000));
-ok("github build/test = 40×51 = 2040", gq.buildTestCredits === 2040);
-ok("github basePerUnit preserved = 7", near(gq.basePerUnit, 7));
+// tier-from-t-shirt-size mapping — GitHub follows the scenario, not always Heavy.
+ok("ghTierForSize XS → simple", EC.ghTierForSize("XS") === "simple");
+ok("ghTierForSize S → simple", EC.ghTierForSize("S") === "simple");
+ok("ghTierForSize M → medium", EC.ghTierForSize("M") === "medium");
+ok("ghTierForSize L → complex", EC.ghTierForSize("L") === "complex");
+ok("ghTierForSize XL → complex", EC.ghTierForSize("XL") === "complex");
 
+var per7 = [{ uses: 1, credits: 2 }, { uses: 1, credits: 5 }]; // base grid = 7 (must be IGNORED on GH)
+ok("ghPerTask default (no tier) → complex anchor 800, grid ignored", EC.ghPerTask(7, {}) === 800);
+ok("ghPerTask tier=simple → 300 (grid ignored)", EC.ghPerTask(7, { ghTier: "simple" }) === 300);
+ok("ghPerTask tier=medium → 500", EC.ghPerTask(7, { ghTier: "medium" }) === 500);
+ok("ghPerTask explicit override wins → 1500", EC.ghPerTask(7, { ghTier: "simple", ghPerTask: 1500 }) === 1500);
+ok("effPerInteraction standard = base 7 (grid used)", EC.effPerInteraction(7, "standard", {}) === 7);
+ok("effPerInteraction github = tier anchor 800 (grid ignored)", EC.effPerInteraction(7, "github-copilot", {}) === 800);
+
+// ── LOCKED SCENARIO MATRIX (grounded in MS published bands) ─────
+// Common: 500 users × 20 interactions/mo × embedded, 60% licensed unless noted.
+// A — Standard, generative(2)+tenantGraph(10)=12, no reasoning. Unchanged by the rework.
+var A = EC.computeQuick([{ uses: 1, credits: 2 }, { uses: 1, credits: 10 }],
+  { archetype: "interactive", harness: "standard", deployment: "embedded", users: 500, licensePct: 60, interactions: 20 });
+ok("A standard perUnit = 12", near(A.perUnit, 12));
+ok("A standard net = 200×20×12 = 48000", near(A.netMonthly, 48000));
+ok("A standard gross = 500×20×12 = 120000", near(A.grossMonthly, 120000));
+
+// C — GitHub Complex (anchor 800), grid hidden; never covered (net=gross). Build 40×800.
+var C = EC.computeQuick([{ uses: 1, credits: 2 }, { uses: 1, credits: 10 }],
+  { archetype: "interactive", harness: "github-copilot", deployment: "embedded", users: 500, licensePct: 60, interactions: 20, ghTier: "complex" });
+ok("C github complex perTask = 800 (grid ignored)", near(C.perTask, 800));
+ok("C github net = gross = 500×20×800 = 8,000,000", near(C.netMonthly, 8000000) && near(C.grossMonthly, 8000000));
+ok("C github never covered", C.covered === false);
+ok("C github build/test = 40×800 = 32000", C.buildTestCredits === 32000);
+
+// D — GitHub Simple (anchor 300), small pilot 50 users / 0% licensed.
+var D = EC.computeQuick([{ uses: 1, credits: 2 }, { uses: 1, credits: 10 }],
+  { archetype: "interactive", harness: "github-copilot", deployment: "embedded", users: 50, licensePct: 0, interactions: 20, ghTier: "simple" });
+ok("D github simple perTask = 300", near(D.perTask, 300));
+ok("D github net = gross = 50×20×300 = 300000", near(D.netMonthly, 300000) && near(D.grossMonthly, 300000));
+ok("D github build/test = 40×300 = 12000", D.buildTestCredits === 12000);
+
+// E — GitHub Medium (anchor 500) at the common 500-user population (apples-to-apples vs C).
+var E = EC.computeQuick([{ uses: 1, credits: 2 }, { uses: 1, credits: 10 }],
+  { archetype: "interactive", harness: "github-copilot", deployment: "embedded", users: 500, licensePct: 60, interactions: 20, ghTier: "medium" });
+ok("E github medium perTask = 500", near(E.perTask, 500));
+ok("E github net = gross = 500×20×500 = 5,000,000", near(E.netMonthly, 5000000));
+ok("E github build/test = 40×500 = 20000", E.buildTestCredits === 20000);
+
+// Standard harness is untouched by the GH rework.
 var sq2 = EC.computeQuick(per7, { archetype: "interactive", harness: "standard",
   deployment: "embedded", users: 1000, licensePct: 60, interactions: 10 });
 ok("standard perTask unchanged = 7", near(sq2.perTask, 7));
 ok("standard net = 400×10×7 = 28000 (unchanged)", near(sq2.netMonthly, 28000));
 ok("standard build/test = 0", sq2.buildTestCredits === 0);
 
-var ge = EC.computeEstimate(per7, { harness: "github-copilot", deployment: "embedded",
-  users: 1000, licensePct: 60, interactions: 10, ghSteps: 1, ghReasonK: 1, ghBuildRuns: 20 });
-ok("computeEstimate github simple perTask = 17", near(ge.perTask, 17));
-ok("computeEstimate github net = gross = 170000", near(ge.netMonthly, 170000) && near(ge.grossMonthly, 170000));
-ok("computeEstimate github build/test = 20×17 = 340", ge.buildTestCredits === 340);
+// ── Tweak #1: Solution-mode reasoning premium default (2K → 5K) ──
+// A reasoning-capable model detected in an uploaded package adds a premium meter row:
+// uses = REASON_TOKENS_K (now 5) × 10 credits/1K tokens = +50 (was +20 at 2K).
+var solR = EC.analyzeSolution([{ name: "spec.md", text:
+  "Agent build spec. Generative agent. Uses a reasoning model (o3) for multi-step inference. Grounds on the tenant graph." }]);
+var rRow = (solR.profile || []).filter(function (r) { return r.key === "reasoning"; })[0];
+ok("solution reasoning row present", !!rRow);
+ok("solution reasoning uses = 5 (REASON_TOKENS_K raised 2→5)", rRow && rRow.uses === 5);
+ok("solution reasoning credits/use = 10 (premium meter)", rRow && rRow.credits === 10);
 
 console.log(failures === 0 ? "\nALL PASS" : "\n" + failures + " FAILURE(S)");
 process.exit(failures > 0 ? 1 : 0);
