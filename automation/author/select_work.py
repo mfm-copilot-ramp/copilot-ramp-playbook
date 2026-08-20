@@ -166,18 +166,42 @@ def extract_issue_details(issue: dict) -> dict:
     """Extract structured details from a new-usecase issue."""
     body = issue.get("body", "")
 
-    # Try to find the category/stage
-    category = "unknown"
-    category_match = re.search(r"\*\*Category\*\*\s*\|\s*(\w+)", body)
+    category = ""
+    category_match = re.search(
+        r"\|\s*\*\*Category\*\*\s*\|\s*([a-z-]+)\s*\|",
+        body,
+        re.IGNORECASE,
+    )
     if category_match:
-        category = category_match.group(1)
+        category = category_match.group(1).lower()
+
+    if category not in {"chat", "first-party", "cowork", "agent-builder", "autopilots", "studio", "foundry"}:
+        stage_match = re.search(r"Stage\s+([1-7])\b", body, re.IGNORECASE)
+        stage_by_number = {
+            "1": "chat",
+            "2": "first-party",
+            "3": "cowork",
+            "4": "agent-builder",
+            "5": "autopilots",
+            "6": "studio",
+            "7": "foundry",
+        }
+        category = stage_by_number.get(stage_match.group(1), "") if stage_match else ""
+
+    if not category:
+        log.warning(f"Issue #{issue['number']} has no valid stage; skipping")
+        return {}
 
     # Extract source URL
-    url_match = re.search(r"(https://[^\s|]+)", body)
+    url_match = re.search(r"(https://[^\s|)]+)", body)
     source_url = url_match.group(1) if url_match else ""
 
     # Extract summary
-    summary_match = re.search(r"## Why it matters\s*\n\s*(.+)", body)
+    summary_match = re.search(
+        r"## (?:Why it matters|Summary)\s*\n\s*(.+?)(?=\n## |\n---|\Z)",
+        body,
+        re.DOTALL,
+    )
     summary = summary_match.group(1).strip() if summary_match else ""
 
     return {
@@ -204,10 +228,13 @@ def main():
     issues = query_usecase_issues()
     if issues:
         log.info(f"Found {len(issues)} open new-usecase issues")
-        issue = issues[0]
-        workitem = extract_issue_details(issue)
-        workitem["selection_reason"] = "Highest-priority open intel:new-usecase issue"
-        log.info(f"Selected issue #{issue['number']}: {issue['title']}")
+        for issue in issues:
+            candidate = extract_issue_details(issue)
+            if candidate:
+                workitem = candidate
+                workitem["selection_reason"] = "Highest-priority open intel:new-usecase issue with a valid stage"
+                log.info(f"Selected issue #{issue['number']}: {issue['title']}")
+                break
 
     # Priority (b): Catalog stubs
     if not workitem:
