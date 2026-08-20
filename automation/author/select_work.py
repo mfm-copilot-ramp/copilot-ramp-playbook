@@ -206,6 +206,7 @@ def extract_issue_details(issue: dict) -> dict:
 
     return {
         "issue_number": issue["number"],
+        "title": issue["title"],
         "issue_title": issue["title"],
         "issue_url": issue["url"],
         "category": category,
