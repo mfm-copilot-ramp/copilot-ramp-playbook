@@ -219,18 +219,20 @@
   function count(x) { return (x || []).length; }
   function estCredits(a) { return a.estimate && a.estimate.creditsPerRun != null ? a.estimate.creditsPerRun : ""; }
   function estEffort(a) { return a.estimate && a.estimate.buildEffort != null ? a.estimate.buildEffort : ""; }
+  function estHarness(a) { return a.estimate && a.estimate.harness ? a.estimate.harness : (a.experience === "classic" ? "standard" : "github-copilot"); }
+  function estBuildTest(a) { return a.estimate && a.estimate.buildTest != null ? a.estimate.buildTest : ""; }
 
   function csvCell(v) {
     v = v == null ? "" : String(v);
     return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
   }
   function toCsv(agents) {
-    var head = ["#", "name", "experience", "orchestrator", "archetype", "connectors", "knowledge",
-      "capabilities", "tenantGraph", "workIQ", "skills", "creditsPerRun", "buildEffort", "file"];
+    var head = ["#", "name", "experience", "harness", "orchestrator", "archetype", "connectors", "knowledge",
+      "capabilities", "tenantGraph", "workIQ", "skills", "creditsPerRun", "buildEffort", "buildTestCredits", "file"];
     var rows = agents.map(function (a) {
-      return [a.index, a.name, a.experience, a.orchestrator, a.archetype, count(a.connectors),
+      return [a.index, a.name, a.experience, estHarness(a), a.orchestrator, a.archetype, count(a.connectors),
         count(a.knowledge), count(a.capabilities), a.tenantGraph ? "yes" : "no",
-        a.workIQ ? "yes" : "no", count(a.skills), estCredits(a), estEffort(a), a.filename]
+        a.workIQ ? "yes" : "no", count(a.skills), estCredits(a), estEffort(a), estBuildTest(a), a.filename]
         .map(csvCell).join(",");
     });
     return head.join(",") + "\n" + rows.join("\n") + "\n";

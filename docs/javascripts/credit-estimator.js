@@ -452,8 +452,8 @@
         selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
         selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "Copilot chat (extend M365)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard / chat are covered in M365 channels.", "qeRebuildStructural()") +
         (v.harness === "github-copilot" ? (
-          selField("qe-ghtier", "GitHub task complexity (published tier)", [["simple", "Simple — Light (100–300)"], ["medium", "Medium (300–500)"], ["complex", "Complex — Heavy (>500)"]], v.ghTier || "complex", "Microsoft publishes per-task credit RANGES by complexity — not a per-action rate card. The tier seeds the credits-per-task anchor (biased high; Heavy is open-ended).", "qeRebuildStructural()") +
-          numField("qe-ghpertask", "Credits per task", v.ghPerTask != null ? v.ghPerTask : 800, "Seeded from the tier; edit upward with no cap for heavier tasks. Overrides the tier anchor.") +
+          selField("qe-ghtier", "GitHub task complexity (published tier)", [["simple", "Simple — Light (100–300)"], ["medium", "Medium (300–500)"], ["complex", "Complex — Heavy (>500)"]], v.ghTier || "medium", "Microsoft publishes per-task credit RANGES by complexity — not a per-action rate card. The tier seeds the credits-per-task anchor (biased high; Heavy is open-ended).", "qeRebuildStructural()") +
+          numField("qe-ghpertask", "Credits per task", v.ghPerTask != null ? v.ghPerTask : 400, "Seeded from the tier; edit upward with no cap for heavier tasks. Overrides the tier anchor.") +
           numField("qe-ghbuild", "Build & test runs (one-time)", v.ghBuildRuns != null ? v.ghBuildRuns : 40, "Build/test/eval consume credits before you publish.")
         ) : "") +
         selField("qe-know", "Knowledge grounding", [["none", "None"], ["docs", "Documents / KB"], ["tenantGraph", "M365 tenant graph"]], v.knowledge, why.knowledge || "") +
@@ -511,6 +511,7 @@
     if (el("qe-ghtier")) { v.ghTier = el("qe-ghtier").value; v.ghTierUserSet = true; }
     if (el("qe-ghpertask")) v.ghPerTask = Math.max(0, parseFloat(el("qe-ghpertask").value) || 0);
     if (el("qe-ghbuild")) v.ghBuildRuns = Math.max(0, parseFloat(el("qe-ghbuild").value) || 0);
+    if (el("qe-convpertask")) v.conversationsPerTask = Math.max(1, parseFloat(el("qe-convpertask").value) || EC.CONV_PER_TASK);
     if (el("qe-aitier")) v.aiTier = el("qe-aitier").value;
     if (el("qe-lic")) v.licensePct = Math.min(100, Math.max(0, parseFloat(el("qe-lic").value) || 0));
     if (el("qe-events")) v.events = Math.max(0, Math.round(parseFloat(el("qe-events").value) || 0));
@@ -531,6 +532,7 @@
       if (v._ghTierPrev !== v.ghTier || v.ghPerTask == null) v.ghPerTask = EC.ghTierCredits(v.ghTier);
       v._ghTierPrev = v.ghTier;
       if (v.ghBuildRuns == null) v.ghBuildRuns = EC.GH_DEFAULTS.buildRuns;
+      if (v.conversationsPerTask == null) v.conversationsPerTask = EC.CONV_PER_TASK;
     }
     if (v.aiTier == null) v.aiTier = "standard";
     var auto = v.archetype === "autonomous";
@@ -804,11 +806,21 @@
       ghV.harness = "github-copilot"; ghV.ghTier = effTier; ghV.ghPerTask = EC.ghTierCredits(effTier);
       var ghEst = EC.computeQuick(profile, ghV);
       var isGh = (v.harness || "standard") === "github-copilot";
-      var covLine = '<span' + (isGh ? "" : ' style="font-weight:700"') + '>&bull; <strong>Standard / Copilot chat</strong> (covered in Teams &middot; Copilot Chat &middot; SharePoint): net billable <strong>' + fmt(covEst.netMonthly) + '</strong> / mo <span class="hint" style="display:inline">(gross ' + fmt(covEst.grossMonthly) + '; ' + covPct + '% zero-rated for licensed users)</span></span>';
-      var ghLine = '<span' + (isGh ? ' style="font-weight:700"' : "") + '>&bull; <strong>GitHub Copilot</strong> (never covered): net = gross <strong>' + fmt(ghEst.grossMonthly) + '</strong> / mo <span class="hint" style="display:inline">&asymp; ' + fmtDec(ghEst.perTask) + '/task &middot; ' + effTier + ' tier &middot; + one-time build &amp; test ' + fmt(ghEst.buildTestCredits) + '</span></span>';
+      // GitHub is priced per TASK (a multistep run), not per response. Show the published band as a
+      // monthly RANGE (tasks × band) rather than a single point so the comparison isn't alarming, and
+      // expose the conversations-per-task assumption that converts conversation volume into tasks.
+      var band = EC.GH_TIER_RANGE[effTier] || [ghEst.perTask, ghEst.perTask];
+      var cpt = ghEst.conversationsPerTask || EC.CONV_PER_TASK;
+      var tasks = ghEst.tasksPerMonth || 0;
+      var ghLo = tasks * band[0], ghHi = tasks * band[1];
+      var covLine = '<span' + (isGh ? "" : ' style="font-weight:700"') + '>&bull; <strong>Standard / Copilot chat</strong> \u2014 billed <em>per response</em>, covered in Teams &middot; Copilot Chat &middot; SharePoint: net <strong>' + fmt(covEst.netMonthly) + '</strong> / mo <span class="hint" style="display:inline">(gross ' + fmt(covEst.grossMonthly) + '; ' + covPct + '% zero-rated for licensed users)</span></span>';
+      var ghLine = '<span' + (isGh ? ' style="font-weight:700"' : "") + '>&bull; <strong>GitHub Copilot</strong> \u2014 billed <em>per task</em>, never covered: net = gross <strong>' + fmt(ghLo) + '\u2013' + fmt(ghHi) + '</strong> / mo <span class="hint" style="display:inline">(&asymp; ' + fmt(tasks) + ' tasks/mo \u00d7 ' + band[0] + '\u2013' + band[1] + ' cr &middot; ' + effTier + ' band &middot; midpoint ' + fmt(ghEst.grossMonthly) + ' &middot; + one-time build &amp; test ' + fmt(ghEst.buildTestCredits) + ')</span></span>';
+      var unitNote = '<div class="hint" style="margin:.35rem 0 .1rem">Different units: standard bills each <strong>response</strong>; the GitHub harness bills each <strong>task</strong> \u2014 a multistep run that does the work of several turns. We estimate <strong>' + fmt(tasks) + ' tasks/mo</strong> from your volume assuming ~<strong>' + fmtDec(cpt) + ' conversations per task</strong> \u2014 tune it: ' +
+        '<input type="number" min="1" step="0.5" value="' + fmtDec(cpt) + '" aria-label="Conversations per task" style="width:4.5rem" onchange="qeSetConvPerTask(this.value)"> conv / task.</div>';
       cov = '<div class="em-why" style="border-left:3px solid var(--md-primary-fg-color);padding-left:.6rem">' +
         '<strong>Cost by harness \u2014 same agent &amp; volume</strong> <span class="hint" style="display:inline">(showing ' + harnessName + ')</span><br>' +
         covLine + '<br>' + ghLine +
+        unitNote +
         '</div>';
     }
 
@@ -1321,6 +1333,12 @@
     state.qe.vars.ghPerTask = EC.ghTierCredits(t);
     if (document.getElementById("qe-results-full")) qeRenderResultsInner();
   }
+  // Conversations-per-task: the divisor that converts conversation volume into GitHub tasks.
+  function qeSetConvPerTask(n) {
+    if (!state.qe) return;
+    state.qe.vars.conversationsPerTask = Math.max(1, parseFloat(n) || EC.CONV_PER_TASK);
+    if (document.getElementById("qe-results-full")) qeRenderResultsInner();
+  }
 
   function qeAnalyze() {
     var input = document.getElementById("qe-input");
@@ -1801,15 +1819,32 @@
         escSplit(s.perUnit, (s.estimate && s.estimate.units) || 0, s.vars.escalation || 0, escCreditsOf(s.vars)),
         { editable: true, unit: "interaction", onchange: "qiSetEscalationPct(" + i + ", this.value)" });
     }
+    var harn = (s.vars.harness || "standard");
+    var engineLine;
+    if (harn === "github-copilot") {
+      var gband = EC.GH_TIER_RANGE[s.vars.ghTier] || null;
+      var gtasks = (s.estimate && s.estimate.tasksPerMonth != null) ? s.estimate.tasksPerMonth : null;
+      var gcpt = (s.estimate && s.estimate.conversationsPerTask) || EC.CONV_PER_TASK;
+      engineLine = '<div class="hint"><strong>Engine:</strong> GitHub Copilot harness \u2014 billed <em>per task</em>, never license-covered. '
+        + (gtasks != null ? '&asymp; ' + fmt(gtasks) + ' tasks/mo (\u2248 volume / ' + fmtDec(gcpt) + ' conv per task) \u00d7 ' : '')
+        + fmtDec(s.estimate.perTask || s.perUnit) + ' cr'
+        + (gband ? ' (' + esc(s.vars.ghTier) + ' band ' + gband[0] + '\u2013' + gband[1] + ')' : '')
+        + ' \u00b7 + one-time build &amp; test ' + fmt(s.estimate.buildTestCredits || 0) + ' credits.</div>';
+    } else {
+      engineLine = '<div class="hint"><strong>Engine:</strong> ' + esc(harnessLabel(harn)) + ' harness \u2014 billed <em>per response</em>, covered by an M365 Copilot license for licensed users in M365 channels (Teams \u00b7 Copilot Chat \u00b7 SharePoint).</div>';
+    }
     return '<div class="qi-detail">' + editedNote +
       "<strong>" + esc(s.sizeInfo.name) + " build (" + s.size + ")</strong> — " + esc(s.sizeInfo.desc) +
       (sizeWhy ? '<div class="hint"><strong>Why ' + s.size + ":</strong> " + sizeWhy + "</div>" : "") +
+      engineLine +
       "<div><strong>What it does</strong><ul>" + caps + "</ul></div>" +
       (mix ? mix : (costs ? "<div><strong>Cost drivers</strong> (" + fmtDec(s.perUnit) + " credits / " + unit + ")<ul>" + costs + "</ul></div>" : "")) +
       escBlock +
       '<div class="hint">≈ ' + fmt(s.range.low) + "–" + fmt(s.range.high) + " credits / mo · " + money(s.cost.payg) + " PAYG · " + money(s.cost.prepaid) + " prepaid.</div>" +
       (warns ? "<div><strong>Needs attention</strong><ul>" + warns + "</ul></div>" : "") +
-      '<div class="qi-open"><button type="button" class="em-btn" onclick="qiRowToDetailed(' + i + ')">' + (s.edited ? "Edit again in Detailed estimator" : "Open in Detailed estimator") + ' &rarr;</button></div>' +
+      (((s.vars.harness || "standard") === "github-copilot")
+        ? '<div class="qi-open"><span class="hint">The Detailed estimator doesn\u2019t model the GitHub Copilot harness yet — fine-tune this scenario in <strong>Quick</strong> mode (harness switch + task tier).</span></div>'
+        : '<div class="qi-open"><button type="button" class="em-btn" onclick="qiRowToDetailed(' + i + ')">' + (s.edited ? "Edit again in Detailed estimator" : "Open in Detailed estimator") + ' &rarr;</button></div>') +
       "</div>";
   }
   function qiRowHtml(s, i) {
@@ -1820,11 +1855,11 @@
     var flag = warn ? '<span class="qi-flag" title="Needs attention">&#9888;</span>' : "";
     return '<tr class="qi-main' + (warn ? " qi-warn-row" : "") + '">' +
       '<td><button type="button" class="qi-name-btn" onclick="qiToggleDetail(' + i + ')">' + esc(s.name) + "</button>" + flag + "</td>" +
-      "<td>" + esc(typeLabel) + "</td><td>" + badge + "</td>" +
+      "<td>" + esc(typeLabel) + "</td><td>" + engineCell(s) + "</td><td>" + badge + "</td>" +
       '<td class="qi-num">' + qiVolume(s) + "</td>" +
       '<td class="qi-num">' + fmt(s.estimate.monthly) + "</td>" +
       '<td class="qi-num">' + money(s.cost.payg) + "</td></tr>" +
-      '<tr class="qi-detail-row" id="qi-detail-' + i + '" style="display:' + (qiExpanded(i) ? "" : "none") + '"><td class="qi-detail-cell" colspan="6">' +
+      '<tr class="qi-detail-row" id="qi-detail-' + i + '" style="display:' + (qiExpanded(i) ? "" : "none") + '"><td class="qi-detail-cell" colspan="7">' +
       qiRowDetailHtml(s, i) + "</td></tr>";
   }
 
@@ -1855,7 +1890,7 @@
       exportBarHtml("import", { csv: true }) +
       (sizesBar ? '<p class="hint">Size mix: ' + sizesBar +
         (t.flagged ? ' \u00b7 <span class="qi-warn">' + t.flagged + " scenario(s) need attention</span>" : "") + "</p>" : "") +
-      '<table class="qi-table"><thead><tr><th>Scenario</th><th>Type</th><th>Size</th>' +
+      '<table class="qi-table"><thead><tr><th>Scenario</th><th>Type</th><th>Engine</th><th>Size</th>' +
       '<th class="qi-num">Volume</th><th class="qi-num">Credits/mo</th><th class="qi-num">$/mo</th></tr></thead><tbody>' +
       rows + "</tbody></table>" +
       '<p class="hint">Click a scenario name for its build read-out and cost drivers, or open it in the Detailed estimator to fine-tune. $ shown is pay-as-you-go; prepaid is ~20% less.</p>';
@@ -1902,20 +1937,31 @@
   function bulkEstimateFn(inp) {
     try {
       var desc = (inp && inp.description) || "";
-      if (!desc || !EC.analyzeText) return { creditsPerRun: "", buildEffort: "", monthly: 0 };
+      if (!desc || !EC.analyzeText) return { creditsPerRun: "", buildEffort: "", monthly: 0, harness: "standard", buildTest: 0 };
       var a = EC.analyzeText(desc);
       var v = a && a.vars ? clone(a.vars) : {};
+      // Bulk ships the modern, instruction-driven agent — which this tool bills as the GitHub
+      // Copilot harness (credits for ALL usage, never license-covered). A per-row classic
+      // experience maps to the standard, license-covered harness. Mirrors Quick + Import.
+      var harness = (inp && inp.experience === "classic") ? "standard" : "github-copilot";
+      v.harness = harness;
+      var sizing = EC.sizeFromDrivers(v);
+      if (harness === "github-copilot") {
+        v.ghTier = EC.ghTierForSize(sizing.size);
+        v.ghPerTask = EC.ghTierCredits(v.ghTier);
+      }
       var profile = (a && a.profile && a.profile.length) ? a.profile.map(clone) : EC.deriveQuick(v);
       var est = EC.computeQuick(profile, v);
-      var sizing = EC.sizeFromDrivers(v);
       return {
         creditsPerRun: est && est.perUnit != null ? Math.round(est.perUnit * 100) / 100 : "",
         monthly: est && est.monthly != null ? est.monthly : 0,
         regime: est && est.regime ? est.regime : "interactive",
         buildEffort: sizing && sizing.size ? sizing.size : "",
-        size: sizing && sizing.size ? sizing.size : ""
+        size: sizing && sizing.size ? sizing.size : "",
+        harness: harness,
+        buildTest: est && est.buildTestCredits != null ? est.buildTestCredits : 0
       };
-    } catch (e) { return { creditsPerRun: "", buildEffort: "", monthly: 0 }; }
+    } catch (e) { return { creditsPerRun: "", buildEffort: "", monthly: 0, harness: "standard", buildTest: 0 }; }
   }
 
   function bulkAnalyze() {
@@ -1940,11 +1986,13 @@
   }
 
   function bulkTotals(analysis) {
-    var monthly = 0, priced = 0;
+    var monthly = 0, priced = 0, buildTest = 0, ghCount = 0;
     analysis.forEach(function (a) {
       if (a.estimate && typeof a.estimate.monthly === "number") { monthly += a.estimate.monthly; priced++; }
+      if (a.estimate && a.estimate.buildTest) buildTest += a.estimate.buildTest;
+      if (a.estimate && a.estimate.harness === "github-copilot") ghCount++;
     });
-    return { monthly: monthly, priced: priced };
+    return { monthly: monthly, priced: priced, buildTest: buildTest, ghCount: ghCount };
   }
 
   function bulkRender(analysis) {
@@ -1956,6 +2004,10 @@
       var cr = a.estimate && a.estimate.creditsPerRun !== "" && a.estimate.creditsPerRun != null ? fmtDec(a.estimate.creditsPerRun) : "—";
       var mo = a.estimate && typeof a.estimate.monthly === "number" ? fmt(a.estimate.monthly) : "—";
       var sz = a.estimate && a.estimate.buildEffort ? a.estimate.buildEffort : "—";
+      var harn = (a.estimate && a.estimate.harness) || (a.experience === "classic" ? "standard" : "github-copilot");
+      var eng = harn === "github-copilot"
+        ? '<span title="GitHub Copilot harness — bills Copilot Credits for all usage; never license-covered" style="font-weight:700;color:#6a1b9a">GitHub Copilot</span>'
+        : esc(harnessLabel(harn));
       var flags = [];
       if (a.unmapped && a.unmapped.length) flags.push('<span class="bulk-badge" title="Systems mentioned but not auto-wired — see NEXT-STEPS.md">' + a.unmapped.length + " to wire</span>");
       if (a.tenantGraph) flags.push('<span class="bulk-badge" title="Uses Microsoft 365 tenant graph grounding">tenant graph</span>');
@@ -1963,6 +2015,7 @@
         '<td class="num">' + a.index + '</td>' +
         '<td>' + esc(a.name || "Agent " + a.index) + (flags.length ? ' ' + flags.join(" ") : "") + '</td>' +
         '<td>' + esc(a.experience === "new" ? "New" : "Classic") + '</td>' +
+        '<td>' + eng + '</td>' +
         '<td>' + esc(a.archetype || "interactive") + '</td>' +
         '<td class="num">' + (a.connectors ? a.connectors.length : 0) + '</td>' +
         '<td class="num">' + (a.knowledge ? a.knowledge.length : 0) + '</td>' +
@@ -1974,11 +2027,15 @@
     }).join("");
     var priceNote = t.priced < analysis.length
       ? ' <span class="hint">(' + (analysis.length - t.priced) + ' not priced)</span>' : "";
+    var buildTestSpan = t.buildTest > 0
+      ? '<span><span class="big">' + fmt(t.buildTest) + '</span> one-time build &amp; test credits (GitHub harness)</span>'
+      : "";
     el.innerHTML =
       '<div class="bulk-summary">' +
         '<span><span class="big">' + analysis.length + '</span> agent' + (analysis.length === 1 ? "" : "s") + '</span>' +
         '<span><span class="big">' + fmt(t.monthly) + '</span> credits / mo (portfolio)' + priceNote + '</span>' +
         '<span><span class="big">' + money(cost.payg) + '</span> / mo PAYG &middot; ' + money(cost.prepaid) + ' prepaid</span>' +
+        buildTestSpan +
       '</div>' +
       '<div class="bulk-actions">' +
         '<button type="button" class="em-btn" onclick="bulkDownloadAll()">&darr; Download all agents (.zip)</button>' +
@@ -1986,13 +2043,13 @@
       '</div>' +
       '<div style="overflow-x:auto">' +
       '<table class="bulk-table"><thead><tr>' +
-        '<th class="num">#</th><th>Agent</th><th>Experience</th><th>Type</th>' +
+        '<th class="num">#</th><th>Agent</th><th>Experience</th><th>Engine</th><th>Type</th>' +
         '<th class="num">Tools*</th><th class="num">Knowledge</th><th class="num">Size</th>' +
         '<th class="num">Cr / run</th><th class="num">Cr / mo</th><th>Starter</th>' +
       '</tr></thead><tbody>' + rows + '</tbody>' +
-      '<tfoot><tr><td colspan="8">Portfolio credits / month</td><td class="num">' + fmt(t.monthly) + '</td><td></td></tr></tfoot>' +
+      '<tfoot><tr><td colspan="9">Portfolio credits / month</td><td class="num">' + fmt(t.monthly) + '</td><td></td></tr></tfoot>' +
       '</table></div>' +
-      '<p class="hint">*Tools/connectors your description implied. On the GitHub Copilot harness these are added as Tools in Copilot Studio after import — each package\'s NEXT-STEPS.md lists them. Sizes and credits are directional starting points (same engine as Quick), not a real LLM analysis. These are starter agents to extend, not production-ready.</p>';
+      '<p class="hint">*Tools/connectors your description implied. These starters ship as the modern instruction-driven agent, billed as the <strong>GitHub Copilot harness</strong> — Copilot Credits bill for <strong>all usage</strong> (never license-covered); tools are added in Copilot Studio after import (each package\'s NEXT-STEPS.md lists them). Cr / mo is recurring; the one-time build &amp; test credits shown above are separate. Sizes and credits are directional starting points (same engine as Quick), not a real LLM analysis. These are starter agents to extend, not production-ready.</p>';
     el.classList.remove("em-hidden");
   }
 
@@ -2068,6 +2125,10 @@
   function qiRowToDetailed(i) {
     var st = state.qi; if (!st || !st.scenarios[i]) return;
     var sc = st.scenarios[i], v = sc.vars;
+    if ((v.harness || "standard") === "github-copilot") {
+      qiStatus("The Detailed estimator doesn\u2019t model the GitHub Copilot harness yet \u2014 fine-tune this scenario in Quick mode instead.", true);
+      return;
+    }
     var profile = (sc.edited && sc.profile && sc.profile.length) ? sc.profile : EC.deriveQuick(v);
     var scale = v.archetype === "autonomous"
       ? { archetype: "autonomous", events: v.events || 0 }
@@ -2214,44 +2275,50 @@
     return '<table class="qi-table"><thead><tr><th>Column</th><th>Applies</th><th>What to enter</th></tr></thead><tbody>' +
       rows + "</tbody></table>";
   }
-  // "Let Copilot fill the sheet" prompt — two variants so the box isn't a wall of text:
-  //   simple   (default): short; leans on the prefilled 'Examples' sheet, so the ONLY blank
-  //            the user fills is their own agent list. Friendly / non-intimidating.
-  //   detailed: same, but inlines every column definition from EC.IMPORT_SCHEMA (drift-proof)
-  //            for users who want the model handed the full column spec.
-  // Both are copy-paste-ready; the on-page <pre> shows whichever tab is selected, so what you
-  // see is exactly what "Copy prompt" copies.
-  var qiPromptVariant = "simple";
-  var QI_AGENT_SLOT = "My agents (one per line \u2014 for each, say what it does, who uses it, " +
-    "how often, the channel, any knowledge it grounds on, and roughly how many system actions it takes):\n1)\n2)";
-  function qiPromptSimple() {
-    return "You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator workbook. " +
+  // "Let Copilot fill the sheet" prompt — two AUDIENCE variants so the user pastes the right one
+  // into the right surface:
+  //   chat   (default): concise, single-shot — for Microsoft 365 Copilot Chat. Leans on the prefilled
+  //          'Examples' sheet; the only blank the user fills is their agent list.
+  //   cowork: a richer, step-by-step analyst brief — for Microsoft 365 Copilot (Cowork / researcher).
+  //          Inlines every column definition and asks the model to reason out the Harness + task
+  //          complexity per agent (drift-proof against EC.IMPORT_SCHEMA).
+  // Both emit the Scenarios-sheet row format; the on-page <pre> shows whichever tab is selected.
+  var qiPromptVariant = "chat";
+  var QI_AGENT_SLOT = "My agents (one per line \u2014 for each, say what it does, who uses it, how often, " +
+    "the channel, any knowledge it grounds on, roughly how many system actions it takes, and whether it's a " +
+    "rule-based Q&A agent (standard harness) or a reasoning-heavy, multistep/agentic one (GitHub Copilot harness)):\n1)\n2)";
+  function qiPromptChat() {
+    return "You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator workbook, to paste back into the sheet. " +
       "Use the prefilled 'Examples' sheet as the pattern and add one row per agent from my list below. " +
-      "Infer each column from my descriptions and leave a cell blank if it isn't implied \u2014 don't invent enum or number values.\n\n" +
+      "Infer each column from my descriptions and leave a cell blank if it isn't implied \u2014 don't invent enum or number values. " +
+      "For the Harness column, use 'GitHub Copilot' for reasoning-heavy, multistep/agentic agents and 'Standard' for rule-based Q&A / topic agents.\n\n" +
       QI_AGENT_SLOT;
   }
-  function qiPromptDetailed() {
+  function qiPromptCowork() {
     var schema = (EC && EC.IMPORT_SCHEMA) ? EC.IMPORT_SCHEMA : [];
     var defs = schema.map(function (c) { return "- " + c.header + ": " + (c.hint || ""); }).join("\n");
-    return "You're helping me fill in the 'Scenarios' sheet of this Copilot Credit Estimator workbook. " +
-      "Use the 'Examples' sheet already in the workbook as the pattern. Create one row per agent from my list below, " +
-      "inferring each column from my descriptions; leave a cell blank if it isn't implied \u2014 don't invent enum or number values.\n\n" +
+    return "Act as a Copilot Studio sizing analyst and fill the 'Scenarios' sheet of this Copilot Credit Estimator workbook. " +
+      "Work through my agent list step by step. For each agent: infer every column from the description, and be explicit about two judgements \u2014 " +
+      "(1) the Harness: 'GitHub Copilot' for reasoning-heavy, multistep/agentic work (billed per task in Copilot Credits, never license-covered) vs 'Standard' / 'Copilot chat' for rule-based, license-covered conversations; and " +
+      "(2) for GitHub-harness agents, the task complexity (light / medium / heavy) based on how many systems, steps and reasoning each task needs. " +
+      "Use the 'Examples' sheet as the row pattern, one row per agent; leave a cell blank if it isn't implied \u2014 don't invent enum or number values. " +
+      "Return the rows as a table I can paste back into the sheet, plus a one-line rationale per agent for the Harness choice.\n\n" +
       "Column definitions:\n" + defs + "\n\n" +
       QI_AGENT_SLOT;
   }
   function qiPromptText(variant) {
-    return (variant || qiPromptVariant) === "detailed" ? qiPromptDetailed() : qiPromptSimple();
+    return (variant || qiPromptVariant) === "cowork" ? qiPromptCowork() : qiPromptChat();
   }
-  // Fill the on-page <pre> with the active variant and sync the Simple/Detailed tab states.
+  // Fill the on-page <pre> with the active variant and sync the Copilot Chat / Cowork tab states.
   function qiRenderPrompt() {
     var pre = document.getElementById("qi-copilot-prompt");
     if (pre) pre.textContent = qiPromptText(qiPromptVariant);
-    ["simple", "detailed"].forEach(function (v) {
+    ["chat", "cowork"].forEach(function (v) {
       var b = document.getElementById("qi-prompt-tab-" + v);
       if (b) { var on = v === qiPromptVariant; b.classList.toggle("qi-prompt-tab--active", on); b.setAttribute("aria-pressed", on ? "true" : "false"); }
     });
   }
-  function qiSetPromptVariant(v) { qiPromptVariant = v === "detailed" ? "detailed" : "simple"; qiRenderPrompt(); }
+  function qiSetPromptVariant(v) { qiPromptVariant = v === "cowork" ? "cowork" : "chat"; qiRenderPrompt(); }
   function qiCopyPrompt() { copyText(qiPromptText(qiPromptVariant), "qiprompt", "Prompt copied \u2713"); }
 
   // ── Export / share (Copy summary · Download · Detailed share link) ─────────
@@ -2288,6 +2355,15 @@
 
   function scenType(s) { return s.vars.archetype === "autonomous" ? "Autonomous" : (s.vars.channel === "voice" ? "Interactive \u00b7 voice" : "Interactive"); }
   function plainVolume(s) { var v = s.vars; return v.archetype === "autonomous" ? (fmt(v.events || 0) + " events/mo") : (fmt((v.users || 0) * (v.interactions || 0)) + " conv/mo"); }
+  // Copilot Studio engine (billing harness) label. GitHub Copilot bills Copilot Credits for ALL
+  // usage and is never license-covered; standard / chat are covered in M365 channels.
+  function harnessLabel(h) { h = h || "standard"; return h === "github-copilot" ? "GitHub Copilot" : (h === "chat" ? "Copilot chat" : "Standard"); }
+  function engineCell(s) {
+    var h = (s.vars && s.vars.harness) || "standard", lbl = harnessLabel(h);
+    return h === "github-copilot"
+      ? '<span title="GitHub Copilot harness — bills Copilot Credits for all usage; never license-covered" style="font-weight:700;color:#6a1b9a">' + lbl + "</span>"
+      : "<span>" + lbl + "</span>";
+  }
 
   // Normalized estimate snapshot used by the summary / CSV builders for Quick, Detailed, and Solution-package modes.
   function collectEstimate(mode) {
@@ -2349,8 +2425,8 @@
     if (t.payg != null) L.push("- Cost / month: " + money(t.payg) + " pay-as-you-go \u00b7 " + money(t.prepaid) + " prepaid");
     var mix = t.sizes ? EC.SIZE_ORDER.filter(function (s) { return t.sizes[s]; }).map(function (s) { return t.sizes[s] + "\u00d7 " + s; }).join(", ") : "";
     if (mix) L.push("- Size mix: " + mix);
-    L.push("", "## Scenarios", mdRow(["Scenario", "Type", "Size", "Volume / mo", "Credits / mo", "$ / mo (PAYG)"]), mdRow(["---", "---", "---", "--:", "--:", "--:"]));
-    state.qi.scenarios.forEach(function (s) { L.push(mdRow([safeCell(s.name), scenType(s), s.size, plainVolume(s), fmt(s.estimate.monthly), money(s.cost.payg)])); });
+    L.push("", "## Scenarios", mdRow(["Scenario", "Type", "Engine", "Size", "Volume / mo", "Credits / mo", "$ / mo (PAYG)"]), mdRow(["---", "---", "---", "---", "--:", "--:", "--:"]));
+    state.qi.scenarios.forEach(function (s) { L.push(mdRow([safeCell(s.name), scenType(s), harnessLabel(s.vars && s.vars.harness), s.size, plainVolume(s), fmt(s.estimate.monthly), money(s.cost.payg)])); });
     L.push("", "_Directional estimate from the Copilot Credit Estimator \u2014 " + pageUrl() + "_");
     return L.join("\n");
   }
@@ -2363,8 +2439,8 @@
       d.profile.forEach(function (r) { out.push([r.name, r.type, r.uses, r.credits, round2(r.uses * r.credits)]); });
     } else if (mode === "import") {
       if (!state.qi || !state.qi.scenarios || !state.qi.scenarios.length) return null;
-      out.push(["Scenario", "Type", "Size", "Volume per month", "Credits per month", "PAYG $ / month", "Prepaid $ / month"]);
-      state.qi.scenarios.forEach(function (s) { out.push([s.name, scenType(s), s.size, plainVolume(s), Math.round(s.estimate.monthly), round2(s.cost.payg), round2(s.cost.prepaid)]); });
+      out.push(["Scenario", "Type", "Engine", "Size", "Volume per month", "Credits per month", "PAYG $ / month", "Prepaid $ / month"]);
+      state.qi.scenarios.forEach(function (s) { out.push([s.name, scenType(s), harnessLabel(s.vars && s.vars.harness), s.size, plainVolume(s), Math.round(s.estimate.monthly), round2(s.cost.payg), round2(s.cost.prepaid)]); });
     } else {
       var gm = buildEstimateMatrix(mode);
       if (!gm) return null;
@@ -2556,6 +2632,7 @@
     window.qeRebuildStructural = qeRebuildStructural;
     window.qeSetHarness = qeSetHarness;
     window.qeSetGhTier = qeSetGhTier;
+    window.qeSetConvPerTask = qeSetConvPerTask;
     window.qeToDetailed = qeToDetailed;
     window.qeSendToRoi = qeSendToRoi;
     window.qeSaveToWorkspace = qeSaveToWorkspace;

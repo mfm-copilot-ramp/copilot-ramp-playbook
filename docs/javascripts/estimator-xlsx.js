@@ -203,6 +203,7 @@
   // Enum columns → dropdown lists (matched to IMPORT_SCHEMA order/keys).
   var ENUM_LISTS = {
     archetype: ["Interactive", "Autonomous"],
+    harness: ["Standard", "GitHub Copilot", "Copilot chat"],
     channel: ["Chat", "Voice"],
     knowledge: ["None", "Documents", "Tenant graph"],
     deployment: ["Embedded", "Standalone"],
@@ -237,7 +238,7 @@
       instr.push([schema[s].header, applies[schema[s].key] || "All", schema[s].hint || ""]);
     }
     instr.push([""]);
-    instr.push(["Enum values — Agent type: Interactive / Autonomous · Channel: Chat / Voice · " +
+    instr.push(["Enum values — Agent type: Interactive / Autonomous · Harness: Standard / GitHub Copilot / Copilot chat · Channel: Chat / Voice · " +
       "Knowledge: None / Documents / Tenant graph · Deployment: Embedded / Standalone · Yes/No columns: Yes / No"]);
 
     /* Examples sheet */
@@ -258,6 +259,7 @@
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i], L = colLetter(i);
       if (key === "archetype") validations.push({ sqref: L + "2:" + L + "201", list: ENUM_LISTS.archetype });
+      else if (key === "harness") validations.push({ sqref: L + "2:" + L + "201", list: ENUM_LISTS.harness });
       else if (key === "channel") validations.push({ sqref: L + "2:" + L + "201", list: ENUM_LISTS.channel });
       else if (key === "knowledge") validations.push({ sqref: L + "2:" + L + "201", list: ENUM_LISTS.knowledge });
       else if (key === "deployment") validations.push({ sqref: L + "2:" + L + "201", list: ENUM_LISTS.deployment });

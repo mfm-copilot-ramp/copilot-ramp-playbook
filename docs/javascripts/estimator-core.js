@@ -170,15 +170,20 @@
     return Math.max(0, Math.round(n));
   }
   // GitHub Copilot harness: Microsoft publishes NO per-action rate card for this harness — only
-  // per-task credit RANGES by task complexity (Light 100–300 · Medium 300–500 · Heavy >500), which
-  // BUNDLE LLM tokens + tools (knowledge/MCP) + the harness itself. So we do NOT decompose the
-  // standard rate-card grid here (that grid has no published basis on this harness). Instead we price
-  // a task at an editable tier ANCHOR, biased toward the high end of each published band to lean
-  // over- rather than under-estimate; Heavy is open-ended (>500) so its anchor is editable upward
-  // with no cap. The base grid `per` is intentionally ignored on this harness. See MS Learn:
-  // "Overview of billing for agents powered by the GitHub Copilot harness".
-  var GH_TIERS = { simple: 300, medium: 500, complex: 800 };
-  var GH_DEFAULTS = { tier: "complex", perTask: 800, buildRuns: 40 };
+  // per-task credit RANGES by task complexity (Light 100–300 · Medium 300–500 · Heavy 500+), shown
+  // ONLY in a diagram image on MS Learn ("Overview of billing for agents powered by the GitHub
+  // Copilot harness"). A task BUNDLES LLM tokens + tools (knowledge/MCP) + the harness itself, so we
+  // do NOT decompose the standard rate-card grid here. We price a task at the MID-BAND anchor of each
+  // published range (not the ceiling) and surface the full band as a range; the base grid `per` is
+  // ignored on this harness. ⚠️ Anchors are directional (image-sourced) — review before quoting.
+  var GH_TIER_RANGE = { simple: [100, 300], medium: [300, 500], complex: [500, 800] };
+  var GH_TIERS = { simple: 200, medium: 400, complex: 650 };
+  var GH_DEFAULTS = { tier: "medium", perTask: 400, buildRuns: 40 };
+  // A GitHub-harness "task" is a multistep reasoning run — NOT the same unit as a standard-harness
+  // conversation/response. Users size volume in conversations, so we divide conversations by this
+  // factor to estimate tasks (a task typically bundles several turns). Editable planning assumption.
+  var CONV_PER_TASK = 4;
+  function ghConvPerTask(v) { var n = parseFloat(v && v.conversationsPerTask); return (isFinite(n) && n > 0) ? n : CONV_PER_TASK; }
   function ghNum(x, d) { x = parseFloat(x); return isFinite(x) ? x : d; }
   function ghTierCredits(tier) {
     return Object.prototype.hasOwnProperty.call(GH_TIERS, tier) ? GH_TIERS[tier] : GH_TIERS[GH_DEFAULTS.tier];
@@ -211,6 +216,16 @@
     var per = perInteractionCredits(profile);
     var harness = scale.harness || "standard";
     var effPer = effPerInteraction(per, harness, scale);
+    if (harness === "github-copilot") {
+      // GitHub bills per TASK, never covered. Volume is entered in conversations, so convert to
+      // tasks via the conversations-per-task factor (a task bundles several turns).
+      var cptE = ghConvPerTask(scale);
+      var tasksE = grossUsers(scale) * (scale.interactions || 0) / cptE;
+      var mE = tasksE * effPer;
+      return { perInteraction: effPer, basePerInteraction: per, billed: grossUsers(scale), monthly: mE,
+        grossMonthly: mE, netMonthly: mE, perTask: effPer, tasksPerMonth: Math.round(tasksE), conversationsPerTask: cptE,
+        buildTestCredits: ghBuildTestCredits(effPer, harness, scale), covered: false, harness: harness };
+    }
     var billed = billedUsers(scale);
     var gross = grossUsers(scale);
     var net = billed * scale.interactions * effPer;
@@ -242,9 +257,19 @@
         perTask: effPer, buildTestCredits: ghBuildTestCredits(effPer, harness, v) };
     }
     var scale = { deployment: v.deployment, users: v.users, licensePct: v.licensePct, harness: harness };
-    var billed = billedUsers(scale);
     var gross = grossUsers(scale);
     var interactions = Math.max(0, v.interactions || 0);
+    if (harness === "github-copilot") {
+      // GitHub bills per TASK and is never covered. Convert the conversation volume the user entered
+      // into tasks (a task bundles several turns) so the per-task rate isn't applied to every turn.
+      var cptQ = ghConvPerTask(v);
+      var tasksQ = gross * interactions / cptQ;
+      var mQ = tasksQ * effPer;
+      return { regime: "interactive", perUnit: effPer, basePerUnit: per, units: Math.round(tasksQ), billed: gross,
+        monthly: mQ, grossMonthly: mQ, netMonthly: mQ, perTask: effPer, tasksPerMonth: Math.round(tasksQ), conversationsPerTask: cptQ,
+        buildTestCredits: ghBuildTestCredits(effPer, harness, v), covered: false, coveredUsers: 0, harness: harness };
+    }
+    var billed = billedUsers(scale);
     var escExtra = ((v.escalation || 0) / 100) * (v.escalationCredits || 0);
     var rate = (effPer + escExtra);
     var net = billed * interactions * rate;
@@ -1168,22 +1193,26 @@
 
   // Example rows shown on the template's Examples sheet (and reused in tests).
   var IMPORT_EXAMPLES = [
-    { name: "IT helpdesk (Teams)", archetype: "Interactive", channel: "Chat", knowledge: "Documents",
+    { name: "IT helpdesk (Teams)", archetype: "Interactive", harness: "Standard", channel: "Chat", knowledge: "Documents",
       actionsCount: 2, systemsCount: 1, hasContent: "No", hasAI: "No", hasFlow: "No", hasEscalation: "Yes",
       users: 800, interactions: 6, deployment: "Embedded", licensePct: 60, events: "", genAnswers: "",
       description: "Answers IT questions from the KB, resets passwords and creates ServiceNow tickets; escalates to a live agent." },
-    { name: "Autonomous email router", archetype: "Autonomous", channel: "", knowledge: "None",
+    { name: "Autonomous email router", archetype: "Autonomous", harness: "Standard", channel: "", knowledge: "None",
       actionsCount: 1, systemsCount: 1, hasContent: "No", hasAI: "No", hasFlow: "No", hasEscalation: "No",
       users: "", interactions: "", deployment: "", licensePct: "", events: 2000, genAnswers: 1,
       description: "Categorizes each new support email and routes it to the right SME team." },
-    { name: "Customer voice bot", archetype: "Interactive", channel: "Voice", knowledge: "Tenant graph",
+    { name: "Customer voice bot", archetype: "Interactive", harness: "Standard", channel: "Voice", knowledge: "Tenant graph",
       actionsCount: 1, systemsCount: 1, hasContent: "No", hasAI: "No", hasFlow: "No", hasEscalation: "Yes",
       users: 5000, interactions: 2, deployment: "Standalone", licensePct: 0, events: "", genAnswers: "",
       description: "Phone + web voice agent that answers product questions and creates Salesforce cases." },
-    { name: "Invoice processing", archetype: "Autonomous", channel: "", knowledge: "None",
+    { name: "Invoice processing", archetype: "Autonomous", harness: "Standard", channel: "", knowledge: "None",
       actionsCount: 1, systemsCount: 2, hasContent: "Yes", hasAI: "No", hasFlow: "Yes", hasEscalation: "No",
       users: "", interactions: "", deployment: "", licensePct: "", events: 800, genAnswers: 1,
-      description: "Extracts fields from scanned invoices, validates them and runs a Power Automate approval flow." }
+      description: "Extracts fields from scanned invoices, validates them and runs a Power Automate approval flow." },
+    { name: "Deal-desk agent (GitHub harness)", archetype: "Interactive", harness: "GitHub Copilot", channel: "Chat", knowledge: "Tenant graph",
+      actionsCount: 3, systemsCount: 2, hasContent: "No", hasAI: "Yes", hasFlow: "No", hasEscalation: "Yes",
+      users: 300, interactions: 8, deployment: "Embedded", licensePct: 80, events: "", genAnswers: "",
+      description: "Agentic deal-desk assistant on the GitHub Copilot harness that reasons over CRM + pricing to draft quotes. Every interaction bills Copilot Credits — never covered by an M365 Copilot license, even for the 80% who are licensed." }
   ];
 
   function impText(s) { return String(s == null ? "" : s).trim(); }
@@ -1343,9 +1372,26 @@
     } else {
       var rv = rowToVars(obj); vars = rv.vars; warnings = rv.warnings; source = "structured";
     }
+    // Harness (Copilot Studio engine) applies to BOTH branches — neither rowToVars nor
+    // analyzeText reads it, so map the Harness column here. Unrecognized → standard + warn.
+    var harnessRaw = impText(obj && obj.harness);
+    if (harnessRaw === "") {
+      vars.harness = "standard";
+    } else {
+      var h = impEnum(IMPORT_COL_BY_KEY.harness, obj.harness);
+      if (h == null) { warnings.push("Unrecognized Harness \u201C" + harnessRaw + "\u201D \u2014 using standard."); h = "standard"; }
+      vars.harness = h;
+    }
     var name = impText(obj && obj.name) || descName(obj && obj.description) || "Untitled scenario";
     var profile = deriveQuick(vars);
     var sizing = sizeFromDrivers(vars);
+    // GitHub Copilot harness has no per-task tier column on import, so derive the tier from the
+    // scenario's build size (mirrors Quick's ghTierForSize) — otherwise ghPerTask defaults to the
+    // priciest 'complex' tier for every row, over-pricing lighter agents.
+    if (vars.harness === "github-copilot") {
+      vars.ghTier = ghTierForSize(sizing.size);
+      vars.ghPerTask = ghTierCredits(vars.ghTier);
+    }
     var estimate = computeQuick(profile, vars);
     return {
       name: name, source: source, vars: vars, profile: profile,
@@ -1457,7 +1503,8 @@
     SIZE_INFO: SIZE_INFO, SIZE_ORDER: SIZE_ORDER, sizeForScore: sizeForScore, sizeFromDrivers: sizeFromDrivers,
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
     harnessCovered: harnessCovered, grossUsers: grossUsers,
-    GH_DEFAULTS: GH_DEFAULTS, GH_TIERS: GH_TIERS, ghTierCredits: ghTierCredits, ghTierForSize: ghTierForSize,
+    GH_DEFAULTS: GH_DEFAULTS, GH_TIERS: GH_TIERS, GH_TIER_RANGE: GH_TIER_RANGE, CONV_PER_TASK: CONV_PER_TASK,
+    ghConvPerTask: ghConvPerTask, ghTierCredits: ghTierCredits, ghTierForSize: ghTierForSize,
     ghPerTask: ghPerTask, effPerInteraction: effPerInteraction,
     computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
     costDrivers: costDrivers, QUICK_WIZARD: QUICK_WIZARD,
