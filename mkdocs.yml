@@ -255,7 +255,7 @@ nav:
           - "Path Finder (interactive)": empowerment/wizard.md
       - "Security & Governance": empowerment/security.md
       - "Build Surfaces: Control & Billing": empowerment/build-surfaces.md
-  - Credit / ROI Estimation:
+  - "Credit & ROI Estimator":
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
       - "AI Builder → Copilot Credits": ai-builder-estimator.md
