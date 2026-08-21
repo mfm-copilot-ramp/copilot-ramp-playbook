@@ -248,6 +248,12 @@ nav:
           - "Voice Agent / Contact-Center IVR": solutions/foundry-voice-agent.md
           - "Code-Review / PR-Triage Agent": solutions/foundry-code-review-agent.md
           - "Multi-Modal Document Classification Agent": solutions/foundry-document-classification-agent.md
+  - "Credit & ROI Estimator":
+      - "How Copilot Credits work": copilot-credits.md
+      - Credit Estimator: credit-estimator.md
+      - "AI Builder → Copilot Credits": ai-builder-estimator.md
+      - ROI Estimator: roi-estimator.md
+      - "Proposal Composer": proposal.md
   - AI Empowerment:
       - empowerment/index.md
       - "Choose the Right Path":
@@ -255,12 +261,6 @@ nav:
           - "Path Finder (interactive)": empowerment/wizard.md
       - "Security & Governance": empowerment/security.md
       - "Build Surfaces: Control & Billing": empowerment/build-surfaces.md
-  - "Credit & ROI Estimator":
-      - "How Copilot Credits work": copilot-credits.md
-      - Credit Estimator: credit-estimator.md
-      - "AI Builder → Copilot Credits": ai-builder-estimator.md
-      - ROI Estimator: roi-estimator.md
-      - "Proposal Composer": proposal.md
   - Resources:
       - Use-Case Catalog: CATALOG.md
       - Quick Wins: quick-wins.md
