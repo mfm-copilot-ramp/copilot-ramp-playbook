@@ -181,9 +181,23 @@ Once it's on, give Scout a standing job and let it work in the background under 
 
     <span class="rc-meta" data-time="15" data-roles="manager champion end-user"><span class="rc-chip rc-chip-time">⏱ 15 min</span> <span class="rc-chip rc-chip-role">👤 Manager</span> <span class="rc-chip rc-chip-skill">Frontier · private preview</span></span>
 
-</div>
+-   **[Equip Scout with an always-on inbox-triage skill](../walkthroughs/autopilots-inbox-triage.md)**
 
-</section>
+    Scout triages your inbox and signals into one short daily brief — what needs a reply, a decision, or just knowing — rerun every workday.
+
+    <span class="rc-meta" data-time="15" data-roles="end-user manager champion"><span class="rc-chip rc-chip-time">⏱ 15 min</span> <span class="rc-chip rc-chip-role">👤 End user</span> <span class="rc-chip rc-chip-skill">Frontier · private preview</span></span>
+
+-   **[Equip Scout with a continuous customer-health watch](../walkthroughs/autopilots-customer-health-watch.md)**
+
+    The worst-first health digest from Cowork, equipped onto Scout so the at-risk account list re-scores itself and never goes stale.
+
+    <span class="rc-meta" data-time="15" data-roles="manager champion end-user"><span class="rc-chip rc-chip-time">⏱ 15 min</span> <span class="rc-chip rc-chip-role">👤 Manager</span> <span class="rc-chip rc-chip-skill">Frontier · private preview</span></span>
+
+-   **[Equip Scout with a meeting-recap and follow-through skill](../walkthroughs/autopilots-meeting-recap.md)**
+
+    Every meeting ends with a clean recap, owned actions, and drafted follow-ups waiting for your sign-off — on the trigger, every time.
+
+    <span class="rc-meta" data-time="15" data-roles="manager end-user champion"><span class="rc-chip rc-chip-time">⏱ 15 min</span> <span class="rc-chip rc-chip-role">👤 Manager</span> <span class="rc-chip rc-chip-skill">Frontier · private preview</span></span>
 
 </div>
 
@@ -202,23 +216,23 @@ A few illustrative examples of what an always-on agent could be equipped with �
 
 <div class="grid cards rc-skill-grid" markdown>
 
--   **[Always-on weekly digest](../skills.md#autopilots-scout-skills)**
+-   **[Inbox & signal triage](../walkthroughs/autopilots-inbox-triage.md)**
 
-    The Monday digest Scout assembles and posts on schedule — no one has to remember to start it.
+    Scout watches for what actually needs you and surfaces it into one short daily brief, so the noise never reaches your desk.
 
-    <span class="rc-meta"><span class="rc-chip rc-chip-skill">🧩 Example · gated</span></span>
+    <span class="rc-meta"><span class="rc-chip rc-chip-skill">🧩 Skill · gated</span></span>
 
--   **[Inbox & signal triage](../skills.md#autopilots-scout-skills)**
-
-    Scout watches for what actually needs you and surfaces it, so the noise never reaches your desk.
-
-    <span class="rc-meta"><span class="rc-chip rc-chip-skill">🧩 Example · gated</span></span>
-
--   **[Continuous customer-health watch](../skills.md#autopilots-scout-skills)**
+-   **[Continuous customer-health watch](../walkthroughs/autopilots-customer-health-watch.md)**
 
     The worst-first account-ranking recipe from Cowork, kept always-on so the list is never stale.
 
-    <span class="rc-meta"><span class="rc-chip rc-chip-skill">🧩 Example · gated</span></span>
+    <span class="rc-meta"><span class="rc-chip rc-chip-skill">🧩 Skill · gated</span></span>
+
+-   **[Meeting recap & follow-through](../walkthroughs/autopilots-meeting-recap.md)**
+
+    Every meeting ends with a clean recap, owned actions, and drafted follow-ups waiting for your sign-off.
+
+    <span class="rc-meta"><span class="rc-chip rc-chip-skill">🧩 Skill · gated</span></span>
 
 </div>
 

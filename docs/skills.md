@@ -99,9 +99,37 @@ starting it each time.
 !!! info "Emerging and gated"
     Autopilots are a newer, **gated** capability — Scout is in **Frontier private preview** — and the way you
     equip and manage their skills is still rolling out by tenant, license, and region. This lens stays scoped
-    to what exists today and will grow as the capability does — once Scout-skill walkthroughs are ready they'll
-    be cataloged here. Until then, treat the [Microsoft Scout Learn page](https://learn.microsoft.com/en-us/microsoft-scout/)
-    as the source of truth before any customer-facing claims.
+    to what exists today and will grow as the capability does. Treat the
+    [Microsoft Scout Learn page](https://learn.microsoft.com/en-us/microsoft-scout/) as the source of truth
+    before any customer-facing claims.
+
+The skills worth equipping onto Scout first — each captured once, then run always-on in the background:
+
+<div class="grid cards" markdown>
+
+-   **[Always-on inbox triage](walkthroughs/autopilots-inbox-triage.md)**
+
+    Triage your inbox and signals into one short daily brief — what needs a reply, a decision, or just knowing — rerun every workday without you starting it.
+
+-   **[Continuous customer-health watch](walkthroughs/autopilots-customer-health-watch.md)**
+
+    The worst-first account-ranking recipe from Cowork, equipped onto Scout so the at-risk list re-scores itself and never goes stale.
+
+-   **[Meeting recap & follow-through](walkthroughs/autopilots-meeting-recap.md)**
+
+    Every meeting ends with a clean recap, owned actions, and drafted follow-ups waiting for your sign-off — on the trigger, every time.
+
+-   **[Watch deliverables & flag risks](walkthroughs/autopilots-track-deliverables.md)**
+
+    A standing watch that blocks time for what's due and raises stalled-decision risks before they become blockers.
+
+</div>
+
+!!! note "Cowork recipe → Autopilot skill"
+    Notice the lineage: the [customer-health digest](walkthroughs/cowork-customer-health-digest.md) is a
+    **Cowork recipe** you run on demand; the [customer-health watch](walkthroughs/autopilots-customer-health-watch.md)
+    is that *same skill* equipped onto an always-on agent. Capture it once in Cowork, graduate it to Scout when
+    it's worth running continuously.
 
 ## Studio skills — a specific kind of tool
 

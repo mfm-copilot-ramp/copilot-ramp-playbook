@@ -344,6 +344,24 @@ Give Scout a standing watch: identify what's coming due and block calendar time,
 **Sample prompt:** `Keep a standing watch on my deliverables: block calendar time for what's coming due, and flag decisions that have gone quiet before they become blockers.`
 → Fully written: `walkthroughs/autopilots-track-deliverables.md`
 
+### Equip Scout with an always-on inbox-triage skill → walkthrough
+**For:** end-user, manager, champion · `status: walkthrough`
+Turn "surface what actually needs me" into a reusable skill Scout reruns every workday — triaging your inbox and signals into one short daily brief instead of you digging for it.
+**Sample prompt:** `Take on a standing "morning triage" skill: scan my inbox and Teams for what actually needs me, ignore the noise, and post me one short brief by 8am — draft the obvious replies but don't send without me.`
+→ Fully written: `walkthroughs/autopilots-inbox-triage.md`
+
+### Equip Scout with a continuous customer-health watch → walkthrough
+**For:** manager, champion, end-user · `status: walkthrough`
+Take the worst-first customer-health digest you'd run by hand in Cowork and equip it onto Scout as an always-on skill, so the ranked list of at-risk accounts is never stale. A lineage skill: Cowork recipe → Autopilot skill.
+**Sample prompt:** `Take on a standing "customer-health watch" skill: rank my accounts worst-first by risk, re-score as signals change, and ping me the moment one moves sharply the wrong way — don't contact any customer without checking first.`
+→ Fully written: `walkthroughs/autopilots-customer-health-watch.md`
+
+### Equip Scout with a meeting-recap and follow-through skill → walkthrough
+**For:** manager, end-user, champion · `status: walkthrough`
+Make "recap the meeting and chase the follow-ups" a reusable skill Scout runs every time a meeting ends — a clean recap, owners on the actions, and drafted follow-ups waiting for your sign-off.
+**Sample prompt:** `Take on a standing "meeting recap" skill: whenever a meeting with notes ends, draft a recap with decisions and owned action items, draft the follow-up to attendees, and post it to me — don't send until I approve.`
+→ Fully written: `walkthroughs/autopilots-meeting-recap.md`
+
 ---
 
 ## Stage 6 · Copilot Studio
