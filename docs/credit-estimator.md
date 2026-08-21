@@ -41,7 +41,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
     |------|-----------|------------------|--------------|
     | **Quick** | You're early or unsure and just want a ballpark. | A plain-English description of the agent (or an example chip). | A T-shirt size, a Studio build outline, and a credit/cost range. |
     | **Quick + Import** | You're sizing many agents — a whole portfolio — at once. | An Excel workbook with one row per scenario. | Per-scenario sizes and credits, plus a portfolio roll-up. |
-    | **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each conversation uses. | Credits per month and per user, ready for finance or IT. |
+    | **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each interaction uses. | Credits per month and per user, ready for finance or IT. |
     | **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
 
     **Estimating Microsoft 365 Copilot (Cowork) instead?** Flip the switch to **Microsoft 365 Copilot (Cowork)** — it uses a population-based method (model *licensed users × active-usage % × credits per active user*), with its own modes:
@@ -72,7 +72,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
     === "Detailed"
 
         1. Select the **Detailed** card.
-        2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-conversation feature rows**, add an optional **escalation path**, then read the **results**.
+        2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-interaction feature rows**, add an optional **escalation path**, then read the **results**.
 
     === "Solution package"
 
@@ -614,7 +614,7 @@ My agents (one per line — what it does, who uses it, how often, channel, knowl
     1. **Set your org scope** — enter the number of users you're modelling and the proportion with an M365 Copilot license.
     2. **Choose deployment type** — *Microsoft 365 (Teams · Copilot Chat · SharePoint)* means licensed users accrue zero credits; *Standalone / other channel* charges all users regardless.
     3. **Set interaction frequency** — estimate how many times a typical user interacts with the agent per month.
-    4. **Build your normal path** — for each row, set *Uses / interaction* to how many times that feature fires in a single conversation. Rows default to 0 — only count features your agent actually uses.
+    4. **Build your normal path** — for each row, set *Uses / interaction* to how many times that feature fires in a single interaction. Rows default to 0 — only count features your agent actually uses.
     5. **Add an escalation path (optional)** — set an escalation rate and add extra steps that only fire when an interaction escalates (e.g. a query that can't be self-served triggers an additional lookup or handoff). The rate controls what percentage of interactions incur these extra costs.
     6. **Check the results** — *Credits / month (org)* and *Credits / user / month* are the numbers to share with finance or IT for budget planning.
 

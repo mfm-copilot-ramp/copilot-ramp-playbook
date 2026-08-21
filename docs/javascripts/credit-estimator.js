@@ -36,7 +36,7 @@
   var MODE_DESC = {
     quick: "Best when you're early or unsure — describe the agent in plain words and get a rough size, a Studio build outline, and a credit/cost range. No build knowledge needed.",
     import: "Best for sizing many agents at once — download the Excel template, fill in one row per scenario, and import it back for a portfolio-wide size + credit/cost roll-up. Runs entirely in your browser.",
-    detailed: "Best when you know the building blocks but haven't built yet — set your org scope and dial in exactly which features each conversation uses.",
+    detailed: "Best when you know the building blocks but haven't built yet — set your org scope and dial in exactly which features each interaction uses.",
     complex: "Best when the agent is built — export it as a Power Platform solution (.zip) and upload it for a component-level analysis. Everything is parsed locally in your browser.",
     bulk: "Best for standing up many agents at once — paste one description per line and get a ready-to-import Copilot Studio starter (.zip) for each, bundled with a portfolio roll-up. Runs entirely in your browser."
   };
@@ -808,15 +808,15 @@
       var isGh = (v.harness || "standard") === "github-copilot";
       // GitHub is priced per TASK (a multistep run), not per response. Show the published band as a
       // monthly RANGE (tasks × band) rather than a single point so the comparison isn't alarming, and
-      // expose the conversations-per-task assumption that converts conversation volume into tasks.
+      // expose the responses-per-task assumption that converts response volume into tasks.
       var band = EC.GH_TIER_RANGE[effTier] || [ghEst.perTask, ghEst.perTask];
       var cpt = ghEst.conversationsPerTask || EC.CONV_PER_TASK;
       var tasks = ghEst.tasksPerMonth || 0;
       var ghLo = tasks * band[0], ghHi = tasks * band[1];
       var covLine = '<span' + (isGh ? "" : ' style="font-weight:700"') + '>&bull; <strong>Standard / Copilot chat</strong> \u2014 billed <em>per response</em>, covered in Teams &middot; Copilot Chat &middot; SharePoint: net <strong>' + fmt(covEst.netMonthly) + '</strong> / mo <span class="hint" style="display:inline">(gross ' + fmt(covEst.grossMonthly) + '; ' + covPct + '% zero-rated for licensed users)</span></span>';
       var ghLine = '<span' + (isGh ? ' style="font-weight:700"' : "") + '>&bull; <strong>GitHub Copilot</strong> \u2014 billed <em>per task</em>, never covered: net = gross <strong>' + fmt(ghLo) + '\u2013' + fmt(ghHi) + '</strong> / mo <span class="hint" style="display:inline">(&asymp; ' + fmt(tasks) + ' tasks/mo \u00d7 ' + band[0] + '\u2013' + band[1] + ' cr &middot; ' + effTier + ' band &middot; midpoint ' + fmt(ghEst.grossMonthly) + ' &middot; + one-time build &amp; test ' + fmt(ghEst.buildTestCredits) + ')</span></span>';
-      var unitNote = '<div class="hint" style="margin:.35rem 0 .1rem">Different units: standard bills each <strong>response</strong>; the GitHub harness bills each <strong>task</strong> \u2014 a multistep run that does the work of several turns. We estimate <strong>' + fmt(tasks) + ' tasks/mo</strong> from your volume assuming ~<strong>' + fmtDec(cpt) + ' conversations per task</strong> \u2014 tune it: ' +
-        '<input type="number" min="1" step="0.5" value="' + fmtDec(cpt) + '" aria-label="Conversations per task" style="width:4.5rem" onchange="qeSetConvPerTask(this.value)"> conv / task.</div>';
+      var unitNote = '<div class="hint" style="margin:.35rem 0 .1rem">Different units: standard bills each <strong>response</strong>; the GitHub harness bills each <strong>task</strong> \u2014 a multistep run that does the work of several responses. We estimate <strong>' + fmt(tasks) + ' tasks/mo</strong> from your volume assuming ~<strong>' + fmtDec(cpt) + ' responses per task</strong> \u2014 tune it: ' +
+        '<input type="number" min="1" step="0.5" value="' + fmtDec(cpt) + '" aria-label="Responses per task" style="width:4.5rem" onchange="qeSetConvPerTask(this.value)"> responses / task.</div>';
       cov = '<div class="em-why" style="border-left:3px solid var(--md-primary-fg-color);padding-left:.6rem">' +
         '<strong>Cost by harness \u2014 same agent &amp; volume</strong> <span class="hint" style="display:inline">(showing ' + harnessName + ')</span><br>' +
         covLine + '<br>' + ghLine +
@@ -1333,7 +1333,7 @@
     state.qe.vars.ghPerTask = EC.ghTierCredits(t);
     if (document.getElementById("qe-results-full")) qeRenderResultsInner();
   }
-  // Conversations-per-task: the divisor that converts conversation volume into GitHub tasks.
+  // Responses-per-task: the divisor that converts response volume into GitHub tasks.
   function qeSetConvPerTask(n) {
     if (!state.qe) return;
     state.qe.vars.conversationsPerTask = Math.max(1, parseFloat(n) || EC.CONV_PER_TASK);
