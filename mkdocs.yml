@@ -208,6 +208,7 @@ nav:
           - PowerPoint: products/powerpoint.md
           - Excel: products/excel.md
           - "Microsoft 365 Copilot Chat": products/copilot-chat.md
+      - "Build an Empowerment Team": empowerment/index.md
 
   - The Journey:
       - the-journey.md
@@ -248,25 +249,25 @@ nav:
           - "Voice Agent / Contact-Center IVR": solutions/foundry-voice-agent.md
           - "Code-Review / PR-Triage Agent": solutions/foundry-code-review-agent.md
           - "Multi-Modal Document Classification Agent": solutions/foundry-document-classification-agent.md
+  - Library:
+      - "Use-Case Catalog": CATALOG.md
+      - "Skills Catalog": skills.md
+      - "Quick Wins": quick-wins.md
   - "Credit & ROI Estimator":
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
       - "AI Builder → Copilot Credits": ai-builder-estimator.md
       - ROI Estimator: roi-estimator.md
       - "Proposal Composer": proposal.md
-  - AI Empowerment:
-      - empowerment/index.md
+  - "Decide & Govern":
       - "Choose the Right Path":
           - empowerment/decision-tree.md
           - "Path Finder (interactive)": empowerment/wizard.md
       - "Security & Governance": empowerment/security.md
       - "Build Surfaces: Control & Billing": empowerment/build-surfaces.md
   - Resources:
-      - Use-Case Catalog: CATALOG.md
-      - Quick Wins: quick-wins.md
       - "Licensing & Prerequisites": prerequisites.md
       - Glossary: glossary.md
-      - "Skills Catalog": skills.md
       - "What's New": whats-new.md
       - Resources: RESOURCES.md
       - Tags: tags.md
