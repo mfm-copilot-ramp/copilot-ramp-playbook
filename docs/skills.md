@@ -150,6 +150,44 @@ walkthrough. As skills in Studio evolve, this section will expand alongside them
     connector actions, MCP tools, flows, Fabric connections, triggers — are **tools**, not skills.
     Build them there; they're the foundation a skill plugs into.
 
+### Harden a skill into a governed tool
+
+Here's the practical bridge. A reusable skill you've been *describing* in Cowork or *equipping* onto Scout can
+be **hardened** on the Studio surface — rebuilt as a governed **tool** an agent calls against a real system,
+under policy and monitoring. Same capability; durable, auditable, and shareable. Each card maps a skill you
+already run to the Studio **tool** that hardens it:
+
+<div class="grid cards" markdown>
+
+-   **Runs itself on real events** → [Configure an autonomous event-triggered agent](walkthroughs/studio-autonomous-triggers.md)
+
+    Take a skill you keep re-running on a rhythm and give it a real **trigger** so it fires on events, not on a person's prompt.
+
+-   **Acts on a system of record** → [Give a Studio agent a real action with a connector](walkthroughs/studio-connector-action.md)
+
+    When the skill needs to *read or write* real data — CRM, tickets, usage — harden it into a governed **connector action** instead of guessing.
+
+-   **Runs a repeatable multi-step job** → [Trigger a Power Automate flow from a Studio agent](walkthroughs/studio-power-automate-flow.md)
+
+    A recurring recipe (a digest, a routing step) becomes a **flow** the agent calls — versioned and monitored.
+
+-   **Calls an external system or model** → [Add an MCP tool integration to your Studio agent](walkthroughs/studio-mcp-tool-integration.md)
+
+    Reach beyond first-party connectors by hardening the skill's external call into a governed **MCP tool**.
+
+-   **Runs org-wide under control** → [Govern and monitor your agents at scale](walkthroughs/studio-govern-monitor.md)
+
+    The more autonomously a hardened skill runs, the more the guardrails matter — policy, DLP, and oversight.
+
+</div>
+
+!!! note "One skill, three surfaces"
+    The clearest way to see the whole arc is to follow a *single* skill across all three surfaces. The
+    **[customer-health lineage](walkthroughs/skill-lineage-customer-health.md)** walkthrough does exactly
+    that — the same "rank my accounts worst-first by risk" capability as a **Cowork recipe** you run on
+    demand, a **Scout autopilot** that re-scores itself, and a **hardened, governed Studio tool** that acts
+    on the system of record. Pick the surface by the job, not the product.
+
 ---
 
 ## Where this leads

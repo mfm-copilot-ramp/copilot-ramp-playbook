@@ -367,6 +367,12 @@ Make "recap the meeting and chase the follow-ups" a reusable skill Scout runs ev
 ## Stage 6 · Copilot Studio
 _Build real, production-grade agents. The low-code maker destination._
 
+### ★ One skill, three surfaces: the customer-health capability → walkthrough
+**For:** end-user, manager, champion, maker · `status: walkthrough`
+Follow a single reusable skill — rank my accounts worst-first by risk — across all three surfaces: a Cowork recipe you run on demand, an always-on Scout autopilot that re-scores itself, and a hardened, governed Studio **tool** that acts on the system of record. The cross-surface lineage that ties the Skills Catalog together; pick the surface by the job, not the product.
+**Sample prompt:** `Rank my accounts worst-first by risk, tell me which ones are moving the wrong way, and don't contact any customer without checking first.`
+→ Fully written: `walkthroughs/skill-lineage-customer-health.md`
+
 ### ★ Build your first Studio agent with a knowledge source + topic → walkthrough
 **For:** maker · `status: walkthrough`
 Go beyond declarative: custom topics, structured conversations, and richer grounding.

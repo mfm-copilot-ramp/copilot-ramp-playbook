@@ -103,4 +103,5 @@ accounts, signals, and rating rules into an agent everyone can run.
 ## Related
 - [Stand up a recurring weekly digest](../walkthroughs/cowork-recurring-weekly-digest.md) — the general recurring pattern
 - [Run a full QBR prep cycle in Cowork](../walkthroughs/cowork-qbr-prep-cycle.md) — go deep on one account
+- [One skill, three surfaces: the customer-health lineage](../walkthroughs/skill-lineage-customer-health.md) — this recipe as a Cowork → Scout → Studio arc
 - Stage 3 Resources: see `RESOURCES.md` → Cowork

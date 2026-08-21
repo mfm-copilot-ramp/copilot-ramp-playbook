@@ -110,6 +110,7 @@ update the CRM, notify a team channel on a rule — you've outgrown the ready-ma
 
 ## Related
 - [Cowork → Customer-health digest (the recipe this graduates from)](../walkthroughs/cowork-customer-health-digest.md)
+- [One skill, three surfaces: the customer-health lineage](../walkthroughs/skill-lineage-customer-health.md) — this watch as a Cowork → Scout → Studio arc
 - [Autopilots → Equip Scout with an always-on inbox-triage skill](../walkthroughs/autopilots-inbox-triage.md)
 - [Autopilots → Have Scout watch your deliverables and flag risks](../walkthroughs/autopilots-track-deliverables.md)
 - [Skills Catalog → Autopilots (Scout) skills](../skills.md#autopilots-scout-skills)
