@@ -39,6 +39,7 @@ the matching stage page on the site. These are the "broad set of resources to le
 | **Microsoft 365 (official channel)** | Official M365 product channel — feature walkthroughs and Copilot demos | [YouTube channel](https://www.youtube.com/@microsoft365) |
 | **Copilot Camp** | Hands-on labs to build agents and extensions — from no-code Studio to pro-code, learn by building | [microsoft.github.io/copilot-camp](https://microsoft.github.io/copilot-camp/) |
 | **Generative AI for Beginners** | A free 21-lesson course on the fundamentals behind Copilot and agents — prompts, models, and apps | [github.com/microsoft/generative-ai-for-beginners](https://github.com/microsoft/generative-ai-for-beginners) |
+| **Expanded conditional formatting in Outlook** | Microsoft 365 Roadmap entry for highlighting messages by size, read status, attachments, flags, categories, or importance | [microsoft.com/roadmap/503551](https://www.microsoft.com/microsoft-365/roadmap?id=503551) |
 
 ---
 
