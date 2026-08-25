@@ -7,7 +7,7 @@ hide:
 ---
 
 <div class="unofficial-ribbon">
-  <strong>⚠️ Unofficial.</strong> A personal / community project — not affiliated with, endorsed by, or an official resource of Microsoft. Product names &amp; trademarks belong to Microsoft.
+  <strong>⚠️ Unofficial.</strong> A <a href="about/#whos-behind-this">personal project</a> — not affiliated with, endorsed by, or an official resource of Microsoft. Product names &amp; trademarks belong to Microsoft.
 </div>
 
 <span class="home-eyebrow">From your first chat to production agents</span>
@@ -15,6 +15,8 @@ hide:
 # Get started with Microsoft Copilot — then grow all the way to building agents.
 
 <p class="home-lede">Most people stall at "I have Copilot, now what?" This playbook lays out a natural ramp: start by <em>using</em> Copilot, get comfortable letting agents do work for you, then take the leap to <em>building</em> your own — first in Agent Builder, then in Copilot Studio, and into Foundry when you need pro-code.</p>
+
+<p class="home-credibility">Built by someone who <a href="about/#whos-behind-this">works at Microsoft</a> and uses these Copilot tools every day — as a personal project, not an official Microsoft resource.</p>
 
 <div class="journey">
   <a class="step foundation" href="stages/stage-1-chat/"><span class="n">STAGE 1</span><span class="t">Copilot Chat</span><span class="d">A daily habit and a first "wow."</span></a>
@@ -183,9 +185,3 @@ The fastest way to start: open **[Turn a meeting into tracked follow-ups](walkth
 </div>
 <p class="res-rule">Stage-specific links live on each stage page and in full in <a href="RESOURCES/">Resources</a>.</p>
 </div>
-
----
-
-## Where this came from
-
-The ramp is inspired by the grassroots, use-case-first spirit of [Sean Galliher's Cowork Cookbook](https://coworkcookbook.com/) (a community project, unofficial). Where his book goes deep on Cowork across business processes, this site goes *wide* across the seven-stage journey — pointing you toward Microsoft's own [Copilot hub](https://learn.microsoft.com/en-us/copilot/) and [Adoption Hub](https://adoption.microsoft.com/en-us/copilot/) at every step.

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-14T16:25:45Z",
+  "generated": "2026-08-25T15:07:28Z",
   "items": [
     {
       "path": "walkthroughs/agent-builder-faq-agent/",
@@ -192,6 +192,21 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/autopilots-customer-health-watch/",
+      "title": "Equip Scout with a continuous customer-health watch",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "manager",
+        "champion",
+        "end-user"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/autopilots-get-access/",
       "title": "Find out if you can get Scout — and turn it on",
       "stage": "autopilots",
@@ -210,6 +225,21 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/autopilots-inbox-triage/",
+      "title": "Equip Scout with an always-on inbox-triage skill",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/autopilots-meet-scout/",
       "title": "Meet Microsoft Scout — and what Autopilots are",
       "stage": "autopilots",
@@ -224,6 +254,21 @@
       "fn": [],
       "level": "starter",
       "time": "10 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-meeting-recap/",
+      "title": "Equip Scout with a meeting-recap and follow-through skill",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "manager",
+        "end-user",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
       "kind": "walkthrough"
     },
     {
@@ -1049,6 +1094,22 @@
       "fn": [],
       "level": "advanced",
       "time": "2 hours",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/skill-lineage-customer-health/",
+      "title": "One skill, three surfaces: the customer-health capability",
+      "stage": "studio",
+      "stageLabel": "Stage 6 · Studio",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion",
+        "maker"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "12 min",
       "kind": "walkthrough"
     },
     {

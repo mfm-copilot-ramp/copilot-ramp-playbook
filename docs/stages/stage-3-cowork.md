@@ -311,7 +311,7 @@ Browse them all in the **[Skills Catalog](../skills.md)**.
 !!! borrow "Borrow, don't build"
     Rather than re-document Cowork process-by-process, lean on the work already out there.
 
-    - [Sean Galliher's Cowork Cookbook](https://coworkcookbook.com/) — Cowork applied across 15 end-to-end business processes *(community, unofficial)*
+    - [Sean Galliher's Cowork Cookbook](https://coworkcookbook.com/) — Cowork applied across 15 end-to-end business processes *(an independent community project — unofficial, not affiliated with this site)*
     - [M365 Copilot resources (CAT)](https://aka.ms/m365copilot/resources) — the curated front door for everything M365 Copilot
 
     The full curated set for this stage lives in [Resources → Stage 3](../RESOURCES.md).

@@ -30,13 +30,30 @@ If you're new, start at **[Start Here](start-here.md)**. To browse everything, s
 
 ---
 
+## Who's behind this
+
+Hi — I'm **Max Glass**. I work at Microsoft and use these Copilot products every day, and I built this playbook because the *"I've got Copilot, now what?"* question kept coming up and there wasn't one honest, end-to-end map for it. So I made one.
+
+To be clear about what that does — and doesn't — mean:
+
+- **This is a personal project, built on my own time.** It's not part of my job, and it's not an official Microsoft resource. The disclaimer above is the real deal, not boilerplate.
+- **The views here are mine, not Microsoft's.** Wherever Microsoft publishes the canonical reference, this site points you *at* it — it's a guide to Microsoft's own docs, not a replacement for them.
+- **A real, accountable person stands behind it.** It isn't anonymous and it isn't AI-slop from nowhere. If a page is wrong, that's on me — and I want to fix it.
+
+Questions, corrections, or just want to compare notes on rolling out Copilot? I'd genuinely like to hear from you.
+
+- [**Connect on LinkedIn →**](https://www.linkedin.com/in/maxwellrglass/)
+- [**Find me on GitHub →**](https://github.com/MawellGlass) — or [open an issue](https://github.com/mfm-copilot-ramp/copilot-ramp-playbook/issues/new?labels=feedback&title=Feedback) on the repo
+
+---
+
 ## How we choose links
 
 Everything in [Resources](RESOURCES.md) follows one locked rule, so you can trust every link:
 
 > A link belongs on this site only if it is **(a) Microsoft-direct** — a `microsoft.com`, `learn.microsoft.com`, `aka.ms`, or official Microsoft YouTube/GitHub surface — **or (b) published by a named Microsoft employee under their own name.**
 
-The one deliberate exception is [Sean Galliher's Cowork Cookbook](https://coworkcookbook.com/), the community project that inspired this one — and it's always labeled *community, unofficial*. Community creators and MVPs, however excellent, are otherwise kept out of the curated set so that everything you click is first-party or first-party-adjacent.
+Community creators and MVPs, however excellent, are kept out of the curated set so that everything you click is first-party or first-party-adjacent. One independent community project — [Sean Galliher's Cowork Cookbook](https://coworkcookbook.com/) — is credited below as an *inspiration*, always clearly labeled as a separate, unofficial project. That's a nod to where the idea came from, not an endorsed entry in the curated set.
 
 ---
 
@@ -59,9 +76,11 @@ it, stop searching third-party blogs and go to the source.
 
 ---
 
-## Where it came from
+## Inspiration & credits
 
-The use-case-first, grassroots spirit is inspired by [Sean Galliher's Cowork Cookbook](https://coworkcookbook.com/) *(community, unofficial)*. Where Sean goes deep on Cowork across business processes, this site goes *wide* across the seven-stage journey, pointing you toward Microsoft's own front doors at every step:
+The use-case-first, grassroots spirit here was inspired by [Sean Galliher's Cowork Cookbook](https://coworkcookbook.com/) — an **independent community project** *(unofficial, and not affiliated with this site)*. Sean's book goes *deep* on Cowork across business processes; this playbook goes *wide* across the whole seven-stage journey. They're two separate projects with one shared instinct — start from what people actually want to get done. Credit where it's due.
+
+Everything else on this site points at Microsoft's own front doors:
 
 - [Which Copilot is right for you](https://learn.microsoft.com/en-us/copilot/)
 - [Microsoft 365 Copilot Adoption Hub](https://adoption.microsoft.com/en-us/copilot/)

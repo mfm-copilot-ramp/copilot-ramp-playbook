@@ -76,7 +76,7 @@ the lineup (which changes as Microsoft adds and graduates agents).
 
 | Resource | What it is | Link |
 |----------|-----------|------|
-| **Sean Galliher's Cowork Cookbook** | The inspiration — Cowork applied across 15 end-to-end business processes (community, unofficial) | [coworkcookbook.com](https://coworkcookbook.com/) |
+| **Sean Galliher's Cowork Cookbook** | An independent community project that inspired this site's use-case-first spirit — Cowork applied across 15 end-to-end business processes *(unofficial, not affiliated with this site)* | [coworkcookbook.com](https://coworkcookbook.com/) |
 | **M365 Copilot resources (CAT)** | Same CAT hub; Cowork sits within the broader M365 Copilot experience | [aka.ms/m365copilot/resources](https://aka.ms/m365copilot/resources) |
 
 **Reuse tip:** rather than competing with Sean's process-based Cowork recipes, *link to them* from
