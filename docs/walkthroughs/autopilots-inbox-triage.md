@@ -1,6 +1,6 @@
 ---
 title: Equip Scout with an always-on inbox-triage skill
-description: Turn "surface what actually needs me" into a reusable skill Microsoft Scout runs in the background — triaging your inbox and signals into one short daily brief instead of you digging for it.
+description: Turn "surface what actually needs me" into a skill Microsoft Scout runs in the background, triaging your inbox and signals into one short daily brief.
 stage: autopilots
 roles: [end-user, manager, champion]
 tags: [autopilots, scout, skill, inbox, triage, daily-brief, signals]

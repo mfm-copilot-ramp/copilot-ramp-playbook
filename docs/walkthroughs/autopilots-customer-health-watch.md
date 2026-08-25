@@ -1,6 +1,6 @@
 ---
 title: Equip Scout with a continuous customer-health watch
-description: Take the worst-first customer-health digest you'd run by hand in Cowork and equip it onto Microsoft Scout as an always-on skill, so the ranked list of at-risk accounts is never stale.
+description: Equip the worst-first customer-health digest onto Microsoft Scout as an always-on skill, so your ranked list of at-risk accounts never goes stale.
 stage: autopilots
 roles: [manager, champion, end-user]
 tags: [autopilots, scout, skill, customer-health, accounts, risk, lineage]

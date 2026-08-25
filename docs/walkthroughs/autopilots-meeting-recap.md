@@ -1,6 +1,6 @@
 ---
 title: Equip Scout with a meeting-recap and follow-through skill
-description: Make "recap the meeting and chase the follow-ups" a reusable skill Microsoft Scout runs every time a meeting ends — a clean recap, owners on the actions, and drafted follow-ups waiting for your sign-off.
+description: Make "recap the meeting and chase follow-ups" a skill Microsoft Scout runs when each meeting ends: clean recap, owners on actions, drafted follow-ups.
 stage: autopilots
 roles: [manager, end-user, champion]
 tags: [autopilots, scout, skill, meetings, recap, action-items, follow-up]
