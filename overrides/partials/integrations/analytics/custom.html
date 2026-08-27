@@ -20,3 +20,24 @@
     data-goatcounter="https://{{ config.extra.analytics.property }}.goatcounter.com/count"
     async src="//gc.zgo.at/count.js"></script>
 {% endif %}
+
+{#-
+  Microsoft Clarity — heatmaps + session recordings (clarity.microsoft.com).
+
+  The project ID lives in exactly ONE place — extra.analytics.clarity_project_id
+  in mkdocs.yml — so it is swappable there without editing this file. This is the
+  standard Clarity async tag; it loads only when the ID is set.
+
+  ⚠️ Privacy: Clarity is NOT cookieless. It sets first-party cookies (_clck /
+  _clsk) and records user sessions, so — unlike GoatCounter above — keeping it
+  enabled means the site should carry a cookie-consent notice and a privacy note.
+-#}
+{% if config.extra.analytics and config.extra.analytics.clarity_project_id %}
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "{{ config.extra.analytics.clarity_project_id }}");
+  </script>
+{% endif %}
