@@ -105,7 +105,7 @@ To see which stages, walkthroughs, and estimator modes actually help — and whe
 
 With your consent, the site also loads [Microsoft Clarity](https://clarity.microsoft.com/) for **heatmaps and session replay** — a view of *how* pages are used (scrolling, clicks, and where people get stuck) that aggregate counts can't show. Unlike GoatCounter, **Clarity sets cookies (`_clck` / `_clsk`) and records your session**, so it is treated as non-essential:
 
-- **Opt-in only.** Clarity stays off unless you switch it on in the cookie-consent form. It is **unchecked by default**, and you can change your choice at any time via **Change cookie settings** in the footer.
+- **Consent-gated.** Clarity loads only after you accept cookies. It's included in the cookie-consent form's default **Accept**, and you can turn it off — or reject cookies entirely — at any time via **Change cookie settings** in the footer. Choosing **Reject** disables it completely.
 - **What it captures.** Anonymized interaction telemetry — pointer movement, clicks, scrolling, and page structure — used to build aggregate heatmaps and replays. Clarity masks text input by default, so what you type isn't captured.
 
 Prefer to send nothing at all? Leave Clarity off (or choose **Reject** in the consent form). Any content blocker — or your browser's Do-Not-Track / privacy setting — also stops the cookieless counter, and the site behaves exactly the same without either.

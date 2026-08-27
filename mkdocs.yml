@@ -197,14 +197,15 @@ extra:
       This site uses lightweight, <strong>cookieless</strong> aggregate analytics
       by default. With your consent it also loads <strong>Microsoft Clarity</strong>
       — heatmaps and session replay that show where the ramp loses people. Clarity
-      sets cookies and records your session, so it stays <strong>off</strong> unless
-      you switch it on below. See
+      sets cookies and records your session; it's included when you
+      <strong>Accept</strong>, and you can turn it off or <strong>Reject</strong> it
+      below. See
       <a href="https://mfm-copilot-ramp.github.io/copilot-ramp-playbook/about/#analytics-privacy">Analytics &amp; privacy</a>
       for details.
     cookies:
       clarity:
         name: Microsoft Clarity — heatmaps &amp; session replay
-        checked: false
+        checked: true
     actions:
       - accept
       - reject
