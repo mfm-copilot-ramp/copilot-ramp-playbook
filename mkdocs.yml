@@ -182,6 +182,33 @@ extra:
     # notice + privacy-policy note before wide public distribution. Leave blank
     # to disable Clarity without removing the wiring.
     clarity_project_id: y8xrn04riu
+  # ── Cookie consent (GDPR) — gates the Microsoft Clarity cookies ─────────────
+  # GoatCounter (above) is cookieless and always on — it needs no consent.
+  # Microsoft Clarity sets cookies (_clck / _clsk) and records sessions, so it is
+  # NON-ESSENTIAL and stays OFF until the visitor opts in here. The Clarity tag in
+  # overrides/partials/integrations/analytics/custom.html only loads when
+  # consent.clarity is granted. Material reloads the page whenever the choice
+  # changes, so the tag's load-time consent check is sufficient. The custom
+  # `clarity` cookie is unchecked by default (opt-in). Visitors can revisit their
+  # choice via the "Change cookie settings" link added to `copyright` below.
+  consent:
+    title: Cookies on this site
+    description: >-
+      This site uses lightweight, <strong>cookieless</strong> aggregate analytics
+      by default. With your consent it also loads <strong>Microsoft Clarity</strong>
+      — heatmaps and session replay that show where the ramp loses people. Clarity
+      sets cookies and records your session, so it stays <strong>off</strong> unless
+      you switch it on below. See
+      <a href="https://mfm-copilot-ramp.github.io/copilot-ramp-playbook/about/#analytics-privacy">Analytics &amp; privacy</a>
+      for details.
+    cookies:
+      clarity:
+        name: Microsoft Clarity — heatmaps &amp; session replay
+        checked: false
+    actions:
+      - accept
+      - reject
+      - manage
   # ── Search-engine ownership verification (read by overrides/main.html) ──────
   # Google Search Console → add a URL-prefix property → "HTML tag" method → copy
   # ONLY the content="..." value here. Bing Webmaster Tools → "Meta tag" → copy
@@ -284,3 +311,4 @@ nav:
 copyright: >-
   Unofficial and community-built. Not affiliated with, authorized by, or
   endorsed by Microsoft. Product names are trademarks of their respective owners.
+  <a href="#__consent">Change cookie settings</a>

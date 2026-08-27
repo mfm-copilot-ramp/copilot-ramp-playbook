@@ -91,13 +91,24 @@ Everything else on this site points at Microsoft's own front doors:
 
 ## Analytics & privacy
 
-To see which stages, walkthroughs, and estimator modes actually help — and where the ramp loses people — this site uses [GoatCounter](https://www.goatcounter.com/) for lightweight, **aggregate** web analytics. It's chosen specifically because it is privacy-respecting by design:
+To see which stages, walkthroughs, and estimator modes actually help — and where the ramp loses people — this site uses two layers of analytics with very different privacy profiles:
 
-- **No cookies, so no consent banner.** GoatCounter is cookieless. There's nothing to accept or dismiss, and nothing is stored on your device.
+### 1. Aggregate, cookieless analytics — always on
+
+[GoatCounter](https://www.goatcounter.com/) provides lightweight, **aggregate** web analytics. It's chosen specifically because it is privacy-respecting by design:
+
+- **No cookies.** GoatCounter is cookieless — nothing is stored on your device, and it requires no consent.
 - **No personal data, no cross-site tracking.** We see only aggregate signals — page views, plus a few anonymous interaction counts such as whether a page's 👍 / 👎 "Was this page helpful?" was clicked, or which [Credit Estimator](credit-estimator.md) mode was opened. No names, no accounts, no fingerprinting, nothing that identifies you as an individual.
-- **Never your input.** Interaction events carry only the page path and a fixed label — never anything you type. That keeps the promise the estimator already makes: **everything runs in your browser; nothing is uploaded.** These analytics don't change that.
+- **Never your input.** Interaction events carry only the page path and a fixed label — never anything you type. That keeps the promise the estimator already makes: **everything runs in your browser; nothing is uploaded.**
 
-Prefer to send nothing at all? Any content blocker — or your browser's Do-Not-Track / privacy setting — stops the counter, and the site behaves exactly the same without it.
+### 2. Microsoft Clarity — off until you opt in
+
+With your consent, the site also loads [Microsoft Clarity](https://clarity.microsoft.com/) for **heatmaps and session replay** — a view of *how* pages are used (scrolling, clicks, and where people get stuck) that aggregate counts can't show. Unlike GoatCounter, **Clarity sets cookies (`_clck` / `_clsk`) and records your session**, so it is treated as non-essential:
+
+- **Opt-in only.** Clarity stays off unless you switch it on in the cookie-consent form. It is **unchecked by default**, and you can change your choice at any time via **Change cookie settings** in the footer.
+- **What it captures.** Anonymized interaction telemetry — pointer movement, clicks, scrolling, and page structure — used to build aggregate heatmaps and replays. Clarity masks text input by default, so what you type isn't captured.
+
+Prefer to send nothing at all? Leave Clarity off (or choose **Reject** in the consent form). Any content blocker — or your browser's Do-Not-Track / privacy setting — also stops the cookieless counter, and the site behaves exactly the same without either.
 
 ---
 

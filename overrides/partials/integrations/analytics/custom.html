@@ -25,19 +25,26 @@
   Microsoft Clarity — heatmaps + session recordings (clarity.microsoft.com).
 
   The project ID lives in exactly ONE place — extra.analytics.clarity_project_id
-  in mkdocs.yml — so it is swappable there without editing this file. This is the
-  standard Clarity async tag; it loads only when the ID is set.
+  in mkdocs.yml — so it is swappable there without editing this file.
 
-  ⚠️ Privacy: Clarity is NOT cookieless. It sets first-party cookies (_clck /
-  _clsk) and records user sessions, so — unlike GoatCounter above — keeping it
-  enabled means the site should carry a cookie-consent notice and a privacy note.
+  ⚠️ Privacy / consent: Clarity is NOT cookieless. It sets first-party cookies
+  (_clck / _clsk) and records user sessions, so — unlike GoatCounter above — it
+  is loaded ONLY after the visitor opts in through Material's cookie-consent form
+  (extra.consent.cookies.clarity in mkdocs.yml). Material reloads the page when
+  the consent choice changes, so checking __md_get("__consent") at load time is
+  enough. If consent is not configured, __md_get is undefined and Clarity stays
+  off — i.e. this fails closed.
 -#}
 {% if config.extra.analytics and config.extra.analytics.clarity_project_id %}
   <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "{{ config.extra.analytics.clarity_project_id }}");
+    (function () {
+      var consent = (typeof __md_get === "function") ? __md_get("__consent") : null;
+      if (!consent || !consent.clarity) return;
+      (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "{{ config.extra.analytics.clarity_project_id }}");
+    })();
   </script>
 {% endif %}
