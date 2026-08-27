@@ -591,3 +591,103 @@ table.home-matrix tbody tr:hover td.lvl2 { background: color-mix(in srgb, var(--
   padding-top: .65rem;
   border-top: 1px dashed var(--md-default-fg-color--lightest);
 }
+
+/* ── Hero: two columns so the right-hand whitespace hosts an "explore" panel ── */
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 1fr);
+  gap: 1rem 2.75rem;
+  align-items: start;
+  margin: 0 0 1.4rem;
+}
+.hero-main > :last-child { margin-bottom: 0; }
+
+/* Explore panel living in the hero whitespace — quiet card, one featured tool. */
+.hero-aside {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: .75rem;
+  background: var(--md-default-bg-color);
+  padding: 1rem 1.1rem 1.15rem;
+  box-shadow: 0 1px 2px rgba(20,30,50,.06), 0 6px 18px rgba(20,30,50,.05);
+}
+.hero-aside .ha-label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--md-default-fg-color--lighter);
+  margin: 0 0 .7rem;
+}
+.hero-aside .ha-feature {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--md-primary-fg-color);
+  border-radius: .55rem;
+  padding: .7rem .8rem .75rem;
+  margin: 0 0 .85rem;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--md-primary-fg-color) 10%, transparent),
+      color-mix(in srgb, var(--md-primary-fg-color) 3%, transparent));
+  transition: transform .15s, box-shadow .15s;
+}
+.hero-aside .ha-feature:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--md-primary-fg-color) 22%, transparent);
+}
+.hero-aside .ha-feature-badge {
+  display: inline-block;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--md-primary-bg-color);
+  background: var(--md-primary-fg-color);
+  border-radius: 999px;
+  padding: .12rem .5rem;
+  margin-bottom: .4rem;
+}
+.hero-aside .ha-feature-title {
+  display: block;
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--md-default-fg-color);
+  line-height: 1.2;
+}
+.hero-aside .ha-feature-desc {
+  display: block;
+  font-size: .78rem;
+  color: var(--md-default-fg-color--light);
+  line-height: 1.4;
+  margin-top: .25rem;
+}
+.hero-aside .ha-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .35rem .9rem;
+}
+.hero-aside .ha-links a {
+  position: relative;
+  font-size: .8rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--md-primary-fg-color);
+  text-decoration: none;
+  padding-left: .85rem;
+}
+.hero-aside .ha-links a::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--md-default-fg-color--lighter);
+}
+.hero-aside .ha-links a:hover { text-decoration: underline; }
+
+@media (max-width: 76.25em) {
+  .home-hero { grid-template-columns: 1fr; gap: 1.2rem; }
+  .hero-aside { max-width: 42rem; }
+}
+@media (max-width: 30rem) {
+  .hero-aside .ha-links { grid-template-columns: 1fr; }
+}
