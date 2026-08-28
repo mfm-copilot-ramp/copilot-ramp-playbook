@@ -1979,7 +1979,7 @@
       var newTools = (VERIFIED_NEW_CONNECTOR_TOOL_SHAPE && connectors.length) ? newExperienceTools(schema, connectors) : [];
       add("customizations.xml", customizationsXml(newTools));
       add("bots/" + schema + "/bot.xml", newBotXml(schema, name));
-      var newInstr = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new", workIQ: false, skills: skillComps });
+      var newInstr = (opts.instructions && String(opts.instructions).trim()) || buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new", workIQ: false, skills: skillComps });
       add("bots/" + schema + "/configuration.json", newConfigJson(schema, newInstr, agentMeta.webBrowsing));
 
       // Connector tools (type 9) + shared connection-reference set (one `.cr.<connector>`
@@ -2024,7 +2024,7 @@
       // knowledge determined above, by their exact display names, and describe any
       // read capabilities to add in prose.
       var gptSchema = schema + ".gpt.default";
-      var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, workIQ: workIqComps.length > 0 });
+      var instructions = (opts.instructions && String(opts.instructions).trim()) || buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, workIQ: workIqComps.length > 0 });
       add("botcomponents/" + gptSchema + "/data", gptComponentData(instructions, agentMeta));
       add("botcomponents/" + gptSchema + "/botcomponent.xml", botcomponentXml(gptSchema, 15, name));
 
