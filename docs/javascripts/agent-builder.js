@@ -405,6 +405,29 @@
     document.body.removeChild(ta);
   }
 
+  var HANDOFF_KEY = "cr-agent-build-v1";
+  // Faithful hand-off from Quick mode: hydrate the FULL builder state (description + the exact
+  // vars — including any Fine-tune edits — plus harness / Work IQ / skills) so the Builder opens
+  // as an exact continuation, not a re-derivation. One-shot: cleared after read.
+  function hydrateFromHandoff() {
+    var raw;
+    try { raw = window.sessionStorage && window.sessionStorage.getItem(HANDOFF_KEY); } catch (e) { raw = null; }
+    if (!raw) return false;
+    try { window.sessionStorage.removeItem(HANDOFF_KEY); } catch (e) {}
+    var p; try { p = JSON.parse(raw); } catch (e) { return false; }
+    if (!p || !p.desc) return false;
+    S.desc = String(p.desc);
+    S.vars = p.vars || null;                 // full vars → faithful (no re-derive)
+    S.outline = p.outline || null;
+    S.systems = p.systems || (p.outline && p.outline.systems) || [];
+    S.experience = p.experience === "classic" ? "classic" : (p.experience === "new" ? "new" : null);
+    if (!S.experience) { var v = S.vars || {}; S.experience = (v.orchestration === "generative" || v.hasAI || (v.actionsCount || 0) >= 2) ? "new" : "classic"; }
+    S.workIQ = (typeof p.workIQ === "boolean") ? p.workIQ : null;
+    S.skills = p.skills || "";
+    S.name = ""; S.instructions = ""; S.addConnectors = [];
+    return true;
+  }
+
   function init() {
     var mount = el("agent-builder");
     if (!mount) return;
@@ -416,6 +439,12 @@
     Array.prototype.forEach.call(mount.querySelectorAll(".ab-ex"), function (b) {
       b.addEventListener("click", function () { if (ta) { ta.value = EXAMPLES[+b.getAttribute("data-ex")]; build(); } });
     });
+    // Seeded from Quick mode? Fill the box and render the preview straight away.
+    if (hydrateFromHandoff()) {
+      if (ta) ta.value = S.desc;
+      renderPreview(true);
+      var host = el("ab-body"); if (host && host.scrollIntoView) host.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

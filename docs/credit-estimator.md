@@ -413,6 +413,9 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 .qe-axis h4 { margin: 0 0 0.6rem; font-size: 0.9rem; }
 .qe-axis #qe-profile2 .em-details { margin: 0.9rem 0 0; }
 .qe-starter { margin: 1.25rem 0 0; padding: 0.9rem 1rem; border: 1px solid var(--md-primary-fg-color); border-radius: 10px; background: color-mix(in srgb, var(--md-primary-fg-color) 6%, transparent); }
+.qe-builder-link { display: block; margin: 0 0 0.55rem; padding: 0.5rem 0.7rem; border: 1px dashed var(--md-primary-fg-color); border-radius: 8px; font-size: 0.85rem; line-height: 1.35; text-decoration: none; color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 4%, transparent); transition: background 0.15s ease; }
+.qe-builder-link:hover { background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent); }
+.qe-builder-link strong { white-space: nowrap; }
 .qe-import-help { margin-top: 0.65rem; }
 .qe-import-help > summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--md-primary-fg-color); }
 .qe-import-steps { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.8rem; line-height: 1.6; color: var(--md-default-fg-color--light); }
