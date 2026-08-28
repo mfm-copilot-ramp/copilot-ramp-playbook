@@ -90,6 +90,7 @@ extra_javascript:
   - javascripts/site-bus.js
   - javascripts/estimator-core.js
   - javascripts/estimator-package.js
+  - javascripts/agent-builder.js
   - javascripts/estimator-zip.js
   - javascripts/estimator-xlsx.js
   - javascripts/estimator-batch.js
@@ -294,6 +295,8 @@ nav:
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
       - Cost Structure Comparator: compare.md
+      - Agent Builder: build.md
+      - "Import & Configure a Starter Agent": agent-import-guide.md
       - "AI Builder → Copilot Credits": ai-builder-estimator.md
       - ROI Estimator: roi-estimator.md
       - "Proposal Composer": proposal.md
