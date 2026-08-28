@@ -1671,6 +1671,16 @@
       L.push("  **User** (every end user signs in once). Switch a tool to **Maker** to use a **single shared");
       L.push("  connection** for everyone \u2014 the lowest-config option for demos and internal agents.");
       L.push("");
+      if (connectors.some(function (c) { return c.connector === "shared_commondataserviceforapps"; })) {
+        L.push("> **\u26a0 Microsoft Dataverse tools need one extra step.** The Dataverse connector resolves the target");
+        L.push("> **environment** from an internal default that Copilot Studio sets **only when a tool is added in the");
+        L.push("> portal** \u2014 a *solution-imported* Dataverse tool doesn't have it, so it fails with **`Invalid");
+        L.push("> organization URL 'null'`** even after you bind a connection. There is no environment field to fill in.");
+        L.push("> **Fix:** open the agent \u2192 **Tools**, **remove** each Microsoft Dataverse tool, then **re-add** it via");
+        L.push("> **Tools \u2192 Add a tool \u2192 Microsoft Dataverse \u2192 \u003caction\u003e** (adding it in the portal sets the");
+        L.push("> environment), and **Publish**. This quirk is Dataverse-only \u2014 other connectors don't need it.");
+        L.push("");
+      }
     }
     if (unmapped.length) {
       L.push("## Actions to wire up after import");

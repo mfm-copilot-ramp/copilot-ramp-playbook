@@ -12,7 +12,7 @@ Say what you want the agent to do, in plain English. This scaffolds a **ready-to
 - Pick the **harness**: the *GitHub Copilot harness* (generative, instruction-driven) for reasoning / multi-step work, or the *Standard harness* (topics + rules) for predictable Q&A and single actions.
 
 !!! note "A starting point, not a finished agent"
-    The starter imports cleanly, then you finish it in Copilot Studio: pick a connection for each tool, confirm knowledge sources, and review the instructions. Anything that needs a manual step is listed in the generated `NEXT-STEPS.md`. To size an agent's running cost, use the [Credit Estimator](credit-estimator.md).
+    The starter imports cleanly, then you finish it in Copilot Studio: pick a connection for each tool, confirm knowledge sources, and review the instructions. Anything that needs a manual step is listed in the generated `NEXT-STEPS.md`. New to importing? See the [Import & Configure guide](agent-import-guide.md) for step‑by‑step setup, gotchas, and an FAQ. To size an agent's running cost, use the [Credit Estimator](credit-estimator.md).
 
 <div id="agent-builder" markdown="0">
   <p class="hint">Loading agent builder…</p>

@@ -296,6 +296,7 @@ nav:
       - Credit Estimator: credit-estimator.md
       - Cost Structure Comparator: compare.md
       - Agent Builder: build.md
+      - "Import & Configure a Starter Agent": agent-import-guide.md
       - "AI Builder → Copilot Credits": ai-builder-estimator.md
       - ROI Estimator: roi-estimator.md
       - "Proposal Composer": proposal.md
