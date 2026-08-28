@@ -115,16 +115,19 @@
     return opts;
   }
 
-  // Regenerate instructions for the CURRENT harness/description (used on Build and on the
-  // explicit "Regenerate" action after a harness switch).
+  // Instructions for the CURRENT harness/description. Prefer the canonical string the engine
+  // reports on the preview (identical to what buildPackage embeds), so the editor shows exactly
+  // what the .zip will carry AND an unedited handoff stays byte-equivalent to the Quick export.
+  // Falls back to a direct buildInstructions call for older engines without preview.instructions.
   function freshInstructions(preview) {
+    if (preview && typeof preview.instructions === "string" && preview.instructions) return preview.instructions;
     if (!EP || !EP.buildInstructions) return "";
     ensureAnalysis();
     try {
       return EP.buildInstructions(preview.name, S.desc || "", {
         connectors: preview.connectors || [], knowledge: preview.knowledge || [],
         capabilities: preview.capabilities || [], vars: S.vars || {},
-        experience: S.experience
+        steps: (S.outline && S.outline.steps) || [], experience: S.experience
       }) || "";
     } catch (e) { return ""; }
   }

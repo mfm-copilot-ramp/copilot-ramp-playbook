@@ -1960,6 +1960,12 @@
         unmapped: unmapped.slice(),
         capabilities: capabilities.map(function (c) { return { id: c.id, behavior: c.behavior, tool: c.tool }; }),
         metadata: agentMeta,
+        // The exact instructions buildPackage would embed (absent an opts.instructions override),
+        // so a preview/editor shows — and can seed from — the SAME text the .zip will carry.
+        // Mirrors the two build call sites below so display == output across both experiences.
+        instructions: (opts.instructions && String(opts.instructions).trim()) || (useNewExperience
+          ? buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new", workIQ: false, skills: skillComps })
+          : buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, workIQ: workIqComps.length > 0 })),
         notices: shapeNotices(vars, experience),
         shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
         workIQ: { requested: wantWorkIQ, wired: workIqComps.length > 0, gatedNewExperience: wantWorkIQ && useNewExperience, tools: workIqComps.map(function (w) { return w.modelDisplayName; }) },
