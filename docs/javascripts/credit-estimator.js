@@ -46,7 +46,8 @@
     it: "An IT helpdesk agent in Teams that answers common support questions from our knowledge base and can reset passwords and create tickets in ServiceNow. Escalates to a live agent when it can't help. Used weekly by staff.",
     sales: "A sales enablement agent that drafts proposals and summarizes product docs for our sellers, grounded on our SharePoint sales library. Used daily by the sales team.",
     support: "A customer-facing voice agent on our website and phone line that answers product questions and creates support tickets in Salesforce, used constantly by thousands of customers.",
-    finance: "Whenever an invoice is submitted, the agent extracts the fields from the scanned document, validates them, and runs a Power Automate approval workflow. About 800 invoices per month for the finance department."
+    finance: "Whenever an invoice is submitted, the agent extracts the fields from the scanned document, validates them, and runs a Power Automate approval workflow. About 800 invoices per month for the finance department.",
+    assistant: "A Teams assistant for many quick back and forth questions over the same Microsoft 365 people, meetings, and mail — a long-running chat that reuses the same tenant context across dozens of short turns throughout the day. Used daily across the company."
   };
 
   // ── "flight" gate for in-progress modes (Bulk generate) ───────────────────
@@ -261,7 +262,8 @@
     var st = state[p];
     if (st && st.regime === "autonomous") {
       var runs = Math.max(0, parseFloat(getVal(p + "-runs")) || 0);
-      return { regime: "autonomous", archetype: "autonomous", runs: runs, events: runs };
+      return { regime: "autonomous", archetype: "autonomous", runs: runs, events: runs,
+        harness: (function () { var b = document.querySelector('#' + p + '-harness-toggle .deploy-btn.active'); return b ? b.getAttribute("data-harness") : "standard"; })() };
     }
     var std = document.getElementById(p + "-dep-standalone");
     var dep = std && std.classList.contains("active") ? "standalone" : "embedded";
@@ -412,14 +414,59 @@
       document.querySelectorAll("#escalation-tbody tr:not(.section-divider-row)").forEach(function (tr) { tr.remove(); });
       escProfile.forEach(function (r) { window.addRow(r.name, r.uses, r.credits, true); });
     }
+    // Carry the HARNESS (and, for the GitHub Copilot harness, the model + per-turn build-up)
+    // so a Quick / Solution estimate opens in Detailed on the SAME engine it was priced on.
+    var seedHarness = (scale && scale.harness) || "standard";
+    if (typeof window.setHarnessMode === "function") window.setHarnessMode(seedHarness);
+    if (seedHarness === "github-copilot") {
+      var gm = document.getElementById("ghModel");
+      if (gm) {
+        gm.value = scale.model || "";
+        if (scale.model) {
+          if (scale.payloadTokens != null) setVal("ghPayload", scale.payloadTokens);
+          if (scale.harnessOverhead != null) setVal("ghOverhead", scale.harnessOverhead);
+          if (scale.turns != null) setVal("ghTurns", scale.turns);
+          if (scale.outputTokensPerTurn != null) setVal("ghOutTok", scale.outputTokensPerTurn);
+          if (scale.cacheHitPct != null) setVal("ghCache", scale.cacheHitPct);
+        }
+        if (typeof window.onGhModelChange === "function") window.onGhModelChange();
+      }
+    }
     if (typeof window.recalc === "function") window.recalc();
     var wrap = document.getElementById("calc-wrap");
     if (wrap && wrap.scrollIntoView) wrap.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  // Copy the harness (and, for the GitHub Copilot harness, the model + per-turn build-up)
+  // onto a Detailed handoff `scale`, so a Quick / batch estimate opens in Detailed on the
+  // SAME engine AND the SAME numbers it was priced on. The Quick harness card / comparator
+  // are driven purely by inferComparatorInputs(rawText) + model — NOT by the stored vars —
+  // so we carry those inferred axes to reproduce the card exactly. Falls back to the
+  // scenario's stored/derived axes only when no text is available.
+  function applyHarnessToScale(scale, v, rawText) {
+    if (!scale || !v) return scale;
+    scale.harness = v.harness || "standard";
+    if (scale.harness === "github-copilot" && v.model) {
+      scale.model = v.model;
+      scale.harnessOverhead = v.harnessOverhead; // null → Detailed keeps its ~15K default
+      var ax = (rawText && EC.inferComparatorInputs) ? EC.inferComparatorInputs(rawText) : null;
+      if (ax) {
+        scale.payloadTokens = ax.payloadTokens;
+        scale.turns = ax.turns;
+        scale.outputTokensPerTurn = (ax.outputTokensPerTurn != null) ? ax.outputTokensPerTurn : v.outputTokensPerTurn;
+        scale.cacheHitPct = (v.cacheHitPct != null) ? v.cacheHitPct : (ax.cacheHitPct != null ? ax.cacheHitPct : 0);
+      } else {
+        scale.payloadTokens = (v.payloadTokens != null) ? v.payloadTokens : (EC.payloadPerTurn ? EC.payloadPerTurn(v) : null);
+        scale.turns = (v.turns != null) ? v.turns : (v.conversationsPerTask != null ? v.conversationsPerTask : (EC.turnsPerTask ? EC.turnsPerTask(v) : null));
+        scale.outputTokensPerTurn = v.outputTokensPerTurn;
+        scale.cacheHitPct = v.cacheHitPct;
+      }
+    }
+    return scale;
+  }
+
   // ── Quick (natural language) ──────────────────────────────────────────────
   var KNOW_LABEL = { none: "None", docs: "Documents / KB", tenantGraph: "M365 tenant graph" };
-
   function qeExample(k) {
     var t = document.getElementById("qe-input");
     if (t) { t.value = QE_EXAMPLES[k] || ""; qeAnalyze(); }
@@ -443,6 +490,53 @@
       ' onchange="' + (onchangeFn || "qeRebuild()") + '"> ' + esc(label) + "</label>";
   }
 
+  // Grouped model <select> body (options + optgroups) — Copilot Studio catalog only,
+  // grouped by Studio's Deep/General tags. Proxy rates are surfaced on the hint line
+  // for the SELECTED model, not repeated on every option (keeps the list clean).
+  // includeAnchor adds the "no specific model" escape (default true; omitted on the
+  // promoted GitHub picker, where a concrete model is always the point).
+  function qeModelOptionsBody(val, includeAnchor) {
+    if (includeAnchor === undefined) includeAnchor = true;
+    var groups = { General: [], Deep: [] };
+    (EC.MODEL_ORDER || []).forEach(function (k) {
+      var m = EC.MODEL_RATES[k]; if (!m) return;
+      (groups[m.tag] || (groups[m.tag] = [])).push(
+        '<option value="' + k + '"' + (k === val ? " selected" : "") + ">" + esc(m.label) + "</option>");
+    });
+    var body = includeAnchor ? ('<option value=""' + (val ? "" : " selected") + ">No specific model \u2014 typical band</option>") : "";
+    ["General", "Deep"].forEach(function (g) {
+      if (groups[g] && groups[g].length) body += '<optgroup label="' + g + '">' + groups[g].join("") + "</optgroup>";
+    });
+    return body;
+  }
+  // Bare grouped model <select> (no wrapping field/label) for compact placements.
+  function qeModelSelectBare(id, val, onchangeFn, includeAnchor) {
+    return '<select id="' + id + '" onchange="' + (onchangeFn || "qeRebuild()") + '">' + qeModelOptionsBody(val, includeAnchor) + "</select>";
+  }
+  // Grouped model <select> for the GitHub Copilot harness — only models Copilot
+  // Studio exposes, grouped by Studio's Deep/General use tags, proxy rates flagged.
+  function qeModelSelect(id, val, onchangeFn) {
+    var m = val ? EC.MODEL_RATES[val] : null;
+    var hint = "Only models available in Copilot Studio. Model choice is the largest cost lever on the GitHub Copilot harness. Choose \u201CNo specific model\u201D for the model-blind published-band estimate.";
+    if (m && m.rateSource === "proxy") hint = "\u26A0 Proxy rate \u2014 Copilot Studio publishes no per-token rate for this model; priced at the nearest GitHub-listed sibling (" + esc(m.proxyOf) + "). Directional. " + hint;
+    return '<div class="calc-field"><label>Model \u2014 biggest cost factor</label>' +
+      '<select id="' + id + '" onchange="' + (onchangeFn || "qeRebuild()") + '">' + qeModelOptionsBody(val) + "</select>" +
+      '<div class="hint">' + esc(hint) + "</div></div>";
+  }
+  // Read-only, live-updating "Credits per task" for the model-driven GitHub harness.
+  // Shows the value the canonical engine computes from the per-turn inputs above, so
+  // switching model (or any token field) visibly moves the number instead of hiding it.
+  function qeGhComputedField(v) {
+    var comp = EC.ghTaskCredits(v);
+    var mLabel = (EC.MODEL_RATES[v.model] && EC.MODEL_RATES[v.model].label) || v.model || "the selected model";
+    var noteTxt = comp.floored
+      ? "At Microsoft\u2019s published Light-band floor (100) \u2014 the raw token cost is lower for this shape."
+      : "Auto-computed from your per-turn inputs \u00d7 " + mLabel + "\u2019s rate. Change the model or any field to see it move.";
+    return '<div class="calc-field qe-computed"><label>Credits per task <span>(computed)</span></label>' +
+      '<input type="number" id="qe-ghcomputed" value="' + Math.round(comp.taskCredits) + '" disabled>' +
+      '<div class="hint" id="qe-ghcomputed-note">' + esc(noteTxt) + "</div></div>";
+  }
+
   function qeQuizHtml(v, why) {
     why = why || {};
     return '<div class="em-quiz"><div class="calc-grid">' +
@@ -452,9 +546,21 @@
         selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
         selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "Copilot chat (extend M365)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard / chat are covered in M365 channels.", "qeRebuildStructural()") +
         (v.harness === "github-copilot" ? (
-          selField("qe-ghtier", "GitHub task complexity (published tier)", [["simple", "Simple — Light (100–300)"], ["medium", "Medium (300–500)"], ["complex", "Complex — Heavy (>500)"]], v.ghTier || "medium", "Microsoft publishes per-task credit RANGES by complexity — not a per-action rate card. The tier seeds the credits-per-task anchor (biased high; Heavy is open-ended).", "qeRebuildStructural()") +
-          numField("qe-ghpertask", "Credits per task", v.ghPerTask != null ? v.ghPerTask : 400, "Seeded from the tier; edit upward with no cap for heavier tasks. Overrides the tier anchor.") +
+          qeModelSelect("qe-ghmodel", v.model || "", "qeRebuildStructural()") +
+          (v.model ? (
+            numField("qe-ghpayload", "Payload tokens / turn", v.payloadTokens != null ? v.payloadTokens : 40000, "Content read per turn (grounding / files), on top of harness overhead. Re-sent context dominates agentic cost.") +
+            numField("qe-ghoverhead", "Harness overhead / turn", v.harnessOverhead != null ? v.harnessOverhead : 15000, "Instructions + tools + re-sent context every agentic turn (~15K).") +
+            numField("qe-ghturns", "Turns to finish the task", (v.turns != null ? v.turns : (v.conversationsPerTask != null ? v.conversationsPerTask : 6)), "Agentic back-and-forths in one end-to-end task \u2014 turn count is a top cost lever.") +
+            numField("qe-ghouttok", "Output tokens / turn", v.outputTokensPerTurn != null ? v.outputTokensPerTurn : Math.max(500, Math.round(((v.harnessOverhead != null ? v.harnessOverhead : 15000) + (v.payloadTokens != null ? v.payloadTokens : 40000)) * 0.1)), "Tokens the model generates per turn.") +
+            numField("qe-ghcache", "Cache-hit % (re-sent context)", v.cacheHitPct != null ? v.cacheHitPct : 0, "Share of input served from cache (~10\u00d7 cheaper) \u2014 the dominant lever for agentic burn.") +
+            qeGhComputedField(v)
+          ) : (
+            selField("qe-ghtier", "GitHub task complexity (published tier)", [["simple", "Simple — Light (100–300)"], ["medium", "Medium (300–500)"], ["complex", "Complex — Heavy (>500)"]], v.ghTier || "medium", "Microsoft publishes per-task credit RANGES by complexity — not a per-action rate card. The tier seeds the credits-per-task anchor (biased high; Heavy is open-ended).", "qeRebuildStructural()") +
+            numField("qe-ghpertask", "Credits per task", v.ghPerTask != null ? v.ghPerTask : 400, "Seeded from the tier; edit upward with no cap for heavier tasks. Overrides the tier anchor.")
+          )) +
           numField("qe-ghbuild", "Build & test runs (one-time)", v.ghBuildRuns != null ? v.ghBuildRuns : 40, "Build/test/eval consume credits before you publish.")
+        ) : v.harness === "standard" ? (
+          '<div class="hint" style="grid-column:1/-1;margin:-.3rem 0 .2rem">On the <strong>standard harness</strong>, the model your agent runs on is a <strong>quality / latency</strong> choice \u2014 it does <strong>not</strong> change your credit bill. Standard-harness credits are metered <strong>per event</strong> (answer, action, grounding) at fixed rates regardless of model. The only model-linked cost is a premium AI-tool tier or extra deep-reasoning actions. Model-as-a-cost-driver applies on the <strong>GitHub Copilot harness</strong>.</div>'
         ) : "") +
         selField("qe-know", "Knowledge grounding", [["none", "None"], ["docs", "Documents / KB"], ["tenantGraph", "M365 tenant graph"]], v.knowledge, why.knowledge || "") +
         numField("qe-actions", "# system actions / run", v.actionsCount, "Connector calls: route, create, update, notify…") +
@@ -509,6 +615,12 @@
     if (el("qe-deploy")) v.deployment = el("qe-deploy").value;
     if (el("qe-harness")) v.harness = el("qe-harness").value;
     if (el("qe-ghtier")) { v.ghTier = el("qe-ghtier").value; v.ghTierUserSet = true; }
+    if (el("qe-ghmodel")) v.model = el("qe-ghmodel").value || null;
+    if (el("qe-ghpayload")) v.payloadTokens = Math.max(0, parseFloat(el("qe-ghpayload").value) || 0);
+    if (el("qe-ghoverhead")) v.harnessOverhead = Math.max(0, parseFloat(el("qe-ghoverhead").value) || 0);
+    if (el("qe-ghturns")) { v.conversationsPerTask = Math.max(1, parseFloat(el("qe-ghturns").value) || 1); delete v.turns; }
+    if (el("qe-ghouttok")) v.outputTokensPerTurn = Math.max(0, parseFloat(el("qe-ghouttok").value) || 0);
+    if (el("qe-ghcache")) v.cacheHitPct = Math.min(100, Math.max(0, parseFloat(el("qe-ghcache").value) || 0));
     if (el("qe-ghpertask")) v.ghPerTask = Math.max(0, parseFloat(el("qe-ghpertask").value) || 0);
     if (el("qe-ghbuild")) v.ghBuildRuns = Math.max(0, parseFloat(el("qe-ghbuild").value) || 0);
     if (el("qe-convpertask")) v.conversationsPerTask = Math.max(1, parseFloat(el("qe-convpertask").value) || EC.CONV_PER_TASK);
@@ -528,9 +640,26 @@
     // GitHub harness: default the task tier from the scenario's complexity (t-shirt size) unless
     // the user explicitly picked one; the tier seeds the editable credits-per-task anchor.
     if (v.harness === "github-copilot") {
-      if (!(v.ghTierUserSet && v.ghTier)) v.ghTier = EC.ghTierForSize(EC.sizeFromDrivers(v).size);
-      if (v._ghTierPrev !== v.ghTier || v.ghPerTask == null) v.ghPerTask = EC.ghTierCredits(v.ghTier);
-      v._ghTierPrev = v.ghTier;
+      if (v.model) {
+        // Model-driven: per-task credits are computed in core from the canonical
+        // per-turn (overhead + payload) × turns model. Derive payload + turns the SAME
+        // way the comparator does — from the description — so the two tools agree.
+        delete v.ghPerTask;
+        delete v.inputTokens; delete v.outputTokens; // legacy per-task aggregates no longer used
+        if (state.qe && state.qe.raw && EC.inferComparatorInputs && !v._cmpAxes) {
+          var ax = EC.inferComparatorInputs(state.qe.raw);
+          if (v.payloadTokens == null) v.payloadTokens = ax.payloadTokens;
+          if (v.payloadBucket == null) v.payloadBucket = ax.payloadBucket;
+          if (v.conversationsPerTask == null) v.conversationsPerTask = ax.turns;
+          if (v.groundingType == null) v.groundingType = ax.groundingType;
+          v._cmpAxes = true;
+        }
+        if (v.cacheHitPct == null) v.cacheHitPct = 0;
+      } else {
+        if (!(v.ghTierUserSet && v.ghTier)) v.ghTier = EC.ghTierForSize(EC.sizeFromDrivers(v).size);
+        if (v._ghTierPrev !== v.ghTier || v.ghPerTask == null) v.ghPerTask = EC.ghTierCredits(v.ghTier);
+        v._ghTierPrev = v.ghTier;
+      }
       if (v.ghBuildRuns == null) v.ghBuildRuns = EC.GH_DEFAULTS.buildRuns;
       if (v.conversationsPerTask == null) v.conversationsPerTask = EC.CONV_PER_TASK;
     }
@@ -761,7 +890,10 @@
     var derivedTier = EC.ghTierForSize(sizeInfo.size);
     var effTier = (v.ghTierUserSet && v.ghTier) ? v.ghTier : derivedTier;
     if (!isAuto && v.harness === "github-copilot") {
-      v.ghTier = effTier; v.ghPerTask = EC.ghTierCredits(effTier);
+      v.ghTier = effTier;
+      // Model-blind path seeds the flat tier anchor; model-driven path lets core
+      // compute per-task from tokens + features (don't clobber with the anchor).
+      if (!v.model) v.ghPerTask = EC.ghTierCredits(effTier);
     }
     var est = EC.computeQuick(profile, v);
     var rng = EC.creditRange(est.monthly);
@@ -772,25 +904,22 @@
     var harnessName = est.harness === "github-copilot" ? "GitHub Copilot harness"
       : est.harness === "chat" ? "Copilot chat harness" : "Standard harness";
 
-    // ── Inline harness switch (interactive only) — themed segmented buttons, no native <select>.
-    // Flipping re-renders just this box so the cost updates in place (no need to open Advanced).
+    // ── Inline GitHub-harness refinement (tier or model note) — harness selection itself
+    // now lives in the plain-language confirmation cards at the top of the results.
     var switchHtml = "";
     if (!isAuto) {
       var cur = v.harness || "standard";
-      var hbtn = function (val, label) {
-        return '<button type="button" class="deploy-btn' + (cur === val ? " active" : "") +
-          '" onclick="qeSetHarness(\'' + val + '\')">' + label + "</button>";
-      };
-      switchHtml = '<div class="section-label" style="font-size:.72rem;margin:0 0 .35rem">Harness (engine) — flip to compare the cost</div>' +
-        '<div class="deploy-toggle qe-seg-toggle">' + hbtn("standard", "Standard") + hbtn("chat", "Copilot chat") + hbtn("github-copilot", "GitHub Copilot") + "</div>";
-      if (cur === "github-copilot") {
+      if (cur === "github-copilot" && !v.model) {
         var tbtn = function (val, label) {
           return '<button type="button" class="deploy-btn' + (effTier === val ? " active" : "") +
             '" onclick="qeSetGhTier(\'' + val + '\')">' + label + "</button>";
         };
-        switchHtml += '<div class="deploy-toggle qe-seg-toggle" style="margin-top:.35rem">' +
+        switchHtml += '<div class="section-label" style="font-size:.72rem;margin:0 0 .35rem">Task complexity (published tier)</div>' +
+          '<div class="deploy-toggle qe-seg-toggle">' +
           tbtn("simple", "Simple") + tbtn("medium", "Medium") + tbtn("complex", "Complex") + "</div>" +
           '<div class="hint" style="margin:.2rem 0 .1rem">Task tier defaulted to <strong>' + esc(derivedTier) + '</strong> from this agent\u2019s complexity (' + esc(sizeInfo.size) + ')' + (v.ghTierUserSet ? ' \u2014 overridden to <strong>' + esc(effTier) + '</strong>' : "") + '. Adjust if your tasks are heavier or lighter.</div>';
+      } else if (cur === "github-copilot" && v.model) {
+        switchHtml += '<div class="hint" style="margin:.35rem 0 .1rem">Priced on <strong>' + esc((EC.MODEL_RATES[v.model] || {}).label || v.model) + '</strong> \u2014 \u2248 <strong>' + fmtDec(est.perTask) + '</strong> cr/task (LLM tokens + features). Model is the largest lever \u2014 change it in the card above.</div>';
       }
     }
 
@@ -803,18 +932,27 @@
       var covEst = EC.computeQuick(profile, covV);
       var covPct = covEst.grossMonthly > 0 ? Math.round((1 - covEst.netMonthly / covEst.grossMonthly) * 100) : 0;
       var ghV = {}; for (var k2 in v) ghV[k2] = v[k2];
-      ghV.harness = "github-copilot"; ghV.ghTier = effTier; ghV.ghPerTask = EC.ghTierCredits(effTier);
+      ghV.harness = "github-copilot"; ghV.ghTier = effTier;
+      if (ghV.model) { delete ghV.ghPerTask; } else { ghV.ghPerTask = EC.ghTierCredits(effTier); }
       var ghEst = EC.computeQuick(profile, ghV);
       var isGh = (v.harness || "standard") === "github-copilot";
-      // GitHub is priced per TASK (a multistep run), not per response. Show the published band as a
-      // monthly RANGE (tasks × band) rather than a single point so the comparison isn't alarming, and
-      // expose the responses-per-task assumption that converts response volume into tasks.
-      var band = EC.GH_TIER_RANGE[effTier] || [ghEst.perTask, ghEst.perTask];
+      // GitHub is priced per TASK (a multistep run), not per response. Model-blind: show the
+      // published tier band as a monthly range. Model-driven: show a ±band around the token-based
+      // point estimate. Either way, expose the responses-per-task assumption.
       var cpt = ghEst.conversationsPerTask || EC.CONV_PER_TASK;
       var tasks = ghEst.tasksPerMonth || 0;
-      var ghLo = tasks * band[0], ghHi = tasks * band[1];
+      var ghLo, ghHi, ghBandNote;
+      if (v.model) {
+        var gr = EC.creditRange(ghEst.grossMonthly);
+        ghLo = gr.low; ghHi = gr.high;
+        ghBandNote = "\u2248 " + fmt(tasks) + " tasks/mo \u00d7 " + fmtDec(ghEst.perTask) + " cr/task \u00b7 " + esc((EC.MODEL_RATES[v.model] || {}).label || v.model) + " \u00b7 midpoint " + fmt(ghEst.grossMonthly);
+      } else {
+        var band = EC.GH_TIER_RANGE[effTier] || [ghEst.perTask, ghEst.perTask];
+        ghLo = tasks * band[0]; ghHi = tasks * band[1];
+        ghBandNote = "\u2248 " + fmt(tasks) + " tasks/mo \u00d7 " + band[0] + "\u2013" + band[1] + " cr \u00b7 " + effTier + " band \u00b7 midpoint " + fmt(ghEst.grossMonthly);
+      }
       var covLine = '<span' + (isGh ? "" : ' style="font-weight:700"') + '>&bull; <strong>Standard / Copilot chat</strong> \u2014 billed <em>per response</em>, covered in Teams &middot; Copilot Chat &middot; SharePoint: net <strong>' + fmt(covEst.netMonthly) + '</strong> / mo <span class="hint" style="display:inline">(gross ' + fmt(covEst.grossMonthly) + '; ' + covPct + '% zero-rated for licensed users)</span></span>';
-      var ghLine = '<span' + (isGh ? ' style="font-weight:700"' : "") + '>&bull; <strong>GitHub Copilot</strong> \u2014 billed <em>per task</em>, never covered: net = gross <strong>' + fmt(ghLo) + '\u2013' + fmt(ghHi) + '</strong> / mo <span class="hint" style="display:inline">(&asymp; ' + fmt(tasks) + ' tasks/mo \u00d7 ' + band[0] + '\u2013' + band[1] + ' cr &middot; ' + effTier + ' band &middot; midpoint ' + fmt(ghEst.grossMonthly) + ' &middot; + one-time build &amp; test ' + fmt(ghEst.buildTestCredits) + ')</span></span>';
+      var ghLine = '<span' + (isGh ? ' style="font-weight:700"' : "") + '>&bull; <strong>GitHub Copilot</strong> \u2014 billed <em>per task</em>, never covered: net = gross <strong>' + fmt(ghLo) + '\u2013' + fmt(ghHi) + '</strong> / mo <span class="hint" style="display:inline">(' + ghBandNote + ' &middot; + one-time build &amp; test ' + fmt(ghEst.buildTestCredits) + ')</span></span>';
       var unitNote = '<div class="hint" style="margin:.35rem 0 .1rem">Different units: standard bills each <strong>response</strong>; the GitHub harness bills each <strong>task</strong> \u2014 a multistep run that does the work of several responses. We estimate <strong>' + fmt(tasks) + ' tasks/mo</strong> from your volume assuming ~<strong>' + fmtDec(cpt) + ' responses per task</strong> \u2014 tune it: ' +
         '<input type="number" min="1" step="0.5" value="' + fmtDec(cpt) + '" aria-label="Responses per task" style="width:4.5rem" onchange="qeSetConvPerTask(this.value)"> responses / task.</div>';
       cov = '<div class="em-why" style="border-left:3px solid var(--md-primary-fg-color);padding-left:.6rem">' +
@@ -839,6 +977,156 @@
       '<p class="hint">Cost shown is <strong>net billable</strong> credits (what you pay) — excludes M365 license fees.' + (v.archetype === "autonomous" ? " Autonomous runs are billed even for licensed users." : "") + "</p>";
   }
 
+  // Plain-language harness confirmation — shown at the top of Quick results. Each card carries
+  // the DECISION: plain fit + this agent's cost + why you'd pick it. Costs come from the same
+  // per-task engine as the banner/comparator, so the whole page tells one consistent story.
+  var QE_HARNESS_CARDS = [
+    { key: "github-copilot", icon: "\uD83E\uDDE0", name: "Smart, multi-step agent", sub: "GitHub Copilot harness",
+      desc: "Reasons through changing, multi-step work \u2014 research, analysis, or several steps in a row.",
+      benefit: "Most capable \u2014 handles reasoning and non-deterministic work the simpler engines can\u2019t. Worth the higher cost when the job genuinely needs it.",
+      autoDesc: "Reasons through each event \u2014 reads the input, decides, and acts across several steps every run.",
+      autoBenefit: "Handles messy, variable inputs and multi-step reasoning on every run. Priced on tokens per run \u2014 the most capable, and usually the priciest." },
+    { key: "standard", icon: "\uD83D\uDCCB", name: "Simple, predictable agent", sub: "Standard harness",
+      desc: "Answers questions or does one set action \u2014 look something up, create a ticket, route a request.",
+      benefit: "Lowest, most predictable cost. Best when it\u2019s mostly Q&A or a single fixed action.",
+      autoName: "Deterministic agent flow",
+      autoDesc: "Fixed steps per event \u2014 extract fields, look up or update a record, run an approval flow.",
+      autoBenefit: "Lowest, most predictable cost. Best when every event follows the same rules and needs no reasoning." },
+    { key: "chat", icon: "\uD83D\uDCAC", name: "Answers from Microsoft 365", sub: "Copilot chat harness",
+      desc: "Answers from your company\u2019s files and data, right inside Teams or Copilot Chat.",
+      benefit: "Often included with a Microsoft 365 Copilot license \u2014 frequently free for licensed users." }
+  ];
+  function qeHarnessConfirmHtml(v, why) {
+    var auto = v.archetype === "autonomous";
+    var unit = auto ? "run" : "task";
+    // Autonomous agents have no user-facing M365 chat surface — offer GitHub harness vs agent flow.
+    var cards = QE_HARNESS_CARDS.filter(function (c) { return !(auto && c.key === "chat"); });
+    var nameOf = function (c) { return (auto && c.autoName) ? c.autoName : c.name; };
+    var descOf = function (c) { return (auto && c.autoDesc) ? c.autoDesc : c.desc; };
+    var benefitOf = function (c) { return (auto && c.autoBenefit) ? c.autoBenefit : c.benefit; };
+    var cur = v.harness || "standard";
+    if (auto && cur === "chat") cur = "standard"; // chat isn't an autonomous option
+    var rec = cards.filter(function (c) { return c.key === cur; })[0] || cards[cards.length - 1];
+    var whyLine = (why && why.harness) ? why.harness : "";
+    // One engine for all cards' cost — per task/run, same as the banner + comparator.
+    var r = null;
+    if (EC.inferComparatorInputs && state.qe && state.qe.raw) {
+      try {
+        var cinp = EC.inferComparatorInputs(state.qe.raw);
+        if (v.model) cinp.model = v.model; // respect the picker — model drives the GitHub harness cost
+        r = EC.comparePlatforms(cinp);
+      } catch (e) { r = null; }
+    }
+    var costOf = function (key) {
+      if (!r) return null;
+      if (key === "github-copilot") return { credits: r.ghcpPerJob, covered: false, floored: r.ghFloored };
+      // Standard shares the event cost; the M365-chat card is license-covered (interactive only).
+      return { credits: r.m365PerJob, covered: !auto && key === "chat" };
+    };
+    var recCost = costOf(cur);
+    var costLine = function (key, isRec) {
+      var c = costOf(key); if (!c) return "";
+      var main;
+      if (c.covered) main = '<b>Often free</b> <span>with a Copilot license</span>';
+      else main = '<b>~' + fmt(c.credits) + '</b> <span>credits / ' + unit + '</span>';
+      var rel = "";
+      if (!isRec && recCost && recCost.credits > 0 && !c.covered) {
+        var ratio = c.credits / recCost.credits;
+        if (ratio <= 0.95) {
+          rel = '<span class="qe-hn-rel less">' + Math.round((1 - ratio) * 100) + "% less</span>";
+        } else if (ratio >= 1.05) {
+          // Large gaps read as a clean multiplier ("~20x more") instead of an alarming
+          // four-digit percentage ("1955% more"); small gaps stay as a percentage.
+          var more = ratio >= 3
+            ? "~" + (ratio >= 10 ? Math.round(ratio) : Math.round(ratio * 10) / 10) + "\u00d7 more"
+            : Math.round((ratio - 1) * 100) + "% more";
+          rel = '<span class="qe-hn-rel more">' + more + "</span>";
+        }
+      } else if (!isRec && c.covered) {
+        rel = '<span class="qe-hn-rel less">lowest cost</span>';
+      }
+      // Small tasks sit at Microsoft's published Light-band minimum (~100) — flag it so several
+      // scenarios landing on the same floor reads as "the minimum," not a bug.
+      var floorNote = (c.floored && !c.covered)
+        ? '<div class="qe-hn-floor" title="Microsoft prices the GitHub Copilot harness in per-task bands (Light 100\u2013300 / Medium 300\u2013500 / Heavy >500). Light, short tasks sit at the ~100-credit published minimum.">at the published Light-band minimum (~100)</div>'
+        : "";
+      return '<div class="qe-hn-cost">' + main + " " + rel + "</div>" + floorNote;
+    };
+    var card = function (c) {
+      var isRec = c.key === cur;
+      return '<button type="button" class="qe-hn-card' + (isRec ? " rec" : "") + '" onclick="qeSetHarness(\'' + c.key + '\')">' +
+        '<div class="qe-hn-top"><span class="qe-hn-ico">' + c.icon + '</span>' +
+          '<span class="qe-hn-name">' + esc(nameOf(c)) + '</span>' +
+          (isRec ? '<span class="qe-hn-badge">Recommended</span>' : "") + "</div>" +
+        (c.sub ? '<div class="qe-hn-sub">' + esc(c.sub) + "</div>" : "") +
+        '<div class="qe-hn-desc">' + esc(descOf(c)) + "</div>" +
+        costLine(c.key, isRec) +
+        '<div class="qe-hn-benefit">' + esc(benefitOf(c)) + "</div>" +
+      "</button>";
+    };
+    var scope = auto
+      ? 'These are the <b>Copilot Studio</b> engines (harnesses) for an event-driven agent, billed in <b>Copilot Credits</b> \u2014 every run is billed (no license coverage). The \u201CGitHub Copilot harness\u201D is Studio\u2019s reasoning engine, <b>not</b> the standalone GitHub Copilot coding tool.'
+      : 'These are the <b>Copilot Studio</b> engines (harnesses), billed in <b>Copilot Credits</b>. The \u201CGitHub Copilot harness\u201D is Studio\u2019s reasoning engine \u2014 <b>not</b> the standalone GitHub Copilot coding tool in your IDE.';
+    return '<div class="qe-hn-wrap">' +
+      '<div class="qe-hn-q">We think this is a <b>' + esc(nameOf(rec).toLowerCase()) + '</b>. Sound right?</div>' +
+      '<div class="qe-hn-why">' + (whyLine ? esc(whyLine) + " " : "") + "Pick the option that fits \u2014 cost per " + unit + " is shown on each.</div>" +
+      '<div class="qe-hn-cards">' + cards.map(card).join("") + "</div>" +
+      (cur === "github-copilot" ? qeHarnessModelRow(v, why) : "") +
+      '<div class="qe-hn-scope">' + scope + "</div>" +
+    "</div>";
+  }
+  // Promoted model picker — shown right under the harness cards when the smart/multi-step
+  // engine is selected, because model is the single biggest cost factor there.
+  function qeHarnessModelRow(v, why) {
+    var sel = v.model || EC.MODEL_DEFAULT; // GitHub harness always resolves to a concrete model
+    var m = EC.MODEL_RATES[sel] || null;
+    var whyModel = (why && why.model) ? why.model : "This is the biggest cost factor for this kind of agent.";
+    return '<div class="qe-hn-model">' +
+      '<div class="qe-hn-model-lbl">Which model? <span>(biggest cost factor)</span></div>' +
+      qeModelSelectBare("qe-hn-modelsel", sel, "qeSetModel(this.value)", false) +
+      '<div class="qe-hn-model-why">' + esc(whyModel) +
+        (m && m.rateSource === "proxy" ? " \u00B7 pricing is a directional proxy (" + esc(m.proxyOf) + ")." : "") + "</div>" +
+    "</div>";
+  }
+
+  // Collapsed green/red cost-structure alert — compares the estimator's OWN monthly cost under
+  // the current harness vs the alternative harness (apples-to-apples, using its real numbers),
+  // and links out to the standalone comparator (seeded) for the deeper token-level view.
+  // Green = current structure is fine; red = the other engine is materially cheaper for this agent.
+  function qeComparatorAlertHtml(v, profile) {
+    // Use the SAME engine the comparator uses (per-task comparePlatforms on the inferred shape),
+    // so the alert %, decision, and the page it links to always agree.
+    var desc = state.qe && state.qe.raw ? state.qe.raw : "";
+    if (!desc || !EC.inferComparatorInputs) return "";
+    var binp = EC.inferComparatorInputs(desc);
+    if (v.model) binp.model = v.model; // banner % must track the picked model on the GitHub side
+    var r = EC.comparePlatforms(binp);
+    var auto = v.archetype === "autonomous";
+    var curIsGh = (v.harness || "standard") === "github-copilot";
+    var curCost = curIsGh ? r.ghcpPerJob : r.m365PerJob;
+    var altCost = curIsGh ? r.m365PerJob : r.ghcpPerJob;
+    var simplerName = auto ? "a deterministic agent flow" : "a simpler engine";
+    var href = "../compare/?cmp_desc=" + encodeURIComponent(desc);
+    var cheaperAlt = curCost > 0 && altCost < curCost * 0.8; // alternative >20% cheaper
+    if (cheaperAlt) {
+      var pct = Math.round((1 - altCost / curCost) * 100);
+      var txt;
+      if (curIsGh) {
+        // Current pick is the pricier GitHub harness — invite the user to understand WHY.
+        txt = 'You\u2019ve got the <b>smart, multi-step engine</b> (GitHub Copilot harness) \u2014 the most capable, and usually the priciest because it re-reads a lot of context every ' + (auto ? "run" : "turn") + '. ' + (simplerName.charAt(0).toUpperCase() + simplerName.slice(1)) + ' could run about <b>' + pct + '% less</b> if it can handle the work. <span class="qe-cmp-link">See why the harness costs more, and compare the options \u2192</span>';
+      } else {
+        // Rare: the GitHub harness is actually the cheaper option here (long, grounded back-and-forth).
+        txt = 'Worth knowing \u2014 for a job with this much grounded back-and-forth, the <b>GitHub Copilot harness</b> could actually run about <b>' + pct + '% less</b> here. <span class="qe-cmp-link">See why, and compare the options \u2192</span>';
+      }
+      return '<a class="qe-cmp-alert red" href="' + href + '">' +
+        '<span class="qe-cmp-dot"></span>' +
+        '<span class="qe-cmp-txt">' + txt + '</span></a>';
+    }
+    return '<a class="qe-cmp-alert green" href="' + href + '">' +
+      '<span class="qe-cmp-dot"></span>' +
+      '<span class="qe-cmp-txt">This looks like the right-cost engine for the work. <span class="qe-cmp-link">See how it compares to the GitHub Copilot harness and the others \u2192</span></span></a>';
+  }
+
   function qeResultsHtml() {
     var v = state.qe.vars;
     var adv = state.qe.view === "advanced";
@@ -847,6 +1135,7 @@
     }).join("");
     return '<div id="qe-results-full">' +
       qeActionsHtml(adv) +
+      qeHarnessConfirmHtml(v, state.qe.why || {}) +
       (adv ? ('<div class="section-label">Edit all variables <span style="text-transform:none;font-weight:400">— every inference, in one place</span></div>' + qeQuizHtml(v, state.qe.why || {})) : "") +
       '<div class="section-label"' + (adv ? ' style="margin-top:1.25rem"' : "") + ">How this would be built in Copilot Studio</div>" +
       '<div id="qe-outline-head"></div>' +
@@ -856,6 +1145,7 @@
         '<div class="qe-axis"><h4>🔧 Build effort</h4><div id="qe-axis-build"></div><div id="qe-profile2"></div></div>' +
         '<div class="qe-axis"><h4>💳 Run cost</h4><div id="qe-axis-cost"></div></div>' +
       "</div>" +
+      qeComparatorAlertHtml(state.qe.vars, state.qe.profile) +
       qeStarterHtml() +
       "</div>";
   }
@@ -1242,8 +1532,25 @@
     state.qe.vars = qeReadVars();
     qeNormalizeVars();
     state.qe.profile = EC.deriveQuick(state.qe.vars);
-    var iv = document.getElementById("qe-vol-interactive");
+    // Live-refresh the read-only "Credits per task (computed)" without re-rendering the
+    // form (keeps focus in the number fields the user is typing into).
+    var gc = document.getElementById("qe-ghcomputed");
+    if (gc) {
+      var vv = state.qe.vars;
+      if (vv.harness === "github-copilot" && vv.model) {
+        var comp = EC.ghTaskCredits(vv);
+        gc.value = Math.round(comp.taskCredits);
+        var gcn = document.getElementById("qe-ghcomputed-note");
+        if (gcn) {
+          var mLabel = (EC.MODEL_RATES[vv.model] && EC.MODEL_RATES[vv.model].label) || vv.model;
+          gcn.textContent = comp.floored
+            ? "At Microsoft\u2019s published Light-band floor (100) \u2014 the raw token cost is lower for this shape."
+            : "Auto-computed from your per-turn inputs \u00d7 " + mLabel + "\u2019s rate. Change the model or any field to see it move.";
+        }
+      }
+    }
     var av = document.getElementById("qe-vol-autonomous");
+    var iv = document.getElementById("qe-vol-interactive");
     if (iv) iv.style.display = state.qe.vars.archetype === "autonomous" ? "none" : "";
     if (av) av.style.display = state.qe.vars.archetype === "autonomous" ? "" : "none";
     if (document.getElementById("qe-preview")) qeRenderPreview();
@@ -1321,9 +1628,30 @@
   // opening the "Fine-tune inputs" (advanced) form.
   function qeSetHarness(h) {
     if (!state.qe) return;
-    state.qe.vars.harness = h;
-    // Tier is derived from the scenario's t-shirt size inside qeCostHtml — don't force a tier here.
-    if (document.getElementById("qe-results-full")) qeRenderResultsInner();
+    var v = state.qe.vars;
+    v.harness = h;
+    if (h === "github-copilot") {
+      // Model is the biggest cost lever on this harness — ensure one is set so the
+      // token-based pricing engages and the model picker shows a value.
+      if (!v.model) {
+        var mi = EC.inferModel("github-copilot", state.qe.raw || "", v);
+        v.model = mi.model || EC.MODEL_DEFAULT;
+        if (!state.qe.why) state.qe.why = {};
+        state.qe.why.model = mi.why;
+      }
+    } else {
+      // Leaving the GitHub harness — model doesn't affect credits elsewhere; drop it so
+      // the standard/chat path is model-blind and the copy stays clean.
+      delete v.model;
+    }
+    state.qe.profile = EC.deriveQuick(v);
+    qeRender();
+  }
+  function qeSetModel(val) {
+    if (!state.qe) return;
+    state.qe.vars.model = val || null;
+    state.qe.profile = EC.deriveQuick(state.qe.vars);
+    qeRender();
   }
   function qeSetGhTier(t) {
     if (!state.qe) return;
@@ -1368,6 +1696,7 @@
     var scale = v.archetype === "autonomous"
       ? { archetype: "autonomous", events: v.events || 0 }
       : { archetype: "interactive", users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
+    applyHarnessToScale(scale, v, st.raw);
     seedDetailed(profile, scale, v.escalation || 0);
   }
 
@@ -2125,14 +2454,11 @@
   function qiRowToDetailed(i) {
     var st = state.qi; if (!st || !st.scenarios[i]) return;
     var sc = st.scenarios[i], v = sc.vars;
-    if ((v.harness || "standard") === "github-copilot") {
-      qiStatus("The Detailed estimator doesn\u2019t model the GitHub Copilot harness yet \u2014 fine-tune this scenario in Quick mode instead.", true);
-      return;
-    }
     var profile = (sc.edited && sc.profile && sc.profile.length) ? sc.profile : EC.deriveQuick(v);
     var scale = v.archetype === "autonomous"
       ? { archetype: "autonomous", events: v.events || 0 }
       : { archetype: "interactive", users: v.users || 0, interactions: v.interactions || 0, deployment: v.deployment || "embedded", licensePct: v.licensePct || 0 };
+    applyHarnessToScale(scale, v, sc.raw || sc.description || sc.name);
     state.origin = { kind: "qi", index: i, name: sc.name };
     seedDetailed(profile, scale, v.escalation || 0, sc.edited ? sc.escProfile : null);
     renderOriginBanner();
@@ -2227,11 +2553,33 @@
       v.licensePct = Math.min(100, Math.max(0, parseFloat(getVal("licensePct")) || 0));
       v.deployment = detIsEmbedded() ? "embedded" : "standalone";
     }
+    // Carry the harness (and, for GitHub, the model + per-turn build-up) back so the scenario
+    // keeps the engine it was edited on — the round-trip stays faithful.
+    var hb = document.querySelector('#harness-toggle .deploy-btn.active');
+    v.harness = hb ? hb.getAttribute("data-harness") : (v.harness || "standard");
+    var isGh = v.harness === "github-copilot";
+    if (isGh) {
+      var gmv = (document.getElementById("ghModel") || {}).value || "";
+      if (gmv) {
+        var gv = function (id, d) { var e = document.getElementById(id); var x = e ? parseFloat(e.value) : NaN; return isFinite(x) ? x : d; };
+        v.model = gmv;
+        v.payloadTokens = Math.max(0, gv("ghPayload", 40000));
+        v.harnessOverhead = Math.max(0, gv("ghOverhead", 15000));
+        v.turns = Math.max(1, gv("ghTurns", 6));
+        v.conversationsPerTask = v.turns;
+        v.outputTokensPerTurn = Math.max(0, gv("ghOutTok", 5500));
+        v.cacheHitPct = Math.min(100, Math.max(0, gv("ghCache", 0)));
+      } else { v.model = null; }
+    } else { v.model = null; }
     sc.vars = v;
-    sc.profile = normal.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits }; });
-    sc.escProfile = escRows.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits }; });
-    sc.perUnit = normal.reduce(function (a, r) { return a + r.uses * r.credits; }, 0) +
-      escRows.reduce(function (a, r) { return a + r.uses * r.credits * escPct / 100; }, 0);
+    // The per-action grid is hidden and irrelevant on the GitHub harness (it prices per task),
+    // so keep the scenario's existing profile there instead of zeroing it from empty rows.
+    if (!isGh) {
+      sc.profile = normal.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits }; });
+      sc.escProfile = escRows.map(function (r) { return { name: r.name, uses: r.uses, credits: r.credits }; });
+      sc.perUnit = normal.reduce(function (a, r) { return a + r.uses * r.credits; }, 0) +
+        escRows.reduce(function (a, r) { return a + r.uses * r.credits * escPct / 100; }, 0);
+    }
     sc.estimate = sc.estimate || {};
     sc.estimate.monthly = monthly;
     if (EC.creditRange) sc.range = EC.creditRange(monthly);
@@ -2631,6 +2979,7 @@
     window.qeRebuild = qeRebuild;
     window.qeRebuildStructural = qeRebuildStructural;
     window.qeSetHarness = qeSetHarness;
+    window.qeSetModel = qeSetModel;
     window.qeSetGhTier = qeSetGhTier;
     window.qeSetConvPerTask = qeSetConvPerTask;
     window.qeToDetailed = qeToDetailed;

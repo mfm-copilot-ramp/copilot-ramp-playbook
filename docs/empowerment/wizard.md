@@ -130,6 +130,9 @@ trade-offs of each. It's the [decision tree](decision-tree.md), made clickable a
 .pw-pc-col.cons li::before { content: "\2013"; position: absolute; left: 0; color: #d08641; font-weight: 700; }
 .pw-cta.secondary { background: transparent; color: var(--pw-accent) !important; border: 1.5px solid var(--pw-accent); }
 .pw-cta.secondary:hover { background: var(--md-code-bg-color); }
+.pw-handoff { margin-top: 1.5rem; padding: 1rem 1.1rem; border: 1.5px solid var(--pw-accent); border-radius: 10px; background: var(--md-code-bg-color); }
+.pw-handoff-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pw-accent); margin-bottom: 0.4rem; }
+.pw-handoff p { margin: 0 0 0.7rem; font-size: 0.9rem; }
 </style>
 
 <div class="pw-card" id="pw-card" aria-live="polite"></div>
@@ -424,6 +427,12 @@ trade-offs of each. It's the [decision tree](decision-tree.md), made clickable a
   function renderResult() {
     cur = QUESTIONS.length;
     var ranked = rank();
+    // Recompute scores here to detect a "close call" between the top two surfaces —
+    // the moment where COST STRUCTURE, not fit, should decide (Sugan's could-go-either-way).
+    var scores = {};
+    ORDER.forEach(function (k) { scores[k] = 0; });
+    picks.forEach(function (p) { for (var k in p.w) { scores[k] = (scores[k] || 0) + p.w[k]; } });
+    var closeCall = (scores[ranked[0]] - scores[ranked[1]]) <= 1;
     var primary = SURFACES[ranked[0]];
     var backup = SURFACES[ranked[1]];
     var answers = picks.map(function (p) { return '<b>' + esc(p.title) + '</b>'; }).join(" \u00B7 ");
@@ -431,6 +440,25 @@ trade-offs of each. It's the [decision tree](decision-tree.md), made clickable a
     var bAttrs = backup.external ? ' target="_blank" rel="noopener"' : '';
     var doneDots = "";
     for (var i = 0; i < QUESTIONS.length; i++) { doneDots += '<span class="pw-dot done"></span>'; }
+    // ── Cost-structure handoff (seeded) ──────────────────────────────────────
+    // Map the answers already given into the comparator's two axes so the user
+    // doesn't re-enter: Q2 (steps) -> turns, Q4 (what it needs to know) -> payload tokens.
+    var stepsIdx = picks[1] ? QUESTIONS[1].options.indexOf(picks[1]) : 1;
+    var knowIdx = picks[3] ? QUESTIONS[3].options.indexOf(picks[3]) : 1;
+    var turnsSeed = [2, 6, 15][stepsIdx < 0 ? 1 : stepsIdx];
+    var payloadSeed = ["little", "some", "large"][knowIdx < 0 ? 1 : knowIdx];
+    var groundSeed = knowIdx === 0 ? "none" : (knowIdx === 2 ? "tenant" : "docs");
+    var cmpHref = "../../compare/?cmp_payload=" + payloadSeed + "&cmp_turns=" + turnsSeed +
+      "&cmp_grounding=" + groundSeed;
+    var handoff = closeCall
+      ? '<div class="pw-handoff">' +
+          '<div class="pw-handoff-badge">Close call \u2014 let cost decide</div>' +
+          '<p>Your top two surfaces scored nearly even, so the deciding factor is likely <b>cost structure</b>, not fit. ' +
+          'GitHub-harness / token-metered tools get pricey on big payloads; event-metered Studio gets pricey on many turns. ' +
+          'We\u2019ve pre-filled a side-by-side from your answers.</p>' +
+          '<a class="pw-cta secondary" href="' + cmpHref + '">Compare GitHub vs M365 cost structures \u2192</a>' +
+        '</div>'
+      : "";
     card.innerHTML =
       '<div class="pw-result">' +
         '<div class="pw-progress">' + doneDots +
@@ -450,6 +478,7 @@ trade-offs of each. It's the [decision tree](decision-tree.md), made clickable a
           pcBlock(backup) +
           '<a class="pw-cta secondary" href="' + backup.href + '"' + bAttrs + '>' + esc(backup.cta) + ' \u2192</a>' +
         '</div>' +
+        handoff +
         '<div class="pw-actions">' +
           '<button class="pw-btn" id="pw-back">\u2190 Back</button>' +
           '<span class="pw-spacer"></span>' +

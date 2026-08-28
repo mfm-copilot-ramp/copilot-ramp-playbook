@@ -22,6 +22,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
         A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
 
         - **GitHub Copilot harness agents** are **never** covered by a Microsoft 365 Copilot license — every interaction, *plus building and testing the agent*, bills Copilot Credits regardless of channel. Only the **standard** and **Copilot chat** harnesses are zero-rated. Use the **Harness** selector to model it. Microsoft bills this harness **per task by complexity** and publishes only credit **ranges** — **Light 100–300 · Medium 300–500 · Heavy &gt;500** — that bundle model tokens, tools, and the harness itself (there is **no per-action rate card** for this harness, so the estimator hides the per-action grid and prices a task at an editable **credits-per-task** anchor seeded from the tier). The anchors sit toward the high end of each band to lean slightly conservative, and Heavy is open-ended (editable upward, no cap). A one-time **build &amp; test** cost is added on top.
+        - **Model choice is the largest single cost driver on the GitHub Copilot harness.** The published tier bands are model-blind, but the LLM-token cost of a task swings roughly **10–20×** between a lightweight model and a frontier/reasoning model. In **Quick** mode (open **Edit all variables**) or **Detailed** mode, pick a **Model** to switch the per-task estimate from the flat tier anchor to a **per-turn token build-up**: `credits/task ≈ turns × ((overhead + payload) × in-rate + output × out-rate) ÷ 1,000`, floored to Microsoft's published Light band (100), priced per model and net of a **cache-hit %** lever (re-sent context bills at ~10% of fresh input — the dominant way to control agentic burn). This is the **same engine as the standalone comparator**. Model rates are derived from GitHub Copilot's published per-1M-token pricing converted at 1 credit = $0.01, and remain **directional** — verify before quoting. Choose **No specific model** for the published-band estimate.
         - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
         - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
         - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
@@ -365,6 +366,47 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 .qe-preview .big { font-size: 1.7rem; font-weight: 700; color: var(--md-primary-fg-color); line-height: 1.1; }
 .qe-mini-tshirt { display: inline-block; min-width: 1.9rem; text-align: center; padding: 0.1rem 0.45rem; border-radius: 6px; font-weight: 800; font-size: 0.85rem; }
 .qe-note { font-size: 0.78rem; color: var(--md-default-fg-color--light); background: var(--md-default-fg-color--lightest); border-radius: 6px; padding: 0.5rem 0.7rem; line-height: 1.55; margin: 0.6rem 0; }
+/* Plain-language harness confirmation cards (Quick results) */
+.qe-hn-wrap { margin: 0.4rem 0 1.2rem; }
+.qe-hn-q { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.25rem; }
+.qe-hn-why { font-size: 0.85rem; color: var(--md-default-fg-color--light); margin-bottom: 0.7rem; }
+.qe-hn-cards { display: grid; grid-template-columns: 1fr; gap: 0.7rem; }
+@media (min-width: 720px) { .qe-hn-cards { grid-template-columns: 1fr 1fr 1fr; } }
+.qe-hn-card { text-align: left; border: 1.5px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 0.85rem 0.95rem; background: var(--md-code-bg-color); cursor: pointer; font-family: inherit; color: var(--md-default-fg-color); transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s; width: 100%; }
+.qe-hn-card:hover { border-color: var(--md-primary-fg-color); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.qe-hn-card.rec { border-color: var(--md-primary-fg-color); border-width: 2px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.qe-hn-top { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.4rem; }
+.qe-hn-ico { font-size: 1.25rem; }
+.qe-hn-name { font-weight: 700; font-size: 0.95rem; }
+.qe-hn-sub { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--md-default-fg-color--light); margin: -0.2rem 0 0.4rem; }
+.qe-hn-scope { font-size: 0.74rem; line-height: 1.5; color: var(--md-default-fg-color--light); margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px dashed var(--md-default-fg-color--lightest); }
+.qe-hn-badge { margin-left: auto; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--md-primary-bg-color); background: var(--md-primary-fg-color); border-radius: 4px; padding: 0.08rem 0.4rem; }
+.qe-hn-desc { font-size: 0.83rem; line-height: 1.5; margin-bottom: 0.4rem; }
+.qe-hn-cost { font-size: 0.9rem; margin-bottom: 0.4rem; }
+.qe-hn-cost b { font-size: 1.15rem; }
+.qe-hn-cost span { font-size: 0.78rem; font-weight: 400; color: var(--md-default-fg-color--light); }
+.qe-hn-rel { display: inline-block; font-size: 0.72rem; font-weight: 700; border-radius: 4px; padding: 0.05rem 0.4rem; margin-left: 0.2rem; }
+.qe-hn-rel.less { color: #1f7a44; background: rgba(46,158,87,0.14); }
+.qe-hn-rel.more { color: #b0492f; background: rgba(212,85,63,0.12); }
+.qe-hn-benefit { font-size: 0.76rem; color: var(--md-default-fg-color--light); margin-top: 0.35rem; line-height: 1.45; }
+.qe-hn-floor { font-size: 0.66rem; font-style: italic; color: var(--md-default-fg-color--light); margin: -0.15rem 0 0.35rem; cursor: help; }
+.qe-hn-model { margin-top: 0.8rem; padding: 0.7rem 0.9rem; border: 1.5px solid var(--md-primary-fg-color); border-radius: 8px; background: var(--md-default-bg-color); }
+.qe-hn-model-lbl { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; }
+.qe-hn-model-lbl span { font-weight: 400; color: var(--md-default-fg-color--light); }
+.qe-hn-model select { width: 100%; padding: 0.5rem 0.6rem; border-radius: 6px; border: 1px solid var(--md-default-fg-color--lighter); background: var(--md-default-bg-color); color: var(--md-default-fg-color); font-size: 0.9rem; line-height: 1.3; }
+.qe-hn-model select:focus { outline: 2px solid var(--md-primary-fg-color); outline-offset: -1px; }
+.qe-hn-model select option { color: var(--md-default-fg-color); background: var(--md-default-bg-color); padding: 0.2rem 0; }
+.qe-hn-model select optgroup { color: var(--md-default-fg-color--light); font-style: normal; font-weight: 700; }
+.qe-hn-model-why { font-size: 0.76rem; color: var(--md-default-fg-color--light); margin-top: 0.35rem; }
+/* Collapsed green/red cost-structure alert (links out to the comparator) */
+.qe-cmp-alert { display: flex; align-items: center; gap: 0.6rem; margin: 1rem 0; padding: 0.7rem 0.9rem; border-radius: 8px; border: 1.5px solid; text-decoration: none; font-size: 0.9rem; transition: transform 0.1s, box-shadow 0.15s; }
+.qe-cmp-alert:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.qe-cmp-alert .qe-cmp-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; flex-shrink: 0; }
+.qe-cmp-alert.green { border-color: #2e9e57; background: rgba(46,158,87,0.08); color: var(--md-default-fg-color); }
+.qe-cmp-alert.green .qe-cmp-dot { background: #2e9e57; }
+.qe-cmp-alert.red { border-color: #d4553f; background: rgba(212,85,63,0.10); color: var(--md-default-fg-color); }
+.qe-cmp-alert.red .qe-cmp-dot { background: #d4553f; }
+.qe-cmp-alert .qe-cmp-link { color: var(--md-primary-fg-color); font-weight: 600; }
 .qe-axes { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 0.75rem 0; }
 @media (min-width: 680px) { .qe-axes { grid-template-columns: 1fr 1fr; } }
 .qe-axis { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 0.9rem 1rem; }
@@ -515,6 +557,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
     <button type="button" class="em-chip" onclick="qeExample('sales')">Sales enablement</button>
     <button type="button" class="em-chip" onclick="qeExample('support')">Customer voice bot</button>
     <button type="button" class="em-chip" onclick="qeExample('finance')">Invoice processing</button>
+    <button type="button" class="em-chip" onclick="qeExample('assistant')">Team assistant (M365)</button>
   </div>
   <button type="button" class="em-btn" onclick="qeAnalyze()">Build my estimate &rarr;</button>
   <div id="qe-results" class="em-hidden"></div>
@@ -705,7 +748,23 @@ My agents (one per line — what it does, who uses it, how often, channel, knowl
   border: 1px solid var(--md-default-fg-color--lighter); border-radius: 4px;
   background: var(--md-code-bg-color); color: var(--md-default-fg-color); font-size: 1rem;
 }
+.calc-field select {
+  width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem;
+  border: 1px solid var(--md-default-fg-color--lighter); border-radius: 4px;
+  background: var(--md-code-bg-color); color: var(--md-default-fg-color); font-size: 1rem;
+  font-family: inherit;
+}
+.calc-field select:focus, .calc-field input[type=number]:focus {
+  outline: 2px solid var(--md-primary-fg-color); outline-offset: -1px; border-color: var(--md-primary-fg-color);
+}
 .range-row { display: flex; align-items: center; gap: 0.75rem; }
+.calc-field.qe-computed { position: relative; }
+.calc-field.qe-computed label span { font-weight: 400; text-transform: none; color: var(--md-default-fg-color--light); }
+.calc-field.qe-computed input:disabled {
+  background: var(--md-code-bg-color); border-style: dashed;
+  color: var(--md-default-fg-color); -webkit-text-fill-color: var(--md-default-fg-color);
+  opacity: 1; font-weight: 700; cursor: not-allowed;
+}
 .range-row input[type=range] { flex: 1; accent-color: var(--md-primary-fg-color); }
 .range-row input[type=number] { width: 70px !important; }
 
@@ -874,6 +933,8 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
   <button id="toggle-embedded" class="deploy-btn active" onclick="setDeployMode('embedded')">Microsoft 365 (Teams · Copilot Chat · SharePoint)</button>
   <button id="toggle-standalone" class="deploy-btn" onclick="setDeployMode('standalone')">Standalone / other channel</button>
 </div>
+<p id="deploy-hint" class="deploy-hint">On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
+</div>
 
 <div id="harness-field" style="margin-top:.9rem">
 <div class="section-label">Harness (Copilot Studio engine)</div>
@@ -884,27 +945,57 @@ hr.calc-divider { border: none; border-top: 1px solid var(--md-default-fg-color-
 </div>
 <p class="deploy-hint" id="harness-hint">Standard &amp; Copilot chat are covered by an M365 Copilot license in M365 channels. The <strong>GitHub Copilot harness is never covered</strong> — every interaction bills credits, so net billable = gross.</p>
 <div id="gh-realism" style="display:none;margin-top:.6rem">
+<div class="section-label" style="font-size:.72rem">Model — biggest cost factor (GitHub Copilot harness)</div>
+<div class="calc-field" style="margin-bottom:.6rem">
+  <select id="ghModel" onchange="onGhModelChange()"></select>
+  <div class="hint" id="ghModel-hint">Only models Copilot Studio exposes. Pick a model to price the task on its tokens; choose <strong>No specific model</strong> for the model-blind published-band estimate.</div>
+</div>
+
+<!-- TIER MODE — no specific model: price off Microsoft's published per-task bands -->
+<div id="gh-tiermode">
 <div class="section-label" style="font-size:.72rem">Agentic task complexity — GitHub Copilot harness</div>
 <div class="deploy-toggle" id="gh-complexity" style="margin-bottom:.5rem">
   <button type="button" class="deploy-btn" data-c="simple" onclick="setGhComplexity('simple')">Simple · Light (100–300)</button>
   <button type="button" class="deploy-btn" data-c="medium" onclick="setGhComplexity('medium')">Medium (300–500)</button>
   <button type="button" class="deploy-btn active" data-c="complex" onclick="setGhComplexity('complex')">Complex · Heavy (&gt;500)</button>
 </div>
-<div class="calc-grid">
-  <div class="calc-field"><label for="ghPerTask">Credits per task</label>
-    <input type="number" id="ghPerTask" min="0" step="10" value="800" oninput="markGhCustom();recalc()">
-    <div class="hint">Seeded from the tier; edit upward with <strong>no cap</strong> for heavier tasks — Heavy is open-ended (&gt;500).</div></div>
-  <div class="calc-field"><label for="ghBuildRuns">Build &amp; test runs (one-time)</label>
-    <input type="number" id="ghBuildRuns" min="0" step="5" value="40" oninput="recalc()">
-    <div class="hint">Building, testing &amp; evaluating consume credits before you publish.</div></div>
+<div class="calc-field"><label for="ghPerTask">Credits per task</label>
+  <input type="number" id="ghPerTask" min="0" step="10" value="800" oninput="markGhCustom();recalc()">
+  <div class="hint">Seeded from the tier; edit upward with <strong>no cap</strong> for heavier tasks — Heavy is open-ended (&gt;500).</div></div>
 </div>
-<p class="deploy-hint">Microsoft bills the GitHub Copilot harness <strong>per task by complexity</strong> and publishes only credit <strong>ranges</strong> (Light 100–300 · Medium 300–500 · Heavy &gt;500) that bundle model tokens, tools, and the harness itself — <strong>not</strong> a per-action rate card. These anchors sit toward the high end of each band to lean conservative (slightly over- rather than under-estimate). The per-action grid below doesn't apply on this harness, so it's hidden.</p>
-</div>
-</div>
-<p id="deploy-hint" class="deploy-hint">On Microsoft 365 surfaces (Teams · Copilot Chat · SharePoint), M365 Copilot licensed users incur <strong>zero credits</strong>. Only unlicensed users generate credit consumption. Use the <em>% with M365 Copilot license</em> slider to set the licensed proportion.</p>
 
-<hr class="calc-divider">
+<!-- TOKEN MODE — a model is selected: canonical per-turn build-up, same engine as the comparator -->
+<div id="gh-tokenmode" style="display:none">
+<div class="section-label" style="font-size:.72rem">Per-turn token build-up — same engine as the comparator</div>
+<div class="calc-grid">
+  <div class="calc-field"><label for="ghPayload">Payload tokens / turn</label>
+    <input type="number" id="ghPayload" min="0" step="1000" value="40000" oninput="recalc()">
+    <div class="hint">Content read per turn (grounding / files), on top of harness overhead.</div></div>
+  <div class="calc-field"><label for="ghOverhead">Harness overhead / turn</label>
+    <input type="number" id="ghOverhead" min="0" step="1000" value="15000" oninput="recalc()">
+    <div class="hint">Instructions + tools + re-sent context every agentic turn (~15K).</div></div>
+  <div class="calc-field"><label for="ghTurns">Turns to finish the task</label>
+    <input type="number" id="ghTurns" min="1" step="1" value="6" oninput="recalc()">
+    <div class="hint">Agentic back-and-forths in one end-to-end task — a top cost lever.</div></div>
+  <div class="calc-field"><label for="ghOutTok">Output tokens / turn</label>
+    <input type="number" id="ghOutTok" min="0" step="500" value="5500" oninput="recalc()">
+    <div class="hint">Tokens the model generates per turn.</div></div>
+  <div class="calc-field"><label for="ghCache">Cache-hit % (re-sent context)</label>
+    <input type="number" id="ghCache" min="0" max="100" step="5" value="0" oninput="recalc()">
+    <div class="hint">Re-sent context served from cache (~10× cheaper) — the dominant burn lever.</div></div>
+  <div class="calc-field qe-computed"><label for="ghComputed">Credits per task <span>(computed)</span></label>
+    <input type="number" id="ghComputed" value="0" disabled>
+    <div class="hint" id="ghComputed-note">Auto-computed from your per-turn inputs × the selected model’s rate. Change the model or any field to see it move.</div></div>
 </div>
+</div>
+
+<div class="calc-field" style="margin-top:.5rem"><label for="ghBuildRuns">Build &amp; test runs (one-time)</label>
+  <input type="number" id="ghBuildRuns" min="0" step="5" value="40" oninput="recalc()">
+  <div class="hint">Building, testing &amp; evaluating consume credits before you publish.</div></div>
+<p class="deploy-hint">Microsoft bills the GitHub Copilot harness <strong>per task by complexity</strong> and publishes only credit <strong>ranges</strong> (Light 100–300 · Medium 300–500 · Heavy &gt;500) that bundle model tokens, tools, and the harness itself — <strong>not</strong> a per-action rate card. With no model picked, the tier anchors sit toward the high end to lean conservative; pick a model to price the exact token build-up instead. The per-action grid below doesn't apply on this harness, so it's hidden.</p>
+</div>
+</div>
+<hr class="calc-divider">
 
 <!-- ── Org inputs ── -->
 <div class="section-label" id="org-section-label">Organization</div>
@@ -1089,6 +1180,49 @@ function detSetText(id, txt) {
   if (el) el.textContent = txt;
 }
 
+// Shared GitHub-harness per-task pricing for the Detailed calc — archetype-independent so
+// BOTH the interactive (per-user) and autonomous (per-event) branches price a task the same
+// way: editable tier anchor when no model, or the canonical per-turn token build-up when a
+// model is chosen. Also refreshes the read-only "Credits per task (computed)" field.
+function ghDetailedPricing(totalCpud) {
+  var harnessBtn = document.querySelector('#harness-toggle .deploy-btn.active');
+  var harness = harnessBtn ? harnessBtn.getAttribute('data-harness') : 'standard';
+  var isGh = harness === 'github-copilot';
+  var ghBuildRuns = Math.max(0, parseFloat((document.getElementById('ghBuildRuns') || {}).value) || 0);
+  var ghPerTaskV = Math.max(0, parseFloat((document.getElementById('ghPerTask') || {}).value) || 800);
+  var ghModelV = (document.getElementById('ghModel') || {}).value || '';
+  var effCpud;
+  if (isGh) {
+    if (ghModelV && window.EstimatorCore) {
+      var ECg = window.EstimatorCore;
+      var gnum = function (id, d) { var e = document.getElementById(id); var x = e ? parseFloat(e.value) : NaN; return isFinite(x) ? x : d; };
+      var vTok = {
+        model: ghModelV,
+        payloadTokens: Math.max(0, gnum('ghPayload', 40000)),
+        harnessOverhead: Math.max(0, gnum('ghOverhead', 15000)),
+        turns: Math.max(1, gnum('ghTurns', 6)),
+        outputTokensPerTurn: Math.max(0, gnum('ghOutTok', 5500)),
+        cacheHitPct: Math.min(100, Math.max(0, gnum('ghCache', 0)))
+      };
+      var comp = ECg.ghTaskCredits(vTok);
+      effCpud = comp.taskCredits;
+      var gc = document.getElementById('ghComputed');
+      if (gc) gc.value = Math.round(comp.taskCredits);
+      var gnote = document.getElementById('ghComputed-note');
+      if (gnote) {
+        var mm = ECg.MODEL_RATES[ghModelV] || {};
+        gnote.textContent = comp.floored
+          ? 'At Microsoft\u2019s published Light-band floor (100) \u2014 the raw token cost is lower for this shape.'
+          : 'Auto-computed from your per-turn inputs \u00d7 ' + (mm.label || ghModelV) + '\u2019s rate. Change the model or any field to see it move.';
+      }
+    } else {
+      effCpud = ghPerTaskV;
+    }
+  } else {
+    effCpud = totalCpud;
+  }
+  return { harness: harness, isGh: isGh, effCpud: effCpud, buildTest: isGh ? Math.round(ghBuildRuns * effCpud) : 0, ghModelV: ghModelV };
+}
 function recalc() {
   var escPct = Math.min(100, Math.max(0, parseFloat(document.getElementById('escalationRate').value) || 0));
 
@@ -1119,21 +1253,33 @@ function recalc() {
 
   var autonomous = detailedAgentType === 'autonomous';
   var monthlyC, reduceHint;
+  // Harness-aware per-task pricing, shared by both regimes.
+  var gh = ghDetailedPricing(totalCpud);
 
   if (autonomous) {
-    // ── Autonomous: events × credits/event, every event billed, no licensing ──
+    // ── Autonomous: each event is one run. GitHub harness prices per TASK; other harnesses
+    //    price per event from the row mix. Every event billed, no license coverage. ──
     var events = Math.max(0, parseFloat(document.getElementById('eventsPerMonth').value) || 0);
-    monthlyC = events * totalCpud;
+    var perUnit = gh.isGh ? gh.effCpud : totalCpud;
+    monthlyC = events * perUnit;
 
     detSetText('lbl-billed', 'Events / month');
-    detSetText('lbl-interactions', 'Credits / event');
+    detSetText('lbl-interactions', gh.isGh ? 'Credits / task' : 'Credits / event');
     detSetText('lbl-credits-month', 'Credits / month');
     detSetText('lbl-per-user', 'Credits / year');
 
     document.getElementById('res-licensed').textContent        = fmt(events);
-    document.getElementById('res-monthly-prompts').textContent = fmtDec(totalCpud);
+    document.getElementById('res-monthly-prompts').textContent = fmtDec(perUnit);
     document.getElementById('res-credits').textContent         = fmt(monthlyC);
     document.getElementById('res-per-user').textContent        = fmt(monthlyC * 12);
+    var covElA = document.getElementById('det-coverage');
+    if (covElA) {
+      if (gh.isGh) {
+        covElA.innerHTML = '<strong>GitHub Copilot harness — never license-covered.</strong> \u2248 <strong>' + fmt(perUnit) + '</strong> credits/task \u00d7 <strong>' + fmt(events) + '</strong> events/mo = <strong>' + fmt(monthlyC) + '</strong> credits / mo. One-time <strong>build &amp; test \u2248 ' + fmt(gh.buildTest) + '</strong> credits.';
+      } else {
+        covElA.innerHTML = '<strong>Autonomous \u2014 every event billed.</strong> No license coverage applies to event-driven runs: <strong>' + fmt(monthlyC) + '</strong> credits / mo.';
+      }
+    }
     reduceHint = 'Reduce events per month, escalation rate, or the credit mix.';
   } else {
     // ── Interactive: users × interactions × credits/interaction, licensing applies ──
@@ -1141,19 +1287,14 @@ function recalc() {
     var licPct   = Math.min(100, Math.max(0, parseFloat(document.getElementById('licensePct').value)   || 0));
     var avgInt   = Math.max(0, parseFloat(document.getElementById('avgInteractions').value) || 0);
     var embedded   = document.getElementById('toggle-embedded').classList.contains('active');
-    var harnessBtn = document.querySelector('#harness-toggle .deploy-btn.active');
-    var harness    = harnessBtn ? harnessBtn.getAttribute('data-harness') : 'standard';
+    var harness    = gh.harness;
     var covered    = (harness !== 'github-copilot') && embedded;
     var licensed   = Math.round(total * licPct / 100);
     var unlicensed = total - licensed;
     var billedBase = covered ? unlicensed : total;
     var active     = billedBase;
-    var ghPerTaskV = Math.max(0, parseFloat((document.getElementById('ghPerTask')||{}).value) || 800);
-    var ghBuildRuns= Math.max(0, parseFloat((document.getElementById('ghBuildRuns')||{}).value) || 0);
-    // GitHub harness: Microsoft publishes only per-task credit ranges by complexity — the
-    // per-action grid does not apply, so we price at the (editable) tier anchor, not totalCpud.
-    var effCpud    = harness === 'github-copilot' ? ghPerTaskV : totalCpud;
-    var buildTest  = harness === 'github-copilot' ? Math.round(ghBuildRuns * effCpud) : 0;
+    var effCpud    = gh.effCpud;
+    var buildTest  = gh.buildTest;
 
     var monthlyP = active * avgInt;
     monthlyC = active * avgInt * effCpud;            // net billable
@@ -1247,6 +1388,7 @@ function setHarnessMode(mode) {
   });
   var gh = document.getElementById('gh-realism');
   if (gh) gh.style.display = (mode === 'github-copilot') ? 'block' : 'none';
+  if (mode === 'github-copilot') { populateGhModel(); }
   // Per-action grid does not apply on the GitHub harness — hide it entirely there.
   var isGh = mode === 'github-copilot';
   ['grid-section-label', 'grid-voice-hint', 'grid-wrap'].forEach(function (id) {
@@ -1269,6 +1411,39 @@ function setGhComplexity(c) {
 function markGhCustom() {
   var box = document.getElementById('gh-complexity');
   if (box) Array.prototype.forEach.call(box.querySelectorAll('.deploy-btn'), function (b) { b.classList.remove('active'); });
+}
+// Populate the Detailed-mode GitHub-harness model picker from the Copilot Studio catalog.
+function populateGhModel() {
+  var sel = document.getElementById('ghModel');
+  if (!sel || !window.EstimatorCore || !window.EstimatorCore.MODEL_ORDER) return;
+  var EC = window.EstimatorCore, groups = { General: [], Deep: [] };
+  EC.MODEL_ORDER.forEach(function (k) {
+    var m = EC.MODEL_RATES[k]; if (!m) return;
+    (groups[m.tag] || (groups[m.tag] = [])).push('<option value="' + k + '">' + m.label + '</option>');
+  });
+  var html = '<option value="">No specific model — typical band</option>';
+  ['General', 'Deep'].forEach(function (g) { if (groups[g] && groups[g].length) html += '<optgroup label="' + g + '">' + groups[g].join('') + '</optgroup>'; });
+  sel.innerHTML = html;
+}
+// When a model is chosen, switch from the published-band tier anchor to the canonical
+// per-turn token build-up (same engine as the comparator). No model → published band.
+function onGhModelChange() {
+  var sel = document.getElementById('ghModel');
+  var usingModel = sel && sel.value;
+  var tierMode = document.getElementById('gh-tiermode');
+  var tokenMode = document.getElementById('gh-tokenmode');
+  var hint = document.getElementById('ghModel-hint');
+  if (tierMode) tierMode.style.display = usingModel ? 'none' : '';
+  if (tokenMode) tokenMode.style.display = usingModel ? '' : 'none';
+  if (hint && usingModel && window.EstimatorCore) {
+    var m = window.EstimatorCore.MODEL_RATES[sel.value] || {};
+    hint.innerHTML = 'Priced on <strong>' + (m.label || sel.value) + '</strong> by tokens (biggest cost factor)' +
+      (m.rateSource === 'proxy' ? ' \u2014 <strong>proxy rate</strong> (nearest sibling ' + (m.proxyOf || '') + '), directional' : '') +
+      '. Adjust the per-turn build-up below \u2014 credits/task is computed for you.';
+  } else if (hint) {
+    hint.innerHTML = 'Only models Copilot Studio exposes. Pick a model to price the task on its tokens; choose <strong>No specific model</strong> for the model-blind published-band estimate.';
+  }
+  recalc();
 }
 
 var scenarios = {
@@ -1560,6 +1735,12 @@ recalc();
 </div>
 
 </div><!-- /#estimator-cowork -->
+
+---
+
+## Not sure GitHub Copilot is the right engine?
+
+For a *could-go-either-way* agent, the deciding factor is often **cost structure**, not features — GitHub Copilot bills per **token** (grows with payload) while Microsoft 365 / Copilot Studio bills per **event** (flat per turn). The **[Cost Structure Comparator](compare.md)** shows which wins for your workload shape and where the crossover sits.
 
 ---
 

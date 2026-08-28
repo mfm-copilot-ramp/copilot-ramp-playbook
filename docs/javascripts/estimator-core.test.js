@@ -179,5 +179,147 @@ ok("import: unrecognized harness falls back to standard", sBad.vars.harness === 
 ok("import: unrecognized harness warns",
    (sBad.warnings || []).some(function (w) { return /Unrecognized Harness/.test(w); }));
 
+// ── Model-aware token build-up (#1 + #2) — Copilot Studio catalog ────────────
+// Rate card = models Copilot Studio exposes; rates = GitHub per-1M ÷ 10.
+ok("MODEL_ORDER has 9 Studio models", EC.MODEL_ORDER.length === 9);
+ok("MODEL_DEFAULT = claude-sonnet-4.6", EC.MODEL_DEFAULT === "claude-sonnet-4.6");
+ok("sonnet-4.6 direct rate in=0.30 out=1.5", EC.MODEL_RATES["claude-sonnet-4.6"].in === 0.30 && EC.MODEL_RATES["claude-sonnet-4.6"].out === 1.5 && EC.MODEL_RATES["claude-sonnet-4.6"].rateSource === "direct");
+ok("opus-4.6 direct rate in=0.50 out=2.5 (Deep tag)", EC.MODEL_RATES["claude-opus-4.6"].in === 0.50 && EC.MODEL_RATES["claude-opus-4.6"].out === 2.5 && EC.MODEL_RATES["claude-opus-4.6"].tag === "Deep");
+ok("gpt-4.1 is a labelled PROXY (no direct GitHub rate)", EC.MODEL_RATES["gpt-4.1"].rateSource === "proxy" && EC.MODEL_RATES["gpt-4.1"].proxyOf === "GPT-5.4");
+ok("claude-sonnet-5 is GitHub-harness-only", EC.MODEL_RATES["claude-sonnet-5"].ghHarnessOnly === true);
+
+// ── Canonical GitHub-harness task model (overhead + per-turn × turns, floored) ────
+// modelTokenCredits now = ghTaskCredits.taskCredits (per-task, turns default 6, overhead 15K),
+// with tier -> payload bucket (medium -> "some" = 40K/turn).
+//   per-turn Sonnet: (15K+40K)=55K in, 5.5K out -> (55*0.30)+(5.5*1.50)=24.75 ; ×6 = 148.5
+ok("modelTokenCredits sonnet-4.6/medium(some)/6t = 148.5",
+   near(EC.modelTokenCredits({ model: "claude-sonnet-4.6", ghTier: "medium" }), 148.5));
+//   Opus per-turn: (55*0.50)+(5.5*2.50)=41.25 ; ×6 = 247.5
+ok("modelTokenCredits opus-4.6/medium = 247.5",
+   near(EC.modelTokenCredits({ model: "claude-opus-4.6", ghTier: "medium" }), 247.5));
+// Cache-hit must REDUCE cost.
+ok("modelTokenCredits opus/medium/90%cache = 113.85 (caching reduces cost)",
+   near(EC.modelTokenCredits({ model: "claude-opus-4.6", ghTier: "medium", cacheHitPct: 90 }), 113.85));
+ok("cache-hit strictly reduces cost (incentive not inverted)",
+   EC.modelTokenCredits({ model: "claude-opus-4.6", ghTier: "medium", cacheHitPct: 90 }) < EC.modelTokenCredits({ model: "claude-opus-4.6", ghTier: "medium", cacheHitPct: 0 }));
+// Harness overhead constant + floor + band-consistency.
+ok("HARNESS_OVERHEAD_TOKENS = 15000", EC.HARNESS_OVERHEAD_TOKENS === 15000);
+ok("GH_TASK_FLOOR = 100 (published Light band min)", EC.GH_TASK_FLOOR === 100);
+ok("tiny task floored to 100", near(EC.ghTaskCredits({ model: "claude-sonnet-4.6", payloadBucket: "little", turns: 1 }).taskCredits, 100));
+ok("large/6t Sonnet lands in Medium band (300-500)", (function(){ var c=EC.ghTaskCredits({model:"claude-sonnet-4.6",payloadBucket:"large"}).taskCredits; return c>=300 && c<=500; })());
+ok("large/15t Sonnet lands in Heavy band (>500)", EC.ghTaskCredits({model:"claude-sonnet-4.6",payloadBucket:"large",turns:15}).taskCredits > 500);
+ok("ghTurnCredits sonnet/little = 13.5", near(EC.ghTurnCredits({ model: "claude-sonnet-4.6", payloadBucket: "little" }), 13.5));
+
+// ghPerTask model path = canonical task credits (tokens bundle the tools; no double-count).
+ok("ghPerTask model path = task credits (no feature double-count)",
+   near(EC.ghPerTask(20, { model: "claude-sonnet-4.6", ghTier: "medium" }), 148.5));
+ok("ghPerTask explicit override beats model",
+   EC.ghPerTask(20, { model: "claude-opus-4.6", ghTier: "complex", ghPerTask: 1234 }) === 1234);
+// BACK-COMPAT: no model → flat published tier anchors unchanged.
+ok("ghPerTask no-model back-compat medium = 400", EC.ghPerTask(7, { ghTier: "medium" }) === 400);
+ok("ghPerTask no-model back-compat complex = 650", EC.ghPerTask(7, { ghTier: "complex" }) === 650);
+
+// End-to-end through computeQuick: canonical per-task drives monthly credits.
+//   500 users × 20 int / 4 conv-per-task = 2500 tasks ; perTask = 148.5 (tokens only)
+var Mq = EC.computeQuick([{ uses: 1, credits: 2 }, { uses: 1, credits: 10 }],
+  { archetype: "interactive", harness: "github-copilot", deployment: "embedded",
+    users: 500, licensePct: 60, interactions: 20, ghTier: "medium", model: "claude-sonnet-4.6" });
+ok("computeQuick model path: perTask = 148.5 (tokens, no feature double-count)", near(Mq.perTask, 148.5));
+ok("computeQuick model path: tasks = 2500", Mq.tasksPerMonth === 2500);
+ok("computeQuick model path: monthly = 2500 × 148.5 = 371250", near(Mq.netMonthly, 371250));
+ok("computeQuick model path: never covered", Mq.covered === false);
+var Mq2 = EC.computeQuick([{ uses: 1, credits: 2 }, { uses: 1, credits: 10 }],
+  { archetype: "interactive", harness: "github-copilot", deployment: "embedded",
+    users: 500, licensePct: 60, interactions: 20, ghTier: "medium", model: "claude-opus-4.6" });
+ok("computeQuick: Opus (Deep) costs more than Sonnet", Mq2.netMonthly > Mq.netMonthly);
+
+// ── GHCP ⇄ M365 comparator — canonical + grounding levels ───────────────────
+var cLittle = EC.comparePlatforms({ model: "claude-sonnet-4.6", payloadBucket: "little", turns: 6, groundingType: "tenant" });
+ok("comparator: tenant grounding M365/turn = 12", cLittle.m365PerTurn === 12);
+ok("comparator: GH task floored to 100 (little/6t)", near(cLittle.ghcpPerJob, 100) && cLittle.ghFloored === true);
+var cLarge = EC.comparePlatforms({ model: "claude-sonnet-4.6", payloadBucket: "large", turns: 6, groundingType: "tenant" });
+ok("comparator: large payload GH job > M365 job (harness pricier)", cLarge.ghcpPerJob > cLarge.m365PerJob && cLarge.cheaper === "m365");
+ok("comparator: bigger payload raises GH cost", cLarge.ghcpPerJob > cLittle.ghcpPerJob);
+// Grounding levels: none(2) / docs(2) / tenant(12) / action(7).
+ok("comparator: none grounding M365/turn = 2", EC.comparePlatforms({ model: "claude-sonnet-4.6", groundingType: "none" }).m365PerTurn === 2);
+ok("comparator: docs grounding M365/turn = 2", EC.comparePlatforms({ model: "claude-sonnet-4.6", groundingType: "docs" }).m365PerTurn === 2);
+ok("comparator: connector action M365/turn = 7 (2+5)", EC.comparePlatforms({ model: "claude-sonnet-4.6", groundingType: "action" }).m365PerTurn === 7);
+ok("comparator: legacy grounded:false → none (2)", EC.comparePlatforms({ model: "claude-sonnet-4.6", grounded: false }).m365PerTurn === 2);
+
+// ── Harness + model inference (Quick) ───────────────────────────────────────
+function harnessOf(text, extra) { return EC.inferHarness(text, extra || {}); }
+// Reasoning / multistep / big-context → GitHub Copilot harness.
+ok("infer: 'reason over CRM and draft, multi-step' → github",
+   harnessOf("An agent that reasons over CRM and email and drafts quotes across multiple steps", { orchestration: "generative", actionsCount: 3 }).harness === "github-copilot");
+ok("infer: 'read the entire operator manual and troubleshoot' → github",
+   harnessOf("Reads the entire operator manual to troubleshoot shop-floor issues", { knowledge: "docs", hasContent: true }).harness === "github-copilot");
+ok("infer: 'iterative non-deterministic warranty claim' → github",
+   harnessOf("Handles the warranty claim return process which is iterative and non-deterministic", {}).harness === "github-copilot");
+// Rule-based / one-tool / FAQ → standard.
+ok("infer: 'answer FAQs from our docs' → standard",
+   harnessOf("A simple chatbot that answers FAQs from our policy documents", { orchestration: "classic", actionsCount: 0 }).harness === "standard");
+ok("infer: 'look up order status, create a ServiceNow ticket' → standard",
+   harnessOf("Look up an order status and create a ServiceNow ticket", { orchestration: "classic", actionsCount: 1 }).harness === "standard");
+// M365 tenant-graph answers → chat.
+ok("infer: tenant-graph answers only → chat",
+   harnessOf("Answers questions from our Microsoft 365 tenant data in Teams", { knowledge: "tenantGraph", actionsCount: 0 }).harness === "chat");
+// Empty → default standard.
+ok("infer: no signal defaults to standard", harnessOf("", {}).harness === "standard");
+// Confidence + plain why present.
+var hi = harnessOf("reasons through multi-step analysis and troubleshooting", { orchestration: "generative", actionsCount: 3 });
+ok("infer: returns confidence + plain why", !!hi.confidence && typeof hi.why === "string" && hi.why.length > 0);
+
+// Model inference: Deep signal → Deep model; else General; non-github → null.
+ok("inferModel: deep reasoning → Opus (Deep)",
+   EC.inferModel("github-copilot", "complex troubleshooting and root cause analysis", {}).model === "claude-opus-4.6");
+ok("inferModel: general → Sonnet (General)",
+   EC.inferModel("github-copilot", "drafts a friendly reply", {}).model === "claude-sonnet-4.6");
+ok("inferModel: standard harness → no model", EC.inferModel("standard", "anything", {}).model === null);
+
+// End-to-end: analyzeText sets harness + model + why on a reasoning agent.
+var at = EC.analyzeText("An agent that reasons over CRM and email and drafts quotes across several steps for our sales team, about 20 times a month");
+ok("analyzeText: infers github harness", at.vars.harness === "github-copilot");
+ok("analyzeText: infers a model", !!at.vars.model);
+ok("analyzeText: exposes harness rationale", typeof at.why.harness === "string" && at.why.harness.length > 0);
+
+// ── Comparator natural-language intake ──────────────────────────────────────
+var ci1 = EC.inferComparatorInputs("An agent that reads the entire operator manual to troubleshoot issues, several steps each time");
+ok("cmp NL: large document → large payload bucket", ci1.payloadBucket === "large" && ci1.inputTokens >= 60000);
+ok("cmp NL: multi-step → many turns", ci1.turnsBucket === "many" && ci1.turns >= 12);
+ok("cmp NL: deep reasoning → a model set", !!ci1.model);
+var ci2 = EC.inferComparatorInputs("A simple FAQ bot that answers a quick question from a look-up, one and done");
+ok("cmp NL: quick/faq → little payload", ci2.payloadBucket === "little" && ci2.inputTokens <= 20000);
+ok("cmp NL: single step → one turn", ci2.turnsBucket === "one");
+var ci3 = EC.inferComparatorInputs("Answers from our SharePoint policy documents and knowledge base");
+ok("cmp NL: files/KB → some payload", ci3.payloadBucket === "some");
+ok("cmp NL: docs grounding → groundingType docs", ci3.groundingType === "docs");
+var ci3b = EC.inferComparatorInputs("Looks up an order and creates a ServiceNow ticket");
+ok("cmp NL: action → groundingType action", ci3b.groundingType === "action");
+var ci3c = EC.inferComparatorInputs("Answers questions across our Microsoft 365 tenant data");
+ok("cmp NL: M365 tenant → groundingType tenant", ci3c.groundingType === "tenant");
+var ci4 = EC.inferComparatorInputs("Processes about 12 pages per case");
+ok("cmp NL: explicit pages → payload from pages", ci4.inputTokens > 5000 && ci4.why.payload.indexOf("page") >= 0);
+var ci5 = EC.inferComparatorInputs("Reads roughly 80k tokens of context per turn");
+ok("cmp NL: explicit tokens → large bucket ~80k", ci5.inputTokens === 80000 && ci5.payloadBucket === "large");
+ok("cmp NL: returns plain why for each axis", !!(ci1.why && ci1.why.payload && ci1.why.turns && ci1.why.model && ci1.why.grounding));
+// End-to-end: NL inputs feed comparePlatforms cleanly.
+var ceOut = EC.comparePlatforms(EC.inferComparatorInputs("reads a long contract, multi-step review"));
+ok("cmp NL → comparePlatforms yields a verdict", ceOut.cheaper === "m365" || ceOut.cheaper === "github");
+
+// Cache-reuse inference — the lever that lets the GitHub harness beat flat M365 events.
+var ciCache = EC.inferComparatorInputs("A Teams assistant for many quick back and forth questions over the same Microsoft 365 people, meetings, and mail — a long-running chat that reuses the same tenant context across dozens of short turns throughout the day.");
+ok("cmp NL: reuse language → high cache-hit inferred", ciCache.cacheHitPct >= 80);
+ok("cmp NL: assistant scenario → tenant grounding + many turns", ciCache.groundingType === "tenant" && ciCache.turnsBucket === "many");
+var ceCache = EC.comparePlatforms(ciCache);
+ok("cmp NL: high-cache/many-turn/tenant scenario → GitHub harness is cheaper", ceCache.cheaper === "github" && ceCache.ghcpPerJob < ceCache.m365PerJob);
+ok("cmp NL: no reuse language → cache stays 0", EC.inferComparatorInputs("Looks up an order and creates a ServiceNow ticket").cacheHitPct === 0);
+
+// Distinct scenarios must produce DISTINCT GitHub-harness costs — no collapse onto one number.
+var gIt = Math.round(EC.comparePlatforms(EC.inferComparatorInputs("An IT helpdesk agent in Teams that answers common support questions from our knowledge base and can reset passwords and create tickets in ServiceNow.")).ghcpPerJob);
+var gSales = Math.round(EC.comparePlatforms(EC.inferComparatorInputs("A sales enablement agent that drafts proposals and summarizes product docs for our sellers, grounded on our SharePoint sales library.")).ghcpPerJob);
+var gFin = Math.round(EC.comparePlatforms(EC.inferComparatorInputs("Whenever an invoice is submitted, the agent extracts the fields from the scanned document, validates them, and runs a Power Automate approval workflow.")).ghcpPerJob);
+ok("cmp NL: IT vs Sales price differently (Sales drafts more → costs more)", gIt !== gSales && gSales > gIt);
+ok("cmp NL: three distinct scenarios yield >=2 distinct GH costs", new Set([gIt, gSales, gFin]).size >= 2);
+
 console.log(failures === 0 ? "\nALL PASS" : "\n" + failures + " FAILURE(S)");
 process.exit(failures > 0 ? 1 : 0);
