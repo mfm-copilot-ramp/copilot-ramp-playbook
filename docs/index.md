@@ -10,6 +10,9 @@ hide:
   <strong>⚠️ Unofficial.</strong> A <a href="about/#whos-behind-this">personal project</a> — not affiliated with, endorsed by, or an official resource of Microsoft. Product names &amp; trademarks belong to Microsoft.
 </div>
 
+<div class="home-hero" markdown>
+<div class="hero-main" markdown>
+
 <span class="home-eyebrow">From your first chat to production agents</span>
 
 # Get started with Microsoft Copilot — then grow all the way to building agents.
@@ -17,6 +20,27 @@ hide:
 <p class="home-lede">Most people stall at "I have Copilot, now what?" This playbook lays out a natural ramp: start by <em>using</em> Copilot, get comfortable letting agents do work for you, then take the leap to <em>building</em> your own — first in Agent Builder, then in Copilot Studio, and into Foundry when you need pro-code.</p>
 
 <p class="home-credibility">Built by someone who <a href="about/#whos-behind-this">works at Microsoft</a> and uses these Copilot tools every day — as a personal project, not an official Microsoft resource.</p>
+
+</div>
+
+<aside class="hero-aside">
+  <span class="ha-label">Also in the playbook</span>
+  <a class="ha-feature" href="credit-estimator/">
+    <span class="ha-feature-badge">Interactive</span>
+    <span class="ha-feature-title">Credit &amp; ROI Estimator</span>
+    <span class="ha-feature-desc">Size credit consumption, then model cost, payback &amp; ROI before you build.</span>
+  </a>
+  <div class="ha-links">
+    <a href="solutions/">Solution Templates</a>
+    <a href="CATALOG/">Use-Case Catalog</a>
+    <a href="skills/">Skills Catalog</a>
+    <a href="quick-wins/">Quick Wins</a>
+    <a href="start-by-product/">Start by Product</a>
+    <a href="empowerment/decision-tree/">Decide &amp; Govern</a>
+    <a href="RESOURCES/">Reference &amp; Resources</a>
+  </div>
+</aside>
+</div>
 
 <div class="journey">
   <a class="step foundation" href="stages/stage-1-chat/"><span class="n">STAGE 1</span><span class="t">Copilot Chat</span><span class="d">A daily habit and a first "wow."</span></a>
