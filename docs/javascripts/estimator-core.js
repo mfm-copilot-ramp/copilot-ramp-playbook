@@ -54,6 +54,109 @@
   var RATE_PAYG = 0.01;      // $/credit, pay-as-you-go
   var RATE_PREPAID = 0.008;  // $/credit, $200 / 25,000 prepaid pack
 
+  // ── Model-aware token pricing (GitHub Copilot harness only) ────────────────
+  // Copilot Credits per 1,000 tokens, split by input / cached-input / cache-write / output.
+  //
+  // MODEL LIST = the models Copilot Studio actually exposes (Learn:
+  // "Select a primary AI model for your agent"), grouped by Studio's own use tags
+  // (Deep / General). Users can therefore only pick models available in Copilot Studio.
+  //
+  // RATES: credits/1K = (GitHub published USD per 1M tokens) ÷ 10, since 1 credit = $0.01
+  // (docs.github.com "Models and pricing for GitHub Copilot"). Where a Studio model has a
+  // DIRECT GitHub-priced entry we use it (rateSource:"direct"); where it does not, we map to
+  // the nearest GitHub-priced sibling and flag it (rateSource:"proxy", proxyOf:"…").
+  //
+  // ⚠️ SCOPE: applies to the GitHub Copilot HARNESS only. Microsoft publishes per-task
+  // complexity BANDS (tied to token usage) for that harness, not a per-model rate — so this
+  // token build-up is DIRECTIONAL. On the STANDARD harness, model choice is a quality/latency
+  // decision and does NOT scale the per-event credit bill; never apply these rates there.
+  var MODEL_RATES = {
+    // ── General tag (everyday chat, lower cost/latency) ──────────────────────
+    "gpt-4.1":          { label: "GPT-4.1 (Default)",        tag: "General", status: "Default", in: 0.25,  cached: 0.025,  cacheWrite: 0,     out: 1.50,  rateSource: "proxy",  proxyOf: "GPT-5.4" },
+    "gpt-5-chat":       { label: "GPT-5 Chat",               tag: "General", status: "GA",      in: 0.25,  cached: 0.025,  cacheWrite: 0,     out: 1.50,  rateSource: "proxy",  proxyOf: "GPT-5.4" },
+    "gpt-5.5-chat":     { label: "GPT-5.5 Chat",             tag: "General", status: "GA",      in: 0.50,  cached: 0.05,   cacheWrite: 0,     out: 3.00,  rateSource: "direct" },
+    "claude-sonnet-4.6":{ label: "Claude Sonnet 4.6",        tag: "General", status: "GA",      in: 0.30,  cached: 0.03,   cacheWrite: 0.375, out: 1.50,  rateSource: "direct" },
+    "claude-sonnet-5":  { label: "Claude Sonnet 5",          tag: "General", status: "GA",      in: 0.20,  cached: 0.02,   cacheWrite: 0.25,  out: 1.00,  rateSource: "direct", ghHarnessOnly: true },
+    // ── Deep tag (multistep reasoning, highest cost/latency) ─────────────────
+    "gpt-5-reasoning":  { label: "GPT-5 Reasoning",          tag: "Deep",    status: "Preview", in: 0.50,  cached: 0.05,   cacheWrite: 0,     out: 3.00,  rateSource: "proxy",  proxyOf: "GPT-5.5" },
+    "claude-opus-4.6":  { label: "Claude Opus 4.6",          tag: "Deep",    status: "GA",      in: 0.50,  cached: 0.05,   cacheWrite: 0.625, out: 2.50,  rateSource: "direct" },
+    "claude-opus-4.7":  { label: "Claude Opus 4.7",          tag: "Deep",    status: "GA",      in: 0.50,  cached: 0.05,   cacheWrite: 0.625, out: 2.50,  rateSource: "direct" },
+    // ── External (admin-gated; experimental) ─────────────────────────────────
+    "grok-4.1-fast":    { label: "Grok 4.1 Fast (external)", tag: "General", status: "Experimental", in: 0.20, cached: 0.05, cacheWrite: 0, out: 0.60, rateSource: "proxy", proxyOf: "Grok 4.5" }
+  };
+  // Order presented in the picker (grouped by tag in the UI layer).
+  var MODEL_ORDER = [
+    "gpt-4.1", "gpt-5-chat", "gpt-5.5-chat", "claude-sonnet-4.6", "claude-sonnet-5",
+    "gpt-5-reasoning", "claude-opus-4.6", "claude-opus-4.7", "grok-4.1-fast"
+  ];
+  var MODEL_DEFAULT = "claude-sonnet-4.6";
+
+  // ── Canonical GitHub-harness task cost model (shared by estimator + comparator) ──
+  // A "task" is one end-to-end multi-turn job. Its token cost is built from PER-TURN
+  // quantities so the estimator and the comparator always agree:
+  //   task_input  = turns × (harness overhead + payload read per turn)
+  //   task_output = turns × output per turn
+  // The harness overhead is the system prompt + tool schemas + instructions + running
+  // context that EVERY agentic turn re-sends — typically large even for "simple" agents.
+  // Credits are floored to the published GitHub-harness Light-band minimum so no real
+  // multi-turn task shows below Microsoft's published range. Directional planning model.
+  var HARNESS_OVERHEAD_TOKENS = 15000;   // instructions + tools + re-sent context, per turn
+  var TURNS_PER_TASK_DEFAULT = 6;        // user back-and-forths to finish one job
+  var GH_TASK_FLOOR = 100;               // published GitHub-harness Light band minimum (credits/task)
+  // Payload READ per turn (grounding / files / context), by plain bucket. Anchors calibrated
+  // so a typical agent lands within Microsoft's published bands (Light 100–300 · Medium 300–500 · Heavy >500).
+  var PAYLOAD_PER_TURN = { little: 15000, some: 40000, large: 120000 };
+  // Back-compat: a "tier" maps to a payload bucket.
+  var TIER_BUCKET = { simple: "little", medium: "some", complex: "large" };
+  // Retained for any UI that references it; no longer used for pricing.
+  var TIER_TOKEN_PRESETS = {
+    simple:  { inputTokens: 40000,  outputTokens: 4000 },
+    medium:  { inputTokens: 200000, outputTokens: 15000 },
+    complex: { inputTokens: 600000, outputTokens: 45000 }
+  };
+  function modelRate(model) {
+    return Object.prototype.hasOwnProperty.call(MODEL_RATES, model) ? MODEL_RATES[model] : MODEL_RATES[MODEL_DEFAULT];
+  }
+  function numOr(x, d) { x = parseFloat(x); return isFinite(x) ? x : d; }
+  function clamp01(x) { return Math.min(1, Math.max(0, x)); }
+
+  // Per-turn payload (context read) for a task, from explicit tokens or the plain bucket / tier.
+  function payloadPerTurn(v) {
+    v = v || {};
+    var explicit = numOr(v.payloadTokens, numOr(v.inputTokens, NaN));
+    if (isFinite(explicit)) return Math.max(0, explicit);
+    var bucket = v.payloadBucket || TIER_BUCKET[v.ghTier || GH_DEFAULTS.tier] || "some";
+    return PAYLOAD_PER_TURN[bucket] != null ? PAYLOAD_PER_TURN[bucket] : PAYLOAD_PER_TURN.some;
+  }
+  function turnsPerTask(v) {
+    v = v || {};
+    return Math.max(1, numOr(v.turns, numOr(v.conversationsPerTask, TURNS_PER_TASK_DEFAULT)));
+  }
+  // Credits for one agentic TURN on the GitHub side (before floor).
+  function ghTurnCredits(v) {
+    v = v || {};
+    var rate = modelRate(v.model);
+    var overhead = numOr(v.harnessOverhead, HARNESS_OVERHEAD_TOKENS);
+    var payload = payloadPerTurn(v);
+    var inTok = overhead + payload;
+    var outTok = numOr(v.outputTokensPerTurn, numOr(v.outputTokens, Math.max(500, Math.round(inTok * 0.1))));
+    var hit = clamp01(numOr(v.cacheHitPct, 0) / 100);
+    return (inTok * (1 - hit) / 1000) * rate.in
+         + (inTok * hit / 1000) * rate.cached
+         + (outTok / 1000) * rate.out;
+  }
+  // Canonical per-TASK GitHub credits (token build-up, floored to the published Light band).
+  function ghTaskCredits(v) {
+    v = v || {};
+    var turns = turnsPerTask(v);
+    var perTurn = ghTurnCredits(v);
+    var raw = perTurn * turns;
+    var floored = Math.max(GH_TASK_FLOOR, raw);
+    return { perTurn: perTurn, turns: turns, tokenCredits: raw, taskCredits: floored, floored: floored > raw + 1e-9 };
+  }
+  // Back-compat wrapper: aggregate per-task token credits under the unified model.
+  function modelTokenCredits(v) { return ghTaskCredits(v).taskCredits; }
+
   // Matcher substrings used to seed the detailed estimator's default rows.
   var ROW = {
     classic: "Classic answer",
@@ -196,12 +299,19 @@
     if (size === "M") return "medium";
     return "complex"; // L, XL
   }
-  // Effective per-task credits on the GitHub harness. An explicit (edited) per-task value wins;
-  // otherwise the selected tier's anchor. The grid `per` is not used on this harness.
+  // Effective per-task credits on the GitHub harness. Precedence:
+  //   1) explicit (edited) per-task value wins;
+  //   2) if a MODEL is selected → canonical token build-up (overhead + payload/turn × turns,
+  //      floored to the published Light band). Tools/actions are NOT added on top: Microsoft's
+  //      per-task bands (which the floor anchors to) already BUNDLE tokens + tools + the harness,
+  //      so adding the feature profile would double-count. This also keeps the estimator's
+  //      per-task exactly consistent with the standalone comparator.
+  //   3) otherwise the legacy flat tier anchor (model-blind, back-compat default).
   function ghPerTask(per, v) {
     v = v || {};
     var explicit = parseFloat(v.ghPerTask);
     if (isFinite(explicit) && explicit >= 0) return explicit;
+    if (v.model) return modelTokenCredits(v);
     return ghTierCredits(v.ghTier || GH_DEFAULTS.tier);
   }
   function effPerInteraction(per, harness, v) {
@@ -240,6 +350,147 @@
   }
   function costUSD(credits) {
     return { payg: credits * RATE_PAYG, prepaid: credits * RATE_PREPAID };
+  }
+
+  // ── GitHub Copilot ⇄ M365 Copilot cost-structure comparator ────────────────
+  // Grounds the "which cost structure wins" question (Sugan's Token-vs-Credit doc):
+  //   • M365 / Studio meters per EVENT — a grounded interaction ≈ generative answer (2)
+  //     + tenant-graph grounding (10) = 12 credits, FLAT regardless of payload size.
+  //   • GitHub Copilot meters per TOKEN — cost scales continuously with payload × model rate.
+  // So payload size drives GitHub; interaction/turn count drives M365. There is an
+  // input-token CROSSOVER per interaction (~30–40K on Sonnet-class, per the doc) below
+  // which GitHub is cheaper and above which the flat M365 event wins.
+  // Inputs (all optional): model, inputTokens, outputTokens (default 10% of input),
+  // turns (interactions to finish the job), cacheHitPct, grounded (default true),
+  // generativeCredits / groundingCredits overrides.
+  function comparePlatforms(v) {
+    v = v || {};
+    var rate = modelRate(v.model);
+    var turns = turnsPerTask(v);
+    var hit = clamp01(numOr(v.cacheHitPct, 0) / 100);
+    var overhead = numOr(v.harnessOverhead, HARNESS_OVERHEAD_TOKENS);
+    var payload = payloadPerTurn(v);
+    // GitHub side — canonical per-turn + overhead task model, floored to the Light band.
+    var gh = ghTaskCredits(v);
+    var outPerTurn = numOr(v.outputTokensPerTurn, numOr(v.outputTokens, Math.max(500, Math.round((overhead + payload) * 0.1))));
+    // M365 side — per-event, payload-independent: generative (2) + grounding by TYPE.
+    //   none/docs = 0 extra (a plain or file-grounded answer) · tenant-graph = 10 · connector action = 5.
+    var genAnswer = numOr(v.generativeCredits, CREDIT.generative); // 2
+    var groundingType = v.groundingType || (v.grounded === false ? "none" : "tenant");
+    var GROUNDING = { none: 0, docs: 0, tenant: CREDIT.tenantGraph, action: CREDIT.action };
+    var grounding = GROUNDING[groundingType] != null ? GROUNDING[groundingType] : 0;
+    var m365PerTurn = genAnswer + grounding;
+    var m365PerJob = m365PerTurn * turns;
+    // Crossover — the PAYLOAD read per turn (excluding fixed overhead) at which one GitHub turn
+    // costs the same as one M365 event. Below it GitHub is cheaper per turn; above it M365 is.
+    var effInRate = rate.in * (1 - hit) + rate.cached * hit;
+    var perKcost = effInRate + 0.1 * rate.out; // per 1K of (overhead + payload), assuming ~10% output
+    var crossoverPayloadTokens = perKcost > 0 ? Math.max(0, (m365PerTurn * 1000) / perKcost - overhead) : Infinity;
+    return {
+      model: v.model || MODEL_DEFAULT, modelLabel: (rate.label || v.model || MODEL_DEFAULT),
+      rateSource: rate.rateSource || "direct", proxyOf: rate.proxyOf || null,
+      payloadPerTurn: payload, harnessOverhead: overhead, outputTokensPerTurn: outPerTurn,
+      inputTokens: payload, outputTokens: outPerTurn, // per-turn (for messaging / back-compat)
+      turns: turns, cacheHitPct: hit * 100,
+      groundingType: groundingType, grounded: groundingType === "tenant",
+      m365PerTurn: m365PerTurn, ghcpPerTurn: gh.perTurn,
+      m365PerJob: m365PerJob, ghcpPerJob: gh.taskCredits, ghFloored: gh.floored,
+      crossoverInputTokens: crossoverPayloadTokens, crossoverPayloadTokens: crossoverPayloadTokens,
+      cheaper: gh.taskCredits <= m365PerJob ? "github" : "m365"
+    };
+  }
+
+  // ── Natural-language intake for the comparator ─────────────────────────────
+  // Lets a non-savvy user describe an agent in plain English; we infer the two axes the
+  // comparator needs (payload size per turn, turns to finish) plus model + grounding, each
+  // with a plain rationale and a coarse bucket for plain-language chips. Reuses analyzeText's
+  // tested detection. Editable downstream — directional planning input, not a measurement.
+  var PAYLOAD_LARGE_RE = /\b(manual|handbook|entire (document|manual|report|contract|file)|whole (document|manual|report|contract|file)|long (document|report|contract|transcript|email thread)|transcript|contract|large (context|document|file|volume)|hundreds of pages|multi[- ]?page|book|lengthy|big document|full (report|document|transcript)|knowledge across|many documents|large corpus)\b/;
+  var PAYLOAD_MEDIUM_RE = /\b(document|policy|policies|knowledge ?base|sharepoint|pdf|wiki|articles?|our files|internal docs?|procedure|guideline|catalog|product (docs|info|details|manuals?)|a few (files|documents|pages)|reference)\b/;
+  var PAYLOAD_SMALL_RE = /\b(faq|quick|short|simple answer|simple (faq|bot)|in the moment|one[- ]?liner|status|single (field|value|record)|look ?ups?|small)\b/;
+  var PAYLOAD_BREADTH_RE = /\b(library|catalog|corpus|across (our|the|all|multiple)|multiple (docs|documents|sources|systems)|many documents|entire (library|catalog)|whole (library|catalog))\b/;
+  var PAYLOAD_DRAFT_RE = /\b(draft(s|ing)?|write(s)?|compose|author|proposal(s)?|summari[sz]e(s)?|report|memo|generate (a|an|the))\b/;
+  var OUTPUT_LOW_RE = /\b(categori[sz]e(s|d)?|classif|routes?|route it|extract(s|ing)?|validate(s|d)?|look ?ups?|status|reset(s)?|creates? (a )?(ticket|record|incident|case))\b/;
+  // Component-based per-turn payload: a knowledge-context base + breadth (a whole library) +
+  // source to draft from + per-action tool context. Continuous (not three hard buckets) so
+  // genuinely-different agents get genuinely-different GitHub-harness costs, not one round number.
+  function detectPayload(t, v) {
+    v = v || {};
+    // Explicit tokens or pages win (interpreted as PAYLOAD read per turn).
+    var tok = t.match(/(\d[\d,\.]*)\s*(k|thousand)?\s*tokens?/);
+    if (tok) { var n = parseFloat(tok[1].replace(/,/g, "")); if (/k|thousand/i.test(tok[2] || "")) n *= 1000; if (n > 0) return { tokens: Math.round(n), bucket: n >= 80000 ? "large" : n >= 25000 ? "some" : "little", why: "from \u201C" + tok[0].trim() + "\u201D" }; }
+    var pages = t.match(/(\d[\d,\.]*)\s*(?:-|\s)?pages?/);
+    if (pages) { var p = parseFloat(pages[1].replace(/,/g, "")); if (p > 0) { var tk = Math.round(p * 650); return { tokens: tk, bucket: tk >= 80000 ? "large" : tk >= 25000 ? "some" : "little", why: "~" + p + " page(s) of content" }; } }
+    var base, why;
+    if (PAYLOAD_LARGE_RE.test(t)) { base = 100000; why = "reads a large document each turn"; }
+    else if (v.knowledge === "tenantGraph") { base = 30000; why = "reads Microsoft 365 (Graph) records"; }
+    else if (v.knowledge === "docs" || PAYLOAD_MEDIUM_RE.test(t)) { base = 45000; why = "reads from files / a knowledge base"; }
+    else if (PAYLOAD_SMALL_RE.test(t)) { base = 16000; why = "short prompts / quick answers"; }
+    else { base = 30000; why = "a moderate amount of context per turn"; }
+    if (PAYLOAD_BREADTH_RE.test(t)) { base += 25000; why += ", across a broad library"; }
+    if (PAYLOAD_DRAFT_RE.test(t)) { base += 22000; why += " + source to draft from"; }
+    var acts = Math.max(0, v.actionsCount || 0);
+    if (acts > 0) base += acts * 6000; // each connector re-sends its tool schema / results
+    var tokens = Math.min(160000, Math.round(base));
+    return { tokens: tokens, bucket: tokens >= 80000 ? "large" : tokens >= 25000 ? "some" : "little", why: why };
+  }
+  // High cache reuse: the agent re-sends the SAME context across many turns (system prompt +
+  // tools + knowledge / conversation history), so most input is served from cache (~10x cheaper).
+  // This is the lever that can make the token-metered GitHub harness beat flat per-event M365 cost.
+  var CACHE_REUSE_RE = /\b(re-?us(e|es|ing|ed)|over and over|repeatedly|cached?|cache[- ]?hit|persistent context|long[- ]?running (chat|session|conversation|thread)|keeps? the same context|same (tenant )?(context|thread|conversation)|same context (over|across)|reusing the same)\b/;
+  function detectCache(t) {
+    if (CACHE_REUSE_RE.test(t)) return { pct: 90, why: "re-uses the same context across turns (mostly served from cache)" };
+    return { pct: 0, why: null };
+  }
+  function inferComparatorInputs(text) {
+    var t = " " + String(text || "").toLowerCase() + " ";
+    var v = analyzeText(text).vars;
+    var payload = detectPayload(t, v);
+    // Turns to finish one job — from orchestration depth / step count / multi-step language.
+    var steps = (v.actionsCount || 0) + (v.hasFlow ? 1 : 0) + (v.hasAI ? 1 : 0);
+    var multiStep = /\b(multi[- ]?step|several steps|step[- ]?by[- ]?step|each step|back and forth|iterat|orchestrat|many steps|works? through|walk(s)? through|troubleshoot|diagnos|investigat|loop through|go through each)\b/.test(t);
+    var turnsBucket, turnsWhy;
+    if (multiStep || (v.orchestration === "generative" && steps >= 3)) { turnsBucket = "many"; turnsWhy = "many steps / back-and-forth to finish"; }
+    else if (steps >= 1 || v.orchestration === "generative") { turnsBucket = "few"; turnsWhy = "a few steps to finish"; }
+    else { turnsBucket = "one"; turnsWhy = "usually one-and-done"; }
+    // Granular turn COUNT within the bucket — driven by real step signals, so distinct agents
+    // don't all collapse onto the same anchor (2 / 6 / 15).
+    var acts = Math.max(0, v.actionsCount || 0);
+    var turns = turnsBucket === "one" ? 2
+      : turnsBucket === "many" ? Math.min(18, 12 + acts)
+      : Math.min(9, 3 + acts + (v.hasFlow ? 1 : 0) + (v.hasAI ? 1 : 0));
+    var mi = inferModel("github-copilot", text, v);
+    // M365 grounding TYPE: tenant-graph (10) if M365 tenant data; connector action (5) if it acts
+    // in a system; docs (0 extra) if file/KB grounded; else none.
+    var groundingType, groundingWhy;
+    if (v.knowledge === "tenantGraph") { groundingType = "tenant"; groundingWhy = "reads across your Microsoft 365 (Graph) data"; }
+    else if ((v.actionsCount || 0) >= 1) { groundingType = "action"; groundingWhy = "takes an action in a system (connector)"; }
+    else if (v.knowledge === "docs") { groundingType = "docs"; groundingWhy = "answers from your files / knowledge base"; }
+    else { groundingType = "none"; groundingWhy = "just answers \u2014 no company data or actions"; }
+    // Output tokens / turn — drafting/generation writes a lot; classify/extract/route writes little.
+    var outputPerTurn = PAYLOAD_DRAFT_RE.test(t) ? 6000
+      : OUTPUT_LOW_RE.test(t) ? 1200
+      : Math.max(1200, Math.min(8000, Math.round(payload.tokens * 0.08)));
+    var cache = detectCache(t);
+    return {
+      payloadTokens: payload.tokens,          // per-turn payload
+      inputTokens: payload.tokens,            // alias
+      outputTokensPerTurn: outputPerTurn,
+      turns: turns,
+      cacheHitPct: cache.pct,
+      model: mi.model || MODEL_DEFAULT,
+      groundingType: groundingType,
+      grounded: groundingType === "tenant",
+      payloadBucket: payload.bucket,
+      turnsBucket: turnsBucket,
+      why: {
+        payload: payload.why,
+        turns: turnsWhy,
+        model: mi.why,
+        grounding: groundingWhy,
+        cache: cache.why
+      }
+    };
   }
   // Regime-aware monthly consumption for the Quick mode.
   // interactive: billedUsers × interactions/user/month × perUnit (embedded licensing applies).
@@ -542,6 +793,62 @@
     return profile;
   }
 
+  // ── Harness + model inference (Quick mode) ────────────────────────────────
+  // Recommend a harness (and, for the GitHub harness, a starting model) from the
+  // natural-language description + derived signals. Overridable; always returns a
+  // plain-language rationale. Grounded in the harness definitions (Learn) + Sugan's
+  // Token-vs-Credit examples (reasoning/large-context → GitHub; rule-based/one-tool → standard;
+  // tenant-graph answers in M365 → Copilot chat).
+  var GH_SIGNAL_RE = /\b(reason|reasoning|analy[sz]e|analysis|analytic|multi[- ]?step|multistep|iterat|non[- ]?deterministic|investigat|research|synthesi[sz]e|troubleshoot|diagnos|figure out|works? through|orchestrat|agentic|complex (request|case|decision|reasoning|task|workflow|scenario)|operator manual|large (document|context|manual)|entire (manual|document|report)|read(s|ing)? (the )?(whole |entire )?(manual|report|contract|document)|warranty claim|contract (review|analysis)|policy analysis|case analysis|decision(s)? (based|across)|plan(s|ned|ning)? (the|a|how|out)|adapt|dynamic(ally)?)/;
+  var STD_SIGNAL_RE = /\b(faq|frequently asked|look ?up|simple (bot|agent|chatbot|q ?& ?a)|chat ?bot|predictable|deterministic|single (connector|tool|system|action)|answer(s|ing)? (questions|faqs|from)|q ?& ?a\b|straightforward|fixed (set|steps|flow))/;
+  function inferHarness(text, v) {
+    v = v || {};
+    var t = " " + String(text || "").toLowerCase() + " ";
+    var gh = 0, std = 0, chat = 0, why = [];
+    // GitHub Copilot harness — reasoning-heavy / multistep / big-context.
+    var ghHits = (t.match(new RegExp(GH_SIGNAL_RE.source, "g")) || []).length;
+    if (ghHits) { gh += 3 + ghHits; why.push("reasons through multi-step or changing problems"); }
+    var steps = (v.actionsCount || 0) + (v.hasFlow ? 1 : 0) + (v.hasAI ? 1 : 0);
+    if (v.orchestration === "generative" && steps >= 3) { gh += 2; why.push("several steps working together"); }
+    if (v.hasContent || v.knowledge === "docs") { gh += 1; why.push("reads documents / large context"); }
+    // Standard harness — rule-based / deterministic / one-tool.
+    var stdHits = (t.match(new RegExp(STD_SIGNAL_RE.source, "g")) || []).length;
+    if (stdHits) { std += 2 + stdHits; }
+    // "Simple/answer-only" bonus — only when there's no reasoning signal and it isn't a
+    // tenant-graph (Copilot chat) case, so those don't get pulled to standard.
+    if (steps <= 1 && v.orchestration !== "generative" && ghHits === 0 && v.knowledge !== "tenantGraph") { std += 3; }
+    if ((v.actionsCount || 0) <= 1 && !v.hasContent && v.knowledge !== "docs" && v.knowledge !== "tenantGraph" && ghHits === 0) { std += 1; }
+    // Copilot chat harness — answer from M365 tenant data, no heavy actions.
+    if (v.knowledge === "tenantGraph") { chat += 4; }
+    if (v.knowledge === "tenantGraph" && (v.actionsCount || 0) === 0 && !v.hasContent && ghHits === 0) { chat += 2; }
+    // Decide.
+    var scores = { "github-copilot": gh, "standard": std, "chat": chat };
+    var order = ["github-copilot", "standard", "chat"].sort(function (a, b) {
+      if (scores[b] !== scores[a]) return scores[b] - scores[a];
+      // tie-break: prefer the simpler/cheaper option (standard, then chat, then github)
+      return ({ standard: 0, chat: 1, "github-copilot": 2 })[a] - ({ standard: 0, chat: 1, "github-copilot": 2 })[b];
+    });
+    var top = order[0], second = order[1];
+    // If nothing fired, default to standard (simplest / most predictable).
+    if (scores[top] === 0) { top = "standard"; }
+    var margin = scores[top] - scores[second];
+    var confidence = scores[top] === 0 ? "low" : margin >= 3 ? "high" : margin >= 1 ? "medium" : "low";
+    var plainWhy;
+    if (top === "github-copilot") plainWhy = why.length ? ("Your agent " + why.slice(0, 2).join(" and ") + ".") : "Your agent looks like it reasons through multi-step work.";
+    else if (top === "chat") plainWhy = "It mainly answers from your Microsoft 365 company data.";
+    else plainWhy = ghHits ? "It looks mostly rule-based, so the simpler engine keeps costs predictable." : "It looks like straightforward answers or a single set action.";
+    return { harness: top, confidence: confidence, scores: scores, why: plainWhy };
+  }
+  // Deep vs General starting model for the GitHub harness (overridable).
+  var DEEP_SIGNAL_RE = /\b(deep|complex reasoning|multi[- ]?step reasoning|troubleshoot|diagnos|analy[sz]e|analysis|investigat|research|synthesi[sz]e|contract (review|analysis)|policy analysis|case analysis|legal|underwrit|root cause|strategy|strategic)/;
+  function inferModel(harness, text, v) {
+    if (harness !== "github-copilot") return { model: null, tag: null, why: "Model only affects cost on the smart, multi-step engine." };
+    var t = " " + String(text || "").toLowerCase() + " ";
+    var deep = DEEP_SIGNAL_RE.test(t);
+    if (deep) return { model: "claude-opus-4.6", tag: "Deep", why: "Deeper reasoning detected \u2014 suggested a stronger model. Switch to a lighter one to save cost." };
+    return { model: "claude-sonnet-4.6", tag: "General", why: "A balanced model fits this \u2014 switch to a Deep model if it needs heavier reasoning." };
+  }
+
   function analyzeText(raw) {
     var t = " " + String(raw || "").toLowerCase() + " ";
     var steps = extractSteps(t);
@@ -605,6 +912,15 @@
       v.deployment = deploy.value; v.licensePct = deploy.value === "embedded" ? 60 : 0;
       why.users = users.why; why.interactions = interactions.why; why.deployment = deploy.why;
     }
+
+    // Infer the harness (and a starting model for the GitHub harness) from the description.
+    // Recommendation only — the confirmation step lets the user change it.
+    var harnessInf = inferHarness(t, v);
+    v.harness = harnessInf.harness;
+    v.harnessConfidence = harnessInf.confidence;
+    why.harness = harnessInf.why;
+    var modelInf = inferModel(v.harness, t, v);
+    if (modelInf.model) { v.model = modelInf.model; why.model = modelInf.why; }
 
     var profile = deriveQuick(v);
     var sizing = sizeFromDrivers(v);
@@ -1504,14 +1820,21 @@
     perInteractionCredits: perInteractionCredits, billedUsers: billedUsers,
     harnessCovered: harnessCovered, grossUsers: grossUsers,
     GH_DEFAULTS: GH_DEFAULTS, GH_TIERS: GH_TIERS, GH_TIER_RANGE: GH_TIER_RANGE, CONV_PER_TASK: CONV_PER_TASK,
+    MODEL_RATES: MODEL_RATES, MODEL_ORDER: MODEL_ORDER, MODEL_DEFAULT: MODEL_DEFAULT,
+    TIER_TOKEN_PRESETS: TIER_TOKEN_PRESETS, modelRate: modelRate, modelTokenCredits: modelTokenCredits,
+    HARNESS_OVERHEAD_TOKENS: HARNESS_OVERHEAD_TOKENS, GH_TASK_FLOOR: GH_TASK_FLOOR,
+    PAYLOAD_PER_TURN: PAYLOAD_PER_TURN, TURNS_PER_TASK_DEFAULT: TURNS_PER_TASK_DEFAULT, TIER_BUCKET: TIER_BUCKET,
+    payloadPerTurn: payloadPerTurn, turnsPerTask: turnsPerTask, ghTurnCredits: ghTurnCredits, ghTaskCredits: ghTaskCredits,
     ghConvPerTask: ghConvPerTask, ghTierCredits: ghTierCredits, ghTierForSize: ghTierForSize,
     ghPerTask: ghPerTask, effPerInteraction: effPerInteraction,
     computeEstimate: computeEstimate, computeQuick: computeQuick, creditRange: creditRange, costUSD: costUSD,
+    comparePlatforms: comparePlatforms, inferComparatorInputs: inferComparatorInputs,
     costDrivers: costDrivers, QUICK_WIZARD: QUICK_WIZARD,
     detectUsers: detectUsers, detectInteractions: detectInteractions, detectDeployment: detectDeployment,
     detectEventVolume: detectEventVolume, detectArchetype: detectArchetype,
     detectKnowledge: detectKnowledge, detectSystems: detectSystems,
     extractSteps: extractSteps, deriveQuick: deriveQuick,
+    inferHarness: inferHarness, inferModel: inferModel,
     STEP_CATALOG: STEP_CATALOG, analyzeText: analyzeText, analyzeSolution: analyzeSolution,
     parseFlowDefinition: parseFlowDefinition, classifyFlowAction: classifyFlowAction,
     connectorInfo: connectorInfo, parseAgentSpec: parseAgentSpec, CONNECTOR_CATALOG: CONNECTOR_CATALOG,

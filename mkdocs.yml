@@ -94,6 +94,7 @@ extra_javascript:
   - javascripts/estimator-xlsx.js
   - javascripts/estimator-batch.js
   - javascripts/credit-estimator.js
+  - javascripts/platform-comparator.js
   - javascripts/estimator-cowork.js
   - javascripts/estimator-cowork-ui.js
   - javascripts/engine-cards.js
@@ -292,6 +293,7 @@ nav:
   - "Credit & ROI Estimator":
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
+      - Cost Structure Comparator: compare.md
       - "AI Builder → Copilot Credits": ai-builder-estimator.md
       - ROI Estimator: roi-estimator.md
       - "Proposal Composer": proposal.md
