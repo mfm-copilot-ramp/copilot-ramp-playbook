@@ -1657,6 +1657,21 @@
         L.push("");
       }
     }
+    if (connectors.length && wiredConnectors) {
+      L.push("## After import: make your tools work (bind a connection)");
+      L.push("A tool only runs once its connector has a **bound connection**. Until then the agent will call the");
+      L.push("tool and get a connection error (you'll see *\u201cnot connected\u201d* or *`Invalid organization URL 'null'`*");
+      L.push("in the test chat) — the tool wiring is fine, it just has no connection yet.");
+      L.push("");
+      L.push("- **Imported via the maker portal?** The **Connections** step above already bound them — nothing more to do.");
+      L.push("- **Imported with `pac solution import` or a pipeline?** Connections import **unbound**. Create one per");
+      L.push("  connector (**make.powerapps.com \u2192 Connections \u2192 + New connection**), bind it under **Solutions \u2192");
+      L.push("  this solution \u2192 Connection references**, then **re-publish**.");
+      L.push("- **One shared connection vs. per-user:** each tool's **Details \u2192 Authentication mode** defaults to");
+      L.push("  **User** (every end user signs in once). Switch a tool to **Maker** to use a **single shared");
+      L.push("  connection** for everyone \u2014 the lowest-config option for demos and internal agents.");
+      L.push("");
+    }
     if (unmapped.length) {
       L.push("## Actions to wire up after import");
       L.push("Your description mentioned systems that don't have a built-in starter action here. Add these");
@@ -1740,6 +1755,10 @@
       L.push("## Knowledge sources");
       L.push("One or more knowledge sources use a **placeholder** URL/site because your description didn't");
       L.push("include a specific link. Open Knowledge on the agent and point each source at your real content.");
+      L.push("");
+      L.push("> **Tip \u2014 skip this step next time:** paste the real link (e.g. your SharePoint site URL) straight");
+      L.push("> into your description in the Agent Builder and re-generate \u2014 it wires the source automatically, with");
+      L.push("> no placeholder to replace.");
       L.push("");
     }
     // Agent description + suggested prompts. We do NOT write these into the package
