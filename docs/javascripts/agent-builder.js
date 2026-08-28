@@ -27,7 +27,48 @@
   ];
 
   // Widget state.
-  var S = { desc: "", preview: null, experience: "new", name: "", instructions: "", built: false };
+  var S = { desc: "", preview: null, experience: "new", name: "", instructions: "", workIQ: null, skills: "", built: false };
+
+  // "Meeting brief formatter: turns X into Y" -> {name, description}. Separator = first ":" or
+  // em-dash; a bare line is the name only. Blank lines dropped. (Ported from the Quick-mode flow.)
+  function parseSkillLines(text) {
+    return String(text == null ? "" : text).split(/\r?\n/).map(function (ln) {
+      ln = ln.trim();
+      if (!ln) return null;
+      var m = ln.match(/^([^:\u2014]+?)\s*[:\u2014]\s*(.+)$/);
+      if (m) return { name: m[1].trim(), description: m[2].trim() };
+      return { name: ln, description: "" };
+    }).filter(Boolean);
+  }
+  // Effective Work IQ state: user override if set, else auto-detect from the description.
+  function workIqEffective(vars) {
+    if (typeof S.workIQ === "boolean") return S.workIQ;
+    try { return !!(EP && EP.wantsWorkIQ && EP.wantsWorkIQ(vars || {}, (S.desc || "").toLowerCase())); }
+    catch (e) { return false; }
+  }
+  function workIqPill(exp) {
+    return exp === "new"
+      ? '<span class="ab-pill ab-pill--toggle">Post-import toggle</span>'
+      : '<span class="ab-pill ab-pill--wired">Wired in</span>';
+  }
+  function workIqNote(exp) {
+    return exp === "new"
+      ? 'Grounds on the Microsoft&nbsp;365 tenant graph (people, meetings, mail &amp; files) instead of one-off connectors. <strong>Not pre-wired on the GitHub Copilot harness</strong> \u2014 checking this adds a NEXT-STEPS reminder to switch Work&nbsp;IQ on in the portal (Knowledge &rarr; Work&nbsp;IQ) after import. Bills ~10 credits per response. Want it pre-wired now? Use the <strong>standard harness</strong>.'
+      : 'Grounds on the Microsoft&nbsp;365 tenant graph (people, meetings, mail &amp; files). Emitted as <strong>wired-in</strong> Work&nbsp;IQ tools on the standard harness. Bills ~10 credits per response.';
+  }
+  // Read which detected items the user unchecked (keep=checked), to prune the package.
+  function collectExclude() {
+    var exclude = { connectors: [], knowledge: [], capabilities: [] };
+    var collect = function (sel, key, attr) {
+      Array.prototype.forEach.call(document.querySelectorAll(sel), function (cb) {
+        if (!cb.checked) exclude[key].push(cb.getAttribute(attr));
+      });
+    };
+    collect(".ab-keep-conn", "connectors", "data-key");
+    collect(".ab-keep-know", "knowledge", "data-id");
+    collect(".ab-keep-cap", "capabilities", "data-id");
+    return exclude;
+  }
 
   function downloadBlob(data, filename, mime) {
     if (typeof Blob === "undefined" || !window.URL || !window.URL.createObjectURL) return false;
@@ -41,18 +82,28 @@
   }
 
   // ── Build the generator opts from the current description + edits ──────────
-  function optsFromState() {
+  // includeExclude=false while ANALYZING (so the preview shows every detected item to
+  // keep/drop); true at BUILD time (so unchecked items are pruned from the .zip).
+  function optsFromState(includeExclude) {
     var a = EC.analyzeText(S.desc || "");
+    var vars = a.vars || {};
+    if (typeof S.workIQ === "boolean") {
+      var v2 = {}; for (var k in vars) if (Object.prototype.hasOwnProperty.call(vars, k)) v2[k] = vars[k];
+      v2.workIQ = S.workIQ; vars = v2; // don't mutate analyzeText's object
+    }
     var outline = a.outline || null;
-    return {
+    var opts = {
       description: S.desc || "",
-      vars: a.vars || {},
+      vars: vars,
       systems: (outline && outline.systems) || [],
       outline: outline,
       experience: S.experience,
+      skills: parseSkillLines(S.skills),
       name: (S.name || "").trim() || undefined,
       instructions: (S.instructions || "").trim() || undefined
     };
+    if (includeExclude) opts.exclude = collectExclude();
+    return opts;
   }
 
   // Regenerate instructions for the CURRENT harness/description (used on Build and on the
@@ -90,15 +141,26 @@
     var harnessName = newExp ? "GitHub Copilot harness" : "Standard harness";
     var conns = p.connectors || [];
     var know = p.knowledge || [];
+    var caps = p.capabilities || [];
     var unmapped = p.unmapped || [];
     var notices = p.notices || [];
+    var a = EC.analyzeText(S.desc || "");
+    var wiqOn = workIqEffective(a.vars || {});
+    var hasPlaceholder = false;
 
+    // Detected items are keep/drop checkboxes (checked = keep) so the user can prune before build.
     var toolItems = conns.length
-      ? conns.map(function (c) { return '<li><strong>' + esc(c.actionName) + '</strong> <span>\u2014 ' + esc(c.connectorLabel) + '</span></li>'; }).join("")
+      ? conns.map(function (c) { return '<li><label><input type="checkbox" class="ab-keep-conn" data-key="' + esc(c.key) + '" checked> <strong>' + esc(c.actionName) + '</strong> <span>\u2014 ' + esc(c.connectorLabel) + '</span></label></li>'; }).join("")
       : '<li class="ab-empty">No connector tools detected \u2014 add them in Studio if needed.</li>';
     var knowItems = know.length
-      ? know.map(function (k) { return '<li><strong>' + esc(k.label) + '</strong>' + (k.placeholder ? ' <span class="ab-flag">placeholder URL</span>' : "") + (k.site ? '<span class="ab-sub">' + esc(k.site) + '</span>' : "") + '</li>'; }).join("")
+      ? know.map(function (k) { if (k.placeholder) hasPlaceholder = true; return '<li><label><input type="checkbox" class="ab-keep-know" data-id="' + esc(k.id) + '" checked> <strong>' + esc(k.label) + '</strong>' + (k.placeholder ? ' <span class="ab-flag">placeholder URL</span>' : "") + (k.site ? '<span class="ab-sub">' + esc(k.site) + '</span>' : "") + '</label></li>'; }).join("")
       : '<li class="ab-empty">No knowledge source detected.</li>';
+    var capItems = caps.length
+      ? caps.map(function (c) { return '<li><label><input type="checkbox" class="ab-keep-cap" data-id="' + esc(c.id) + '" checked> ' + esc(c.behavior) + ' <span class="ab-sub">tool to add by hand</span></label></li>'; }).join("")
+      : "";
+    var capsHtml = caps.length
+      ? '<div class="ab-col"><div class="ab-col-h">Read capabilities \u2192 NEXT-STEPS (' + caps.length + ")</div><ul class=\"ab-list\">" + capItems + "</ul></div>"
+      : "";
 
     var noticesHtml = notices.length
       ? '<div class="ab-notices"><div class="ab-notices-h">Finish these in Copilot Studio after import</div>' +
@@ -106,6 +168,9 @@
       : "";
     var unmappedHtml = unmapped.length
       ? '<div class="ab-unmapped"><strong>Systems with no starter action:</strong> ' + unmapped.map(esc).join(", ") + ' \u2014 wire these by hand (listed in NEXT-STEPS.md).</div>'
+      : "";
+    var placeholderHtml = hasPlaceholder
+      ? '<p class="ab-hint">Items flagged <em>placeholder URL</em> use an example address \u2014 update it in Copilot Studio after import.</p>'
       : "";
 
     return '<div class="ab-preview">' +
@@ -129,9 +194,26 @@
       '<div class="ab-cols">' +
         '<div class="ab-col"><div class="ab-col-h">Tools (' + conns.length + ")</div><ul class=\"ab-list\">" + toolItems + "</ul></div>" +
         '<div class="ab-col"><div class="ab-col-h">Knowledge (' + know.length + ")</div><ul class=\"ab-list\">" + knowItems + "</ul></div>" +
+        capsHtml +
       "</div>" +
+      placeholderHtml +
+
+      // Work IQ (Microsoft 365 tenant grounding) — parity with the Quick-mode exporter.
+      '<div class="ab-field ab-workiq-field">' +
+        '<label class="ab-workiq"><input type="checkbox" id="ab-workiq"' + (wiqOn ? " checked" : "") + '> ' +
+          '<span>Ground on Microsoft&nbsp;365 with <strong>Work IQ</strong></span> ' + workIqPill(S.experience) + "</label>" +
+        '<div class="ab-sub">' + workIqNote(S.experience) + "</div>" +
+      "</div>" +
+
+      // Skills (reusable named instruction modules) — parity with the Quick-mode exporter.
+      '<div class="ab-field">' +
+        '<label for="ab-skills">Skills <span class="ab-tag">GitHub Copilot harness</span></label>' +
+        '<textarea id="ab-skills" rows="2" class="ab-skills" placeholder="One skill per line \u2014 e.g. Meeting brief formatter: turns gathered context into an executive brief">' + esc(S.skills) + "</textarea>" +
+        '<div class="ab-sub">Reusable, named instruction modules the agent invokes by name. Format each line <code>Name: what it does</code>. Emitted as editable <strong>Skills</strong> on GitHub Copilot harness agents (the standard harness gets a switch note).</div>' +
+      "</div>" +
+
       '<div class="ab-meta"><span><strong>Type:</strong> ' + (p.archetype === "autonomous" ? "Autonomous (triggered)" : "Interactive (chat)") + "</span>" +
-        '<span><strong>Starter topics:</strong> ' + ((EP.SYSTEM_TOPICS && EP.SYSTEM_TOPICS.length) || (newExp ? 0 : 12)) + (newExp ? " (none \u2014 generative)" : " system topics") + "</span></div>" +
+        '<span><strong>Starter topics:</strong> ' + (newExp ? "0 (none \u2014 generative)" : ((EP.SYSTEM_TOPICS && EP.SYSTEM_TOPICS.length) || 12) + " system topics") + "</span></div>" +
       unmappedHtml +
       noticesHtml +
 
@@ -141,10 +223,10 @@
       "</div>" +
       '<div class="ab-status" id="ab-status" role="status"></div>' +
       '<details class="ab-help"><summary>How do I import this?</summary>' +
-        '<ol><li>Go to <strong>make.powerapps.com</strong> (or <strong>copilotstudio.microsoft.com</strong>).</li>' +
-        '<li>Choose <strong>Solutions \u2192 Import solution</strong> and pick the .zip.</li>' +
-        '<li>On the Connections step, pick a connection for each tool (they bind at import).</li>' +
-        '<li>Open the agent, review the instructions, and <strong>Publish</strong>. Then finish anything in <code>NEXT-STEPS.md</code>.</li></ol>' +
+        '<ol><li>Go to <strong>make.powerapps.com</strong> (or <strong>copilotstudio.microsoft.com</strong>) \u2192 <strong>Solutions \u2192 Import solution</strong>.</li>' +
+        '<li>Pick the downloaded <code>.zip</code> and continue.</li>' +
+        '<li>On the Connections step, pick or create a connection for each tool (they bind at import).</li>' +
+        '<li>Open the agent, review the instructions, and <strong>Publish</strong>. It imports unmanaged (fully editable). Finish anything in <code>NEXT-STEPS.md</code>.</li></ol>' +
       "</details>" +
     "</div>";
   }
@@ -170,7 +252,7 @@
   function renderPreview(regenInstr) {
     var host = el("ab-body"); if (!host) return;
     var p;
-    try { p = EP.analyzePackage(optsFromState()); }
+    try { p = EP.analyzePackage(optsFromState(false)); } // analyze shows ALL detected items (no exclude)
     catch (e) { host.innerHTML = '<p class="ab-err">Couldn\u2019t analyze that description \u2014 try rephrasing.</p>'; return; }
     S.preview = p;
     if (!S.name) S.name = p.name || "";
@@ -189,11 +271,19 @@
         var exp = b.getAttribute("data-exp");
         if (exp === S.experience) return;
         S.experience = exp;
-        renderPreview(true); // harness changed → regenerate instructions to match
+        renderPreview(true); // harness changed → regenerate instructions + refresh harness-aware notes
       });
     });
     var regen = el("ab-regen");
     if (regen) regen.addEventListener("click", function () { S.instructions = freshInstructions(S.preview); renderPreview(false); status("Instructions regenerated for the selected harness."); });
+    // Work IQ toggle → set override, re-analyze (changes grounding/notices in the preview).
+    // Deferred so the re-render never runs inside the checkbox's own change/blur dispatch.
+    var wiq = el("ab-workiq");
+    if (wiq) wiq.addEventListener("change", function () { S.workIQ = wiq.checked; setTimeout(function () { renderPreview(false); }, 0); });
+    // Skills: capture live. No re-render (they only affect the .zip / copied config, read at
+    // build time) — avoids a re-render-during-blur DOM race.
+    var skillsEl = el("ab-skills");
+    if (skillsEl) skillsEl.addEventListener("input", function () { S.skills = skillsEl.value; });
     var dl = el("ab-download");
     if (dl) dl.addEventListener("click", doDownload);
     var cp = el("ab-copy");
@@ -203,30 +293,52 @@
   function doDownload() {
     if (!EP || !EP.buildPackage) { status("Builder engine not loaded \u2014 refresh and try again.", true); return; }
     try {
-      var pkg = EP.buildPackage(optsFromState());
+      var opts = optsFromState(true); // BUILD: prune unchecked items via opts.exclude
+      var pkg = EP.buildPackage(opts);
+      var ex = opts.exclude || {};
+      var nRemoved = (ex.connectors || []).length + (ex.knowledge || []).length + (ex.capabilities || []).length;
       var ok = downloadBlob(pkg.bytes, pkg.filename, "application/zip");
-      status(ok ? "Downloaded " + pkg.filename + " \u2014 import it into Copilot Studio." : "Your browser blocked the download.", !ok);
+      status(ok
+        ? "Downloaded " + pkg.filename + " (" + (S.experience === "new" ? "GitHub Copilot harness" : "standard harness") + (nRemoved ? ", " + nRemoved + " removed" : "") + ") \u2014 import it into Copilot Studio."
+        : "Your browser blocked the download.", !ok);
     } catch (e) { status("Couldn\u2019t build the package: " + (e && e.message ? e.message : e), true); }
   }
 
+  // Only the items still checked (kept) belong in the copyable config.
+  function keptBy(sel, attr) {
+    var kept = {};
+    Array.prototype.forEach.call(document.querySelectorAll(sel), function (cb) { kept[cb.getAttribute(attr)] = cb.checked; });
+    return kept;
+  }
   function configText() {
     var p = S.preview || {};
     var newExp = S.experience === "new";
+    var keepConn = keptBy(".ab-keep-conn", "data-key");
+    var keepKnow = keptBy(".ab-keep-know", "data-id");
+    var keepCap = keptBy(".ab-keep-cap", "data-id");
+    var a = EC.analyzeText(S.desc || "");
     var lines = [];
     lines.push("# " + (S.name || p.name || "Agent"));
     lines.push("Harness: " + (newExp ? "GitHub Copilot harness (generative orchestration)" : "Standard harness (topics + rules)"));
     lines.push("Type: " + (p.archetype === "autonomous" ? "Autonomous (triggered)" : "Interactive (chat)"));
+    if (workIqEffective(a.vars || {})) lines.push("Grounding: Microsoft 365 Work IQ (tenant graph)");
     lines.push("");
     lines.push("## Instructions");
     lines.push(S.instructions || "");
     lines.push("");
     lines.push("## Tools");
-    if ((p.connectors || []).length) p.connectors.forEach(function (c) { lines.push("- " + c.actionName + " (" + c.connectorLabel + ")"); });
-    else lines.push("- (none detected)");
+    var conns = (p.connectors || []).filter(function (c) { return keepConn[c.key] !== false; });
+    if (conns.length) conns.forEach(function (c) { lines.push("- " + c.actionName + " (" + c.connectorLabel + ")"); });
+    else lines.push("- (none)");
     lines.push("");
     lines.push("## Knowledge");
-    if ((p.knowledge || []).length) p.knowledge.forEach(function (k) { lines.push("- " + k.label + (k.site ? " — " + k.site : "")); });
-    else lines.push("- (none detected)");
+    var know = (p.knowledge || []).filter(function (k) { return keepKnow[k.id] !== false; });
+    if (know.length) know.forEach(function (k) { lines.push("- " + k.label + (k.site ? " — " + k.site : "")); });
+    else lines.push("- (none)");
+    var caps = (p.capabilities || []).filter(function (c) { return keepCap[c.id] !== false; });
+    if (caps.length) { lines.push(""); lines.push("## Read capabilities (add by hand)"); caps.forEach(function (c) { lines.push("- " + c.behavior); }); }
+    var skills = parseSkillLines(S.skills);
+    if (skills.length && newExp) { lines.push(""); lines.push("## Skills"); skills.forEach(function (s) { lines.push("- " + s.name + (s.description ? ": " + s.description : "")); }); }
     if ((p.unmapped || []).length) { lines.push(""); lines.push("## Wire by hand"); p.unmapped.forEach(function (s) { lines.push("- " + s); }); }
     if ((p.notices || []).length) { lines.push(""); lines.push("## Finish in Copilot Studio"); p.notices.forEach(function (n) { lines.push("- " + n.title + ": " + n.detail); }); }
     return lines.join("\n");

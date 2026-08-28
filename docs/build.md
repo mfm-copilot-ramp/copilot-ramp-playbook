@@ -51,6 +51,18 @@ Say what you want the agent to do, in plain English. This scaffolds a **ready-to
 #agent-builder .ab-col-h { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.3rem; }
 #agent-builder .ab-list { list-style: none; padding: 0; margin: 0; }
 #agent-builder .ab-list li { font-size: 0.82rem; padding: 0.25rem 0; border-bottom: 1px dashed var(--md-default-fg-color--lightest); }
+#agent-builder .ab-list li label { display: inline; cursor: pointer; }
+#agent-builder .ab-list li input[type=checkbox] { margin-right: 0.4rem; vertical-align: middle; }
+#agent-builder .ab-pill { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-radius: 4px; padding: 0.08rem 0.4rem; margin-left: 0.3rem; }
+#agent-builder .ab-pill--toggle { color: #b0492f; background: rgba(212,85,63,0.12); }
+#agent-builder .ab-pill--wired { color: #1f7a44; background: rgba(46,158,87,0.14); }
+#agent-builder .ab-tag { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--md-default-fg-color--light); background: var(--md-code-bg-color); border-radius: 4px; padding: 0.08rem 0.4rem; margin-left: 0.3rem; }
+#agent-builder .ab-workiq-field { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px; padding: 0.6rem 0.75rem; background: var(--md-code-bg-color); }
+#agent-builder .ab-workiq { display: flex; align-items: center; gap: 0.4rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+#agent-builder .ab-workiq span { font-weight: 400; }
+#agent-builder .ab-skills { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); font: inherit; font-size: 0.82rem; resize: vertical; }
+#agent-builder .ab-skills:focus { outline: 2px solid var(--md-primary-fg-color); outline-offset: -1px; }
+#agent-builder .ab-hint { font-size: 0.76rem; color: var(--md-default-fg-color--light); margin: 0.3rem 0; }
 #agent-builder .ab-list li span { color: var(--md-default-fg-color--light); }
 #agent-builder .ab-list .ab-sub { display: block; }
 #agent-builder .ab-list .ab-empty { color: var(--md-default-fg-color--light); border: none; }
