@@ -82,6 +82,8 @@ extra_javascript:
   - javascripts/mermaid-render.js
   - javascripts/nav-expand.js
   - javascripts/role-path.js
+  - javascripts/home-matrix.js
+  - javascripts/home-try.js
   - javascripts/feedback.js
   - javascripts/feedback-widget.js
   - javascripts/share.js

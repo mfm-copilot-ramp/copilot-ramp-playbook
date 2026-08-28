@@ -21,10 +21,10 @@
   line-height: 1;
   padding: .3rem .52rem;
   border-radius: 999px;
-  border: 1px solid var(--md-default-fg-color--lightest);
   background: var(--md-code-bg-color);
   color: var(--md-default-fg-color--light);
   white-space: nowrap;
+  cursor: default;   /* static metadata label — not a control; the filter pills (.rc-opt) are the clickable ones */
 }
 .rc-chip-star {
   border-color: var(--md-primary-fg-color);
