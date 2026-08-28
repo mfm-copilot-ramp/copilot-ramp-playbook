@@ -233,3 +233,63 @@
 @media (max-width: 48rem) {
   .rc-filter-count { margin-left: 0; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Quick Wins launchpad — prompt cards (docs/quick-wins.md)
+   Each card shows a copy-paste prompt inline PLUS a link to its full walkthrough,
+   so the page is a working tool, not a dead-end list. Cards are Material grid
+   cards that also carry .rc-grid, so card-filter.js (Role/Time chips) filters
+   them and empty .rc-bucket sections auto-hide.
+   ══════════════════════════════════════════════════════════════════════════ */
+.md-typeset .qw-lede { font-size: 1.02rem; color: var(--md-default-fg-color--light); margin: .2rem 0 1rem; }
+
+/* make each card a flex column so the "Full walkthrough" link pins to the bottom
+   and cards in a row line up */
+.md-typeset .qw-grid.grid.cards > ul > li {
+  display: flex;
+  flex-direction: column;
+}
+.md-typeset .qw-grid.grid.cards > ul > li > :first-child { margin-top: 0; }
+
+.md-typeset .qw-title {
+  display: block;
+  font-weight: 800;
+  font-size: .95rem;
+  line-height: 1.25;
+  color: var(--md-default-fg-color);
+  margin-bottom: .55rem;
+}
+
+/* the inline prompt: tighter, wraps, keeps Material's copy button */
+.md-typeset .qw-grid .highlight { margin: 0 0 .6rem; }
+.md-typeset .qw-grid pre > code { font-size: .72rem; line-height: 1.5; white-space: pre-wrap; }
+
+.md-typeset .qw-grid .rc-meta { margin: 0 0 .7rem; }
+
+/* "Full walkthrough" link pinned to the bottom */
+.md-typeset a.qw-more {
+  margin-top: auto;
+  align-self: flex-start;
+  font-weight: 700;
+  font-size: .8rem;
+  color: var(--md-primary-fg-color);
+  text-decoration: none;
+  padding: .32rem .6rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--md-primary-fg-color) 8%, transparent);
+  transition: background .12s ease;
+}
+.md-typeset a.qw-more:hover {
+  background: color-mix(in srgb, var(--md-primary-fg-color) 16%, transparent);
+}
+
+/* onward-ramp footer — a quick win is the first rung, not the finish line */
+.md-typeset .qw-onward {
+  margin: 1.6rem 0 .5rem;
+  padding: 1.2rem 1.4rem;
+  border-radius: .8rem;
+  border: 1px solid color-mix(in srgb, var(--md-primary-fg-color) 30%, transparent);
+  background: color-mix(in srgb, var(--md-primary-fg-color) 6%, var(--md-default-bg-color));
+}
+.md-typeset .qw-onward > :first-child { margin-top: 0; }
+.md-typeset .qw-onward h3 { margin-bottom: .3rem; }
