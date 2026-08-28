@@ -1863,6 +1863,10 @@
       var bySystem = c.bySystem && systems.indexOf(c.systemLabel) >= 0; // SP/Teams need action-y text, not just channel/knowledge
       if (byText || bySystem) pushAction(key);
     });
+    // User-added tools (Agent Builder): inject explicit CONNECTOR_ACTIONS keys the NL didn't
+    // detect. pushAction dedupes, and this runs BEFORE the unmapped calc so an added tool for a
+    // system no longer surfaces as "unmapped". Default (no addConnectors) is unchanged.
+    (opts.addConnectors || []).forEach(function (key) { if (CONNECTOR_ACTIONS[key]) pushAction(key); });
 
     // 2) Knowledge sources (free grounding; never adds a credit line).
     var knowledge = [];

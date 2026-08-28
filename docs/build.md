@@ -63,6 +63,10 @@ Say what you want the agent to do, in plain English. This scaffolds a **ready-to
 #agent-builder .ab-skills { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); font: inherit; font-size: 0.82rem; resize: vertical; }
 #agent-builder .ab-skills:focus { outline: 2px solid var(--md-primary-fg-color); outline-offset: -1px; }
 #agent-builder .ab-hint { font-size: 0.76rem; color: var(--md-default-fg-color--light); margin: 0.3rem 0; }
+#agent-builder .ab-addtool { margin: 0.3rem 0 0.6rem; display: flex; flex-direction: column; gap: 0.25rem; }
+#agent-builder .ab-addtool-sel { max-width: 22rem; padding: 0.4rem 0.5rem; border: 1px dashed var(--md-default-fg-color--lighter); border-radius: 6px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); font: inherit; font-size: 0.82rem; }
+#agent-builder .ab-addtool-sel:focus { outline: 2px solid var(--md-primary-fg-color); outline-offset: -1px; }
+#agent-builder .ab-added-note { font-size: 0.78rem; color: var(--md-default-fg-color--light); }
 #agent-builder .ab-list li span { color: var(--md-default-fg-color--light); }
 #agent-builder .ab-list .ab-sub { display: block; }
 #agent-builder .ab-list .ab-empty { color: var(--md-default-fg-color--light); border: none; }

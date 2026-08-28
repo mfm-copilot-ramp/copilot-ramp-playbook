@@ -27,7 +27,7 @@
   ];
 
   // Widget state.
-  var S = { desc: "", preview: null, experience: "new", name: "", instructions: "", workIQ: null, skills: "", built: false };
+  var S = { desc: "", preview: null, experience: "new", name: "", instructions: "", workIQ: null, skills: "", vars: null, outline: null, systems: null, addConnectors: [], built: false };
 
   // "Meeting brief formatter: turns X into Y" -> {name, description}. Separator = first ":" or
   // em-dash; a bare line is the name only. Blank lines dropped. (Ported from the Quick-mode flow.)
@@ -82,22 +82,31 @@
   }
 
   // ── Build the generator opts from the current description + edits ──────────
-  // includeExclude=false while ANALYZING (so the preview shows every detected item to
-  // keep/drop); true at BUILD time (so unchecked items are pruned from the .zip).
+  // The analysis (vars/outline/systems) is computed ONCE per description (or seeded from a
+  // faithful Quick-mode handoff) and held in S, so edits — harness, Work IQ, added tools,
+  // keep/drop — layer on top of a stable base instead of re-deriving each call.
+  function ensureAnalysis() {
+    if (!S.vars) {
+      var a = EC.analyzeText(S.desc || "");
+      S.vars = a.vars || {};
+      S.outline = a.outline || null;
+      S.systems = (a.outline && a.outline.systems) || [];
+    }
+  }
   function optsFromState(includeExclude) {
-    var a = EC.analyzeText(S.desc || "");
-    var vars = a.vars || {};
+    ensureAnalysis();
+    var vars = S.vars || {};
     if (typeof S.workIQ === "boolean") {
       var v2 = {}; for (var k in vars) if (Object.prototype.hasOwnProperty.call(vars, k)) v2[k] = vars[k];
-      v2.workIQ = S.workIQ; vars = v2; // don't mutate analyzeText's object
+      v2.workIQ = S.workIQ; vars = v2; // don't mutate the stored object
     }
-    var outline = a.outline || null;
     var opts = {
       description: S.desc || "",
       vars: vars,
-      systems: (outline && outline.systems) || [],
-      outline: outline,
+      systems: S.systems || [],
+      outline: S.outline || null,
       experience: S.experience,
+      addConnectors: (S.addConnectors || []).slice(),
       skills: parseSkillLines(S.skills),
       name: (S.name || "").trim() || undefined,
       instructions: (S.instructions || "").trim() || undefined
@@ -110,11 +119,11 @@
   // explicit "Regenerate" action after a harness switch).
   function freshInstructions(preview) {
     if (!EP || !EP.buildInstructions) return "";
-    var a = EC.analyzeText(S.desc || "");
+    ensureAnalysis();
     try {
       return EP.buildInstructions(preview.name, S.desc || "", {
         connectors: preview.connectors || [], knowledge: preview.knowledge || [],
-        capabilities: preview.capabilities || [], vars: a.vars || {},
+        capabilities: preview.capabilities || [], vars: S.vars || {},
         experience: S.experience
       }) || "";
     } catch (e) { return ""; }
@@ -135,6 +144,28 @@
     "</div>";
   }
 
+  // "+ Add a tool" — inject a connector action the NL didn't detect. The description is the
+  // basis; this lets the user layer tools on top, the same way instructions are editable.
+  function toolPickerHtml() {
+    var CA = EP.CONNECTOR_ACTIONS || {};
+    var groups = {};
+    Object.keys(CA).forEach(function (key) {
+      var c = CA[key]; if (!c) return;
+      (groups[c.connectorLabel] || (groups[c.connectorLabel] = [])).push({ key: key, name: c.actionName });
+    });
+    var opts = ['<option value="">+ Add a tool\u2026</option>'];
+    Object.keys(groups).sort().forEach(function (label) {
+      opts.push('<optgroup label="' + esc(label) + '">');
+      groups[label].forEach(function (o) { opts.push('<option value="' + esc(o.key) + '">' + esc(o.name) + "</option>"); });
+      opts.push("</optgroup>");
+    });
+    var added = (S.addConnectors || []).length
+      ? '<div class="ab-added-note">Added: ' + S.addConnectors.map(function (k) { return esc((CA[k] && CA[k].actionName) || k); }).join(", ") + ' <button type="button" id="ab-clear-added" class="ab-link">clear</button></div>'
+      : "";
+    return '<div class="ab-addtool"><select id="ab-addtool-sel" class="ab-addtool-sel">' + opts.join("") + "</select>" +
+      '<span class="ab-sub">Add a connector action on top of what the description implied \u2014 it binds at import like the rest.</span>' + added + "</div>";
+  }
+
   // ── Tier 2: editable preview ───────────────────────────────────────────────
   function bodyHtml(p) {
     var newExp = S.experience === "new";
@@ -145,7 +176,7 @@
     var unmapped = p.unmapped || [];
     var notices = p.notices || [];
     var a = EC.analyzeText(S.desc || "");
-    var wiqOn = workIqEffective(a.vars || {});
+    var wiqOn = workIqEffective(S.vars || a.vars || {});
     var hasPlaceholder = false;
 
     // Detected items are keep/drop checkboxes (checked = keep) so the user can prune before build.
@@ -196,6 +227,7 @@
         '<div class="ab-col"><div class="ab-col-h">Knowledge (' + know.length + ")</div><ul class=\"ab-list\">" + knowItems + "</ul></div>" +
         capsHtml +
       "</div>" +
+      toolPickerHtml() +
       placeholderHtml +
 
       // Work IQ (Microsoft 365 tenant grounding) — parity with the Quick-mode exporter.
@@ -240,12 +272,17 @@
   // ── Actions ────────────────────────────────────────────────────────────────
   function build() {
     var ta = el("ab-nl-text");
-    S.desc = ta ? ta.value.trim() : "";
-    if (!S.desc) { return; }
+    var desc = ta ? ta.value.trim() : "";
+    if (!desc) { return; }
     if (!EC || !EC.analyzeText || !EP || !EP.analyzePackage) { return; }
-    var a = EC.analyzeText(S.desc);
+    // Fresh description → reset the analysis + all layered edits so nothing leaks across builds.
+    S.desc = desc;
+    S.vars = null; S.outline = null; S.systems = null;
+    S.addConnectors = []; S.name = ""; S.instructions = ""; S.workIQ = null;
+    ensureAnalysis();
     // Recommend the harness the estimator would: GitHub harness for generative/agentic work.
-    S.experience = (a.vars && (a.vars.orchestration === "generative" || a.vars.hasAI || (a.vars.actionsCount || 0) >= 2)) ? "new" : "classic";
+    var v = S.vars || {};
+    S.experience = (v.orchestration === "generative" || v.hasAI || (v.actionsCount || 0) >= 2) ? "new" : "classic";
     renderPreview(true);
   }
 
@@ -284,6 +321,15 @@
     // build time) — avoids a re-render-during-blur DOM race.
     var skillsEl = el("ab-skills");
     if (skillsEl) skillsEl.addEventListener("input", function () { S.skills = skillsEl.value; });
+    // "+ Add a tool" picker → inject a connector, re-analyze so it appears in Tools.
+    var addSel = el("ab-addtool-sel");
+    if (addSel) addSel.addEventListener("change", function () {
+      var key = addSel.value; if (!key) return;
+      if (S.addConnectors.indexOf(key) < 0) S.addConnectors.push(key);
+      renderPreview(false);
+    });
+    var clearAdded = el("ab-clear-added");
+    if (clearAdded) clearAdded.addEventListener("click", function () { S.addConnectors = []; renderPreview(false); });
     var dl = el("ab-download");
     if (dl) dl.addEventListener("click", doDownload);
     var cp = el("ab-copy");
