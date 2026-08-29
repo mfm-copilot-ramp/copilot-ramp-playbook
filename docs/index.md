@@ -20,9 +20,10 @@ hide:
 <p class="home-lede">Stuck at <em>"I have Copilot — now what?"</em> Start with a 2-minute win, then follow a natural ramp all the way to building your own agents.</p>
 
 <p class="hero-actions">
-<a class="md-button md-button--primary" href="quick-wins/">Start with a 2-minute win →</a>
+<a class="md-button md-button--primary" href="stages/stage-1-chat/">Start the journey →</a>
 <a class="md-button hero-btn-ghost" href="start-by-role/">Pick your role →</a>
 <a class="md-button hero-btn-ghost" href="credit-estimator/">Estimate your credits →</a>
+<a class="hero-actions-alt" href="quick-wins/">or browse quick wins →</a>
 </p>
 
 </div>
