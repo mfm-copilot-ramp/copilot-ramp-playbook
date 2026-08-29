@@ -57,6 +57,11 @@ jobs:
         # golden-export scan is a no-op unless a real export is present locally.
         run: node tooling/golden-exports/verify-exports.cjs
 
+      - name: Verify Agent Builder handoff equivalence
+        # Proves a Quick-mode handoff, seeded into /build/ with no edits, produces a package
+        # whose content is identical to the Quick exporter's (normalized past per-call GUIDs).
+        run: node tooling/golden-exports/verify-handoff-equivalence.cjs
+
       - name: Build the site (strict)
         run: mkdocs build --strict   # --strict fails the build on broken internal links
 
