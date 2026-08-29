@@ -83,6 +83,26 @@ cold instead of reinventing the prompt. The ones worth capturing first:
 
     Capture any great Cowork run as a reusable recipe so it doesn't die with the session.
 
+-   **[Assemble a monthly business review](walkthroughs/cowork-monthly-business-review.md)**
+
+    Pull metrics, highlights, risks, and next steps from your sources into one MBR pack you can present.
+
+-   **[Turn discovery notes into a proposal](walkthroughs/cowork-proposal-from-discovery.md)**
+
+    Hand over discovery notes and a template; get back a structured first-draft proposal you refine.
+
+-   **[Build a content calendar from a brief](walkthroughs/cowork-content-calendar.md)**
+
+    Turn a campaign brief into a dated calendar with channels, themes, and draft hooks.
+
+-   **[Score vendors against your criteria](walkthroughs/cowork-vendor-evaluation.md)**
+
+    Vendor materials plus your criteria become a weighted scorecard and a recommendation you can defend.
+
+-   **[Build a prep pack for any meeting](walkthroughs/cowork-meeting-prep-pack.md)**
+
+    Attendee backgrounds, account context, open items, and talking points assembled into one pre-meeting brief.
+
 </div>
 
 ## Autopilots (Scout) skills — capabilities for an always-on agent { #autopilots-scout-skills }
@@ -122,6 +142,22 @@ The skills worth equipping onto Scout first — each captured once, then run alw
 -   **[Watch deliverables & flag risks](walkthroughs/autopilots-track-deliverables.md)**
 
     A standing watch that blocks time for what's due and raises stalled-decision risks before they become blockers.
+
+-   **[Always-on competitive & news monitor](walkthroughs/autopilots-competitive-monitor.md)**
+
+    Scout watches named competitors and topics and delivers a short digest of what changed and why it matters.
+
+-   **[Auto-draft your weekly report](walkthroughs/autopilots-weekly-report.md)**
+
+    Every Friday, a drafted weekly status pulled from your own emails, meetings, and chats — waiting for review.
+
+-   **[Renewal & at-risk account watch](walkthroughs/autopilots-renewal-watch.md)**
+
+    The renewal calendar and engagement signals, watched continuously, so at-risk accounts surface before they slip.
+
+-   **[Track & chase open follow-ups](walkthroughs/autopilots-followup-tracker.md)**
+
+    A standing list of what you owe and what's owed to you across email and Teams, nudged before it goes stale.
 
 </div>
 
