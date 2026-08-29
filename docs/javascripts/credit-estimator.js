@@ -1221,6 +1221,7 @@
     var exp = (state.qe && state.qe.pkgExp) || "new";
     return '<div class="qe-starter">' +
       '<div class="section-label">Get a head start — export a Copilot Studio agent</div>' +
+      '<a class="qe-builder-link" href="../build/" onclick="return qeOpenBuilder(event)">\u2728 Prefer to edit instructions, add tools, or fine-tune first? <strong>Open in Agent Builder \u2192</strong></a>' +
       '<p class="hint" style="margin:.15rem 0 .6rem">Download a ready-to-import <strong>starter agent</strong> built from your description: a tailored role &amp; instructions, agent settings, and any knowledge sources. It imports as an <strong>unmanaged</strong> (fully editable) solution — a scaffold to extend with tools &amp; knowledge and publish, not a finished agent.</p>' +
       '<div class="qe-seg-field">' +
         '<div class="section-label qe-seg-label" id="qe-pkg-exp-label">Harness (Copilot Studio engine)</div>' +
@@ -1345,6 +1346,32 @@
     var skillsText = skillsBox ? skillsBox.value : ((state.qe && state.qe.pkgSkills) || "");
     var skills = parseSkillLines(skillsText);
     return { description: (state.qe && state.qe.raw) || "", vars: pkgVars, systems: systems, outline: outline, experience: exp, skills: skills };
+  }
+
+  // Faithful hand-off to the standalone Agent Builder (/build/): stash the FULL current
+  // builder state — the description, the EXACT vars (including any Fine-tune edits), the
+  // detected outline/systems, and the harness / Work IQ / skills picks — in sessionStorage,
+  // then navigate. The Builder hydrates it as an exact continuation. Non-destructive: the
+  // inline exporter below stays until the Builder is the proven single path.
+  function qeOpenBuilder(evt) {
+    if (evt && evt.preventDefault) evt.preventDefault();
+    if (!state.qe) return false;
+    var v = state.qe.vars || {};
+    var exp = (state.qe.pkgExp) || "new";
+    var wiq = (typeof state.qe.pkgWorkIQ === "boolean") ? state.qe.pkgWorkIQ : null;
+    var payload = {
+      version: 1,
+      desc: state.qe.raw || "",
+      vars: v,
+      outline: state.qe.outline || null,
+      systems: (state.qe.outline && state.qe.outline.systems) || [],
+      experience: exp,
+      workIQ: wiq,
+      skills: (state.qe.pkgSkills) || ""
+    };
+    try { window.sessionStorage.setItem("cr-agent-build-v1", JSON.stringify(payload)); } catch (e) {}
+    window.location.href = "../build/";
+    return false;
   }
 
   // Renders the inline review panel from an analyzePackage() summary. Every detected
@@ -2998,6 +3025,7 @@
     window.qeStartOver = qeStartOver;
     window.qeDownloadPackage = qeDownloadPackage;
     window.qeConfirmDownload = qeConfirmDownload;
+    window.qeOpenBuilder = qeOpenBuilder;
     window.qeCancelReview = qeCancelReview;
     window.qePkgExperienceChange = qePkgExperienceChange;
     window.qePkgWorkIQChange = qePkgWorkIQChange;

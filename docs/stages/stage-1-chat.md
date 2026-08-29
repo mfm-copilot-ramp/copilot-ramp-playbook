@@ -10,7 +10,7 @@ stage: chat
 
 **The shift:** from "I have a license" to "I reach for Copilot in the flow of work." No new tools, no setup — just the chat you already have in Teams, Word, Outlook, and the M365 Copilot app.
 
-!!! tip "\"What can I even do?\" — start from the app you have open"
+!!! tip "“What can I even do?” — start from the app you have open"
     Rather start from where you already are than from a maturity ladder? Use the
     **[Start by Product picker](../start-by-product.md)** — pick **Outlook**, **Teams**, **Word**,
     **PowerPoint**, **Excel**, or **Copilot Chat** and get three things to try right now.
