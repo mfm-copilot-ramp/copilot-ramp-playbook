@@ -137,6 +137,12 @@ Reach for these only when a Studio agent genuinely can't carry the job — custo
 | [Voice Agent / Contact-Center IVR](foundry-voice-agent.md) | Developers building a real-time phone agent — speech-to-text, grounded conversation, text-to-speech, clean human handoff | 3–5 days |
 | [Code-Review / PR-Triage Agent](foundry-code-review-agent.md) | Developers and devex teams adding advisory, private-repo PR review and reviewer routing — comments only, never merges | 2–4 days |
 | [Multi-Modal Document Classification Agent](foundry-document-classification-agent.md) | Developers sorting a high-volume document stream by vision + text, with confidence-based routing and a precision/recall gate | 2–4 days |
+| [Batch Summarization Pipeline Agent](foundry-batch-summarization-agent.md) | Developers summarizing high volumes of documents or transcripts on a schedule, behind a groundedness eval gate | 1–2 days |
+| [Structured Data Extraction Agent](foundry-data-extraction-agent.md) | Developers extracting schema-constrained JSON from unstructured documents at scale, with validation and an accuracy gate | 1–2 days |
+| [Content Moderation & Safety Agent](foundry-content-moderation-agent.md) | Developers moderating user content against a policy taxonomy with Azure AI Content Safety and human-review routing | 2–4 days |
+| [Deep Research Agent](foundry-research-agent.md) | Developers building a multi-step research agent that plans, gathers, cites, and self-critiques, with a citation eval gate | 2–4 days |
+| [Translation & Localization Agent](foundry-translation-agent.md) | Developers running batch translation with glossary enforcement, a quality gate, and human review of low-confidence segments | 1–2 days |
+| [Recommendation Agent](foundry-recommendation-agent.md) | Developers producing grounded, explainable recommendations from user context and a catalog, with a relevance gate and guardrails | 2–4 days |
 
 ---
 
