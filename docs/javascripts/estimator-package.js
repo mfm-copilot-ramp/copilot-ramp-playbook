@@ -1933,6 +1933,23 @@
 
     // 3c) Stable ids for knowledge sources so the review panel can address them.
     knowledge.forEach(function (k, i) { k.id = "k" + (i + 1); });
+    // User-supplied real URLs (Agent Builder inline field): replace a source's placeholder/site
+    // with the real address, keyed by knowledge id, so the exported source is ready to use with
+    // no post-import placeholder to fix. Only URL-addressable sources (SharePoint / public site)
+    // — Dataverse knowledge isn't a URL. Additive: no opts.knowledgeSites → behavior unchanged.
+    if (opts.knowledgeSites) {
+      knowledge.forEach(function (k) {
+        if (k.kind === "DataverseSearchSource") return;
+        var u = opts.knowledgeSites[k.id];
+        if (typeof u !== "string") return;
+        u = u.trim();
+        if (!u) return;
+        if (!/^https?:\/\//i.test(u)) u = "https://" + u;   // tolerate a bare host
+        k.kind = /sharepoint\.com/i.test(u) ? "SharePointSearchSource" : "PublicSiteSearchSource";
+        k.site = u;
+        k.placeholder = false;
+      });
+    }
 
     // 3d) Honor edits from the Quick review panel: drop excluded connectors,
     // knowledge sources, and read-capabilities so they leave the package AND the

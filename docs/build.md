@@ -71,6 +71,8 @@ Say what you want the agent to do, in plain English. This scaffolds a **ready-to
 #agent-builder .ab-list .ab-sub { display: block; }
 #agent-builder .ab-list .ab-empty { color: var(--md-default-fg-color--light); border: none; }
 #agent-builder .ab-flag { font-size: 0.68rem; color: #b0492f; background: rgba(212,85,63,0.12); border-radius: 4px; padding: 0.05rem 0.35rem; margin-left: 0.3rem; }
+#agent-builder .ab-know-url { display: block; width: 100%; box-sizing: border-box; margin: 0.3rem 0 0.1rem; padding: 0.3rem 0.5rem; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); font: inherit; font-size: 0.78rem; }
+#agent-builder .ab-know-url:focus { outline: 2px solid var(--md-primary-fg-color); outline-offset: -1px; }
 #agent-builder .ab-meta { display: flex; flex-wrap: wrap; gap: 1.2rem; font-size: 0.8rem; color: var(--md-default-fg-color--light); margin: 0.3rem 0 0.6rem; }
 #agent-builder .ab-unmapped { font-size: 0.8rem; margin: 0.4rem 0; padding: 0.5rem 0.65rem; background: var(--md-code-bg-color); border-radius: 6px; }
 #agent-builder .ab-notices { margin: 0.6rem 0; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 8px; padding: 0.6rem 0.75rem; }

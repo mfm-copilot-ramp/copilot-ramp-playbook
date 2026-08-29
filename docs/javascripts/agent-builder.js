@@ -27,7 +27,7 @@
   ];
 
   // Widget state.
-  var S = { desc: "", preview: null, experience: "new", name: "", instructions: "", workIQ: null, skills: "", vars: null, outline: null, systems: null, addConnectors: [], built: false };
+  var S = { desc: "", preview: null, experience: "new", name: "", instructions: "", workIQ: null, skills: "", vars: null, outline: null, systems: null, addConnectors: [], knowledgeSites: {}, built: false };
 
   // "Meeting brief formatter: turns X into Y" -> {name, description}. Separator = first ":" or
   // em-dash; a bare line is the name only. Blank lines dropped. (Ported from the Quick-mode flow.)
@@ -112,6 +112,9 @@
       instructions: (S.instructions || "").trim() || undefined
     };
     if (includeExclude) opts.exclude = collectExclude();
+    // Knowledge-source URL overrides only wire into the CLASSIC export (a real SearchSource).
+    // The new experience ships a scaffold doc, so we never pass them there — keeps preview honest.
+    if (S.experience === "classic") opts.knowledgeSites = S.knowledgeSites || {};
     return opts;
   }
 
@@ -166,7 +169,7 @@
       ? '<div class="ab-added-note">Added: ' + S.addConnectors.map(function (k) { return esc((CA[k] && CA[k].actionName) || k); }).join(", ") + ' <button type="button" id="ab-clear-added" class="ab-link">clear</button></div>'
       : "";
     return '<div class="ab-addtool"><select id="ab-addtool-sel" class="ab-addtool-sel">' + opts.join("") + "</select>" +
-      '<span class="ab-sub">Add a connector action on top of what the description implied \u2014 it binds at import like the rest.</span>' + added + "</div>";
+      '<span class="ab-sub">You don\u2019t need to know tool names \u2014 just describe what the agent should do above and tools are detected for you. Optionally add a specific action here (grouped by system); it binds at import like the rest.</span>' + added + "</div>";
   }
 
   // ── Tier 2: editable preview ───────────────────────────────────────────────
@@ -187,7 +190,19 @@
       ? conns.map(function (c) { return '<li><label><input type="checkbox" class="ab-keep-conn" data-key="' + esc(c.key) + '" checked> <strong>' + esc(c.actionName) + '</strong> <span>\u2014 ' + esc(c.connectorLabel) + '</span></label></li>'; }).join("")
       : '<li class="ab-empty">No connector tools detected \u2014 add them in Studio if needed.</li>';
     var knowItems = know.length
-      ? know.map(function (k) { if (k.placeholder) hasPlaceholder = true; return '<li><label><input type="checkbox" class="ab-keep-know" data-id="' + esc(k.id) + '" checked> <strong>' + esc(k.label) + '</strong>' + (k.placeholder ? ' <span class="ab-flag">placeholder URL</span>' : "") + (k.site ? '<span class="ab-sub">' + esc(k.site) + '</span>' : "") + '</label></li>'; }).join("")
+      ? know.map(function (k) {
+          if (k.placeholder) hasPlaceholder = true;
+          // The URL is only wired into the export on the CLASSIC harness (a real SearchSource
+          // component). The new experience ships a scaffold knowledge doc instead, so we don't
+          // offer an editable URL there — it would imply a wiring the .zip wouldn't carry.
+          var isSite = !newExp && k.kind !== "DataverseSearchSource" && (k.site || k.placeholder);
+          var current = (S.knowledgeSites && S.knowledgeSites[k.id]) || (k.placeholder ? "" : (k.site || ""));
+          var urlField = isSite
+            ? '<input type="url" class="ab-know-url" data-id="' + esc(k.id) + '" value="' + esc(current) + '" placeholder="' + esc(k.site || "https://your-site\u2026") + '">'
+            : (k.site ? '<span class="ab-sub">' + esc(k.site) + "</span>" : "");
+          var flag = (k.placeholder && (!isSite || !current)) ? ' <span class="ab-flag" data-flag-for="' + esc(k.id) + '">placeholder URL</span>' : "";
+          return '<li><label><input type="checkbox" class="ab-keep-know" data-id="' + esc(k.id) + '" checked> <strong>' + esc(k.label) + "</strong>" + flag + "</label>" + urlField + "</li>";
+        }).join("")
       : '<li class="ab-empty">No knowledge source detected.</li>';
     var capItems = caps.length
       ? caps.map(function (c) { return '<li><label><input type="checkbox" class="ab-keep-cap" data-id="' + esc(c.id) + '" checked> ' + esc(c.behavior) + ' <span class="ab-sub">tool to add by hand</span></label></li>'; }).join("")
@@ -204,7 +219,9 @@
       ? '<div class="ab-unmapped"><strong>Systems with no starter action:</strong> ' + unmapped.map(esc).join(", ") + ' \u2014 wire these by hand (listed in NEXT-STEPS.md).</div>'
       : "";
     var placeholderHtml = hasPlaceholder
-      ? '<p class="ab-hint">Items flagged <em>placeholder URL</em> use an example address \u2014 update it in Copilot Studio after import.</p>'
+      ? (newExp
+          ? '<p class="ab-hint">This harness ships a <strong>starter knowledge doc</strong> so the agent can answer the moment it imports \u2014 open <em>Knowledge</em> in Copilot Studio to point it at your real SharePoint site, website, or files.</p>'
+          : '<p class="ab-hint">Items flagged <em>placeholder URL</em> use an example address. <strong>Type your real site URL in the box</strong> and it ships wired into the export \u2014 no fixing up after import. Leave it blank to set it in Copilot Studio later.</p>')
       : "";
 
     return '<div class="ab-preview">' +
@@ -281,7 +298,7 @@
     // Fresh description → reset the analysis + all layered edits so nothing leaks across builds.
     S.desc = desc;
     S.vars = null; S.outline = null; S.systems = null;
-    S.addConnectors = []; S.name = ""; S.instructions = ""; S.workIQ = null;
+    S.addConnectors = []; S.name = ""; S.instructions = ""; S.workIQ = null; S.knowledgeSites = {};
     ensureAnalysis();
     // Recommend the harness the estimator would: GitHub harness for generative/agentic work.
     var v = S.vars || {};
@@ -324,6 +341,17 @@
     // build time) — avoids a re-render-during-blur DOM race.
     var skillsEl = el("ab-skills");
     if (skillsEl) skillsEl.addEventListener("input", function () { S.skills = skillsEl.value; });
+    // Knowledge URL: capture live into S.knowledgeSites so the export carries the real address.
+    // No re-render (preserves keep/drop + focus) — we just toggle the placeholder flag inline.
+    Array.prototype.forEach.call(document.querySelectorAll(".ab-know-url"), function (inp) {
+      inp.addEventListener("input", function () {
+        var id = inp.getAttribute("data-id");
+        var v = inp.value.trim();
+        if (v) S.knowledgeSites[id] = v; else delete S.knowledgeSites[id];
+        var flag = document.querySelector('.ab-flag[data-flag-for="' + id + '"]');
+        if (flag) flag.style.display = v ? "none" : "";
+      });
+    });
     // "+ Add a tool" picker → inject a connector, re-analyze so it appears in Tools.
     var addSel = el("ab-addtool-sel");
     if (addSel) addSel.addEventListener("change", function () {
@@ -382,7 +410,7 @@
     lines.push("");
     lines.push("## Knowledge");
     var know = (p.knowledge || []).filter(function (k) { return keepKnow[k.id] !== false; });
-    if (know.length) know.forEach(function (k) { lines.push("- " + k.label + (k.site ? " — " + k.site : "")); });
+    if (know.length) know.forEach(function (k) { var site = (S.knowledgeSites && S.knowledgeSites[k.id]) || k.site; lines.push("- " + k.label + (site ? " — " + site : "")); });
     else lines.push("- (none)");
     var caps = (p.capabilities || []).filter(function (c) { return keepCap[c.id] !== false; });
     if (caps.length) { lines.push(""); lines.push("## Read capabilities (add by hand)"); caps.forEach(function (c) { lines.push("- " + c.behavior); }); }
@@ -427,7 +455,7 @@
     if (!S.experience) { var v = S.vars || {}; S.experience = (v.orchestration === "generative" || v.hasAI || (v.actionsCount || 0) >= 2) ? "new" : "classic"; }
     S.workIQ = (typeof p.workIQ === "boolean") ? p.workIQ : null;
     S.skills = p.skills || "";
-    S.name = ""; S.instructions = ""; S.addConnectors = [];
+    S.name = ""; S.instructions = ""; S.addConnectors = []; S.knowledgeSites = {};
     return true;
   }
 
