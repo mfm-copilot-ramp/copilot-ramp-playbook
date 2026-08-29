@@ -270,19 +270,43 @@ nav:
       - solutions/index.md
       - Studio:
           - "Policy FAQ Agent (cross-functional)": solutions/policy-faq-agent.md
+          - "Cross-functional · Meeting Notes & Action Tracker Agent": solutions/crossfunctional-meeting-tracker-agent.md
           - "HR · Onboarding Buddy Agent": solutions/onboarding-buddy-agent.md
+          - "HR · Benefits & Leave Agent": solutions/hr-benefits-leave-agent.md
+          - "HR · Performance Review Prep Agent": solutions/hr-performance-review-agent.md
+          - "HR · Recruiting & Interview Scheduler Agent": solutions/hr-recruiting-scheduler-agent.md
           - "IT · Helpdesk Triage Agent": solutions/it-helpdesk-triage-agent.md
           - "IT · Access Request Agent": solutions/it-access-request-agent.md
+          - "IT · Knowledge & How-To Agent": solutions/it-knowledge-howto-agent.md
+          - "IT · Software License & Asset Query Agent": solutions/it-asset-license-agent.md
           - "Finance · Expense & Procurement Agent": solutions/finance-expense-agent.md
+          - "Finance · Budget & Spend Q&A Agent": solutions/finance-budget-qa-agent.md
+          - "Finance · Invoice & AP Status Agent": solutions/finance-invoice-ap-agent.md
           - "Sales · Enablement Agent": solutions/sales-enablement-agent.md
           - "Sales · Proposal & RFP Agent": solutions/sales-proposal-rfp-agent.md
+          - "Sales · Account Research & Briefing Agent": solutions/sales-account-research-agent.md
+          - "Sales · Deal Desk & Pricing Approval Agent": solutions/sales-deal-desk-agent.md
           - "Legal · Compliance Guidance Agent": solutions/legal-compliance-agent.md
+          - "Legal · Contract Review & Clause Agent": solutions/legal-contract-review-agent.md
+          - "Legal · NDA Intake & Triage Agent": solutions/legal-nda-intake-agent.md
           - "Marketing · Campaign Agent": solutions/marketing-campaign-agent.md
+          - "Marketing · Content Repurposing Agent": solutions/marketing-content-repurposing-agent.md
+          - "Marketing · Brand & Messaging Guardian Agent": solutions/marketing-brand-guardian-agent.md
           - "Customer Support · Deflection Agent (internal)": solutions/support-deflection-agent.md
+          - "Customer Support · Knowledge Article Drafting Agent": solutions/support-kb-drafting-agent.md
+          - "Customer Support · Escalation Routing Agent": solutions/support-escalation-routing-agent.md
           - "Procurement · Sourcing Agent": solutions/procurement-sourcing-agent.md
+          - "Procurement · Supplier Onboarding & Compliance Agent": solutions/procurement-supplier-onboarding-agent.md
+          - "Procurement · Purchase Request Intake Agent": solutions/procurement-purchase-intake-agent.md
           - "Field Service · Triage Agent": solutions/field-service-triage-agent.md
+          - "Field Service · Parts & Inventory Lookup Agent": solutions/field-service-parts-lookup-agent.md
+          - "Field Service · Work Order Status Agent": solutions/field-service-work-order-agent.md
           - "Engineering · On-Call Runbook Agent": solutions/engineering-oncall-runbook-agent.md
+          - "Engineering · Deployment & Release Notes Agent": solutions/engineering-release-notes-agent.md
+          - "Engineering · Architecture Decision Record Agent": solutions/engineering-adr-agent.md
           - "Workplace · Event Coordination Agent": solutions/event-coordination-agent.md
+          - "Workplace · Facilities & Workspace Request Agent": solutions/workplace-facilities-request-agent.md
+          - "Workplace · Travel & Expense Policy Agent": solutions/workplace-travel-policy-agent.md
       - Foundry:
           - "Pro-Code Grounded Q&A Agent": solutions/foundry-knowledge-agent.md
           - "Multi-Agent Workflow Orchestrator": solutions/foundry-orchestrator-agent.md
