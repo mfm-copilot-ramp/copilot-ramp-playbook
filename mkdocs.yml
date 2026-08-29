@@ -230,7 +230,7 @@ extra:
 # ── Navigation — journey-first (stages are the spine; role is a filter) ──────
 nav:
   - Home: index.md
-  - Start Here:
+  - Start:
       - "Start by Stage": start-here.md
       - "Start by Role":
           - "Role Overview": start-by-role.md
@@ -250,7 +250,7 @@ nav:
           - "Microsoft 365 Copilot Chat": products/copilot-chat.md
       - "Build an Empowerment Team": empowerment/index.md
 
-  - The Journey:
+  - Learn:
       - the-journey.md
       - "Stage 1 · Chat": stages/stage-1-chat.md
       - "Stage 2 · First-Party Agents": stages/stage-2-first-party.md
@@ -262,7 +262,11 @@ nav:
       - "Stage 7 · Foundry": stages/stage-7-foundry.md
       - "Right-sizing — drop back a stage": right-sizing.md
 
-  - Solution Templates:
+  - Use:
+      - "Quick Wins": quick-wins.md
+      - "Use-Case Catalog": CATALOG.md
+
+  - Build:
       - solutions/index.md
       - Studio:
           - "Policy FAQ Agent (cross-functional)": solutions/policy-faq-agent.md
@@ -289,11 +293,8 @@ nav:
           - "Voice Agent / Contact-Center IVR": solutions/foundry-voice-agent.md
           - "Code-Review / PR-Triage Agent": solutions/foundry-code-review-agent.md
           - "Multi-Modal Document Classification Agent": solutions/foundry-document-classification-agent.md
-  - Library:
-      - "Use-Case Catalog": CATALOG.md
       - "Skills Catalog": skills.md
-      - "Quick Wins": quick-wins.md
-  - "Credit & ROI Estimator":
+  - Estimate:
       - "How Copilot Credits work": copilot-credits.md
       - Credit Estimator: credit-estimator.md
       - Cost Structure Comparator: compare.md
@@ -302,13 +303,13 @@ nav:
       - "AI Builder → Copilot Credits": ai-builder-estimator.md
       - ROI Estimator: roi-estimator.md
       - "Proposal Composer": proposal.md
-  - "Decide & Govern":
+  - Plan:
       - "Choose the Right Path":
           - empowerment/decision-tree.md
           - "Path Finder (interactive)": empowerment/wizard.md
       - "Security & Governance": empowerment/security.md
       - "Build Surfaces: Control & Billing": empowerment/build-surfaces.md
-  - Resources:
+  - Reference:
       - "Licensing & Prerequisites": prerequisites.md
       - Glossary: glossary.md
       - "What's New": whats-new.md
