@@ -134,6 +134,18 @@ Make the message land — rewrite, re-aim, and brief up.
 
     <span class="rc-meta" data-time="5" data-roles="end-user manager"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
 
+-   **[Draft a difficult message with care](../walkthroughs/chat-difficult-message.md)**
+
+    Say the hard thing well — declining, hard feedback, or bad news — clear and kind, with the point up front.
+
+    <span class="rc-meta" data-time="5" data-roles="end-user manager"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
+
+-   **[Translate and localise a message for a global team](../walkthroughs/chat-translate-audience.md)**
+
+    Adapt a message for another language or region — keeping tone and intent, flagging anything sensitive.
+
+    <span class="rc-meta" data-time="5" data-roles="end-user"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
+
 </div>
 
 </section>
@@ -169,6 +181,18 @@ Get from a blank page to a real plan or a clear call.
 
     <span class="rc-meta" data-time="2" data-roles="manager end-user"><span class="rc-chip rc-chip-time">⏱ 2 min</span> <span class="rc-chip rc-chip-role">👤 Manager</span></span>
 
+-   **[Compare options in a decision table](../walkthroughs/chat-compare-options.md)**
+
+    Turn a set of options into a side-by-side table across the criteria that matter — with a recommendation.
+
+    <span class="rc-meta" data-time="5" data-roles="end-user manager"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
+
+-   **[Weigh a decision with pros, cons, and a recommendation](../walkthroughs/chat-pros-cons.md)**
+
+    Structure a call: pros, cons, risks, a clear recommendation — plus one angle you may not have considered.
+
+    <span class="rc-meta" data-time="5" data-roles="end-user manager"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
+
 </div>
 
 </section>
@@ -185,6 +209,18 @@ Never start from a blank page again.
     Never start from a blank page — build a structured, time-slotted agenda from whatever context you have.
 
     <span class="rc-meta" data-time="5" data-roles="end-user manager champion"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
+
+-   **[Get a first draft from a blank page](../walkthroughs/chat-first-draft.md)**
+
+    Turn a short brief or a few bullets into a structured first draft — so you edit a v1 instead of staring at nothing.
+
+    <span class="rc-meta" data-time="5" data-roles="end-user"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
+
+-   **[Turn notes into a slide outline](../walkthroughs/chat-slide-outline.md)**
+
+    Turn rough notes into a slide-by-slide outline — one idea per slide, titles, and speaker-note hints.
+
+    <span class="rc-meta" data-time="5" data-roles="end-user"><span class="rc-chip rc-chip-time">⏱ 5 min</span> <span class="rc-chip rc-chip-role">👤 End user</span></span>
 
 </div>
 
