@@ -103,6 +103,26 @@ cold instead of reinventing the prompt. The ones worth capturing first:
 
     Attendee backgrounds, account context, open items, and talking points assembled into one pre-meeting brief.
 
+-   **[Draft an annual plan and OKRs](walkthroughs/cowork-annual-plan.md)**
+
+    Last year's results and strategy inputs become a first-draft annual plan with objectives, key results, and initiatives.
+
+-   **[Build a customer onboarding pack](walkthroughs/cowork-customer-onboarding-pack.md)**
+
+    The signed deal plus product docs become a welcome, timeline, roles, and first-value milestones — ready to send.
+
+-   **[Turn source material into a training curriculum](walkthroughs/cowork-training-curriculum.md)**
+
+    Source docs become a modular curriculum — objectives, lessons, exercises, and a knowledge check per module.
+
+-   **[Compile a newsletter from the week's sources](walkthroughs/cowork-newsletter-roundup.md)**
+
+    The week's updates gathered from your sources into a structured, on-tone internal newsletter draft.
+
+-   **[Turn a dataset into a narrative brief](walkthroughs/cowork-data-story.md)**
+
+    A spreadsheet becomes the story behind the numbers — trends, outliers, and a recommended action, with a table.
+
 </div>
 
 ## Autopilots (Scout) skills — capabilities for an always-on agent { #autopilots-scout-skills }
@@ -158,6 +178,22 @@ The skills worth equipping onto Scout first — each captured once, then run alw
 -   **[Track & chase open follow-ups](walkthroughs/autopilots-followup-tracker.md)**
 
     A standing list of what you owe and what's owed to you across email and Teams, nudged before it goes stale.
+
+-   **[Prep your daily stand-up automatically](walkthroughs/autopilots-standup-prep.md)**
+
+    Each morning, a drafted stand-up — yesterday, today, blockers — pulled from your activity, ready to review.
+
+-   **[Watch key documents & flag changes](walkthroughs/autopilots-doc-change-watch.md)**
+
+    Scout watches the documents that matter and flags meaningful changes with a short what-changed-and-why note.
+
+-   **[Guide a new hire through their first weeks](walkthroughs/autopilots-onboarding-guide.md)**
+
+    The right first-week nudges, resources, and check-ins delivered to a new starter on a schedule.
+
+-   **[Protect focus time & triage interruptions](walkthroughs/autopilots-focus-time.md)**
+
+    Focus time blocked around your real workload, with interruptions triaged so only the urgent reaches you.
 
 </div>
 
