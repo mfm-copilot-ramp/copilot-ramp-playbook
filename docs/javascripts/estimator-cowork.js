@@ -1,5 +1,5 @@
 /* Copilot Credit Estimator — Cowork (Microsoft 365 Copilot) analysis engine.
- * Pure, DOM-free logic for the "Microsoft 365 Copilot (Cowork)" product lane of
+ * Pure, DOM-free logic for the "Copilot Cowork" product lane of
  * the estimator. Node-testable; loaded on the page as an external asset via
  * mkdocs.yml `extra_javascript` (not inlined into the .md).
  *
