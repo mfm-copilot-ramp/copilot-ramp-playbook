@@ -22,6 +22,7 @@ hide: [toc]
              poster="../assets/video/credit-estimator-deepdive-poster.jpg"
              class="ce-vw-video">
         <source src="../assets/video/credit-estimator-deepdive.mp4" type="video/mp4">
+        <track kind="captions" src="../assets/video/credit-estimator-deepdive.vtt" srclang="en" label="English">
         Your browser can&rsquo;t play embedded video &mdash;
         <a href="../assets/video/credit-estimator-deepdive.mp4">download the deep-dive walkthrough (MP4)</a>.
       </video>
@@ -39,6 +40,7 @@ hide: [toc]
            poster="../assets/video/credit-estimator-tutorial-poster.jpg"
            class="ce-modal-video">
       <source src="../assets/video/credit-estimator-tutorial.mp4" type="video/mp4">
+      <track kind="captions" src="../assets/video/credit-estimator-tutorial.vtt" srclang="en" label="English">
       Your browser can&rsquo;t play embedded video &mdash;
       <a href="../assets/video/credit-estimator-tutorial.mp4">download the 90-second tutorial (MP4)</a>.
     </video>
