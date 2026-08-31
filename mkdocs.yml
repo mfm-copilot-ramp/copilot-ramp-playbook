@@ -73,6 +73,7 @@ extra_css:
   - stylesheets/cards.css
   - stylesheets/callouts.css
   - stylesheets/engine-cards.css
+  - stylesheets/walkthrough.css
   - stylesheets/feedback-widget.css
   - stylesheets/share.css
   - stylesheets/a11y.css   # loaded last: WCAG-AA contrast overrides win over components
@@ -81,6 +82,7 @@ extra_javascript:
   - javascripts/catalog.js
   - javascripts/mermaid-render.js
   - javascripts/nav-expand.js
+  - javascripts/walkthrough.js
   - javascripts/role-path.js
   - javascripts/home-matrix.js
   - javascripts/home-try.js
