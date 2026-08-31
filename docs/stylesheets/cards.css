@@ -264,6 +264,25 @@
 }
 .rc-search:focus-visible { outline: 2px solid var(--md-primary-fg-color); outline-offset: 1px; }
 
+/* ── Tap targets: give interactive controls a comfortable hit size ───────────
+ * UI/UX review (measure.js) clocked the filter pills at ~32px tall and the
+ * Library card title links at ~19px — the latter below the 24px WCAG 2.5.8 (AA)
+ * floor and both under the 44px comfort target on touch. The title link is the
+ * card's primary action, so we pad its hit area on every pointer; the pills and
+ * search grow to 44px only on coarse (touch) pointers, so desktop keeps its
+ * compact density. */
+#rc-lib-grid > ul > li > p:first-child { margin-bottom: .4rem; }
+#rc-lib-grid > ul > li > p:first-child > strong > a {
+  display: inline-block;
+  padding: .22rem 0;      /* ~9px extra height clears the 24px AA minimum everywhere */
+  line-height: 1.3;
+}
+@media (pointer: coarse) {
+  .rc-opt { min-height: 44px; display: inline-flex; align-items: center; }
+  .rc-search { min-height: 44px; }
+  #rc-lib-grid > ul > li > p:first-child > strong > a { padding: .62rem 0; }
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    Quick Wins launchpad — prompt cards (docs/quick-wins.md)
    Each card shows a copy-paste prompt inline PLUS a link to its full walkthrough,

@@ -193,10 +193,34 @@
     return true;
   }
 
+  // Fix the "dead-click" trap (Clarity caught readers rage-clicking step
+  // headings that look tappable but do nothing). Each step's <h3> already carries
+  // a Material permalink (a.headerlink), but it's hover-only — so on touch, where
+  // hover never fires, the tap lands on nothing. We surface that permalink
+  // persistently (CSS via .rc-wt-step--linked) and make the whole heading a
+  // working deep-link: a click anywhere on it (outside a real link) triggers the
+  // permalink, turning a dead tap into the jump-to-step action readers expect.
+  // Keyboard users still tab straight to the visible permalink anchor.
+  function linkifyStepHeadings(article) {
+    var heads = article.querySelectorAll(".rc-wt-step > h3");
+    for (var i = 0; i < heads.length; i++) {
+      (function (h) {
+        var link = h.querySelector("a.headerlink");
+        if (!link || !link.getAttribute("href")) return;
+        var step = h.parentNode; // the .rc-wt-step wrapper the CSS keys off
+        if (step && step.classList) step.classList.add("rc-wt-step--linked");
+        h.addEventListener("click", function (e) {
+          if (e.target.closest && e.target.closest("a")) return;
+          link.click();
+        });
+      })(heads[i]);
+    }
+  }
+
   // Build a numbered stepper from whichever authoring pattern the page uses.
   function buildStepper(article) {
-    if (buildStepperFromHeadings(article)) return;
-    buildStepperFromList(article);
+    if (!buildStepperFromHeadings(article)) buildStepperFromList(article);
+    linkifyStepHeadings(article);
   }
 
   // Tag "> **Next:** …" blockquotes so the CSS can give them the ramp accent.
