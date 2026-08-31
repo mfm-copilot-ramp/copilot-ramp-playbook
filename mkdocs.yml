@@ -267,7 +267,8 @@ nav:
 
   - Use:
       - "Quick Wins": quick-wins.md
-      - "Walkthroughs Library": walkthroughs/index.md
+      # The "Walkthroughs" section (library landing + all walkthroughs grouped by
+      # stage) is injected here by tooling/mkdocs_hooks.py:on_config from frontmatter.
       - "Use-Case Catalog": CATALOG.md
 
   - Build:
