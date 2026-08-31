@@ -177,6 +177,19 @@
   line-height: 1.3;
 }
 .rc-walkthrough .rc-wt-step > h3 .headerlink { margin-left: .3rem; }
+/* Dead-click fix (Clarity): step headings looked tappable but did nothing on
+ * touch. linkifyStepHeadings() tags each real one .rc-wt-step--linked; here we
+ * keep its permalink faintly visible (a genuine, discoverable affordance where
+ * hover never fires) and signal the heading is interactive. */
+.rc-walkthrough .rc-wt-step--linked > h3 { cursor: pointer; }
+.rc-walkthrough .rc-wt-step--linked > h3 .headerlink {
+  opacity: .32;
+  transition: opacity .15s ease;
+}
+.rc-walkthrough .rc-wt-step--linked > h3:hover .headerlink,
+.rc-walkthrough .rc-wt-step--linked > h3:focus-within .headerlink {
+  opacity: 1;
+}
 /* ordered-list steps have no <h3>; the first paragraph's bold lead acts as the
    step title, so give it the same top rhythm as an h3 step. */
 .rc-walkthrough .rc-wt-steps--ol .rc-wt-step > p:first-child { margin-top: .15rem; }
