@@ -31,6 +31,30 @@
   display: grid !important;
 }
 
+/* ── Readability: cap the measure of flowing prose ───────────────────────────
+ * UI/UX review: body text ran ~115ch (920px) wide — well past the 50–75ch
+ * comfort zone for long-form reading. The site already caps prose at 46rem, but
+ * the root font is 20px so that resolves to 920px; the fix is to size the measure
+ * in `ch` (characters) instead. Scoped to walkthroughs (the long-form pages) and
+ * more specific than layout.css so it wins; boxed callouts/tables/code keep the
+ * full column width. Also caps the Library intro paragraph, which shares scope. */
+.rc-walkthrough .md-content__inner.md-typeset > p,
+.rc-walkthrough .md-content__inner.md-typeset > ul,
+.rc-walkthrough .md-content__inner.md-typeset > ol,
+.rc-walkthrough .rc-wt-step > p,
+.rc-walkthrough .rc-wt-step > ul,
+.rc-walkthrough .rc-wt-step > ol {
+  max-width: 72ch;
+}
+
+/* ── De-clutter: hide the page tag-chips on walkthrough pages ────────────────
+ * The front-matter tags render as a chip row above the hero, duplicating the
+ * Stage/For/Level/Time meta pills — two chip systems before any content. Hide
+ * them here (they remain in <head> metadata and on non-walkthrough pages). */
+.rc-walkthrough .md-content__inner > .md-tags {
+  display: none;
+}
+
 /* ── Hero: title + tagline + meta pills ──────────────────────────────────── */
 .rc-walkthrough .rc-wt-hero {
   margin: 0 0 2rem;
@@ -46,7 +70,7 @@
   box-shadow: 0 1px 2px rgba(20, 30, 50, .05), 0 12px 30px rgba(63, 81, 181, .09);
 }
 .rc-walkthrough .rc-wt-hero > h1 {
-  margin: 0 0 .5rem;
+  margin: 0 0 .72rem;
   line-height: 1.18;
 }
 /* the tagline blockquote pulled into the hero */
@@ -115,7 +139,7 @@
 
 .rc-walkthrough .rc-wt-step {
   position: relative;
-  padding: .1rem 0 1.3rem 3.4rem;
+  padding: .1rem 0 1.7rem 3.4rem;
 }
 /* the vertical rail linking the steps */
 .rc-walkthrough .rc-wt-step::before {
@@ -177,7 +201,10 @@
 /* ── Narrow screens: collapse the stepper indent a touch ─────────────────── */
 @media screen and (max-width: 44.9375em) {
   .rc-walkthrough .rc-wt-hero { padding: 1.2rem 1.15rem; }
-  .rc-walkthrough .rc-wt-step { padding-left: 3rem; }
-  .rc-walkthrough .rc-wt-step > .rc-wt-num { width: 2rem; height: 2rem; font-size: .88rem; }
-  .rc-walkthrough .rc-wt-step::before { left: .99rem; }
+  .rc-walkthrough .rc-wt-step { padding-left: 2.7rem; }
+  .rc-walkthrough .rc-wt-step > .rc-wt-num { width: 1.9rem; height: 1.9rem; font-size: .85rem; }
+  .rc-walkthrough .rc-wt-step::before { left: .94rem; }
+  /* tighter meta pills so the hero doesn't push content far down the fold */
+  .rc-walkthrough .rc-wt-meta { gap: .4rem; margin-top: .85rem; }
+  .rc-walkthrough .rc-wt-pill { padding: .36rem .55rem; }
 }

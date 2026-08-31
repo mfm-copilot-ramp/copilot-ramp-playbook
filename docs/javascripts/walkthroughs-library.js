@@ -52,7 +52,6 @@
     var m = /(\d+)/.exec(t || "");
     return m ? parseInt(m[1], 10) : 0;
   }
-  function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   function cardHTML(it) {
     var mins = timeMinutes(it.time);
@@ -63,16 +62,17 @@
     if (mins > 0) {
       chips += '<span class="rc-chip rc-chip-time">\u23F1 ' + mins + " min</span> ";
     }
-    (it.roles || []).forEach(function (r) {
-      chips += '<span class="rc-chip rc-chip-role">\uD83D\uDC64 ' + esc(ROLE_LABEL[r] || r) + "</span> ";
-    });
-    if (it.level) {
-      if (it.level === "starter") {
-        chips += '<span class="rc-chip rc-chip-star">\u2605 Starter</span>';
-      } else {
-        chips += '<span class="rc-chip rc-chip-adapt">' + esc(cap(it.level)) + "</span>";
+    // Show only the primary role + a "+N" overflow, rather than every role, to
+    // keep the card scannable (roles stay fully filterable via the chip bar).
+    var roles = it.roles || [];
+    if (roles.length) {
+      chips += '<span class="rc-chip rc-chip-role">\uD83D\uDC64 ' + esc(ROLE_LABEL[roles[0]] || roles[0]) + "</span> ";
+      if (roles.length > 1) {
+        chips += '<span class="rc-chip rc-chip-more">+' + (roles.length - 1) + "</span> ";
       }
     }
+    // Level isn't a filter dimension on this page, so it's omitted from cards to
+    // keep them to Stage + Time + Role (+N) — max four quiet chips.
     var href = "../" + it.path; // library lives at /walkthroughs/; item.path = walkthroughs/slug/
     return (
       '<li data-title="' + esc((it.title || "").toLowerCase()) +

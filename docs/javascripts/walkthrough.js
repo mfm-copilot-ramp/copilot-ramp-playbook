@@ -213,6 +213,10 @@
   function enhance() {
     var article = document.querySelector(".md-content__inner");
     if (!article || article.dataset.rcWtEnhanced === "1") return;
+    // The Walkthroughs Library index lives under /walkthroughs/ but is a card
+    // catalog, not a walkthrough — skip the hero/stepper anatomy (it would wrap
+    // the bare "Library" H1 in an empty hero band).
+    if (article.querySelector("#rc-lib-grid")) return;
     var h1 = article.querySelector("h1");
     if (!h1) return;
     article.dataset.rcWtEnhanced = "1";
