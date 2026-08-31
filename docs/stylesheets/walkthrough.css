@@ -1,0 +1,210 @@
+/* ──────────────────────────────────────────────────────────────────────────
+ * walkthrough.css — visual system for the long-form walkthrough pages.
+ *
+ * The walkthrough anatomy (title → tagline → meta → "When to use" → steps →
+ * "Watch out for" → related) is identical across ~130 pages, but as plain
+ * markdown it renders as one undifferentiated grey column that readers bounce
+ * off before reaching the steps. This stylesheet gives that shared anatomy a
+ * scannable rhythm: a branded hero, coloured section anchors, a numbered
+ * stepper with a connecting rail, and tidier callouts / lists.
+ *
+ * Scope: everything is nested under `.rc-walkthrough`, a body class added by
+ * docs/javascripts/walkthrough.js ONLY on /walkthroughs/ pages. Nothing here
+ * touches any other page. Companion JS also builds the .rc-wt-* wrappers the
+ * hero, meta-pills and stepper hang off — so if the JS is disabled the page
+ * falls back to plain (still readable) markdown.
+ * Built on Material CSS vars so light & dark both work with no extra rules.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* ── Left-nav: collapse the Walkthroughs stage groups by default ─────────────
+ * The theme enables navigation.expand, which force-shows every nested nav on
+ * desktop (display:grid) regardless of its toggle. For the ~143-page Walkthroughs
+ * section that's an unusable wall, so nav-collapse.js tags each group with
+ * .rc-wt-navgroup and this overrides the expand behaviour for JUST those groups:
+ * collapsed by default, revealed only when the toggle is checked (the script
+ * checks the group on the trail to the current page; the user can click to open
+ * others). Scoped to .rc-wt-navgroup, so no other nav section is affected. */
+.md-nav--primary .md-nav__item--nested.rc-wt-navgroup > nav.md-nav {
+  display: none !important;
+}
+.md-nav--primary .md-nav__item--nested.rc-wt-navgroup > .md-nav__toggle:checked ~ nav.md-nav {
+  display: grid !important;
+}
+
+/* ── Readability: cap the measure of flowing prose ───────────────────────────
+ * UI/UX review: body text ran ~115ch (920px) wide — well past the 50–75ch
+ * comfort zone for long-form reading. The site already caps prose at 46rem, but
+ * the root font is 20px so that resolves to 920px; the fix is to size the measure
+ * in `ch` (characters) instead. Scoped to walkthroughs (the long-form pages) and
+ * more specific than layout.css so it wins; boxed callouts/tables/code keep the
+ * full column width. Also caps the Library intro paragraph, which shares scope. */
+.rc-walkthrough .md-content__inner.md-typeset > p,
+.rc-walkthrough .md-content__inner.md-typeset > ul,
+.rc-walkthrough .md-content__inner.md-typeset > ol,
+.rc-walkthrough .rc-wt-step > p,
+.rc-walkthrough .rc-wt-step > ul,
+.rc-walkthrough .rc-wt-step > ol {
+  max-width: 72ch;
+}
+
+/* ── De-clutter: hide the page tag-chips on walkthrough pages ────────────────
+ * The front-matter tags render as a chip row above the hero, duplicating the
+ * Stage/For/Level/Time meta pills — two chip systems before any content. Hide
+ * them here (they remain in <head> metadata and on non-walkthrough pages). */
+.rc-walkthrough .md-content__inner > .md-tags {
+  display: none;
+}
+
+/* ── Hero: title + tagline + meta pills ──────────────────────────────────── */
+.rc-walkthrough .rc-wt-hero {
+  margin: 0 0 2rem;
+  padding: 1.6rem 1.7rem 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 4px solid var(--md-primary-fg-color);
+  background:
+    radial-gradient(120% 140% at 0% 0%,
+      color-mix(in srgb, var(--md-primary-fg-color) 13%, transparent),
+      transparent 60%),
+    color-mix(in srgb, var(--md-primary-fg-color) 4%, var(--md-default-bg-color));
+  box-shadow: 0 1px 2px rgba(20, 30, 50, .05), 0 12px 30px rgba(63, 81, 181, .09);
+}
+.rc-walkthrough .rc-wt-hero > h1 {
+  margin: 0 0 .72rem;
+  line-height: 1.18;
+}
+/* the tagline blockquote pulled into the hero */
+.rc-walkthrough .rc-wt-hero > blockquote {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  font-size: 1.06rem;
+  line-height: 1.5;
+  color: var(--md-default-fg-color--light);
+  background: transparent;
+}
+.rc-walkthrough .rc-wt-hero > blockquote > p { margin: 0; max-width: 52rem; }
+
+/* meta line → pills (built by walkthrough.js). Falls back to plain text if JS
+   is off, so we only decorate once the .rc-wt-meta wrapper exists. */
+.rc-walkthrough .rc-wt-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 1.05rem 0 0;
+  max-width: none;
+}
+.rc-walkthrough .rc-wt-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .38rem;
+  font-size: .74rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: .42rem .66rem;
+  border-radius: 999px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+}
+.rc-walkthrough .rc-wt-pill > .rc-wt-pill-k {
+  font-size: .6rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--md-primary-fg-color);
+}
+
+/* ── Section anchors: give each H2 a coloured tab so the eye can chunk ────── */
+.rc-walkthrough .md-content__inner > h2 {
+  margin-top: 2.6rem;
+  padding-left: .85rem;
+  border-left: .28rem solid var(--md-primary-fg-color);
+  line-height: 1.25;
+}
+/* softer divider above sections to break the "one long column" feel */
+.rc-walkthrough .md-content__inner > h2::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: .55rem 0 0 -.85rem;
+  background: linear-gradient(90deg,
+    var(--md-default-fg-color--lightest), transparent 55%);
+}
+
+/* ── Numbered stepper (built by walkthrough.js) ──────────────────────────── */
+/* Each numbered "### N. …" heading + its body is wrapped in a .rc-wt-step so
+   we can draw a badge and a connecting rail down the left edge. */
+.rc-walkthrough .rc-wt-steps { position: relative; margin: 1.2rem 0 .5rem; }
+
+.rc-walkthrough .rc-wt-step {
+  position: relative;
+  padding: .1rem 0 1.7rem 3.4rem;
+}
+/* the vertical rail linking the steps */
+.rc-walkthrough .rc-wt-step::before {
+  content: "";
+  position: absolute;
+  left: 1.09rem;
+  top: .35rem;
+  bottom: -.35rem;
+  width: 2px;
+  background: color-mix(in srgb, var(--md-primary-fg-color) 30%, transparent);
+}
+.rc-walkthrough .rc-wt-step:last-child::before { bottom: auto; height: 1.6rem; }
+
+/* the numbered badge */
+.rc-walkthrough .rc-wt-step > .rc-wt-num {
+  position: absolute;
+  left: 0;
+  top: -.05rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--md-primary-bg-color);
+  background: var(--md-primary-fg-color);
+  border-radius: 999px;
+  box-shadow: 0 0 0 4px var(--md-default-bg-color),
+              0 2px 6px rgba(63, 81, 181, .28);
+  z-index: 1;
+}
+.rc-walkthrough .rc-wt-step > h3 {
+  margin: .15rem 0 .35rem;
+  line-height: 1.3;
+}
+.rc-walkthrough .rc-wt-step > h3 .headerlink { margin-left: .3rem; }
+/* ordered-list steps have no <h3>; the first paragraph's bold lead acts as the
+   step title, so give it the same top rhythm as an h3 step. */
+.rc-walkthrough .rc-wt-steps--ol .rc-wt-step > p:first-child { margin-top: .15rem; }
+.rc-walkthrough .rc-wt-step > :last-child { margin-bottom: 0; }
+
+/* ── "Next" / "Learn more" blockquote callouts ───────────────────────────── */
+.rc-walkthrough .md-content__inner > blockquote {
+  border-radius: .55rem;
+  border-left-width: .24rem;
+  background: color-mix(in srgb, var(--md-primary-fg-color) 5%, var(--md-default-bg-color));
+}
+.rc-walkthrough .md-content__inner > blockquote.rc-wt-next {
+  border-left-color: #1a73c0; /* --rc-leads: next rung on the ramp */
+  background: color-mix(in srgb, #1a73c0 7%, var(--md-default-bg-color));
+}
+
+/* ── List polish: branded markers inside walkthrough prose ───────────────── */
+.rc-walkthrough .md-content__inner > ul > li::marker {
+  color: var(--md-primary-fg-color);
+}
+
+/* ── Narrow screens: collapse the stepper indent a touch ─────────────────── */
+@media screen and (max-width: 44.9375em) {
+  .rc-walkthrough .rc-wt-hero { padding: 1.2rem 1.15rem; }
+  .rc-walkthrough .rc-wt-step { padding-left: 2.7rem; }
+  .rc-walkthrough .rc-wt-step > .rc-wt-num { width: 1.9rem; height: 1.9rem; font-size: .85rem; }
+  .rc-walkthrough .rc-wt-step::before { left: .94rem; }
+  /* tighter meta pills so the hero doesn't push content far down the fold */
+  .rc-walkthrough .rc-wt-meta { gap: .4rem; margin-top: .85rem; }
+  .rc-walkthrough .rc-wt-pill { padding: .36rem .55rem; }
+}

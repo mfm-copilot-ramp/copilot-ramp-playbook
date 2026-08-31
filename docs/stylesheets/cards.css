@@ -46,6 +46,12 @@
 .rc-chip-adapt {
   font-weight: 600;
 }
+/* "+N" roles-overflow chip on Library cards — a quiet count, not a label */
+.rc-chip-more {
+  font-weight: 700;
+  color: var(--md-default-fg-color--light);
+  background: color-mix(in srgb, var(--md-default-fg-color--lightest) 60%, transparent);
+}
 
 /* keep Material card content tidy */
 .rc-grid.grid.cards > ul > li > :first-child,
@@ -85,9 +91,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem 1.6rem;
-  padding: .85rem 1.05rem;
-  margin: 1rem 0 1.5rem;
+  gap: 1.15rem 1.6rem;
+  padding: 1rem 1.15rem;
+  margin: 1rem 0 1.75rem;
   background: var(--md-default-bg-color);
   border: 1px solid var(--md-default-fg-color--lightest);
   border-radius: .75rem;
@@ -233,6 +239,30 @@
 @media (max-width: 48rem) {
   .rc-filter-count { margin-left: 0; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Walkthroughs Library — /walkthroughs/ index (rendered by walkthroughs-library.js)
+   Reuses the stage-page card system; adds a stage chip, a search field, and a
+   sticky filter bar so Stage/Role/Time stay reachable while scrolling ~140 cards.
+   ══════════════════════════════════════════════════════════════════════════ */
+#rc-lib-filter.rc-filter { position: sticky; top: .5rem; z-index: 3; }
+.rc-chip-stage {
+  background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent);
+  color: var(--md-primary-fg-color);
+  font-weight: 800;
+}
+.rc-lib-search { flex: 1 1 12rem; min-width: 10rem; }
+.rc-search {
+  width: 100%;
+  font: inherit;
+  font-size: .8rem;
+  padding: .42rem .7rem;
+  border-radius: 6px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+}
+.rc-search:focus-visible { outline: 2px solid var(--md-primary-fg-color); outline-offset: 1px; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    Quick Wins launchpad — prompt cards (docs/quick-wins.md)

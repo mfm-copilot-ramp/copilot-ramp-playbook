@@ -67,14 +67,37 @@ This works because it fixes the content perimeter before drafting begins. The pl
 
 ## Step by step
 
-1. **Create the agent.** In Copilot Studio, create a new agent on the GitHub Copilot harness. In the **Build** tab, use the **instructions editor** for behavior and the **components panel** for knowledge and tools. Name it "Proposal Content Assistant" or another sales-friendly name.
-2. **Write outcome-focused instructions.** Adapt the prompt above into instructions. Include role, tone, boundaries, reasoning steps, knowledge by purpose, optional tool use by purpose, and the response format. Do not build trigger phrases such as "RFP question about" or "case study for"; the harness reads the user's intent and plans the route.
-3. **Confirm generative orchestration is on.** Leave the GitHub Copilot harness's generative planning behavior on so the agent can combine retrieval, drafting, refusal, and escalation in one plan.
-4. **Add the SharePoint knowledge source.** Connect the approved proposal and RFP content library. Include solution briefs, approved RFP responses, case studies, proposal templates, and boilerplate sections. Keep draft, outdated, internal-only, pricing, and contract-term content out of this source.
-5. **Add the CRM tool only if you are ready for that path.** If your sales process needs opportunity context now, add a read-only Salesforce or Dynamics action that retrieves industry, stage, solution area, and deal size. In the instructions, say to use it only when the rep supplies an opportunity reference and never to use it for pricing or deal terms. If you do not have this tool, instruct the agent to ask the rep for the missing context.
-6. **Test the whole task in the Test pane.** Try a pasted RFP question, a case-study request by industry, a solution-brief request, and a proposal-section draft. Confirm the agent returns approved content, cites source links, notes assumptions, and asks for missing context. Each test run consumes credits.
-7. **Test the refusal and recovery paths.** Ask for pricing, deal terms, and an NDA-protected customer reference. Then break a source path or CRM lookup. The agent should refuse or escalate cleanly, say when no approved response exists, and never fill the gap with invented content.
-8. **Publish and pilot.** Publish to the channel your reps use, then pilot with a small sales team. Review missing-content reports with sales enablement before expanding.
+### 1. Create the agent
+
+In Copilot Studio, create a new agent on the GitHub Copilot harness. In the **Build** tab, use the **instructions editor** for behavior and the **components panel** for knowledge and tools. Name it "Proposal Content Assistant" or another sales-friendly name.
+
+### 2. Write outcome-focused instructions
+
+Adapt the prompt above into instructions. Include role, tone, boundaries, reasoning steps, knowledge by purpose, optional tool use by purpose, and the response format. Do not build trigger phrases such as "RFP question about" or "case study for"; the harness reads the user's intent and plans the route.
+
+### 3. Confirm generative orchestration is on
+
+Leave the GitHub Copilot harness's generative planning behavior on so the agent can combine retrieval, drafting, refusal, and escalation in one plan.
+
+### 4. Add the SharePoint knowledge source
+
+Connect the approved proposal and RFP content library. Include solution briefs, approved RFP responses, case studies, proposal templates, and boilerplate sections. Keep draft, outdated, internal-only, pricing, and contract-term content out of this source.
+
+### 5. Add the CRM tool only if you are ready for that path
+
+If your sales process needs opportunity context now, add a read-only Salesforce or Dynamics action that retrieves industry, stage, solution area, and deal size. In the instructions, say to use it only when the rep supplies an opportunity reference and never to use it for pricing or deal terms. If you do not have this tool, instruct the agent to ask the rep for the missing context.
+
+### 6. Test the whole task in the Test pane
+
+Try a pasted RFP question, a case-study request by industry, a solution-brief request, and a proposal-section draft. Confirm the agent returns approved content, cites source links, notes assumptions, and asks for missing context. Each test run consumes credits.
+
+### 7. Test the refusal and recovery paths
+
+Ask for pricing, deal terms, and an NDA-protected customer reference. Then break a source path or CRM lookup. The agent should refuse or escalate cleanly, say when no approved response exists, and never fill the gap with invented content.
+
+### 8. Publish and pilot
+
+Publish to the channel your reps use, then pilot with a small sales team. Review missing-content reports with sales enablement before expanding.
 
 ## Screenshots
 
@@ -88,6 +111,9 @@ tool in `tooling/screenshots/`._
 - Track unanswered RFP questions as content gaps for sales enablement to review quarterly.
 - Add CRM context from Salesforce or Dynamics so industry, stage, solution area, and deal size can shape retrieval without the rep typing everything.
 - Add an autonomous trigger only when governance is ready, such as starting a content-gap review when new unanswered RFP questions are logged.
+
+> **Learn more.** See [Agents powered by the GitHub Copilot harness](https://learn.microsoft.com/en-us/microsoft-copilot-studio/harnesses-overview)
+> and the [Copilot Studio hub](https://learn.microsoft.com/en-us/microsoft-copilot-studio/) on Microsoft Learn.
 
 ## Watch out for
 
