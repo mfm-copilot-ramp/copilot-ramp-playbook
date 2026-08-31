@@ -90,6 +90,7 @@ extra_javascript:
   - javascripts/feedback-widget.js
   - javascripts/share.js
   - javascripts/card-filter.js
+  - javascripts/walkthroughs-library.js
   - javascripts/estimator-vocab.js
   - javascripts/site-bus.js
   - javascripts/estimator-core.js
@@ -266,6 +267,7 @@ nav:
 
   - Use:
       - "Quick Wins": quick-wins.md
+      - "Walkthroughs Library": walkthroughs/index.md
       - "Use-Case Catalog": CATALOG.md
 
   - Build:

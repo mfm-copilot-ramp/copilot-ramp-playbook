@@ -235,6 +235,30 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   Walkthroughs Library — /walkthroughs/ index (rendered by walkthroughs-library.js)
+   Reuses the stage-page card system; adds a stage chip, a search field, and a
+   sticky filter bar so Stage/Role/Time stay reachable while scrolling ~140 cards.
+   ══════════════════════════════════════════════════════════════════════════ */
+#rc-lib-filter.rc-filter { position: sticky; top: .5rem; z-index: 3; }
+.rc-chip-stage {
+  background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent);
+  color: var(--md-primary-fg-color);
+  font-weight: 800;
+}
+.rc-lib-search { flex: 1 1 12rem; min-width: 10rem; }
+.rc-search {
+  width: 100%;
+  font: inherit;
+  font-size: .8rem;
+  padding: .42rem .7rem;
+  border-radius: 6px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+}
+.rc-search:focus-visible { outline: 2px solid var(--md-primary-fg-color); outline-offset: 1px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
    Quick Wins launchpad — prompt cards (docs/quick-wins.md)
    Each card shows a copy-paste prompt inline PLUS a link to its full walkthrough,
    so the page is a working tool, not a dead-end list. Cards are Material grid

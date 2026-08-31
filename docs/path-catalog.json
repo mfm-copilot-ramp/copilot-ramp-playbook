@@ -1,9 +1,25 @@
 {
-  "generated": "2026-08-25T15:15:56Z",
+  "generated": "2026-08-31T17:40:16Z",
   "items": [
+    {
+      "path": "walkthroughs/agent-builder-expense-helper-agent/",
+      "title": "Build an expense-policy helper agent",
+      "description": "Create a no-code expense helper grounded on travel and expense policy docs so teammates get cited guidance before submitting claims.",
+      "stage": "agent-builder",
+      "stageLabel": "Stage 4 · Agent Builder",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "~20 min",
+      "kind": "walkthrough"
+    },
     {
       "path": "walkthroughs/agent-builder-faq-agent/",
       "title": "Build an FAQ agent for a recurring process",
+      "description": "Build a no-code Agent Builder FAQ bot that answers your team's repeat questions instantly, 24/7, from your own documentation so you stop being the help desk.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -19,8 +35,24 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/agent-builder-inbox-summariser-agent/",
+      "title": "Build a personal inbox summariser agent",
+      "description": "Build a personal Agent Builder helper grounded on your mail to summarise what needs a reply, what is FYI, and what can wait.",
+      "stage": "agent-builder",
+      "stageLabel": "Stage 4 · Agent Builder",
+      "roles": [
+        "maker",
+        "end-user"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "~20 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/agent-builder-meeting-prep-agent/",
       "title": "Build a meeting-prep agent for a recurring 1:1 or standup",
+      "description": "Build a no-code agent that auto-generates agenda items, talking points, and context before every recurring one-on-one or standup, with no manual pulling.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -35,6 +67,7 @@
     {
       "path": "walkthroughs/agent-builder-onboarding-agent/",
       "title": "Build an onboarding agent for new hires",
+      "description": "Build a self-service onboarding agent that answers new hires' first-week questions on demand, so you stop repeating the same setup conversation every time.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -52,6 +85,7 @@
     {
       "path": "walkthroughs/agent-builder-persona-instructions/",
       "title": "Give your agent a persona and instructions that stick",
+      "description": "Write the persona, rules, and when-unsure behavior that make a no-code agent predictable and trusted, instead of one people abandon after a bad answer.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -63,8 +97,54 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/agent-builder-policy-helper-agent/",
+      "title": "Build a team policy helper agent",
+      "description": "Create a no-code policy helper grounded on team process docs so teammates get cited how-to answers and know when to ask a human.",
+      "stage": "agent-builder",
+      "stageLabel": "Stage 4 · Agent Builder",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "~20 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/agent-builder-project-status-agent/",
+      "title": "Build a project status agent for your team",
+      "description": "Build a no-code project status agent grounded on team docs so everyone can ask for progress, risks, owners, and next milestones.",
+      "stage": "agent-builder",
+      "stageLabel": "Stage 4 · Agent Builder",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "~20 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/agent-builder-reading-assistant-agent/",
+      "title": "Build a reading assistant over your saved articles",
+      "description": "Build a personal agent grounded on saved articles and PDFs in OneDrive to answer questions, surface themes, and cite the source files.",
+      "stage": "agent-builder",
+      "stageLabel": "Stage 4 · Agent Builder",
+      "roles": [
+        "maker",
+        "end-user"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "~20 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/agent-builder-research-librarian/",
       "title": "Build a personal research librarian over your OneDrive",
+      "description": "Turn years of saved PDFs and notes in your OneDrive into a no-code research librarian that gives cited answers to any question about your own files.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -79,6 +159,7 @@
     {
       "path": "walkthroughs/agent-builder-share-and-feedback/",
       "title": "Pilot your agent with a team and gather feedback",
+      "description": "Run a small structured pilot for your first agent, gather feedback from a handful of users, and turn a private guess into a tested tool the team adopts.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -95,6 +176,7 @@
     {
       "path": "walkthroughs/agent-builder-sprint-review-summarizer/",
       "title": "Build a sprint-review summarizer for your Friday demo",
+      "description": "Build a no-code agent that turns your Friday sprint review into a clean summary of what shipped, what's next, and what's blocked, sent in one click.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -108,8 +190,24 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/agent-builder-standup-agent/",
+      "title": "Build a daily stand-up note-taker agent",
+      "description": "Build a personal agent that turns your rough notes and updates into a consistent stand-up format for yesterday, today, and blockers.",
+      "stage": "agent-builder",
+      "stageLabel": "Stage 4 · Agent Builder",
+      "roles": [
+        "maker",
+        "end-user"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "~20 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/agent-builder-starter-prompts/",
       "title": "Seed your agent with starter prompts",
+      "description": "Seed your agent with starter prompts that tell people what to ask on the first try, the difference between an agent that gets used and one nobody opens.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -124,6 +222,7 @@
     {
       "path": "walkthroughs/agent-builder-team-knowledge/",
       "title": "Build a team-knowledge agent over a SharePoint site",
+      "description": "Point a no-code agent at your team's SharePoint site once so everyone can ask plain-language questions and get cited answers instead of pinging you.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -138,6 +237,7 @@
     {
       "path": "walkthroughs/agent-builder-voice-content-coach/",
       "title": "Build a \"writes in my voice\" content coach from your sent mail",
+      "description": "Ground a no-code agent on your own sent mail so it learns how you actually write, then have it draft and coach in your voice instead of generic AI tone.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -152,6 +252,7 @@
     {
       "path": "walkthroughs/agent-builder-voice-of-customer/",
       "title": "Build a \"voice of customer\" agent over your support inbox",
+      "description": "Build a no-code agent grounded on your support inbox and ask it what customers are really saying, surfacing the themes hiding in emails you can't all read.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -166,6 +267,7 @@
     {
       "path": "walkthroughs/agent-builder-vs-studio/",
       "title": "Know when to graduate from Agent Builder to Copilot Studio",
+      "description": "An honest decision guide for when you've outgrown no-code Agent Builder and need Copilot Studio, so you pick the right tool and don't rebuild your agent twice.",
       "stage": "agent-builder",
       "stageLabel": "Stage 4 · Agent Builder",
       "roles": [
@@ -178,8 +280,25 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/autopilots-competitive-monitor/",
+      "title": "Always-on competitive and news monitor",
+      "description": "Have Scout watch named competitors and topics on a schedule, then deliver a short digest of what changed, why it matters, and what to do next.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/autopilots-coordinate-meetings/",
       "title": "Let Scout coordinate your meetings and prep",
+      "description": "Hand Microsoft Scout the scheduling and meeting prep that eats your week and let it line up times and pull context in the background while you stay in control.",
       "stage": "autopilots",
       "stageLabel": "Stage 5 · Autopilots",
       "roles": [
@@ -194,6 +313,7 @@
     {
       "path": "walkthroughs/autopilots-customer-health-watch/",
       "title": "Equip Scout with a continuous customer-health watch",
+      "description": "Equip the worst-first customer-health digest onto Microsoft Scout as an always-on skill, so your ranked list of at-risk accounts never goes stale.",
       "stage": "autopilots",
       "stageLabel": "Stage 5 · Autopilots",
       "roles": [
@@ -207,8 +327,57 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/autopilots-doc-change-watch/",
+      "title": "Watch key documents and flag changes",
+      "description": "Have Microsoft Scout watch key documents and flag meaningful changes with a short what-changed-and-why summary for you to review.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-focus-time/",
+      "title": "Protect focus time and triage interruptions",
+      "description": "Have Microsoft Scout protect focus time around your workload and triage interruptions so only genuinely urgent items reach you.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-followup-tracker/",
+      "title": "Track and chase your open follow-ups",
+      "description": "Have Scout track what you owe and what others owe you across email and Teams, nudging you before follow-ups go stale.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/autopilots-get-access/",
       "title": "Find out if you can get Scout — and turn it on",
+      "description": "Microsoft Scout is in private preview. Find out whether your org can get this autopilot and what has to be true to switch it on before you plan any workflow.",
       "stage": "autopilots",
       "stageLabel": "Stage 5 · Autopilots",
       "roles": [
@@ -227,6 +396,7 @@
     {
       "path": "walkthroughs/autopilots-inbox-triage/",
       "title": "Equip Scout with an always-on inbox-triage skill",
+      "description": "Turn \"surface what actually needs me\" into a skill Microsoft Scout runs in the background, triaging your inbox and signals into one short daily brief.",
       "stage": "autopilots",
       "stageLabel": "Stage 5 · Autopilots",
       "roles": [
@@ -242,6 +412,7 @@
     {
       "path": "walkthroughs/autopilots-meet-scout/",
       "title": "Meet Microsoft Scout — and what Autopilots are",
+      "description": "A field guide to Autopilots, Microsoft's new category of always-on agents, and Scout, the first one, so you understand what it is and what it actually does.",
       "stage": "autopilots",
       "stageLabel": "Stage 5 · Autopilots",
       "roles": [
@@ -259,6 +430,7 @@
     {
       "path": "walkthroughs/autopilots-meeting-recap/",
       "title": "Equip Scout with a meeting-recap and follow-through skill",
+      "description": "Make \"recap the meeting and chase follow-ups\" a skill Microsoft Scout runs when each meeting ends: clean recap, owners on actions, drafted follow-ups.",
       "stage": "autopilots",
       "stageLabel": "Stage 5 · Autopilots",
       "roles": [
@@ -272,8 +444,27 @@
       "kind": "walkthrough"
     },
     {
-      "path": "walkthroughs/autopilots-track-deliverables/",
-      "title": "Have Scout watch your deliverables and flag risks",
+      "path": "walkthroughs/autopilots-onboarding-guide/",
+      "title": "Guide a new hire through their first weeks",
+      "description": "Have Microsoft Scout send a new hire timed nudges, resources, and check-ins so their first weeks feel guided, not improvised.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "manager",
+        "champion",
+        "end-user"
+      ],
+      "fn": [
+        "hr"
+      ],
+      "level": "intermediate",
+      "time": "20 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-renewal-watch/",
+      "title": "Renewal and at-risk account watch",
+      "description": "Have Scout watch renewals and engagement signals in the background, flagging at-risk accounts early with context for your next move.",
       "stage": "autopilots",
       "stageLabel": "Stage 5 · Autopilots",
       "roles": [
@@ -287,8 +478,57 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/autopilots-standup-prep/",
+      "title": "Prep your daily stand-up automatically",
+      "description": "Have Microsoft Scout draft your daily stand-up from yesterday's work, today's priorities, and blockers so you can review before the meeting.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-track-deliverables/",
+      "title": "Have Scout watch your deliverables and flag risks",
+      "description": "Give Microsoft Scout a standing watch over your deliverables so it flags slipped deadlines and stalled decisions before they quietly cost you.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "manager",
+        "champion",
+        "end-user"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/autopilots-weekly-report/",
+      "title": "Auto-draft your weekly report",
+      "description": "Have Scout draft your Friday status from your emails, meetings, and chats, so you start review with a coherent weekly report instead of notes.",
+      "stage": "autopilots",
+      "stageLabel": "Stage 5 · Autopilots",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/chat-adapt-audience/",
       "title": "Adapt a document or message for a different audience",
+      "description": "Use Microsoft Copilot to transform any document or message for a new audience in one prompt, from technical spec to exec summary, without rewriting it.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -304,6 +544,7 @@
     {
       "path": "walkthroughs/chat-brainstorm/",
       "title": "Brainstorm solutions with structured tradeoffs",
+      "description": "Use Copilot to get past the blank page fast with structured options and honest tradeoffs, so you make a quicker, better-informed decision.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -319,6 +560,7 @@
     {
       "path": "walkthroughs/chat-catch-up-thread/",
       "title": "Catch up on a Teams thread you were @mentioned in",
+      "description": "Get pulled into an 80-message Teams thread and know in 30 seconds what's being asked of you and by when, using a single Copilot prompt instead of scrolling.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -330,8 +572,39 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/chat-compare-options/",
+      "title": "Compare options in a decision table",
+      "description": "Use Copilot to compare options in a side-by-side decision table across criteria that matter and end with a clear recommendation.",
+      "stage": "chat",
+      "stageLabel": "Stage 1 · Chat",
+      "roles": [
+        "end-user",
+        "manager"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "5 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/chat-difficult-message/",
+      "title": "Draft a difficult message with care",
+      "description": "Use Copilot Chat to draft a sensitive message that is clear, kind, and professional, with the decision or ask up front.",
+      "stage": "chat",
+      "stageLabel": "Stage 1 · Chat",
+      "roles": [
+        "end-user",
+        "manager"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "5 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/chat-document-catch-up/",
       "title": "Get up to speed on a long document fast",
+      "description": "Use Copilot to reduce a long document to what your role needs, plus the risks buried deep inside, before a meeting where everyone pretends they read it.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -346,6 +619,7 @@
     {
       "path": "walkthroughs/chat-email-chain-summary/",
       "title": "Catch up on a long email thread in seconds",
+      "description": "Open a 40-message email thread and know exactly where things stand and what's being asked of you in under a minute with one Microsoft Copilot prompt.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -360,6 +634,7 @@
     {
       "path": "walkthroughs/chat-exec-briefing/",
       "title": "Draft an exec briefing from background materials",
+      "description": "Use Copilot to draft sharp exec briefing talking points pulled from your own docs, so you walk into any leadership meeting prepared instead of writing at 8 PM.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -373,8 +648,23 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/chat-first-draft/",
+      "title": "Get a first draft from a blank page",
+      "description": "Use Copilot Chat to turn rough bullets or a short brief into a structured first draft so you can edit from a v1, not a blank page.",
+      "stage": "chat",
+      "stageLabel": "Stage 1 · Chat",
+      "roles": [
+        "end-user"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "5 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/chat-meeting-agenda/",
       "title": "Build a meeting agenda from context and notes",
+      "description": "Use Copilot to build a structured, time-slotted meeting agenda from whatever notes and context you have, in under two minutes instead of starting from blank.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -390,6 +680,7 @@
     {
       "path": "walkthroughs/chat-meeting-followups/",
       "title": "Turn a meeting into tracked follow-ups",
+      "description": "Use Microsoft Copilot to capture decisions, owners, and due dates in under five minutes after any meeting, without re-watching the recording.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -404,6 +695,7 @@
     {
       "path": "walkthroughs/chat-plan-week/",
       "title": "Plan your week from your calendar and inbox",
+      "description": "Use Copilot to start every Monday with a clear view of what matters, what needs prep, and what you can defer, pulled from your calendar and inbox.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -418,6 +710,7 @@
     {
       "path": "walkthroughs/chat-prep-1on1/",
       "title": "Prep for a 1:1 in two minutes",
+      "description": "Use Copilot to walk into your next one-on-one with talking points drawn from the work you actually shared this week, prepared in about two minutes.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -432,6 +725,7 @@
     {
       "path": "walkthroughs/chat-project-plan/",
       "title": "Build a first-draft project plan",
+      "description": "Use Copilot to go from a vague goal to a first-draft project plan with phases, milestones, owners, and risks that you can edit in about five minutes.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -446,6 +740,7 @@
     {
       "path": "walkthroughs/chat-prompt-of-the-day/",
       "title": "Run a \"Prompt of the Day\" for your team",
+      "description": "Run a 30-second daily Prompt of the Day to turn we have Copilot into we use Copilot, building team adoption one small, specific win at a time.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -459,21 +754,9 @@
       "kind": "walkthrough"
     },
     {
-      "path": "walkthroughs/chat-rewrite-email/",
-      "title": "Rewrite an email for a tougher audience",
-      "stage": "chat",
-      "stageLabel": "Stage 1 · Chat",
-      "roles": [
-        "end-user"
-      ],
-      "fn": [],
-      "level": "starter",
-      "time": "3 min",
-      "kind": "walkthrough"
-    },
-    {
-      "path": "walkthroughs/chat-weekly-status/",
-      "title": "Draft a status update from your week's activity",
+      "path": "walkthroughs/chat-pros-cons/",
+      "title": "Weigh a decision with pros, cons, and a recommendation",
+      "description": "Use Copilot to structure a decision with pros, cons, risks, a recommendation, and one option you may not have considered.",
       "stage": "chat",
       "stageLabel": "Stage 1 · Chat",
       "roles": [
@@ -486,8 +769,83 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/chat-rewrite-email/",
+      "title": "Rewrite an email for a tougher audience",
+      "description": "Use Copilot to turn a rambling, too-honest email draft into something tight, diplomatic, and impossible to misread, in a single prompt.",
+      "stage": "chat",
+      "stageLabel": "Stage 1 · Chat",
+      "roles": [
+        "end-user"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "3 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/chat-slide-outline/",
+      "title": "Turn notes into a slide outline",
+      "description": "Use Copilot to turn rough notes into a clean slide-by-slide outline with titles, one idea per slide, and speaker-note hints.",
+      "stage": "chat",
+      "stageLabel": "Stage 1 · Chat",
+      "roles": [
+        "end-user",
+        "manager"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "5 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/chat-translate-audience/",
+      "title": "Translate and localise a message for a global team",
+      "description": "Use Copilot Chat to translate and localise a message for a global team while preserving tone, intent, and cultural nuance.",
+      "stage": "chat",
+      "stageLabel": "Stage 1 · Chat",
+      "roles": [
+        "end-user",
+        "manager"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "5 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/chat-weekly-status/",
+      "title": "Draft a status update from your week's activity",
+      "description": "Use Copilot to turn a week of scattered emails, chats, and meetings into a crisp five-bullet status update for your manager in a couple of minutes.",
+      "stage": "chat",
+      "stageLabel": "Stage 1 · Chat",
+      "roles": [
+        "end-user",
+        "manager"
+      ],
+      "fn": [],
+      "level": "starter",
+      "time": "5 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/cowork-annual-plan/",
+      "title": "Draft an annual plan and OKRs",
+      "description": "Hand Cowork last year's results and strategy inputs to draft an annual plan with OKRs, initiatives, owners, and review notes.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "20 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/cowork-competitive-comparison/",
       "title": "Build a competitive comparison from multiple source documents",
+      "description": "Use Copilot Cowork to turn competitor briefs, product pages, and analyst notes into a structured comparison matrix for exec review or sales enablement.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -501,8 +859,24 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/cowork-content-calendar/",
+      "title": "Build a content calendar from a brief",
+      "description": "Cowork turns a campaign brief into a dated content calendar with channels, themes, owners, and draft hooks for review.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/cowork-customer-health-digest/",
       "title": "Generate a weekly customer-health digest across your accounts",
+      "description": "Describe the account digest you wish you had once and let Copilot Cowork compile a weekly customer-health view across your whole book of business.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -518,8 +892,43 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/cowork-customer-onboarding-pack/",
+      "title": "Build a customer onboarding pack",
+      "description": "Hand Cowork a signed deal and product docs to create a customer onboarding pack with welcome notes, timeline, roles, and milestones.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [
+        "hr"
+      ],
+      "level": "intermediate",
+      "time": "20 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/cowork-data-story/",
+      "title": "Turn a dataset into a narrative brief",
+      "description": "Hand Cowork a spreadsheet or export to draft a narrative brief with trends, outliers, recommended action, and a supporting table.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "20 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/cowork-deck-from-notes/",
       "title": "Build a deck from raw notes",
+      "description": "Hand Copilot Cowork your messy notes and get back a real slide deck with structure, narrative, and draft slides, so you start from a v1 not a blank canvas.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -534,6 +943,7 @@
     {
       "path": "walkthroughs/cowork-end-to-end-task/",
       "title": "Hand off an end-to-end task to Cowork",
+      "description": "Describe an outcome, not a prompt, and let Copilot Cowork plan and run the steps across your email, files, and apps until a finished deliverable lands.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -548,6 +958,7 @@
     {
       "path": "walkthroughs/cowork-hiring-loop/",
       "title": "Coordinate a hiring loop end-to-end in Cowork",
+      "description": "Hand the whole hiring loop to Copilot Cowork, aligning the role, writing the JD, building the interview kit, and synthesizing the debrief into a decision.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -565,6 +976,7 @@
     {
       "path": "walkthroughs/cowork-incident-postmortem/",
       "title": "Build an incident postmortem from Teams, tickets, and email",
+      "description": "Point Copilot Cowork at your Teams war-room, ticket, and emails to reconstruct the timeline and get a blameless first-draft incident postmortem you edit.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -583,6 +995,7 @@
     {
       "path": "walkthroughs/cowork-market-research-brief/",
       "title": "Research a market and write a landscape brief",
+      "description": "Hand Copilot Cowork a topic and your inputs to get back a structured market landscape brief you would normally spend half a day writing yourself.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -596,8 +1009,39 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/cowork-meeting-prep-pack/",
+      "title": "Build a prep pack for any external meeting",
+      "description": "Cowork gathers attendee background, account context, open items, and talking points into a pre-meeting brief you can review.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/cowork-monthly-business-review/",
+      "title": "Assemble a monthly business review",
+      "description": "Cowork turns source metrics, highlights, risks, and next steps into a monthly business review pack you can present and refine.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/cowork-multi-doc-synthesis/",
       "title": "Synthesize many documents into one brief",
+      "description": "Point Copilot Cowork at a stack of documents and get one coherent brief with the throughline, the conflicts, and the gaps, instead of reading them all yourself.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -610,8 +1054,25 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/cowork-newsletter-roundup/",
+      "title": "Compile a newsletter from the week's sources",
+      "description": "Hand Cowork the week's updates and source links to draft an on-tone internal newsletter with sections, summaries, and calls to action.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "champion",
+        "manager"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/cowork-onboarding-plan/",
       "title": "Draft a 30/60/90-day onboarding plan for a new team member",
+      "description": "Use Copilot Cowork to go from someone starts Monday to a complete, personalized 30/60/90-day onboarding plan in one session instead of an afternoon.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -625,8 +1086,26 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/cowork-proposal-from-discovery/",
+      "title": "Turn discovery notes into a first-draft proposal",
+      "description": "Cowork turns discovery notes and a proposal template into a first draft covering problem, approach, scope, timeline, and pricing placeholders.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "champion"
+      ],
+      "fn": [
+        "sales"
+      ],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/cowork-qbr-prep-cycle/",
       "title": "Run a full QBR prep cycle in Cowork",
+      "description": "Hand the full QBR prep cycle to Copilot Cowork, pulling account data, building the deck, prepping talking points, and chasing follow-ups so you just review.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -644,6 +1123,7 @@
     {
       "path": "walkthroughs/cowork-recipe-library/",
       "title": "Build a \"Cowork recipe\" library for your org",
+      "description": "Capture a great one-off Copilot Cowork task as a reusable recipe so the whole team can rerun one person's best workflow on demand instead of losing it.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -657,6 +1137,7 @@
     {
       "path": "walkthroughs/cowork-recurring-weekly-digest/",
       "title": "Stand up a recurring weekly digest",
+      "description": "Describe the Monday-morning digest you wish landed in your inbox once and let Copilot Cowork compile and send it every week without you lifting a finger.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -671,6 +1152,7 @@
     {
       "path": "walkthroughs/cowork-rfp-response/",
       "title": "Draft an RFP or proposal response from scattered source docs",
+      "description": "Use Copilot Cowork to turn an RFP and scattered internal docs into a structured first-draft response, so you shape and polish rather than write from nothing.",
       "stage": "cowork",
       "stageLabel": "Stage 3 · Cowork",
       "roles": [
@@ -686,8 +1168,44 @@
       "kind": "walkthrough"
     },
     {
+      "path": "walkthroughs/cowork-training-curriculum/",
+      "title": "Turn source material into a training curriculum",
+      "description": "Hand Cowork source docs to build a modular curriculum with objectives, lessons, exercises, and knowledge checks for each module.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "manager",
+        "champion"
+      ],
+      "fn": [
+        "sales"
+      ],
+      "level": "intermediate",
+      "time": "20 min",
+      "kind": "walkthrough"
+    },
+    {
+      "path": "walkthroughs/cowork-vendor-evaluation/",
+      "title": "Score vendors against your criteria",
+      "description": "Cowork compares vendor materials against your weighted criteria and drafts a scorecard, recommendation, and risks to review.",
+      "stage": "cowork",
+      "stageLabel": "Stage 3 · Cowork",
+      "roles": [
+        "end-user",
+        "champion"
+      ],
+      "fn": [
+        "finance"
+      ],
+      "level": "intermediate",
+      "time": "15 min",
+      "kind": "walkthrough"
+    },
+    {
       "path": "walkthroughs/first-party-agents-in-channels/",
       "title": "Agents in Channels — post team-wide answers",
+      "description": "Drop a shared agent into a Teams channel so the whole team can mention it and self-serve answers, instead of the same five questions landing in your DMs.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -702,6 +1220,7 @@
     {
       "path": "walkthroughs/first-party-agents-in-communities/",
       "title": "Answer common questions with Agents in Communities",
+      "description": "Drop a shared agent into a Viva Engage community so the most-asked questions answer themselves where a broad audience already gathers, not in private DMs.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -716,6 +1235,7 @@
     {
       "path": "walkthroughs/first-party-agents-overview/",
       "title": "The first-party agents included with your M365 Copilot license",
+      "description": "A field guide to the prebuilt agents included in your Microsoft 365 Copilot license, so you delegate to the right one instead of prompting from scratch.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -733,6 +1253,7 @@
     {
       "path": "walkthroughs/first-party-analyst-dataset/",
       "title": "Analyze a dataset with Analyst",
+      "description": "Ask a spreadsheet questions in plain English with the Analyst agent and get the answer and the chart, no pivot tables, formulas, or Excel expert needed.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -747,6 +1268,7 @@
     {
       "path": "walkthroughs/first-party-bizchat-grounded/",
       "title": "Find answers across your organization's content with BizChat",
+      "description": "Search your whole company's SharePoint, email, and Teams in one question with BizChat and get a cited answer instead of a list of 400 links.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -762,6 +1284,7 @@
     {
       "path": "walkthroughs/first-party-career-self-assessment/",
       "title": "Draft a self-assessment with the Career agent",
+      "description": "Point the Career agent at your year's work and get a first-draft self-assessment of accomplishments, impact, and growth that you edit instead of author.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -778,6 +1301,7 @@
     {
       "path": "walkthroughs/first-party-copilot-pages/",
       "title": "Share and co-edit an AI output with Copilot Pages",
+      "description": "Turn any Copilot response into a shared, editable Copilot Pages document, with no copy-pasting, reformatting, or emailing a draft back and forth.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -793,6 +1317,7 @@
     {
       "path": "walkthroughs/first-party-employee-self-service/",
       "title": "Answer routine HR and IT questions with Employee Self-Service",
+      "description": "Get PTO balances, policies, and how-do-I answers in seconds from approved sources with Employee Self-Service, no ticket filed and no waiting in a queue.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -810,6 +1335,7 @@
     {
       "path": "walkthroughs/first-party-facilitator-auto-recap/",
       "title": "Auto-recap every meeting with Facilitator",
+      "description": "Let the Facilitator agent take collaborative meeting notes live and hand you decisions and action items the moment the meeting ends, no prompting required.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -824,6 +1350,7 @@
     {
       "path": "walkthroughs/first-party-idea-coach-proposal/",
       "title": "Pressure-test a proposal with the Idea Coach",
+      "description": "Hand your proposal to the Idea Coach before you send it and get the pushback a sharp colleague would give, the weak assumption and the missing option.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -841,6 +1368,7 @@
     {
       "path": "walkthroughs/first-party-interpreter-live-translation/",
       "title": "Translate a meeting in real time with Interpreter",
+      "description": "Run a cross-language Teams meeting without a human interpreter as the Interpreter agent translates speech live in your own voice so everyone follows along.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -854,6 +1382,7 @@
     {
       "path": "walkthroughs/first-party-learning-agent/",
       "title": "Upskill in the flow of work with the Learning agent",
+      "description": "Use the Learning agent to surface the right content, including LinkedIn Learning, the moment a skill is in front of you, not weeks later in a forgotten course.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -870,6 +1399,7 @@
     {
       "path": "walkthroughs/first-party-planner-agent/",
       "title": "Track project milestones with the Planner agent",
+      "description": "Use the Planner agent to turn a goal and a task list into a structured, assigned project plan by describing it in plain language, not filling in a form.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -885,6 +1415,7 @@
     {
       "path": "walkthroughs/first-party-project-manager/",
       "title": "Keep a project on track with the Project Manager agent",
+      "description": "Hand the Project Manager agent your plan and let it track action items, chase owners, and flag slips, so you stop being the human status-checker.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -899,6 +1430,7 @@
     {
       "path": "walkthroughs/first-party-researcher-deep-dive/",
       "title": "Deep-dive a topic with Researcher",
+      "description": "Hand a hard question to the Researcher agent and get a cited, structured brief drawn from your own files and the web, an afternoon of work done in minutes.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -914,6 +1446,7 @@
     {
       "path": "walkthroughs/first-party-sales-agent-brief/",
       "title": "Brief an account before a call with the Sales agent",
+      "description": "Use the Sales agent to walk into every call already briefed on recent activity, open opportunities, and what to raise, pulled from your CRM and inbox.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -930,6 +1463,7 @@
     {
       "path": "walkthroughs/first-party-skills-stretch-assignment/",
       "title": "Find a stretch assignment with the Skills agent",
+      "description": "Give the Skills agent your strengths and growth goals and get concrete stretch assignments, internal openings, and the one skill that opens the most doors.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -946,6 +1480,7 @@
     {
       "path": "walkthroughs/first-party-workforce-insights/",
       "title": "Find where Copilot is landing with Workforce insights",
+      "description": "Use Workforce insights to see where your team gets real value from Copilot and where they underuse it, so you aim enablement at the gap, not the noise.",
       "stage": "first-party",
       "stageLabel": "Stage 2 · First-party",
       "roles": [
@@ -962,6 +1497,7 @@
     {
       "path": "walkthroughs/foundry-ab-shadow-deploy/",
       "title": "A/B and shadow-deploy a model swap behind a Foundry agent",
+      "description": "Swap the model behind a Foundry agent the way you ship risky code, shadow first, then a small slice of live traffic, then promote on the numbers.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -976,6 +1512,7 @@
     {
       "path": "walkthroughs/foundry-autonomous-orchestration/",
       "title": "Orchestrate multiple agents and autonomous runs in Foundry",
+      "description": "Move from one Foundry agent answering a prompt to a system of agents that hand work to each other and run when triggered, the engineered form of delegation.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -989,6 +1526,7 @@
     {
       "path": "walkthroughs/foundry-cost-optimization/",
       "title": "Token-budgeting and cost optimization for a production agent",
+      "description": "Make tokens a metric you watch and cut the cost of a production Foundry agent with smaller models, shorter context, and caching, without cutting quality.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1003,6 +1541,7 @@
     {
       "path": "walkthroughs/foundry-evaluate-monitor/",
       "title": "Evaluate and continuously monitor a Foundry agent",
+      "description": "Treat Foundry agent quality like test coverage, measuring it before you ship and watching it live so regressions surface on a dashboard, not in a complaint.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1017,6 +1556,7 @@
     {
       "path": "walkthroughs/foundry-fine-tune-serve/",
       "title": "Fine-tune a domain model and serve it from a Foundry agent",
+      "description": "When prompting and retrieval hit their ceiling, fine-tune a base model on your domain, serve it from a Foundry agent, and prove it actually got better.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1031,6 +1571,7 @@
     {
       "path": "walkthroughs/foundry-first-agent/",
       "title": "Build your first pro-code agent with the Foundry Agent Service",
+      "description": "Stand up your first pro-code agent as software with the Foundry Agent Service, created from an SDK, grounded on a tool, and callable from your own code.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1044,6 +1585,7 @@
     {
       "path": "walkthroughs/foundry-govern-secure/",
       "title": "Secure and govern Foundry agents in production",
+      "description": "Run pro-code Foundry agents like production software, with tenant-isolated data, least-privilege identity, and the same governance plane as low-code agents.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1058,6 +1600,7 @@
     {
       "path": "walkthroughs/foundry-graduate-from-studio/",
       "title": "Graduate a Copilot Studio agent into pro-code Foundry",
+      "description": "Re-platform a working low-code agent that hit a real ceiling as engineered Foundry software, keeping the behavior you proved and gaining the control you need.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1072,6 +1615,7 @@
     {
       "path": "walkthroughs/foundry-mcp-tools/",
       "title": "Give a Foundry agent custom tools and MCP integrations",
+      "description": "Turn a talking Foundry agent into a doing one by wiring in your own functions and standards-based MCP tools so it can query systems and take real actions.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1085,6 +1629,7 @@
     {
       "path": "walkthroughs/foundry-red-team-eval/",
       "title": "Build a red-team / safety eval harness",
+      "description": "Before a Foundry agent meets users, try to break it on purpose and repeatably, turning is it safe into a suite of attacks it must survive on every release.",
       "stage": "foundry",
       "stageLabel": "Stage 7 · Foundry",
       "roles": [
@@ -1099,6 +1644,7 @@
     {
       "path": "walkthroughs/skill-lineage-customer-health/",
       "title": "One skill, three surfaces: the customer-health capability",
+      "description": "Follow one skill — ranking accounts worst-first by risk — across three surfaces: a Cowork recipe, an always-on Scout autopilot, and a governed Studio tool.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1115,6 +1661,7 @@
     {
       "path": "walkthroughs/studio-authentication/",
       "title": "Secure a Studio agent with authentication",
+      "description": "Secure a Copilot Studio agent with authentication so only the right people can use it and it acts as the right identity when accessing data on their behalf.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1129,6 +1676,7 @@
     {
       "path": "walkthroughs/studio-autonomous-triggers/",
       "title": "Configure an autonomous event-triggered agent",
+      "description": "Build a Copilot Studio agent that acts when an event happens, without waiting for a user to start a conversation, real automation rather than a chatbot.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1143,6 +1691,7 @@
     {
       "path": "walkthroughs/studio-connector-action/",
       "title": "Give a Studio agent a real action with a connector",
+      "description": "Wire a connector into your Copilot Studio agent so it can read and write to a real system, making the leap from an agent that answers to one that acts.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1157,6 +1706,7 @@
     {
       "path": "walkthroughs/studio-fabric-agent/",
       "title": "Connect a Studio agent to a Microsoft Fabric data agent",
+      "description": "Wire a Microsoft Fabric data agent into Copilot Studio so users can ask plain-language questions of your warehouse, lakehouse, and semantic models.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1171,6 +1721,7 @@
     {
       "path": "walkthroughs/studio-first-agent/",
       "title": "Build your first Studio agent with a knowledge source + topic",
+      "description": "Build your first Copilot Studio agent with a knowledge source and a topic, adding designed conversations and logic you can ship to hundreds of people.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1184,6 +1735,7 @@
     {
       "path": "walkthroughs/studio-functional-engineering-oncall-generative/",
       "title": "Engineering: Autonomous alert-to-runbook-to-escalation on the GitHub Copilot harness",
+      "description": "Build an on-call agent that matches alerts to runbooks, guides safe remediation, and escalates incidents with generative orchestration.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1199,6 +1751,7 @@
     {
       "path": "walkthroughs/studio-functional-engineering-oncall/",
       "title": "Engineering: alert to runbook to escalation",
+      "description": "Build a Copilot Studio on-call agent that matches an alert to the right runbook step, guides the fix, and knows exactly who to escalate to when it runs out.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1214,6 +1767,7 @@
     {
       "path": "walkthroughs/studio-functional-events-coordination-generative/",
       "title": "Workplace: Plan an internal event end to end on the GitHub Copilot harness",
+      "description": "Build an event coordinator that plans logistics, checks policy, proposes rooms and catering, and drafts comms using generative orchestration.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1228,6 +1782,7 @@
     {
       "path": "walkthroughs/studio-functional-events-coordination/",
       "title": "Workplace: plan an internal event end to end",
+      "description": "Build a Copilot Studio agent that turns running an internal event into a logistics checklist, room and catering bookings, and drafted attendee comms.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1242,6 +1797,7 @@
     {
       "path": "walkthroughs/studio-functional-field-service-triage-generative/",
       "title": "Field Service: Autonomous symptom-to-dispatch triage on the GitHub Copilot harness",
+      "description": "Build an agentic triage assistant that reasons from symptoms or fault codes to likely cause, safety escalation, and work-order dispatch.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1256,6 +1812,7 @@
     {
       "path": "walkthroughs/studio-functional-field-service-triage/",
       "title": "Field Service: symptoms to dispatch path",
+      "description": "Build a Copilot Studio agent that turns a symptom or fault code into the likely cause and the right dispatch path, so easy fixes never become a truck roll.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1270,6 +1827,7 @@
     {
       "path": "walkthroughs/studio-functional-finance-budget-qa/",
       "title": "Finance: Self-service spend and budget Q&A for budget owners",
+      "description": "Build a Copilot Studio agent that gives budget owners instant answers on spend, variance from plan, and the approval process, without waiting on Finance.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1287,6 +1845,7 @@
     {
       "path": "walkthroughs/studio-functional-finance-expense/",
       "title": "Finance: Self-service expense and procurement guidance",
+      "description": "Build a Copilot Studio agent that gives employees instant answers on expense policy and procurement rules and guides them into the right process.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1304,6 +1863,7 @@
     {
       "path": "walkthroughs/studio-functional-hr-onboarding/",
       "title": "HR: Guide new starters through a personalised first-week experience",
+      "description": "Build a Copilot Studio agent that gives every new employee a 24/7 first-week companion that knows their role, team, and start week, cutting handbook hunting.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1321,6 +1881,7 @@
     {
       "path": "walkthroughs/studio-functional-hr-policy-faq/",
       "title": "HR: Answer employee questions with a policies agent",
+      "description": "Build a Copilot Studio HR agent that answers employee questions from your actual policies 24/7, cutting inbox volume and giving consistent, cited answers.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1338,6 +1899,7 @@
     {
       "path": "walkthroughs/studio-functional-it-access-request-generative/",
       "title": "IT: Autonomous access-request handling on the GitHub Copilot harness",
+      "description": "Build an access-request agent that validates software, hardware, and permissions requests, collects fields, and creates ITSM tickets.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1355,6 +1917,7 @@
     {
       "path": "walkthroughs/studio-functional-it-access-request/",
       "title": "IT: Self-service software and hardware access requests",
+      "description": "Build a Copilot Studio agent that guides software, hardware, and system access requests, validated against policy and routed to the right IT queue.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1372,6 +1935,7 @@
     {
       "path": "walkthroughs/studio-functional-it-helpdesk-generative/",
       "title": "IT: Autonomous helpdesk triage on the GitHub Copilot harness",
+      "description": "Build an IT triage agent that answers from the KB, gathers ticket fields, and raises clean helpdesk tickets with generative planning.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1388,6 +1952,7 @@
     {
       "path": "walkthroughs/studio-functional-it-helpdesk/",
       "title": "IT: Triage support requests and answer from the knowledge base",
+      "description": "Build a Copilot Studio agent that deflects tier-1 IT tickets with instant knowledge-base answers and collects the details to raise a ticket when needed.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1404,6 +1969,7 @@
     {
       "path": "walkthroughs/studio-functional-legal-compliance/",
       "title": "Legal & Compliance: Policy guidance and process navigation",
+      "description": "Build a Copilot Studio agent that answers compliance and legal-process questions with strict scope controls and a clear escalation path to a qualified human.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1421,6 +1987,7 @@
     {
       "path": "walkthroughs/studio-functional-legal-contract/",
       "title": "Legal: Guide employees through contract routing and requirements",
+      "description": "Build a Copilot Studio agent that gives employees a clear path for getting contracts reviewed, what type, what Legal needs, and where to submit, before intake.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1438,6 +2005,7 @@
     {
       "path": "walkthroughs/studio-functional-marketing-campaign-generative/",
       "title": "Marketing: Brief-to-campaign generation on the GitHub Copilot harness",
+      "description": "Build an agentic campaign assistant that turns briefs into asset plans and drafts from approved brand, messaging, and channel guidance.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1452,6 +2020,7 @@
     {
       "path": "walkthroughs/studio-functional-marketing-campaign/",
       "title": "Marketing: brief to campaign drafts",
+      "description": "Build a Copilot Studio agent that turns a short brief into an asset checklist and on-brand first-draft copy, so the team starts from a draft not a blank page.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1466,6 +2035,7 @@
     {
       "path": "walkthroughs/studio-functional-procurement-sourcing-generative/",
       "title": "Procurement: Autonomous sourcing intake on the GitHub Copilot harness",
+      "description": "Build a sourcing intake agent that shortlists preferred vendors, checks policy gates, and opens compliant requisitions with generative planning.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1482,6 +2052,7 @@
     {
       "path": "walkthroughs/studio-functional-procurement-sourcing/",
       "title": "Procurement: request to vendors to policy gates",
+      "description": "Build a Copilot Studio agent that turns a purchase request into a shortlist of preferred vendors and applies policy gates, keeping spend fast and on contract.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1498,6 +2069,7 @@
     {
       "path": "walkthroughs/studio-functional-sales-intel/",
       "title": "Sales: Product intel and objection handling for sales reps",
+      "description": "Build a Copilot Studio agent that gives reps the right product story, competitive positioning, and objection responses mid-call, grounded on your content.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1515,6 +2087,7 @@
     {
       "path": "walkthroughs/studio-functional-sales-proposal-generative/",
       "title": "Sales: Autonomous proposal and RFP drafting on the GitHub Copilot harness",
+      "description": "Build an agentic proposal assistant that assembles RFP answers and proposal sections from approved sales content and cited sources.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1532,6 +2105,7 @@
     {
       "path": "walkthroughs/studio-functional-sales-proposal/",
       "title": "Sales: Build proposals and RFP responses with your approved content",
+      "description": "Build a Copilot Studio agent that helps reps assemble proposals and RFP responses from your approved content, so the first draft takes 30 minutes not 3 hours.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1549,6 +2123,7 @@
     {
       "path": "walkthroughs/studio-functional-support-deflection-generative/",
       "title": "Customer Support: Autonomous deflect-and-draft on the GitHub Copilot harness",
+      "description": "Build a support agent that grounds answers, drafts human-reviewed replies, checks incidents, and routes edge cases without scripted topics.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1563,6 +2138,7 @@
     {
       "path": "walkthroughs/studio-functional-support-deflection/",
       "title": "Customer Support: deflect and draft, escalate the rest",
+      "description": "Build a Copilot Studio support assistant that answers from approved help content, drafts a send-ready reply, and escalates the edge cases to a human.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1577,6 +2153,7 @@
     {
       "path": "walkthroughs/studio-generative-agent/",
       "title": "Build a generative agent on the GitHub Copilot harness",
+      "description": "Build a Copilot Studio agent on the GitHub Copilot harness: use generative orchestration to plan and run a multi-step task from instructions and tools.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1590,6 +2167,7 @@
     {
       "path": "walkthroughs/studio-govern-monitor/",
       "title": "Govern and monitor your agents at scale",
+      "description": "Govern and monitor a growing fleet of Copilot Studio agents so the program stays safe, compliant, and trusted as it scales instead of sprawling out of control.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1603,6 +2181,7 @@
     {
       "path": "walkthroughs/studio-mcp-tool-integration/",
       "title": "Add an MCP tool integration to your Studio agent",
+      "description": "Wire an MCP server into your Copilot Studio agent so it moves from telling users what the docs say to acting in the live system and making the change.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1616,6 +2195,7 @@
     {
       "path": "walkthroughs/studio-multi-turn-conversation/",
       "title": "Design a multi-turn conversation with fallback and clarification",
+      "description": "Design a Copilot Studio agent that asks what it needs to know before answering and recovers gracefully when a user says something unexpected.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1629,6 +2209,7 @@
     {
       "path": "walkthroughs/studio-power-automate-flow/",
       "title": "Trigger a Power Automate flow from inside a Studio agent",
+      "description": "Trigger a Power Automate flow from inside a Copilot Studio agent to create a ticket, update a record, or send a notification from a natural-language chat.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1643,6 +2224,7 @@
     {
       "path": "walkthroughs/studio-publish/",
       "title": "Publish and govern your agent",
+      "description": "Publish a Copilot Studio agent safely to the right audience with an owner and a way to watch it, the step that turns a working agent into a trusted one.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1657,6 +2239,7 @@
     {
       "path": "walkthroughs/studio-roi-business-case/",
       "title": "Make the ROI case for your agent",
+      "description": "Build the ROI story for your Copilot Studio agent in the language leadership funds, with defensible numbers, so it survives the next budget review.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1671,6 +2254,7 @@
     {
       "path": "walkthroughs/studio-test-evaluate/",
       "title": "Test and evaluate a Studio agent before publishing",
+      "description": "Test and evaluate a Copilot Studio agent before publishing by running structured test cases, finding failure modes, and fixing them before they hit users.",
       "stage": "studio",
       "stageLabel": "Stage 6 · Studio",
       "roles": [
@@ -1681,6 +2265,34 @@
       "level": "intermediate",
       "time": "30 min",
       "kind": "walkthrough"
+    },
+    {
+      "path": "solutions/crossfunctional-meeting-tracker-agent/",
+      "title": "Solution Template: Meeting Notes & Action Tracker Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/engineering-adr-agent/",
+      "title": "Solution Template: Architecture Decision Record Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
     },
     {
       "path": "solutions/engineering-oncall-runbook-agent/",
@@ -1694,6 +2306,20 @@
       "fn": [],
       "level": "intermediate",
       "time": "4–5 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/engineering-release-notes-agent/",
+      "title": "Solution Template: Deployment & Release Notes Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
       "kind": "solution-template"
     },
     {
@@ -1711,6 +2337,20 @@
       "kind": "solution-template"
     },
     {
+      "path": "solutions/field-service-parts-lookup-agent/",
+      "title": "Solution Template: Parts & Inventory Lookup Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "4–5 hours",
+      "kind": "solution-template"
+    },
+    {
       "path": "solutions/field-service-triage-agent/",
       "title": "Solution Template: Field Service Triage Agent",
       "stage": "studio",
@@ -1722,6 +2362,36 @@
       "fn": [],
       "level": "intermediate",
       "time": "4–5 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/field-service-work-order-agent/",
+      "title": "Solution Template: Work Order Status Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "4–5 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/finance-budget-qa-agent/",
+      "title": "Solution Template: Budget & Spend Q&A Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "finance"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
       "kind": "solution-template"
     },
     {
@@ -1738,6 +2408,35 @@
       ],
       "level": "intermediate",
       "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/finance-invoice-ap-agent/",
+      "title": "Solution Template: Invoice & AP Status Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "finance"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/foundry-batch-summarization-agent/",
+      "title": "Solution Template: Batch Summarization Pipeline Agent (Foundry)",
+      "stage": "foundry",
+      "stageLabel": "Solution template",
+      "roles": [
+        "developer"
+      ],
+      "fn": [],
+      "level": "advanced",
+      "time": "1–2 days",
       "kind": "solution-template"
     },
     {
@@ -1764,6 +2463,32 @@
       "fn": [],
       "level": "advanced",
       "time": "3–5 days",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/foundry-content-moderation-agent/",
+      "title": "Solution Template: Content Moderation & Safety Agent (Foundry)",
+      "stage": "foundry",
+      "stageLabel": "Solution template",
+      "roles": [
+        "developer"
+      ],
+      "fn": [],
+      "level": "advanced",
+      "time": "1–2 days",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/foundry-data-extraction-agent/",
+      "title": "Solution Template: Structured Data Extraction Agent (Foundry)",
+      "stage": "foundry",
+      "stageLabel": "Solution template",
+      "roles": [
+        "developer"
+      ],
+      "fn": [],
+      "level": "advanced",
+      "time": "1–2 days",
       "kind": "solution-template"
     },
     {
@@ -1832,6 +2557,32 @@
       "kind": "solution-template"
     },
     {
+      "path": "solutions/foundry-recommendation-agent/",
+      "title": "Solution Template: Recommendation Agent (Foundry)",
+      "stage": "foundry",
+      "stageLabel": "Solution template",
+      "roles": [
+        "developer"
+      ],
+      "fn": [],
+      "level": "advanced",
+      "time": "1–2 days",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/foundry-research-agent/",
+      "title": "Solution Template: Deep Research Agent (Foundry)",
+      "stage": "foundry",
+      "stageLabel": "Solution template",
+      "roles": [
+        "developer"
+      ],
+      "fn": [],
+      "level": "advanced",
+      "time": "1–2 days",
+      "kind": "solution-template"
+    },
+    {
       "path": "solutions/foundry-support-agent/",
       "title": "Solution Template: Customer-Facing Support Agent (Foundry)",
       "stage": "foundry",
@@ -1842,6 +2593,19 @@
       "fn": [],
       "level": "advanced",
       "time": "3–5 days",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/foundry-translation-agent/",
+      "title": "Solution Template: Translation & Localization Agent (Foundry)",
+      "stage": "foundry",
+      "stageLabel": "Solution template",
+      "roles": [
+        "developer"
+      ],
+      "fn": [],
+      "level": "advanced",
+      "time": "1–2 days",
       "kind": "solution-template"
     },
     {
@@ -1858,8 +2622,72 @@
       "kind": "solution-template"
     },
     {
+      "path": "solutions/hr-benefits-leave-agent/",
+      "title": "Solution Template: HR Benefits & Leave Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "hr"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/hr-performance-review-agent/",
+      "title": "Solution Template: Performance Review Prep Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "hr"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/hr-recruiting-scheduler-agent/",
+      "title": "Solution Template: Recruiting & Interview Scheduler Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "hr"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
       "path": "solutions/it-access-request-agent/",
       "title": "Solution Template: IT Access Request Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "it"
+      ],
+      "level": "intermediate",
+      "time": "4–5 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/it-asset-license-agent/",
+      "title": "Solution Template: Software License & Asset Query Agent",
       "stage": "studio",
       "stageLabel": "Solution template",
       "roles": [
@@ -1890,6 +2718,22 @@
       "kind": "solution-template"
     },
     {
+      "path": "solutions/it-knowledge-howto-agent/",
+      "title": "Solution Template: IT Knowledge & How-To Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "it"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
       "path": "solutions/legal-compliance-agent/",
       "title": "Solution Template: Legal & Compliance Guidance Agent",
       "stage": "studio",
@@ -1906,8 +2750,68 @@
       "kind": "solution-template"
     },
     {
+      "path": "solutions/legal-contract-review-agent/",
+      "title": "Solution Template: Contract Review & Clause Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "legal"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/legal-nda-intake-agent/",
+      "title": "Solution Template: NDA Intake & Triage Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "legal"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/marketing-brand-guardian-agent/",
+      "title": "Solution Template: Brand & Messaging Guardian Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
       "path": "solutions/marketing-campaign-agent/",
       "title": "Solution Template: Marketing Campaign Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/marketing-content-repurposing-agent/",
+      "title": "Solution Template: Content Repurposing Agent",
       "stage": "studio",
       "stageLabel": "Solution template",
       "roles": [
@@ -1955,6 +2859,22 @@
       "kind": "solution-template"
     },
     {
+      "path": "solutions/procurement-purchase-intake-agent/",
+      "title": "Solution Template: Purchase Request Intake Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "finance"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
       "path": "solutions/procurement-sourcing-agent/",
       "title": "Solution Template: Procurement Sourcing Agent",
       "stage": "studio",
@@ -1965,6 +2885,56 @@
       ],
       "fn": [
         "finance"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/procurement-supplier-onboarding-agent/",
+      "title": "Solution Template: Supplier Onboarding & Compliance Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "finance",
+        "legal",
+        "hr"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/sales-account-research-agent/",
+      "title": "Solution Template: Account Research & Briefing Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "sales"
+      ],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/sales-deal-desk-agent/",
+      "title": "Solution Template: Deal Desk & Pricing Approval Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [
+        "sales"
       ],
       "level": "intermediate",
       "time": "3–4 hours",
@@ -2005,6 +2975,62 @@
     {
       "path": "solutions/support-deflection-agent/",
       "title": "Solution Template: Customer Support Deflection Agent (internal)",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/support-escalation-routing-agent/",
+      "title": "Solution Template: Escalation Routing Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/support-kb-drafting-agent/",
+      "title": "Solution Template: Knowledge Article Drafting Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/workplace-facilities-request-agent/",
+      "title": "Solution Template: Facilities & Workspace Request Agent",
+      "stage": "studio",
+      "stageLabel": "Solution template",
+      "roles": [
+        "maker",
+        "champion"
+      ],
+      "fn": [],
+      "level": "intermediate",
+      "time": "3–4 hours",
+      "kind": "solution-template"
+    },
+    {
+      "path": "solutions/workplace-travel-policy-agent/",
+      "title": "Solution Template: Travel & Expense Policy Agent",
       "stage": "studio",
       "stageLabel": "Solution template",
       "roles": [
