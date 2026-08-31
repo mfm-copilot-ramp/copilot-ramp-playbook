@@ -16,6 +16,21 @@
  * Built on Material CSS vars so light & dark both work with no extra rules.
  * ────────────────────────────────────────────────────────────────────────── */
 
+/* ── Left-nav: collapse the Walkthroughs stage groups by default ─────────────
+ * The theme enables navigation.expand, which force-shows every nested nav on
+ * desktop (display:grid) regardless of its toggle. For the ~143-page Walkthroughs
+ * section that's an unusable wall, so nav-collapse.js tags each group with
+ * .rc-wt-navgroup and this overrides the expand behaviour for JUST those groups:
+ * collapsed by default, revealed only when the toggle is checked (the script
+ * checks the group on the trail to the current page; the user can click to open
+ * others). Scoped to .rc-wt-navgroup, so no other nav section is affected. */
+.md-nav--primary .md-nav__item--nested.rc-wt-navgroup > nav.md-nav {
+  display: none !important;
+}
+.md-nav--primary .md-nav__item--nested.rc-wt-navgroup > .md-nav__toggle:checked ~ nav.md-nav {
+  display: grid !important;
+}
+
 /* ── Hero: title + tagline + meta pills ──────────────────────────────────── */
 .rc-walkthrough .rc-wt-hero {
   margin: 0 0 2rem;

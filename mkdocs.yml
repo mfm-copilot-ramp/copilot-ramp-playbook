@@ -91,6 +91,7 @@ extra_javascript:
   - javascripts/share.js
   - javascripts/card-filter.js
   - javascripts/walkthroughs-library.js
+  - javascripts/nav-collapse.js
   - javascripts/estimator-vocab.js
   - javascripts/site-bus.js
   - javascripts/estimator-core.js
