@@ -1,6 +1,6 @@
 ---
 title: Walkthroughs Library
-description: Every Copilot Ramp Playbook walkthrough in one filterable index — filter by stage, role, and time to find a hands-on, step-by-step how-to for exactly what you're trying to get done.
+description: Every Copilot Ramp Playbook walkthrough in one filterable index — filter by stage, role, and time to find the hands-on how-to you need.
 hide:
   - toc
 ---
