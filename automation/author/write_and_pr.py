@@ -427,8 +427,12 @@ def run_quality_checks() -> bool:
         log.error(f"  check-content.py failed:\n{result.stdout}\n{result.stderr}")
         return False
 
+    # Use mkdocs-ci.yml if present (disables social/cairo plugin not available on all hosts)
+    ci_config = REPO_ROOT / "mkdocs-ci.yml"
+    mkdocs_config = ["--config-file", str(ci_config)] if ci_config.exists() else []
+
     result = subprocess.run(
-        ["python", "-m", "mkdocs", "build", "--strict"],
+        ["python", "-m", "mkdocs", "build", "--strict"] + mkdocs_config,
         capture_output=True, text=True, cwd=REPO_ROOT, timeout=300,
     )
     if result.returncode != 0:
