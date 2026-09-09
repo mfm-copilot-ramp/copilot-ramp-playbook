@@ -12,6 +12,8 @@ function detect(text) {
   var head = (text.split(/\r?\n/)[0] || "").toLowerCase();
   if (/prompt/.test(head) && !/past\s*30|credits/.test(head)) return C.parseChatUsageCsv(text);
   if (/past\s*30|credits/.test(head)) return C.parseCreditsReportCsv(text);
+  var hint = C.unsupportedReportHint && C.unsupportedReportHint(text);
+  if (hint) return { ok: false, error: hint, source: "unsupported" };
   var cr = C.parseCreditsReportCsv(text); return cr.ok ? cr : C.parseChatUsageCsv(text);
 }
 
@@ -73,6 +75,22 @@ ok("quoted-thousands: parsed 1450", r6.totalCredits30 === 1450, r6.totalCredits3
 var seed = C.importToSeed(r1, { licensedUsers: 500 });
 ok("seed: mauPct = 0.8% (4/500)", Math.abs(seed.mauPct - 0.8) < 0.01, seed.mauPct);
 ok("seed: creditsPerActiveUser = round(54200/4)=13550", seed.creditsPerActiveUser === 13550, seed.creditsPerActiveUser);
+
+// 8. Real-but-UNSUPPORTED report: the Microsoft 365 Copilot usage (adoption) report has per-app
+//    activity-date columns, not credits/prompts. It must be rejected with a HELPFUL hint that
+//    names the right report — not a generic "column not found" (real-world drop-the-wrong-file case).
+var adoption = [
+  "reportRefreshDate,userPrincipalName,displayName,department,lastActivityDate,copilotChatLastActivityDate,wordCopilotLastActivityDate",
+  "2026-07-27,user001@x.onmicrosoft.com,User 001,HR,2026-07-19,2026-07-15,2026-07-19",
+  "2026-07-27,user002@x.onmicrosoft.com,User 002,Finance,,,"
+].join("\n");
+var hint = C.unsupportedReportHint(adoption);
+ok("adoption report recognized (hint returned)", !!hint, hint);
+ok("adoption hint names the Credits report", /credits report/i.test(hint || ""), hint);
+var r8 = detect(adoption);
+ok("adoption routed to 'unsupported' (not silently parsed)", r8.ok === false && r8.source === "unsupported", r8.source);
+ok("supported Credits report is NOT flagged unsupported", C.unsupportedReportHint(credits) === null);
+ok("supported Chat usage is NOT flagged unsupported", C.unsupportedReportHint(chat) === null);
 
 console.log(fails === 0 ? "\nALL REAL-HEADER TESTS PASSED" : "\n" + fails + " FAILED");
 process.exit(fails === 0 ? 0 : 1);

@@ -432,6 +432,22 @@
     };
   }
 
+  // Recognize a real-but-UNSUPPORTED admin export so we can tell the user which report to use
+  // instead of a generic "column not found". The Microsoft 365 Copilot usage (adoption) report
+  // lists per-app last-activity DATES (reportRefreshDate / *CopilotLastActivityDate / userPrincipalName),
+  // not credits or prompts — so credit estimation can't use it. Returns a helpful string, or null.
+  function unsupportedReportHint(text) {
+    var head = (String(text || "").split(/\r?\n/)[0] || "").toLowerCase();
+    var looksAdoption = /reportrefreshdate/.test(head) ||
+      /copilotlastactivitydate/.test(head) ||
+      (/userprincipalname/.test(head) && /lastactivitydate/.test(head) &&
+        !/past\s*30|credits|prompts?\s*submitted/.test(head));
+    if (looksAdoption) {
+      return "This looks like the Microsoft 365 Copilot usage (adoption) report — it lists per-app activity dates, not credits or prompts. For a Cowork estimate, export the Credits report (measured credits per user) or the Copilot Chat usage report from the M365 admin center instead.";
+    }
+    return null;
+  }
+
   // Aggregate paste / OCR fallback — the 4 KPI numbers off the admin dashboard.
   function parseAggregate(obj) {
     obj = obj || {};
@@ -486,6 +502,7 @@
     seedDetailedFromQuick: seedDetailedFromQuick, seedCohortFromRow: seedCohortFromRow,
     parseCsv: parseCsv, distribution: distribution,
     parseCreditsReportCsv: parseCreditsReportCsv, parseChatUsageCsv: parseChatUsageCsv,
+    unsupportedReportHint: unsupportedReportHint,
     parseAggregate: parseAggregate, importToSeed: importToSeed
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

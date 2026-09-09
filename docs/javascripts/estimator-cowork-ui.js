@@ -424,6 +424,8 @@
     var head = (text.split(/\r?\n/)[0] || "").toLowerCase();
     if (/prompt/.test(head) && !/past\s*30|credits/.test(head)) return C.parseChatUsageCsv(text);
     if (/past\s*30|credits/.test(head)) return C.parseCreditsReportCsv(text);
+    var hint = C.unsupportedReportHint && C.unsupportedReportHint(text);
+    if (hint) return { ok: false, error: hint, source: "unsupported" };
     var cr = C.parseCreditsReportCsv(text);
     return cr.ok ? cr : C.parseChatUsageCsv(text);
   }
