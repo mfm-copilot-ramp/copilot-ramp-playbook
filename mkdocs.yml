@@ -103,6 +103,9 @@ extra_javascript:
   - javascripts/ai-builder-rates.js
   - javascripts/ai-builder-estimator.js
   - javascripts/portfolio-core.js
+  - javascripts/estimator-conversation.js
+  - javascripts/estimator-context.js
+  - javascripts/estimator-context-ui.js
   - javascripts/workspace-ui.js
   - javascripts/proposal.js
 

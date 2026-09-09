@@ -1395,7 +1395,14 @@
     if (reasoningModel) warnings.push("Reasoning-capable model detected — Microsoft bills a premium \u201CText and generative AI tools (premium)\u201D meter at 10 credits per 1K tokens ON TOP of the feature rate for each reasoning step. This estimate assumes ~" + REASON_TOKENS_K + "K premium tokens per run; tune it to your prompt/response size, or drop the reasoning line if the agent uses a standard (non-reasoning) model.");
     if (computerUse) warnings.push("Computer-Using Agent (CUA) actions detected \u2014 these are NOT covered by the Microsoft 365 Copilot license and bill at the agent-action rate (5 credits) even for licensed users, so the embedded (Teams / Copilot Chat / SharePoint) zero-rating does not fully apply to this agent.");
     if (connectedAgents > 0) warnings.push("Multi-agent orchestration detected (" + agentCount + " agents) — each connected-agent hop adds latency and its own component budget.");
-    if (aiNodes === 0 && agentActions === 0 && flowsTotal === 0 && topics === 0 && !spec.isSpec)
+    // Only warn on a genuinely empty parse. New-experience (cliagent) agents never emit
+    // classic topic/genAnswer/flow nodes, and connected-agent / knowledge / voice / tenant-graph
+    // exports are legitimately parsed even with those classic counts at zero — so gate the
+    // warning on ALL meaningful signals, not just the classic ones (avoids a false "is this a
+    // full export?" on correctly-read modern agents).
+    if (aiNodes === 0 && agentActions === 0 && flowsTotal === 0 && topics === 0 &&
+        genAnswers === 0 && knowledgeCount === 0 && connectedAgents === 0 &&
+        !newExperience && !voice && !tenantGraph && !contentProc && !spec.isSpec)
       warnings.push("Very few components detected — is this a full unmanaged solution export or agent bundle?");
 
     var findings = {

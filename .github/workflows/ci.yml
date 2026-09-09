@@ -57,6 +57,9 @@ jobs:
         # golden-export scan is a no-op unless a real export is present locally.
         run: node tooling/golden-exports/verify-exports.cjs
 
+      - name: Run JavaScript estimator tests
+        run: node tooling/run-js-tests.mjs   # gates on the estimator/cowork/portfolio smoke suites
+
       - name: Build the site (strict)
         run: mkdocs build --strict   # --strict fails the build on broken internal links
 

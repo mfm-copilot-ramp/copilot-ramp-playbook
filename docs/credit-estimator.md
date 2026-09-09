@@ -6,82 +6,119 @@ hide: [toc]
 
 # Copilot Credit Estimator
 
-!!! warning "Still being worked on — use with caution"
-    This estimator is still under active development. Numbers, defaults, and logic may change, so treat the results as directional rather than final and double-check anything you rely on for planning or budgeting.
+<p class="ce-caution">&#9888;&#65039; <strong>Still in active development</strong> &mdash; results are directional; double-check anything you&rsquo;ll budget on.</p>
 
-Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio agents** or **Microsoft 365 Copilot (Cowork)** — use the **What are you estimating?** switch, then pick a mode to match where you are. For Studio: describe the agent in plain words, build the credit profile by hand, batch-size a portfolio from Excel, or upload a finished agent. For Cowork: forecast a population (licensed users × active-usage × credits per user) quickly, per-cohort, or straight from your M365 admin-center data. Everything runs in your browser; nothing is uploaded. New to credit billing? See [**How Copilot Credits are billed**](#billing-details) for the official rates and licensing rules. Want the *return*, not just the cost? Try the [**ROI Estimator**](roi-estimator.md).
+<div class="ce-video-intro" markdown="0">
+  <button type="button" class="md-button ce-intro-open" data-ce-open="ce-intro-modal">&#9654;&nbsp; 90-second intro</button>
+  <button type="button" class="md-button ce-intro-open" data-ce-open="ce-deepdive-modal">&#9654;&nbsp; Full walkthrough (3&frac12;&nbsp;min)</button>
+  <span class="ce-intro-hint">Quick tour, or the deep dive &mdash; your pick.</span>
+</div>
 
-<a id="billing-details"></a>
 
-??? info "How Copilot Credits are billed — rates & licensing"
-    Rates are sourced from the **[Microsoft Copilot Studio Billing rates and management](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management)** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
+<div id="ce-intro-modal" class="ce-modal" hidden>
+  <div class="ce-modal-backdrop" data-ce-close></div>
+  <div class="ce-modal-card" role="dialog" aria-modal="true" aria-label="Copilot Credit Estimator — 90-second intro">
+    <button type="button" class="ce-modal-x" data-ce-close aria-label="Close">&times;</button>
+    <h3 class="ce-modal-title">Meet the Copilot Credit Estimator</h3>
+    <video id="ce-intro-video" controls preload="none" playsinline
+           poster="../assets/video/credit-estimator-tutorial-poster.jpg"
+           class="ce-modal-video">
+      <source src="../assets/video/credit-estimator-tutorial.mp4" type="video/mp4">
+      <track kind="captions" src="../assets/video/credit-estimator-tutorial.vtt" srclang="en" label="English">
+      Your browser can&rsquo;t play embedded video &mdash;
+      <a href="../assets/video/credit-estimator-tutorial.mp4">download the 90-second tutorial (MP4)</a>.
+    </video>
+    <p class="ce-modal-cap">A 90-second tour &mdash; you can rewatch it any time from the <strong>&#9654; 90-second intro</strong> button above.</p>
+  </div>
+</div>
 
-    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario. **This zero-rating applies to the *standard* and *Copilot chat* harnesses only — the *GitHub Copilot harness* is never covered.** Pick the **Harness** in either mode and the estimator shows **gross consumption vs. net billable** side by side.
+<div id="ce-deepdive-modal" class="ce-modal" hidden>
+  <div class="ce-modal-backdrop" data-ce-close></div>
+  <div class="ce-modal-card" role="dialog" aria-modal="true" aria-label="Copilot Credit Estimator — full walkthrough">
+    <button type="button" class="ce-modal-x" data-ce-close aria-label="Close">&times;</button>
+    <h3 class="ce-modal-title">Full walkthrough (3&frac12; min)</h3>
+    <video controls preload="none" playsinline
+           poster="../assets/video/credit-estimator-deepdive-poster.jpg"
+           class="ce-modal-video">
+      <source src="../assets/video/credit-estimator-deepdive.mp4" type="video/mp4">
+      <track kind="captions" src="../assets/video/credit-estimator-deepdive.vtt" srclang="en" label="English">
+      Your browser can&rsquo;t play embedded video &mdash;
+      <a href="../assets/video/credit-estimator-deepdive.mp4">download the deep-dive walkthrough (MP4)</a>.
+    </video>
+    <p class="ce-modal-cap">All the ways to estimate &mdash; from a conversation, Quick, Quick&nbsp;+&nbsp;Import, Detailed, and Solution&nbsp;package &mdash; plus the full journey from estimate, to ROI, to a finished proposal.</p>
+  </div>
+</div>
 
-    ??? note "Zero-rating exceptions"
-        A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
+<style>
+.ce-video-intro{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem .9rem;margin:.6rem 0 .4rem}
+.ce-caution{margin:.5rem 0 .9rem;font-size:.84rem;color:var(--md-default-fg-color--light);border-left:3px solid #e8a23d;padding:.1rem 0 .1rem .7rem}
+.ce-intro-open{margin:0;cursor:pointer}
+.ce-intro-hint{font-size:.85rem;opacity:.75}
+.ce-video-walkthroughs{margin:.1rem 0 1rem;border:0;padding:0}
+.ce-video-walkthroughs>summary{cursor:pointer;font-size:.82rem;font-weight:600;opacity:.8;padding:.2rem 0;list-style:revert}
+.ce-vw-body{display:grid;gap:1.4rem;margin:.4rem 0 .9rem}
+.ce-vw-video{width:100%;max-width:900px;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);display:block}
+.ce-vw-cap{margin:.5rem 0 0;font-size:.88rem;opacity:.8}
+.ce-modal[hidden]{display:none}
+.ce-modal{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:1.2rem}
+.ce-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(2px);animation:ceFade .18s ease}
+.ce-modal-card{position:relative;z-index:1;width:100%;max-width:900px;max-height:92vh;overflow:auto;background:var(--md-default-bg-color);color:var(--md-default-fg-color);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.4);padding:1.1rem 1.2rem 1.3rem;animation:cePop .2s ease}
+.ce-modal-title{margin:.1rem 2rem .8rem 0;font-size:1.15rem}
+.ce-modal-video{width:100%;border-radius:10px;display:block;background:#000}
+.ce-modal-cap{margin:.7rem 0 0;font-size:.85rem;opacity:.8}
+.ce-modal-x{position:absolute;top:.55rem;right:.7rem;border:0;background:transparent;color:inherit;font-size:1.7rem;line-height:1;cursor:pointer;opacity:.65;padding:.1rem .3rem;border-radius:6px}
+.ce-modal-x:hover{opacity:1;background:var(--md-default-fg-color--lightest)}
+@keyframes ceFade{from{opacity:0}to{opacity:1}}
+@keyframes cePop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+body.ce-modal-lock{overflow:hidden}
+</style>
 
-        - **GitHub Copilot harness agents** are **never** covered by a Microsoft 365 Copilot license — every interaction, *plus building and testing the agent*, bills Copilot Credits regardless of channel. Only the **standard** and **Copilot chat** harnesses are zero-rated. Use the **Harness** selector to model it. Microsoft bills this harness **per task by complexity** and publishes only credit **ranges** — **Light 100–300 · Medium 300–500 · Heavy &gt;500** — that bundle model tokens, tools, and the harness itself (there is **no per-action rate card** for this harness, so the estimator hides the per-action grid and prices a task at an editable **credits-per-task** anchor seeded from the tier). The anchors sit toward the high end of each band to lean slightly conservative, and Heavy is open-ended (editable upward, no cap). A one-time **build &amp; test** cost is added on top.
-        - **Model choice is the largest single cost driver on the GitHub Copilot harness.** The published tier bands are model-blind, but the LLM-token cost of a task swings roughly **10–20×** between a lightweight model and a frontier/reasoning model. In **Quick** mode (open **Edit all variables**) or **Detailed** mode, pick a **Model** to switch the per-task estimate from the flat tier anchor to a **per-turn token build-up**: `credits/task ≈ turns × ((overhead + payload) × in-rate + output × out-rate) ÷ 1,000`, floored to Microsoft's published Light band (100), priced per model and net of a **cache-hit %** lever (re-sent context bills at ~10% of fresh input — the dominant way to control agentic burn). This is the **same engine as the standalone comparator**. Model rates are derived from GitHub Copilot's published per-1M-token pricing converted at 1 credit = $0.01, and remain **directional** — verify before quoting. Choose **No specific model** for the published-band estimate.
-        - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
-        - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
-        - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
+<script>
+(function(){
+  var KEY='crp-ce-intro-v1';
+  function wire(modal){
+    if(!modal||modal.dataset.ceReady)return;
+    modal.dataset.ceReady='1';
+    if(modal.parentNode!==document.body)document.body.appendChild(modal);
+    var video=modal.querySelector('video');
+    modal._ceOpen=function(){
+      modal._lastFocus=document.activeElement;
+      modal.hidden=false;
+      document.body.classList.add('ce-modal-lock');
+      var x=modal.querySelector('.ce-modal-x');if(x)x.focus();
+    };
+    modal._ceClose=function(){
+      if(modal.hidden)return;
+      modal.hidden=true;
+      document.body.classList.remove('ce-modal-lock');
+      if(video){try{video.pause();}catch(e){}}
+      if(modal._lastFocus&&modal._lastFocus.focus){try{modal._lastFocus.focus();}catch(e){}}
+    };
+    modal.querySelectorAll('[data-ce-close]').forEach(function(b){b.addEventListener('click',modal._ceClose);});
+  }
+  function init(){
+    document.querySelectorAll('.ce-modal').forEach(wire);
+    document.querySelectorAll('[data-ce-open]').forEach(function(b){
+      b.addEventListener('click',function(e){
+        e.preventDefault();
+        var m=document.getElementById(b.getAttribute('data-ce-open'));
+        if(m&&m._ceOpen)m._ceOpen();
+      });
+    });
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'||e.key==='Esc')document.querySelectorAll('.ce-modal').forEach(function(m){if(m._ceClose)m._ceClose();});
+    });
+    var seen;try{seen=localStorage.getItem(KEY);}catch(e){seen='1';}
+    if(!seen){var intro=document.getElementById('ce-intro-modal');if(intro&&intro._ceOpen)intro._ceOpen();}
+    try{localStorage.setItem(KEY,'1');}catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
 
-    **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
+Estimate monthly **Copilot Credits** for **Copilot Studio agents** or **Microsoft 365 Copilot (Cowork)**. Not sure where to begin? Pick **From a conversation** below and we'll size it for you — or choose your tool directly. Everything runs in your browser; nothing is uploaded. &nbsp;·&nbsp; [How credits are billed](#billing-details) &nbsp;·&nbsp; [How to use this estimator](#ce-howto) &nbsp;·&nbsp; [ROI Estimator](roi-estimator.md)
 
-       ??? note "Microsoft 365 Copilot (Cowork) — usage-based billing"
-           **Microsoft 365 Copilot Chat** meters agent / Cowork usage as **Copilot Credits** through the same Copilot Studio pay-as-you-go meter ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-365/copilot/pay-as-you-go/meters)). On Microsoft 365 surfaces, users **with** an M365 Copilot license are covered by that license; **unlicensed** users on metered agents consume credits (pay-as-you-go). You can pay-as-you-go at the per-credit rate, buy **message packs**, or commit with a **pre-purchase**.
-
-           Unlike Studio, you don't inventory components for Cowork — you forecast a **population**: *licensed users × monthly active-usage % × avg credits per active user*. Ground it in your tenant's real numbers with the admin center's **[Copilot Chat usage report](https://learn.microsoft.com/microsoft-365/admin/activity-reports/microsoft-copilot-usage)** (active users, prompts/user) and **[Copilot Credits report](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-credits)** (measured credits/user); the **Import from M365** mode reads either CSV export. The active-usage % and credits/user *defaults* in this estimator are neutral planning anchors — **not** official Microsoft figures — so adjust them to your data.
-
-??? note "New here? How to use this estimator"
-
-    First, pick **what you're estimating** — *Copilot Studio agents* or *Microsoft 365 Copilot (Cowork)* — using the switch, then choose **how you want to estimate**. The two products use different methods (Studio inventories what you built; Cowork forecasts a population), so each has its own modes. Every mode runs locally in your browser; nothing is uploaded.
-
-    | Mode | Best when… | What you provide | What you get |
-    |------|-----------|------------------|--------------|
-    | **Quick** | You're early or unsure and just want a ballpark. | A plain-English description of the agent (or an example chip). | A T-shirt size, a Studio build outline, and a credit/cost range. |
-    | **Quick + Import** | You're sizing many agents — a whole portfolio — at once. | An Excel workbook with one row per scenario. | Per-scenario sizes and credits, plus a portfolio roll-up. |
-    | **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each interaction uses. | Credits per month and per user, ready for finance or IT. |
-    | **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
-
-    **Estimating Microsoft 365 Copilot (Cowork) instead?** Flip the switch to **Microsoft 365 Copilot (Cowork)** — it uses a population-based method (model *licensed users × active-usage % × credits per active user*), with its own modes:
-
-    | Cowork mode | Best when… | What you provide | What you get |
-    |------|-----------|------------------|--------------|
-    | **Quick** | You want a fast org-wide ballpark. | Licensed users, an active-usage %, and avg credits/user. | Monthly credits, spend, annual, and a message-pack / pre-purchase plan. |
-    | **Detailed** | You want to model cohorts (roles, business units). | One row per cohort, tuned individually. | A roll-up plus a 6-month adoption forecast; open any Quick estimate here to refine. |
-    | **Import from M365** | You have real admin-center data. | The Copilot **Credits** or **Chat usage** CSV export (or the four dashboard totals). | Editable cohorts seeded from your measured credits/user, with power-user outliers flagged. |
-
-    === "Quick"
-
-        1. Select the **Quick** card (the default).
-        2. Type a plain-English description — what it does, who uses it, how often, and where it runs — or click an **example** chip.
-        3. Click **Build my estimate →**.
-        4. Answer the short guided follow-ups.
-        5. Review the size, build outline, and credit/cost range.
-        6. Optionally open it in the **Detailed** estimator to refine.
-
-    === "Quick + Import"
-
-        1. Select the **Quick + Import** card.
-        2. Click **↓ Download Excel template (.xlsx)**.
-        3. Fill the **Scenarios** sheet — one row per agent or use-case (the **Examples** sheet is prefilled to copy from).
-        4. Drop the completed workbook back on the page.
-        5. Review each scenario's size and credits, plus the portfolio roll-up.
-
-    === "Detailed"
-
-        1. Select the **Detailed** card.
-        2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-interaction feature rows**, add an optional **escalation path**, then read the **results**.
-
-    === "Solution package"
-
-        1. Select the **Solution package** card.
-        2. In **make.powerapps.com**, add your Copilot Studio agent — plus any Power Automate flows and connection references — to a solution and **Export** it as an unmanaged `.zip`.
-        3. Drop the `.zip` on the page.
-        4. Review the component inventory, size, and credit estimate.
-        5. See the panel's **"What can I upload?"** note for the A / B / C upload options.
 
 <div id="estimator-modes" markdown="0">
 
@@ -491,8 +528,9 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
 </style>
 
 <div class="est-switcher">
-  <span class="est-switcher-label" id="est-switch-label">What are you estimating?</span>
+  <span class="est-switcher-label" id="est-switch-label">Where do you want to start?</span>
   <div class="est-switcher-tabs" role="tablist" aria-labelledby="est-switch-label">
+    <button type="button" id="prod-tab-context" class="est-tab" role="tab" aria-selected="false" aria-controls="panel-context" onclick="setEstimatorProduct('context')" title="Paste a transcript, email or notes — we size it as Studio agents, Cowork adoption, or both"><span aria-hidden="true">&#128172;</span> From a conversation</button>
     <button type="button" id="prod-tab-studio" class="est-tab est-tab--active" role="tab" aria-selected="true" aria-controls="estimator-studio" onclick="setEstimatorProduct('studio')">Copilot Studio agents</button>
     <button type="button" id="prod-tab-cowork" class="est-tab" role="tab" aria-selected="false" aria-controls="estimator-cowork" onclick="setEstimatorProduct('cowork')">Microsoft 365 Copilot (Cowork)</button>
   </div>
@@ -506,6 +544,7 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
      on #mode-select and keeps its .value in sync; the cards below drive setEstimatorMode(). -->
 <select id="mode-select" class="em-visually-hidden" tabindex="-1" aria-hidden="true" onchange="setEstimatorMode(this.value)">
   <option value="quick" selected>Quick</option>
+  <option value="context">From a conversation</option>
   <option value="import">Quick + Import</option>
   <option value="detailed">Detailed</option>
   <option value="complex">Solution package</option>
@@ -562,6 +601,78 @@ Estimate monthly **Copilot Credits** (formerly "messages") for **Copilot Studio 
   <button type="button" class="em-btn" onclick="qeAnalyze()">Build my estimate &rarr;</button>
   <div id="qe-results" class="em-hidden"></div>
   <p class="hint" style="margin-top:1rem">We read your description to pre-fill a short guided assessment, then estimate the Studio build effort and a credit/cost profile — a directional starting point, not a real LLM analysis. Answer the questions, then open it in the Detailed estimator. Once your estimate is ready, you can also <strong>download a ready-to-import Copilot Studio starter agent (.zip)</strong> generated from your description.</p>
+</div>
+
+<!-- ── FROM A CONVERSATION (context front door) ── -->
+<div class="mode-panel em-hidden" id="panel-context">
+  <style>
+    #panel-context .ctx-sub { color: var(--md-default-fg-color--light); font-size: 0.9rem; margin: 0 0 0.7rem; max-width: 66ch; }
+    #panel-context .ctx-ex-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0.55rem 0 0.2rem; }
+    #panel-context .ctx-ex-lbl { font-size: 0.76rem; color: var(--md-default-fg-color--lighter); }
+    #panel-context .ctx-ex { border: 1px solid var(--md-default-fg-color--lightest); background: var(--md-default-bg-color); color: var(--md-default-fg-color); border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.78rem; cursor: pointer; min-height: 36px; }
+    #panel-context .ctx-ex:hover { border-color: var(--md-primary-fg-color); color: var(--md-primary-fg-color); }
+    #panel-context .ctx-upload-row { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; margin: 0.5rem 0 0.2rem; }
+    #panel-context .ctx-file-name { font-size: 0.76rem; color: var(--md-default-fg-color--light); }
+    #panel-context .em-textarea.ctx-drop { outline: 2px dashed var(--md-primary-fg-color); outline-offset: 2px; background: var(--md-code-bg-color); }
+    #panel-context .ctx-out { margin-top: 1.2rem; display: none; }
+    #panel-context .ctx-total { background: var(--md-code-bg-color); border: 1px solid var(--md-primary-fg-color); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1rem; }
+    #panel-context .ctx-total-big { font-size: 1.5rem; font-weight: 800; color: var(--md-primary-fg-color); line-height: 1.2; }
+    #panel-context .ctx-total-l { font-size: 0.82rem; color: var(--md-default-fg-color--light); margin-top: 0.2rem; }
+    #panel-context .ctx-uc { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 11px; padding: 0.8rem 0.9rem; margin-bottom: 0.7rem; background: var(--md-default-bg-color); }
+    #panel-context .ctx-uc-head { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+    #panel-context .ctx-uc-name { font-weight: 700; font-size: 0.98rem; flex: 1; min-width: 180px; }
+    #panel-context .ctx-pill { font-size: 0.68rem; font-weight: 700; border-radius: 20px; padding: 0.14rem 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    #panel-context .ctx-pill--studio { background: var(--md-code-bg-color); color: var(--md-primary-fg-color); }
+    #panel-context .ctx-pill--cowork { background: var(--md-code-bg-color); color: var(--md-accent-fg-color); }
+    #panel-context .ctx-uc-num { font-weight: 700; white-space: nowrap; font-size: 0.9rem; }
+    #panel-context .ctx-uc-src { font-size: 0.8rem; color: var(--md-default-fg-color--light); margin: 0.35rem 0 0.5rem; font-style: italic; max-width: 74ch; }
+    #panel-context .ctx-drv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.4rem; }
+    #panel-context .ctx-f label { display: block; font-size: 0.7rem; color: var(--md-default-fg-color--lighter); }
+    #panel-context .ctx-f input { width: 100%; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 6px; padding: 0.45rem 0.5rem; font: inherit; font-size: 0.85rem; min-height: 38px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); }
+    #panel-context .ctx-studio-note { font-size: 0.78rem; color: var(--md-default-fg-color--light); margin-top: 0.35rem; }
+    #panel-context .ctx-asm { font-size: 0.74rem; color: var(--md-default-fg-color--lighter); margin-top: 0.35rem; }
+    #panel-context .ctx-del { border: none; background: none; cursor: pointer; color: var(--md-default-fg-color--light); font-size: 1rem; width: 32px; height: 32px; border-radius: 6px; }
+    #panel-context .ctx-del:hover { background: var(--md-code-bg-color); color: #b00020; }
+    #panel-context .ctx-switch { font-size: 0.74rem; color: var(--md-primary-fg-color); cursor: pointer; text-decoration: underline; background: none; border: 1px solid transparent; border-radius: 6px; padding: 0.35rem 0.5rem; min-height: 32px; }
+    #panel-context .ctx-switch:hover { background: var(--md-code-bg-color); }
+    #panel-context .ctx-sugg { background: var(--md-code-bg-color); border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.82rem; margin: 0.4rem 0 1rem; max-width: 74ch; }
+    #panel-context .ctx-sugg ul { margin: 0.3rem 0 0 1.1rem; padding: 0; }
+    #panel-context .ctx-sugg li { margin: 0.15rem 0; color: var(--md-default-fg-color--light); }
+    #panel-context details.ctx-cp { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px; padding: 0.3rem 0.7rem; margin-bottom: 1rem; }
+    #panel-context details.ctx-cp summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; padding: 0.35rem 0; }
+    #panel-context details.ctx-cp pre { white-space: pre-wrap; font-size: 0.75rem; background: var(--md-code-bg-color); border-radius: 6px; padding: 0.5rem 0.6rem; }
+    #panel-context .ctx-disc { font-size: 0.78rem; color: var(--md-default-fg-color--light); border-left: 3px solid var(--md-primary-fg-color); background: var(--md-code-bg-color); border-radius: 0 6px 6px 0; padding: 0.5rem 0.7rem; max-width: 74ch; }
+    @media (max-width: 559px) { #panel-context .ctx-drv { grid-template-columns: 1fr; } #panel-context .ctx-ex { min-height: 44px; } }
+  </style>
+  <div class="section-label">Paste a customer conversation, email, notes, or a transcript</div>
+  <p class="ctx-sub">The tool reads your text, finds the use case(s), sizes each as a Copilot Studio agent or an M365 Copilot (Cowork) adoption, and rolls them into one milestone-ready recurring number. Everything below is editable.</p>
+  <textarea id="ctx-input" class="em-textarea" placeholder="Paste an idea, an email thread, meeting notes, requirements, or a transcript&hellip; or drop a .txt / .vtt file here"></textarea>
+  <div class="ctx-upload-row">
+    <input type="file" id="ctx-file" accept=".txt,.vtt,.srt,.md,.csv,.tsv,.json,.log,text/plain" style="display:none">
+    <button type="button" class="ctx-ex" id="ctx-upload">&#128196; Upload transcript / notes file</button>
+    <span class="ctx-file-name" id="ctx-file-name"></span>
+  </div>
+  <div class="ctx-ex-row">
+    <span class="ctx-ex-lbl">Try:</span>
+    <button type="button" class="ctx-ex" data-ex="mixed">Mixed (agent + Cowork)</button>
+    <button type="button" class="ctx-ex" data-ex="bullets">3 ideas (bullets)</button>
+    <button type="button" class="ctx-ex" data-ex="cowork">Cowork rollout</button>
+    <button type="button" class="ctx-ex" data-ex="email">Email thread</button>
+  </div>
+  <button type="button" class="em-btn" id="ctx-go">Estimate &rarr;</button>
+  <div class="ctx-out" id="ctx-out">
+    <div class="ctx-total" id="ctx-total"></div>
+    <div id="ctx-ucs"></div>
+    <div class="ctx-sugg" id="ctx-sugg"></div>
+    <details class="ctx-cp">
+      <summary>&#129504; Structure with Copilot (higher fidelity)</summary>
+      <p style="font-size:.8rem;color:var(--md-default-fg-color--light);margin:.3rem 0">Paste your messy text into Microsoft 365 Copilot with this prompt to get clean use-case rows, then paste them back above.</p>
+      <pre id="ctx-cp-prompt"></pre>
+      <button type="button" class="ctx-ex" id="ctx-cp-copy">&#128203; Copy prompt</button>
+    </details>
+    <div class="ctx-disc" id="ctx-disc"></div>
+  </div>
+  <p class="hint" style="margin-top:1rem">Directional starting point, not a real LLM analysis &mdash; verify before quoting. Steady-state assumption: month-1 run-rate &asymp; ongoing monthly consumption, which is what you'd turn into a recurring MSX milestone.</p>
 </div>
 
 <!-- ── COMPLEX (solution package upload) ── -->
@@ -1748,3 +1859,83 @@ For a *could-go-either-way* agent, the deciding factor is often **cost structure
     - **Credit budget planning** — share the monthly credit estimate with your IT/finance team alongside the licensed user count to validate your M365 Copilot SKU allocation.
     - **Adoption benchmarking** — as real usage data comes in from the admin center, compare actuals to this estimate to see whether adoption is ahead or behind plan.
     - **Scenario planning** — run the estimator at 3 adoption-rate levels (conservative / target / optimistic) to bracket your credit spend.
+
+---
+
+## Reference &amp; help
+
+Everything you might want *after* you&rsquo;ve run an estimate &mdash; how billing works, and a mode-by-mode how-to. (The full video walkthrough is up top, next to the 90-second intro.)
+
+<a id="billing-details"></a>
+
+??? info "How Copilot Credits are billed — rates & licensing"
+    Rates are sourced from the **[Microsoft Copilot Studio Billing rates and management](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management)** docs. Each agent turn may combine multiple features (e.g. a generative answer with tenant graph grounding = 2 + 10 = 12 credits).
+
+    **Key licensing rule:** When an agent runs on a *Microsoft 365 surface — Microsoft 365 Copilot Chat, Microsoft Teams, or SharePoint*, authenticated users with an **M365 Copilot license accrue zero credits** — only unlicensed users generate credit consumption. When deployed to *any external channel* (custom website / web widget, external or custom app, standalone, etc.), **all users are charged credits** regardless of M365 Copilot license status. Use the **Deployment type** toggle in the Detailed mode to model the correct scenario. **This zero-rating applies to the *standard* and *Copilot chat* harnesses only — the *GitHub Copilot harness* is never covered.** Pick the **Harness** in either mode and the estimator shows **gross consumption vs. net billable** side by side.
+
+    ??? note "Zero-rating exceptions"
+        A few official cases where a Microsoft 365 Copilot license does **not** zero-rate usage (per the billing-rate footnotes):
+
+        - **GitHub Copilot harness agents** are **never** covered by a Microsoft 365 Copilot license — every interaction, *plus building and testing the agent*, bills Copilot Credits regardless of channel. Only the **standard** and **Copilot chat** harnesses are zero-rated. Use the **Harness** selector to model it. Microsoft bills this harness **per task by complexity** and publishes only credit **ranges** — **Light 100–300 · Medium 300–500 · Heavy &gt;500** — that bundle model tokens, tools, and the harness itself (there is **no per-action rate card** for this harness, so the estimator hides the per-action grid and prices a task at an editable **credits-per-task** anchor seeded from the tier). The anchors sit toward the high end of each band to lean slightly conservative, and Heavy is open-ended (editable upward, no cap). A one-time **build &amp; test** cost is added on top.
+        - **Model choice is the largest single cost driver on the GitHub Copilot harness.** The published tier bands are model-blind, but the LLM-token cost of a task swings roughly **10–20×** between a lightweight model and a frontier/reasoning model. In **Quick** mode (open **Edit all variables**) or **Detailed** mode, pick a **Model** to switch the per-task estimate from the flat tier anchor to a **per-turn token build-up**: `credits/task ≈ turns × ((overhead + payload) × in-rate + output × out-rate) ÷ 1,000`, floored to Microsoft's published Light band (100), priced per model and net of a **cache-hit %** lever (re-sent context bills at ~10% of fresh input — the dominant way to control agentic burn). This is the **same engine as the standalone comparator**. Model rates are derived from GitHub Copilot's published per-1M-token pricing converted at 1 credit = $0.01, and remain **directional** — verify before quoting. Choose **No specific model** for the published-band estimate.
+        - **Computer-Using Agent (CUA) actions** are **not** included in the Microsoft 365 Copilot license — they bill at the agent-action rate (5 credits) even for licensed users.
+        - **Agent flow actions** are "no charge" for licensed users **only** when the flow uses the *"When an agent calls the flow"* trigger. Agent flows on any other trigger consume credits at the standard rate.
+        - **Generative answers** are zero-rated on Microsoft 365 surfaces / in Agent Builder only when they run **without** tenant-graph grounding — tenant-graph grounding always meters (10 credits/message).
+
+    **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
+
+       ??? note "Microsoft 365 Copilot (Cowork) — usage-based billing"
+           **Microsoft 365 Copilot Chat** meters agent / Cowork usage as **Copilot Credits** through the same Copilot Studio pay-as-you-go meter ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-365/copilot/pay-as-you-go/meters)). On Microsoft 365 surfaces, users **with** an M365 Copilot license are covered by that license; **unlicensed** users on metered agents consume credits (pay-as-you-go). You can pay-as-you-go at the per-credit rate, buy **message packs**, or commit with a **pre-purchase**.
+
+           Unlike Studio, you don't inventory components for Cowork — you forecast a **population**: *licensed users × monthly active-usage % × avg credits per active user*. Ground it in your tenant's real numbers with the admin center's **[Copilot Chat usage report](https://learn.microsoft.com/microsoft-365/admin/activity-reports/microsoft-copilot-usage)** (active users, prompts/user) and **[Copilot Credits report](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-credits)** (measured credits/user); the **Import from M365** mode reads either CSV export. The active-usage % and credits/user *defaults* in this estimator are neutral planning anchors — **not** official Microsoft figures — so adjust them to your data.
+
+<a id="ce-howto"></a>
+
+??? note "New here? How to use this estimator"
+
+    First, pick **where you want to start** using the switch. Drop in a raw *conversation* (transcript, email, or notes) and we'll detect the use cases and size them for you — or, if you already know the tool, choose *Copilot Studio agents* or *Microsoft 365 Copilot (Cowork)* directly and then choose **how you want to estimate**. The two products use different methods (Studio inventories what you built; Cowork forecasts a population), so each has its own modes. Every mode runs locally in your browser; nothing is uploaded.
+
+    | Mode | Best when… | What you provide | What you get |
+    |------|-----------|------------------|--------------|
+    | **Quick** | You're early or unsure and just want a ballpark. | A plain-English description of the agent (or an example chip). | A T-shirt size, a Studio build outline, and a credit/cost range. |
+    | **Quick + Import** | You're sizing many agents — a whole portfolio — at once. | An Excel workbook with one row per scenario. | Per-scenario sizes and credits, plus a portfolio roll-up. |
+    | **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each interaction uses. | Credits per month and per user, ready for finance or IT. |
+    | **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
+
+    **Estimating Microsoft 365 Copilot (Cowork) instead?** Flip the switch to **Microsoft 365 Copilot (Cowork)** — it uses a population-based method (model *licensed users × active-usage % × credits per active user*), with its own modes:
+
+    | Cowork mode | Best when… | What you provide | What you get |
+    |------|-----------|------------------|--------------|
+    | **Quick** | You want a fast org-wide ballpark. | Licensed users, an active-usage %, and avg credits/user. | Monthly credits, spend, annual, and a message-pack / pre-purchase plan. |
+    | **Detailed** | You want to model cohorts (roles, business units). | One row per cohort, tuned individually. | A roll-up plus a 6-month adoption forecast; open any Quick estimate here to refine. |
+    | **Import from M365** | You have real admin-center data. | The Copilot **Credits** or **Chat usage** CSV export (or the four dashboard totals). | Editable cohorts seeded from your measured credits/user, with power-user outliers flagged. |
+
+    === "Quick"
+
+        1. Select the **Quick** card (the default).
+        2. Type a plain-English description — what it does, who uses it, how often, and where it runs — or click an **example** chip.
+        3. Click **Build my estimate →**.
+        4. Answer the short guided follow-ups.
+        5. Review the size, build outline, and credit/cost range.
+        6. Optionally open it in the **Detailed** estimator to refine.
+
+    === "Quick + Import"
+
+        1. Select the **Quick + Import** card.
+        2. Click **↓ Download Excel template (.xlsx)**.
+        3. Fill the **Scenarios** sheet — one row per agent or use-case (the **Examples** sheet is prefilled to copy from).
+        4. Drop the completed workbook back on the page.
+        5. Review each scenario's size and credits, plus the portfolio roll-up.
+
+    === "Detailed"
+
+        1. Select the **Detailed** card.
+        2. Follow the six in-panel steps: set your **org scope**, choose the **deployment type**, set the **interaction frequency**, fill the **per-interaction feature rows**, add an optional **escalation path**, then read the **results**.
+
+    === "Solution package"
+
+        1. Select the **Solution package** card.
+        2. In **make.powerapps.com**, add your Copilot Studio agent — plus any Power Automate flows and connection references — to a solution and **Export** it as an unmanaged `.zip`.
+        3. Drop the `.zip` on the page.
+        4. Review the component inventory, size, and credit estimate.
+        5. See the panel's **"What can I upload?"** note for the A / B / C upload options.

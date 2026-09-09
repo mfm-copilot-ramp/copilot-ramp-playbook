@@ -321,5 +321,20 @@ var gFin = Math.round(EC.comparePlatforms(EC.inferComparatorInputs("Whenever an 
 ok("cmp NL: IT vs Sales price differently (Sales drafts more → costs more)", gIt !== gSales && gSales > gIt);
 ok("cmp NL: three distinct scenarios yield >=2 distinct GH costs", new Set([gIt, gSales, gFin]).size >= 2);
 
+// ── Import-mode "very few components" warning must NOT fire on correctly-parsed modern agents ──
+function warnsFewComponents(r) { return (r.warnings || []).some(function (w) { return /Very few components/.test(w); }); }
+// New-experience connected-agent generative export (mirrors CarnivalAIEnabledPM / InforGovernedA2A shape).
+var solNewExp = EC.analyzeSolution([{ name: "bot.cliagent.yaml", text:
+  "kind: CLICopilotRecognizer\nkind: ConnectedAgentTool\n\"enableWebSearch\": true" }]);
+ok("import: new-experience connected-agent export is NOT flagged 'very few components'", !warnsFewComponents(solNewExp));
+ok("import: new-experience export still detected as generative", solNewExp.findings.isGenerative === true);
+// Voice-only export (mirrors InforEnterpriseBAVoiceDemo shape).
+var solVoice = EC.analyzeSolution([{ name: "voice.yaml", text: "voiceConfiguration:\n  enableVoice: true\n  telephony: true" }]);
+ok("import: voice export is NOT flagged 'very few components'", !warnsFewComponents(solVoice));
+ok("import: voice export produces a voice profile row", (solVoice.profile || []).some(function (r) { return /voice/i.test(r.key); }));
+// A genuinely empty / non-solution zip SHOULD still warn.
+var solEmpty = EC.analyzeSolution([{ name: "readme.txt", text: "just some notes, not a solution export" }]);
+ok("import: genuinely empty parse STILL warns 'very few components'", warnsFewComponents(solEmpty));
+
 console.log(failures === 0 ? "\nALL PASS" : "\n" + failures + " FAILURE(S)");
 process.exit(failures > 0 ? 1 : 0);

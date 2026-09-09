@@ -34,6 +34,7 @@
   function chk(id) { var e = document.getElementById(id); return e ? e.checked : false; }
 
   var MODE_DESC = {
+    context: "Best when you have a customer conversation, email, notes, or a transcript — paste it and the tool finds the use case(s), sizes each as a Copilot Studio agent or M365 Copilot (Cowork) adoption, and rolls them into one milestone-ready number. Directional; refine before quoting.",
     quick: "Best when you're early or unsure — describe the agent in plain words and get a rough size, a Studio build outline, and a credit/cost range. No build knowledge needed.",
     import: "Best for sizing many agents at once — download the Excel template, fill in one row per scenario, and import it back for a portfolio-wide size + credit/cost roll-up. Runs entirely in your browser.",
     detailed: "Best when you know the building blocks but haven't built yet — set your org scope and dial in exactly which features each interaction uses.",
@@ -127,7 +128,7 @@
     // Bulk is gated behind the flight flag — a stale #hash, select value, or
     // hydration can't force it open while it's locked.
     if (mode === "bulk" && !bulkFlighted()) mode = "quick";
-    var ids = { quick: "panel-quick", import: "panel-import", detailed: "panel-detailed", complex: "panel-complex", bulk: "panel-bulk" };
+    var ids = { context: "panel-context", quick: "panel-quick", import: "panel-import", detailed: "panel-detailed", complex: "panel-complex", bulk: "panel-bulk" };
     Object.keys(ids).forEach(function (k) {
       var el = document.getElementById(ids[k]);
       if (el) el.classList.toggle("em-hidden", k !== mode);
@@ -141,13 +142,30 @@
       cards[i].setAttribute("aria-checked", on ? "true" : "false");
     }
     setText("mode-desc", MODE_DESC[mode] || "");
+    // Keep the top-level entry coherent: any real (non-context) Studio mode means we
+    // are NOT in the conversation front door, so restore the Studio mode-card chrome
+    // and mark the Studio tab active. This also self-corrects deep links / hash
+    // hydration that jump straight to a mode (e.g. a shared Detailed link).
+    if (mode !== "context") {
+      var chrome = document.querySelector(".mode-cards");
+      if (chrome) chrome.classList.remove("em-hidden");
+      var mdesc = document.getElementById("mode-desc");
+      if (mdesc) mdesc.classList.remove("em-hidden");
+      var tCtx = document.getElementById("prod-tab-context");
+      if (tCtx) { tCtx.setAttribute("aria-selected", "false"); tCtx.setAttribute("aria-pressed", "false"); }
+      var tStu = document.getElementById("prod-tab-studio");
+      if (tStu && !tStu.classList.contains("est-tab--active")) {
+        tStu.classList.add("est-tab--active");
+        tStu.setAttribute("aria-selected", "true");
+      }
+    }
   }
 
   // ── privacy-respecting mode-usage analytics (GoatCounter custom events) ─────
   // Cookieless + no PII: sends only the page path and a static per-mode label
   // when the user actively picks a mode. Bound to the mode cards in init(), so it
   // never fires on programmatic hydration or the "open in Detailed" feed-forward.
-  var GC_MODE_LABEL = { quick: "Quick", import: "Quick + Import", detailed: "Detailed", complex: "Solution package", bulk: "Bulk generate" };
+  var GC_MODE_LABEL = { context: "From a conversation", quick: "Quick", import: "Quick + Import", detailed: "Detailed", complex: "Solution package", bulk: "Bulk generate" };
   function trackEstimatorMode(mode) {
     if (!window.goatcounter || !GC_MODE_LABEL[mode]) return;
     window.goatcounter.count({

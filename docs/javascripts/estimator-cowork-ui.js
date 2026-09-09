@@ -38,14 +38,33 @@
   // ── product switch (Studio <-> Cowork) ──────────────────────────────────────
   function setEstimatorProduct(which) {
     var isCo = which === "cowork";
+    var isCtx = which === "context";
     var studio = el("estimator-studio");
     var detailed = el("panel-detailed");
     var cowork = el("estimator-cowork");
     var tS = el("prod-tab-studio");
     var tC = el("prod-tab-cowork");
+    var tX = el("prod-tab-context");
     var flight = el("flight-toggle");
+    // The Studio wrapper is visible for BOTH the Studio lane and the conversation
+    // front door (panel-context lives inside it); only Cowork hides the wrapper.
     if (studio) studio.classList.toggle("em-hidden", isCo);
     if (cowork) cowork.classList.toggle("em-hidden", !isCo);
+    if (flight) flight.style.display = (isCo || isCtx) ? "none" : "";
+    if (tS) { tS.classList.toggle("est-tab--active", !isCo && !isCtx); tS.setAttribute("aria-selected", String(!isCo && !isCtx)); }
+    if (tC) { tC.classList.toggle("est-tab--active", isCo); tC.setAttribute("aria-selected", String(isCo)); }
+    if (tX) { tX.classList.toggle("est-tab--active", isCtx); tX.setAttribute("aria-selected", String(isCtx)); }
+
+    if (isCtx) {
+      // Conversation front door: hide the Studio mode-card chrome so it reads as a
+      // top-level starting point, then show panel-context via the shared mode router.
+      setStudioChrome(false);
+      if (window.setEstimatorMode) window.setEstimatorMode("context");
+      return;
+    }
+
+    // A real product lane — restore the Studio mode-card chrome.
+    setStudioChrome(true);
     // #panel-detailed is part of the Studio lane (its shared output card). Hide it
     // under Cowork; when returning to Studio, show it only if Studio's mode is Detailed.
     if (detailed) {
@@ -55,10 +74,20 @@
         detailed.classList.toggle("em-hidden", !(sel && sel.value === "detailed"));
       }
     }
-    if (flight) flight.style.display = isCo ? "none" : "";
-    if (tS) { tS.classList.toggle("est-tab--active", !isCo); tS.setAttribute("aria-selected", String(!isCo)); }
-    if (tC) { tC.classList.toggle("est-tab--active", isCo); tC.setAttribute("aria-selected", String(isCo)); }
-    if (isCo) cwQuickCalc();
+    if (isCo) { cwQuickCalc(); return; }
+    // Studio: if we arrived from the front door, mode-select is stuck on "context"
+    // (which has no visible card) — reset to Quick so a real Studio mode is shown.
+    var selS = el("mode-select");
+    if (selS && selS.value === "context" && window.setEstimatorMode) window.setEstimatorMode("quick");
+  }
+
+  // Show/hide the Studio "mode cards" row + its description. Hidden while the
+  // conversation front door is active so panel-context doesn't look nested under Studio.
+  function setStudioChrome(show) {
+    var cards = document.querySelector(".mode-cards");
+    var desc = el("mode-desc");
+    if (cards) cards.classList.toggle("em-hidden", !show);
+    if (desc) desc.classList.toggle("em-hidden", !show);
   }
 
   // ── Cowork mode row (Quick / Detailed / Import) ─────────────────────────────
