@@ -6,14 +6,30 @@ hide: [toc]
 
 # Copilot Credit Estimator
 
-<p class="ce-caution">&#9888;&#65039; <strong>Still in active development</strong> &mdash; results are directional; double-check anything you&rsquo;ll budget on.</p>
+!!! warning "Still being worked on — use with caution"
+    This estimator is still under active development. Numbers, defaults, and logic may change, so treat the results as directional rather than final and double-check anything you rely on for planning or budgeting.
 
 <div class="ce-video-intro" markdown="0">
-  <button type="button" class="md-button ce-intro-open" data-ce-open="ce-intro-modal">&#9654;&nbsp; 90-second intro</button>
-  <button type="button" class="md-button ce-intro-open" data-ce-open="ce-deepdive-modal">&#9654;&nbsp; Full walkthrough (3&frac12;&nbsp;min)</button>
-  <span class="ce-intro-hint">Quick tour, or the deep dive &mdash; your pick.</span>
+  <button type="button" class="md-button ce-intro-open" data-ce-open>&#9654;&nbsp; Watch the 90-second intro</button>
+  <span class="ce-intro-hint">New here? Take the quick tour &mdash; then everything below is yours to explore.</span>
 </div>
 
+<details class="ce-video-walkthroughs" markdown="0">
+  <summary>&#128250;&nbsp; Watch the full walkthrough (3&frac12; min)</summary>
+  <div class="ce-vw-body">
+    <div class="ce-vw-item">
+      <video controls preload="metadata" playsinline
+             poster="../assets/video/credit-estimator-deepdive-poster.jpg"
+             class="ce-vw-video">
+        <source src="../assets/video/credit-estimator-deepdive.mp4" type="video/mp4">
+        <track kind="captions" src="../assets/video/credit-estimator-deepdive.vtt" srclang="en" label="English">
+        Your browser can&rsquo;t play embedded video &mdash;
+        <a href="../assets/video/credit-estimator-deepdive.mp4">download the deep-dive walkthrough (MP4)</a>.
+      </video>
+      <p class="ce-vw-cap">All four ways to estimate &mdash; Quick, Quick&nbsp;+&nbsp;Import, Detailed, and Solution&nbsp;package &mdash; plus the full journey from estimate, to ROI, to a finished proposal.</p>
+    </div>
+  </div>
+</details>
 
 <div id="ce-intro-modal" class="ce-modal" hidden>
   <div class="ce-modal-backdrop" data-ce-close></div>
@@ -28,35 +44,19 @@ hide: [toc]
       Your browser can&rsquo;t play embedded video &mdash;
       <a href="../assets/video/credit-estimator-tutorial.mp4">download the 90-second tutorial (MP4)</a>.
     </video>
-    <p class="ce-modal-cap">A 90-second tour &mdash; you can rewatch it any time from the <strong>&#9654; 90-second intro</strong> button above.</p>
-  </div>
-</div>
-
-<div id="ce-deepdive-modal" class="ce-modal" hidden>
-  <div class="ce-modal-backdrop" data-ce-close></div>
-  <div class="ce-modal-card" role="dialog" aria-modal="true" aria-label="Copilot Credit Estimator — full walkthrough">
-    <button type="button" class="ce-modal-x" data-ce-close aria-label="Close">&times;</button>
-    <h3 class="ce-modal-title">Full walkthrough (3&frac12; min)</h3>
-    <video controls preload="none" playsinline
-           poster="../assets/video/credit-estimator-deepdive-poster.jpg"
-           class="ce-modal-video">
-      <source src="../assets/video/credit-estimator-deepdive.mp4" type="video/mp4">
-      <track kind="captions" src="../assets/video/credit-estimator-deepdive.vtt" srclang="en" label="English">
-      Your browser can&rsquo;t play embedded video &mdash;
-      <a href="../assets/video/credit-estimator-deepdive.mp4">download the deep-dive walkthrough (MP4)</a>.
-    </video>
-    <p class="ce-modal-cap">All the ways to estimate &mdash; from a conversation, Quick, Quick&nbsp;+&nbsp;Import, Detailed, and Solution&nbsp;package &mdash; plus the full journey from estimate, to ROI, to a finished proposal.</p>
+    <p class="ce-modal-cap">A 90-second tour &mdash; you can rewatch it any time from the <strong>&#9654; Watch the 90-second intro</strong> button above.</p>
   </div>
 </div>
 
 <style>
-.ce-video-intro{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem .9rem;margin:.6rem 0 .4rem}
-.ce-caution{margin:.5rem 0 .9rem;font-size:.84rem;color:var(--md-default-fg-color--light);border-left:3px solid #e8a23d;padding:.1rem 0 .1rem .7rem}
+.ce-video-intro{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem .9rem;margin:1.1rem 0 .5rem}
 .ce-intro-open{margin:0;cursor:pointer}
 .ce-intro-hint{font-size:.85rem;opacity:.75}
-.ce-video-walkthroughs{margin:.1rem 0 1rem;border:0;padding:0}
-.ce-video-walkthroughs>summary{cursor:pointer;font-size:.82rem;font-weight:600;opacity:.8;padding:.2rem 0;list-style:revert}
+.md-typeset p.ce-lead{max-width:none}
+.ce-video-walkthroughs{margin:.2rem 0 1.4rem;border:1px solid var(--md-default-fg-color--lightest);border-radius:10px;padding:.2rem .9rem}
+.ce-video-walkthroughs>summary{cursor:pointer;font-weight:600;padding:.55rem .1rem;list-style:revert}
 .ce-vw-body{display:grid;gap:1.4rem;margin:.4rem 0 .9rem}
+.ce-vw-title{margin:.2rem 0 .5rem;font-size:.95rem}
 .ce-vw-video{width:100%;max-width:900px;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);display:block}
 .ce-vw-cap{margin:.5rem 0 0;font-size:.88rem;opacity:.8}
 .ce-modal[hidden]{display:none}
@@ -76,49 +76,40 @@ body.ce-modal-lock{overflow:hidden}
 <script>
 (function(){
   var KEY='crp-ce-intro-v1';
-  function wire(modal){
+  function init(){
+    var modal=document.getElementById('ce-intro-modal');
     if(!modal||modal.dataset.ceReady)return;
     modal.dataset.ceReady='1';
     if(modal.parentNode!==document.body)document.body.appendChild(modal);
-    var video=modal.querySelector('video');
-    modal._ceOpen=function(){
-      modal._lastFocus=document.activeElement;
+    var video=modal.querySelector('#ce-intro-video');
+    var lastFocus=null;
+    function open(){
+      lastFocus=document.activeElement;
       modal.hidden=false;
       document.body.classList.add('ce-modal-lock');
       var x=modal.querySelector('.ce-modal-x');if(x)x.focus();
-    };
-    modal._ceClose=function(){
+      try{localStorage.setItem(KEY,'1');}catch(e){}
+    }
+    function close(){
       if(modal.hidden)return;
       modal.hidden=true;
       document.body.classList.remove('ce-modal-lock');
       if(video){try{video.pause();}catch(e){}}
-      if(modal._lastFocus&&modal._lastFocus.focus){try{modal._lastFocus.focus();}catch(e){}}
-    };
-    modal.querySelectorAll('[data-ce-close]').forEach(function(b){b.addEventListener('click',modal._ceClose);});
-  }
-  function init(){
-    document.querySelectorAll('.ce-modal').forEach(wire);
-    document.querySelectorAll('[data-ce-open]').forEach(function(b){
-      b.addEventListener('click',function(e){
-        e.preventDefault();
-        var m=document.getElementById(b.getAttribute('data-ce-open'));
-        if(m&&m._ceOpen)m._ceOpen();
-      });
-    });
-    document.addEventListener('keydown',function(e){
-      if(e.key==='Escape'||e.key==='Esc')document.querySelectorAll('.ce-modal').forEach(function(m){if(m._ceClose)m._ceClose();});
-    });
+      if(lastFocus&&lastFocus.focus){try{lastFocus.focus();}catch(e){}}
+    }
+    document.querySelectorAll('[data-ce-open]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();open();});});
+    modal.querySelectorAll('[data-ce-close]').forEach(function(b){b.addEventListener('click',close);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Esc')close();});
     var seen;try{seen=localStorage.getItem(KEY);}catch(e){seen='1';}
-    if(!seen){var intro=document.getElementById('ce-intro-modal');if(intro&&intro._ceOpen)intro._ceOpen();}
-    try{localStorage.setItem(KEY,'1');}catch(e){}
+    if(!seen)open();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
   else init();
 })();
 </script>
 
-Estimate monthly **Copilot Credits** for **Copilot Studio agents** or **Microsoft 365 Copilot (Cowork)**. Not sure where to begin? Pick **From a conversation** below and we'll size it for you — or choose your tool directly. Everything runs in your browser; nothing is uploaded. &nbsp;·&nbsp; [How credits are billed](#billing-details) &nbsp;·&nbsp; [How to use this estimator](#ce-howto) &nbsp;·&nbsp; [ROI Estimator](roi-estimator.md)
-
+Estimate monthly **Copilot Credits** for **Copilot Studio agents** or **Copilot Cowork** — pick what you're estimating below, choose a mode, and your live estimate builds as you go. Everything runs in your browser; nothing is uploaded. New to credit billing? See [**How Copilot Credits are billed**](#billing-details), or try the [**ROI Estimator**](roi-estimator.md) for the *return*, not just the cost.
+{: .ce-lead }
 
 <div id="estimator-modes" markdown="0">
 
@@ -450,6 +441,9 @@ Estimate monthly **Copilot Credits** for **Copilot Studio agents** or **Microsof
 .qe-axis h4 { margin: 0 0 0.6rem; font-size: 0.9rem; }
 .qe-axis #qe-profile2 .em-details { margin: 0.9rem 0 0; }
 .qe-starter { margin: 1.25rem 0 0; padding: 0.9rem 1rem; border: 1px solid var(--md-primary-fg-color); border-radius: 10px; background: color-mix(in srgb, var(--md-primary-fg-color) 6%, transparent); }
+.qe-builder-link { display: block; margin: 0 0 0.55rem; padding: 0.5rem 0.7rem; border: 1px dashed var(--md-primary-fg-color); border-radius: 8px; font-size: 0.85rem; line-height: 1.35; text-decoration: none; color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 4%, transparent); transition: background 0.15s ease; }
+.qe-builder-link:hover { background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent); }
+.qe-builder-link strong { white-space: nowrap; }
 .qe-import-help { margin-top: 0.65rem; }
 .qe-import-help > summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--md-primary-fg-color); }
 .qe-import-steps { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.8rem; line-height: 1.6; color: var(--md-default-fg-color--light); }
@@ -532,7 +526,7 @@ Estimate monthly **Copilot Credits** for **Copilot Studio agents** or **Microsof
   <div class="est-switcher-tabs" role="tablist" aria-labelledby="est-switch-label">
     <button type="button" id="prod-tab-context" class="est-tab" role="tab" aria-selected="false" aria-controls="panel-context" onclick="setEstimatorProduct('context')" title="Paste a transcript, email or notes — we size it as Studio agents, Cowork adoption, or both"><span aria-hidden="true">&#128172;</span> From a conversation</button>
     <button type="button" id="prod-tab-studio" class="est-tab est-tab--active" role="tab" aria-selected="true" aria-controls="estimator-studio" onclick="setEstimatorProduct('studio')">Copilot Studio agents</button>
-    <button type="button" id="prod-tab-cowork" class="est-tab" role="tab" aria-selected="false" aria-controls="estimator-cowork" onclick="setEstimatorProduct('cowork')">Microsoft 365 Copilot (Cowork)</button>
+    <button type="button" id="prod-tab-cowork" class="est-tab" role="tab" aria-selected="false" aria-controls="estimator-cowork" onclick="setEstimatorProduct('cowork')">Copilot Cowork</button>
   </div>
   <button type="button" id="flight-toggle" class="flight-dot" aria-pressed="false" aria-label="Toggle preview features" title=""></button>
 </div>
@@ -1604,7 +1598,7 @@ recalc();
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════════════
-     COWORK LANE — Microsoft 365 Copilot (Cowork) usage-based estimator.
+     COWORK LANE — Copilot Cowork usage-based estimator.
      Top-down macro model (population forecast), not a component inventory.
      Driven by estimator-cowork-ui.js + window.CoworkEstimator. Hidden until the
      product switcher flips to Cowork (setEstimatorProduct('cowork')).
@@ -1860,11 +1854,10 @@ For a *could-go-either-way* agent, the deciding factor is often **cost structure
     - **Adoption benchmarking** — as real usage data comes in from the admin center, compare actuals to this estimate to see whether adoption is ahead or behind plan.
     - **Scenario planning** — run the estimator at 3 adoption-rate levels (conservative / target / optimistic) to bracket your credit spend.
 
----
 
-## Reference &amp; help
+## How it works & billing details
 
-Everything you might want *after* you&rsquo;ve run an estimate &mdash; how billing works, and a mode-by-mode how-to. (The full video walkthrough is up top, next to the 90-second intro.)
+Reference material — the credit billing rules and a full how-to for every mode. The estimator above works without reading any of this.
 
 <a id="billing-details"></a>
 
@@ -1884,16 +1877,14 @@ Everything you might want *after* you&rsquo;ve run an estimate &mdash; how billi
 
     **Benchmarked against Microsoft's official tools.** This engine's rate card and per-turn math are calibrated to match the public [Copilot Studio agent usage estimator](https://microsoft.github.io/copilot-studio-estimator/) and the Learn billing doc — all base rates (classic 1, generative 2, agent action 5, tenant-graph 10/msg, flow 0.13/action, AI 0.1/1.5/10, voice 10/35/75) align, as do the doc's worked examples (a tenant-graph-grounded turn totals ~12 once the generative answer is added). Two nuances it now follows: an **autonomous trigger is billed as one agent action (5)** — not a flat surcharge — with the actions it invokes billed separately; and when a **reasoning-capable model** is detected in a solution package, a premium **10 credits / 1K tokens** meter is added on top of the feature rate. Reasoning surcharges are otherwise assumed off (standard models).
 
-       ??? note "Microsoft 365 Copilot (Cowork) — usage-based billing"
+       ??? note "Copilot Cowork — usage-based billing"
            **Microsoft 365 Copilot Chat** meters agent / Cowork usage as **Copilot Credits** through the same Copilot Studio pay-as-you-go meter ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-365/copilot/pay-as-you-go/meters)). On Microsoft 365 surfaces, users **with** an M365 Copilot license are covered by that license; **unlicensed** users on metered agents consume credits (pay-as-you-go). You can pay-as-you-go at the per-credit rate, buy **message packs**, or commit with a **pre-purchase**.
 
            Unlike Studio, you don't inventory components for Cowork — you forecast a **population**: *licensed users × monthly active-usage % × avg credits per active user*. Ground it in your tenant's real numbers with the admin center's **[Copilot Chat usage report](https://learn.microsoft.com/microsoft-365/admin/activity-reports/microsoft-copilot-usage)** (active users, prompts/user) and **[Copilot Credits report](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-credits)** (measured credits/user); the **Import from M365** mode reads either CSV export. The active-usage % and credits/user *defaults* in this estimator are neutral planning anchors — **not** official Microsoft figures — so adjust them to your data.
 
-<a id="ce-howto"></a>
-
 ??? note "New here? How to use this estimator"
 
-    First, pick **where you want to start** using the switch. Drop in a raw *conversation* (transcript, email, or notes) and we'll detect the use cases and size them for you — or, if you already know the tool, choose *Copilot Studio agents* or *Microsoft 365 Copilot (Cowork)* directly and then choose **how you want to estimate**. The two products use different methods (Studio inventories what you built; Cowork forecasts a population), so each has its own modes. Every mode runs locally in your browser; nothing is uploaded.
+    First, pick **what you're estimating** — *Copilot Studio agents* or *Copilot Cowork* — using the switch, then choose **how you want to estimate**. The two products use different methods (Studio inventories what you built; Cowork forecasts a population), so each has its own modes. Every mode runs locally in your browser; nothing is uploaded.
 
     | Mode | Best when… | What you provide | What you get |
     |------|-----------|------------------|--------------|
@@ -1902,7 +1893,7 @@ Everything you might want *after* you&rsquo;ve run an estimate &mdash; how billi
     | **Detailed** | You know the building blocks but haven't built yet. | Org scope, deployment type, and the features each interaction uses. | Credits per month and per user, ready for finance or IT. |
     | **Solution package** | The agent is already built. | A Copilot Studio solution export (`.zip`). | A component inventory, a T-shirt size, and a credit estimate. |
 
-    **Estimating Microsoft 365 Copilot (Cowork) instead?** Flip the switch to **Microsoft 365 Copilot (Cowork)** — it uses a population-based method (model *licensed users × active-usage % × credits per active user*), with its own modes:
+    **Estimating Copilot Cowork instead?** Flip the switch to **Copilot Cowork** — it uses a population-based method (model *licensed users × active-usage % × credits per active user*), with its own modes:
 
     | Cowork mode | Best when… | What you provide | What you get |
     |------|-----------|------------------|--------------|
@@ -1939,3 +1930,4 @@ Everything you might want *after* you&rsquo;ve run an estimate &mdash; how billi
         3. Drop the `.zip` on the page.
         4. Review the component inventory, size, and credit estimate.
         5. See the panel's **"What can I upload?"** note for the A / B / C upload options.
+

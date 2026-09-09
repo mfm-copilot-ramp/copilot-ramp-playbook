@@ -97,7 +97,7 @@ def is_content_page(relpath: str) -> bool:
     CONTENT-MODEL.md: walkthroughs, stage pages, and solution templates are
     content pages; `index.md` pages and other meta / navigational pages are not.
     """
-    if relpath.startswith("docs/walkthroughs/"):
+    if relpath.startswith("docs/walkthroughs/") and not relpath.endswith("/index.md"):
         return True
     if relpath.startswith("docs/stages/"):
         return True
@@ -137,7 +137,7 @@ for path in sorted(DOCS.rglob("*.md")):
 
     # 5. Tier-aware frontmatter.
     fm = parse_frontmatter(text)
-    if relpath.startswith("docs/walkthroughs/"):
+    if relpath.startswith("docs/walkthroughs/") and path.name != "index.md":
         require_keys(relpath, fm, ("title", "stage", "status"))
     elif relpath.startswith("docs/stages/"):
         require_keys(relpath, fm, ("title", "stage"))

@@ -83,6 +83,46 @@ cold instead of reinventing the prompt. The ones worth capturing first:
 
     Capture any great Cowork run as a reusable recipe so it doesn't die with the session.
 
+-   **[Assemble a monthly business review](walkthroughs/cowork-monthly-business-review.md)**
+
+    Pull metrics, highlights, risks, and next steps from your sources into one MBR pack you can present.
+
+-   **[Turn discovery notes into a proposal](walkthroughs/cowork-proposal-from-discovery.md)**
+
+    Hand over discovery notes and a template; get back a structured first-draft proposal you refine.
+
+-   **[Build a content calendar from a brief](walkthroughs/cowork-content-calendar.md)**
+
+    Turn a campaign brief into a dated calendar with channels, themes, and draft hooks.
+
+-   **[Score vendors against your criteria](walkthroughs/cowork-vendor-evaluation.md)**
+
+    Vendor materials plus your criteria become a weighted scorecard and a recommendation you can defend.
+
+-   **[Build a prep pack for any meeting](walkthroughs/cowork-meeting-prep-pack.md)**
+
+    Attendee backgrounds, account context, open items, and talking points assembled into one pre-meeting brief.
+
+-   **[Draft an annual plan and OKRs](walkthroughs/cowork-annual-plan.md)**
+
+    Last year's results and strategy inputs become a first-draft annual plan with objectives, key results, and initiatives.
+
+-   **[Build a customer onboarding pack](walkthroughs/cowork-customer-onboarding-pack.md)**
+
+    The signed deal plus product docs become a welcome, timeline, roles, and first-value milestones — ready to send.
+
+-   **[Turn source material into a training curriculum](walkthroughs/cowork-training-curriculum.md)**
+
+    Source docs become a modular curriculum — objectives, lessons, exercises, and a knowledge check per module.
+
+-   **[Compile a newsletter from the week's sources](walkthroughs/cowork-newsletter-roundup.md)**
+
+    The week's updates gathered from your sources into a structured, on-tone internal newsletter draft.
+
+-   **[Turn a dataset into a narrative brief](walkthroughs/cowork-data-story.md)**
+
+    A spreadsheet becomes the story behind the numbers — trends, outliers, and a recommended action, with a table.
+
 </div>
 
 ## Autopilots (Scout) skills — capabilities for an always-on agent { #autopilots-scout-skills }
@@ -122,6 +162,38 @@ The skills worth equipping onto Scout first — each captured once, then run alw
 -   **[Watch deliverables & flag risks](walkthroughs/autopilots-track-deliverables.md)**
 
     A standing watch that blocks time for what's due and raises stalled-decision risks before they become blockers.
+
+-   **[Always-on competitive & news monitor](walkthroughs/autopilots-competitive-monitor.md)**
+
+    Scout watches named competitors and topics and delivers a short digest of what changed and why it matters.
+
+-   **[Auto-draft your weekly report](walkthroughs/autopilots-weekly-report.md)**
+
+    Every Friday, a drafted weekly status pulled from your own emails, meetings, and chats — waiting for review.
+
+-   **[Renewal & at-risk account watch](walkthroughs/autopilots-renewal-watch.md)**
+
+    The renewal calendar and engagement signals, watched continuously, so at-risk accounts surface before they slip.
+
+-   **[Track & chase open follow-ups](walkthroughs/autopilots-followup-tracker.md)**
+
+    A standing list of what you owe and what's owed to you across email and Teams, nudged before it goes stale.
+
+-   **[Prep your daily stand-up automatically](walkthroughs/autopilots-standup-prep.md)**
+
+    Each morning, a drafted stand-up — yesterday, today, blockers — pulled from your activity, ready to review.
+
+-   **[Watch key documents & flag changes](walkthroughs/autopilots-doc-change-watch.md)**
+
+    Scout watches the documents that matter and flags meaningful changes with a short what-changed-and-why note.
+
+-   **[Guide a new hire through their first weeks](walkthroughs/autopilots-onboarding-guide.md)**
+
+    The right first-week nudges, resources, and check-ins delivered to a new starter on a schedule.
+
+-   **[Protect focus time & triage interruptions](walkthroughs/autopilots-focus-time.md)**
+
+    Focus time blocked around your real workload, with interruptions triaged so only the urgent reaches you.
 
 </div>
 

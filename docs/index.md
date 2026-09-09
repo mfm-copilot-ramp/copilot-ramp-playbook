@@ -7,7 +7,7 @@ hide:
 ---
 
 <div class="unofficial-ribbon">
-  <strong>⚠️ Unofficial.</strong> A <a href="about/#whos-behind-this">personal project</a> — not affiliated with, endorsed by, or an official resource of Microsoft. Product names &amp; trademarks belong to Microsoft.
+  <strong>Unofficial</strong> — a <a href="about/#whos-behind-this">personal project</a> by someone at Microsoft, not an official Microsoft resource.
 </div>
 
 <div class="home-hero" markdown>
@@ -17,28 +17,30 @@ hide:
 
 # Get started with Microsoft Copilot — then grow all the way to building agents.
 
-<p class="home-lede">Most people stall at "I have Copilot, now what?" This playbook lays out a natural ramp: start by <em>using</em> Copilot, get comfortable letting agents do work for you, then take the leap to <em>building</em> your own — first in Agent Builder, then in Copilot Studio, and into Foundry when you need pro-code.</p>
+<p class="home-lede">Stuck at <em>"I have Copilot — now what?"</em> Start with a 2-minute win, then follow a natural ramp all the way to building your own agents.</p>
 
-<p class="home-credibility">Built by someone who <a href="about/#whos-behind-this">works at Microsoft</a> and uses these Copilot tools every day — as a personal project, not an official Microsoft resource.</p>
+<p class="hero-actions">
+<a class="md-button md-button--primary" href="stages/stage-1-chat/">Start the journey →</a>
+<a class="md-button hero-btn-ghost" href="start-by-role/">Pick your role →</a>
+<a class="md-button hero-btn-ghost" href="credit-estimator/">Estimate your credits →</a>
+<a class="hero-actions-alt" href="quick-wins/">or browse quick wins →</a>
+</p>
 
 </div>
 
-<aside class="hero-aside">
-  <span class="ha-label">Also in the playbook</span>
-  <a class="ha-feature" href="credit-estimator/">
-    <span class="ha-feature-badge">Interactive</span>
-    <span class="ha-feature-title">Credit &amp; ROI Estimator</span>
-    <span class="ha-feature-desc">Size credit consumption, then model cost, payback &amp; ROI before you build.</span>
-  </a>
-  <div class="ha-links">
-    <a href="solutions/">Solution Templates</a>
-    <a href="CATALOG/">Use-Case Catalog</a>
-    <a href="skills/">Skills Catalog</a>
-    <a href="quick-wins/">Quick Wins</a>
-    <a href="start-by-product/">Start by Product</a>
-    <a href="empowerment/decision-tree/">Decide &amp; Govern</a>
-    <a href="RESOURCES/">Reference &amp; Resources</a>
-  </div>
+<aside class="hero-try" markdown>
+<span class="ht-eyebrow">⚡ Try it now · 60 seconds</span>
+<span class="ht-title">Turn any meeting into tracked follow-ups</span>
+
+```text
+Summarize the meeting "[meeting name]" from [today]. Give me:
+- Decisions made
+- Action items, each with an owner and a due date
+- Any open questions that were not resolved
+Format the action items as a table I can paste into an email.
+```
+
+<span class="ht-foot">Paste into Copilot Chat in Teams, Outlook, or the M365 app. <a href="quick-wins/">More prompts →</a></span>
 </aside>
 </div>
 
@@ -66,42 +68,9 @@ hide:
 
 <p class="audience"><strong>Who it's for:</strong> end users who want a first win · champions rolling Copilot out to a team · managers building the case · makers ready to build their first agent · developers engineering pro-code agents in Foundry · IT/admins enabling each stage safely.</p>
 
-## Find your starting point
+## Choose your path
 
-Not every tool is for every person. This is where each role tends to spend time day to day — a heavier dot means you're more likely to live there. Click a **role** for your guided path, or a **stage** to jump straight to it.
-
-<div class="matrix-wrap">
-<table class="home-matrix">
-<thead><tr>
-  <th class="corner">Your role</th>
-  <th><a href="stages/stage-1-chat/"><span class="stagenum">STAGE 1</span>Copilot Chat</a></th>
-  <th><a href="stages/stage-2-first-party/"><span class="stagenum">STAGE 2</span>First-Party</a></th>
-  <th><a href="stages/stage-3-cowork/"><span class="stagenum">STAGE 3</span>Cowork</a></th>
-  <th><a href="stages/stage-4-agent-builder/"><span class="stagenum">STAGE 4</span>Agent Builder</a></th>
-  <th><a href="stages/stage-5-autopilots/"><span class="stagenum">STAGE 5</span>Autopilots</a></th>
-  <th><a href="stages/stage-6-studio/"><span class="stagenum">STAGE 6</span>Studio</a></th>
-  <th><a href="stages/stage-7-foundry/"><span class="stagenum">STAGE 7</span>Foundry</a></th>
-</tr></thead>
-<tbody>
-<tr><th><a href="roles/new-user/">End user</a></th>  <td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td></tr>
-<tr><th><a href="roles/champion/">Champion</a></th>  <td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td></tr>
-<tr><th><a href="roles/manager/">Manager</a></th>   <td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td></tr>
-<tr><th><a href="roles/maker/">Maker</a></th>     <td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td></tr>
-<tr><th><a href="roles/developer/">Developer</a></th> <td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td></tr>
-<tr><th><a href="roles/it-admin/">IT / admin</a></th><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td></tr>
-</tbody>
-</table>
-</div>
-
-<div class="matrix-key">
-  <span class="k3"><span class="meter lvl3" aria-hidden="true"><i></i><i></i><i></i></span> Primary — lives here</span>
-  <span class="k2"><span class="meter lvl2" aria-hidden="true"><i></i><i></i><i></i></span> Regular</span>
-  <span class="k1"><span class="meter lvl1" aria-hidden="true"><i></i><i></i><i></i></span> Occasional</span>
-  <span class="k0"><span class="meter lvl0" aria-hidden="true"><i></i><i></i><i></i></span> Rarely</span>
-</div>
-
-<p class="path-eyebrow">Choose your path</p>
-<p class="path-intro">Found yourself in the chart above? Pick your card below for a guided path you can tune to how you actually work — your function, your pace, your goal. Prefer to browse? <a href="start-by-role/">See all roles →</a></p>
+<p class="path-intro">Pick the card that sounds most like you for a guided path — tuned to your function, your pace, and your goal. Prefer to browse? <a href="start-by-role/">See all roles →</a></p>
 
 <div class="path-strip">
   <div class="path-card">
@@ -136,6 +105,40 @@ Not every tool is for every person. This is where each role tends to spend time 
   </div>
 </div>
 
+## Find your starting point
+
+Want the detailed view? This map shows where each role tends to spend time day to day — a heavier dot means you're more likely to live there. Click any **stage** to jump straight in.
+
+<div class="matrix-wrap">
+<table class="home-matrix">
+<thead><tr>
+  <th class="corner">Your role</th>
+  <th><a href="stages/stage-1-chat/"><span class="stagenum">STAGE 1</span>Copilot Chat</a></th>
+  <th><a href="stages/stage-2-first-party/"><span class="stagenum">STAGE 2</span>First-Party</a></th>
+  <th><a href="stages/stage-3-cowork/"><span class="stagenum">STAGE 3</span>Cowork</a></th>
+  <th><a href="stages/stage-4-agent-builder/"><span class="stagenum">STAGE 4</span>Agent Builder</a></th>
+  <th><a href="stages/stage-5-autopilots/"><span class="stagenum">STAGE 5</span>Autopilots</a></th>
+  <th><a href="stages/stage-6-studio/"><span class="stagenum">STAGE 6</span>Studio</a></th>
+  <th><a href="stages/stage-7-foundry/"><span class="stagenum">STAGE 7</span>Foundry</a></th>
+</tr></thead>
+<tbody>
+<tr><th><a href="roles/new-user/">End user</a></th>  <td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td></tr>
+<tr><th><a href="roles/champion/">Champion</a></th>  <td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td></tr>
+<tr><th><a href="roles/manager/">Manager</a></th>   <td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td></tr>
+<tr><th><a href="roles/maker/">Maker</a></th>     <td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl2"><span class="meter" role="img" aria-label="Regular"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td></tr>
+<tr><th><a href="roles/developer/">Developer</a></th> <td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl0"><span class="meter" role="img" aria-label="Rarely"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td></tr>
+<tr><th><a href="roles/it-admin/">IT / admin</a></th><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl1"><span class="meter" role="img" aria-label="Occasional"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td><td class="lvl3"><span class="meter" role="img" aria-label="Primary — lives here"><i></i><i></i><i></i></span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="matrix-key">
+  <span class="k3"><span class="meter lvl3" aria-hidden="true"><i></i><i></i><i></i></span> Primary — lives here</span>
+  <span class="k2"><span class="meter lvl2" aria-hidden="true"><i></i><i></i><i></i></span> Regular</span>
+  <span class="k1"><span class="meter lvl1" aria-hidden="true"><i></i><i></i><i></i></span> Occasional</span>
+  <span class="k0"><span class="meter lvl0" aria-hidden="true"><i></i><i></i><i></i></span> Rarely</span>
+</div>
+
 Each stage has an **overview**, **use cases** you can filter by your role, and **curated Microsoft resources**. Start anywhere — but the ramp is the point.
 
 [Start at Stage 1 → Copilot Chat](stages/stage-1-chat.md){ .md-button .md-button--primary }
@@ -161,6 +164,8 @@ The fastest way to start: open **[Turn a meeting into tracked follow-ups](walkth
     [decision tree](empowerment/decision-tree.md) for routing each idea to the right tool.
 
 ---
+
+<p class="home-estimators"><strong>Plan &amp; estimate:</strong> <a href="credit-estimator/">Credit estimator</a> · <a href="roi-estimator/">ROI estimator</a> · <a href="ai-builder-estimator/">AI Builder estimator</a> · <a href="copilot-credits/">how credits work</a></p>
 
 <div class="home-resources">
 <p class="res-heading">📚 Start learning right now — the cross-journey set</p>

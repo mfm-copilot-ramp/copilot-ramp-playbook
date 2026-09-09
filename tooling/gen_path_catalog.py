@@ -89,6 +89,7 @@ def scan_walkthroughs() -> list[dict]:
         items.append({
             "path": f"walkthroughs/{path.stem}/",
             "title": fm.get("title", path.stem),
+            "description": fm.get("description", ""),
             "stage": stage,
             "stageLabel": STAGE_LABEL.get(stage, stage),
             "roles": fm.get("roles", []) or [],

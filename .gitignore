@@ -1,6 +1,12 @@
 # MkDocs build output — generated, never committed (CI rebuilds it).
 site/
 
+# Local preview build/serve artifacts — generated on the fly, never committed.
+_serve.log
+_verify_site/
+mkdocs.local.yml
+/copilot-ramp-playbook/
+
 # Material "social" plugin render cache — regenerated per build, never committed.
 # (The generated card PNGs themselves live under site/assets/images/social, already
 # covered by the site/ rule above.)

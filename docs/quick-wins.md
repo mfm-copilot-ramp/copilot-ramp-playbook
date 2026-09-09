@@ -1,6 +1,6 @@
 ---
 title: Quick Wins
-description: The highest-return Microsoft Copilot prompts across the journey, organized by the moment you're in. Copy, paste, fill in the brackets, and send — then follow the full walkthrough when you want to go deeper.
+description: The highest-return Microsoft Copilot prompts, organized by the moment you're in — copy, paste, send, with a full walkthrough for each.
 hide: [toc]
 ---
 

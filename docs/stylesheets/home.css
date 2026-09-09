@@ -2,19 +2,21 @@
 
 /* ---------- unofficial ribbon ---------- */
 .unofficial-ribbon {
-  background: #fff7e6;
-  border: 1px solid #f0d089;
-  border-radius: .6rem;
-  color: #5a4a1a;
-  font-size: .8rem;
-  text-align: center;
-  padding: .45rem 1rem;
-  margin-bottom: 2rem;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: .74rem;
+  text-align: left;
+  padding: 0 0 .55rem;
+  margin-bottom: 1.5rem;
 }
+.unofficial-ribbon strong { font-weight: 700; color: var(--md-default-fg-color--light); }
 [data-md-color-scheme="slate"] .unofficial-ribbon {
-  background: #2c2716;
-  border-color: #5a4d22;
-  color: #c8b87a;
+  background: transparent;
+  border-color: var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color--light);
 }
 
 /* ---------- hero ---------- */
@@ -212,13 +214,6 @@
   background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent);
 }
 
-  align-self: center;
-  color: var(--md-default-fg-color--lightest);
-  font-size: 1.1rem;
-  padding: 0 2px;
-  flex-shrink: 0;
-}
-
 /* ---------- audience callout ---------- */
 .audience {
   color: var(--md-default-fg-color--light);
@@ -327,6 +322,26 @@ table.home-matrix td.lvl0 { background: transparent; }
 table.home-matrix tbody tr:hover td { background: color-mix(in srgb, var(--md-primary-fg-color) 5%, var(--md-code-bg-color)); }
 table.home-matrix tbody tr:hover td.lvl3 { background: color-mix(in srgb, var(--md-primary-fg-color) 22%, transparent); }
 table.home-matrix tbody tr:hover td.lvl2 { background: color-mix(in srgb, var(--md-primary-fg-color) 13%, transparent); }
+
+/* Enhanced by home-matrix.js: the whole data cell becomes a link to its column's
+   stage. Move padding onto the anchor so the entire cell is a hit target, and
+   give keyboard users a clear focus ring. Falls back to the header links with JS off. */
+.home-matrix.matrix-linked tbody td { padding: 0; }
+.home-matrix.matrix-linked tbody td > a.matrix-cell-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: .55rem .5rem;
+  min-height: 100%;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.home-matrix.matrix-linked tbody td > a.matrix-cell-link:focus-visible {
+  outline: 2px solid var(--md-primary-fg-color);
+  outline-offset: -3px;
+  border-radius: 4px;
+}
 
 /* signal-bar meter — filled segments show intensity */
 .meter {
@@ -686,8 +701,62 @@ table.home-matrix tbody tr:hover td.lvl2 { background: color-mix(in srgb, var(--
 
 @media (max-width: 76.25em) {
   .home-hero { grid-template-columns: 1fr; gap: 1.2rem; }
-  .hero-aside { max-width: 42rem; }
+  .hero-try { max-width: 42rem; }
 }
-@media (max-width: 30rem) {
-  .hero-aside .ha-links { grid-template-columns: 1fr; }
+
+/* Hero primary actions */
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .6rem; margin: .1rem 0 0; }
+.hero-actions .md-button { margin: 0; }
+/* Secondary hero choices — outline "ghost" buttons: clearly below the filled
+   primary in weight, but real tap targets so they don't read as afterthoughts. */
+.hero-actions .hero-btn-ghost {
+  color: var(--md-primary-fg-color);
+  border-color: color-mix(in srgb, var(--md-primary-fg-color) 40%, transparent);
+  background: transparent;
 }
+.hero-actions .hero-btn-ghost:hover,
+.hero-actions .hero-btn-ghost:focus {
+  color: var(--md-primary-bg-color);
+  background: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+}
+.hero-actions-alt { font-size: .85rem; font-weight: 600; color: var(--md-primary-fg-color); text-decoration: none; white-space: nowrap; }
+.hero-actions-alt:hover { text-decoration: underline; }
+
+/* Lower "plan & estimate" strip — keeps the full estimator set reachable while
+   one estimator CTA stays above the fold in .hero-actions (Clarity: ~50% scroll depth). */
+.home-estimators { font-size: .85rem; color: var(--md-default-fg-color--light); text-align: center; margin: .2rem 0 1.6rem; }
+.home-estimators strong { color: var(--md-default-fg-color); }
+.home-estimators a { font-weight: 600; white-space: nowrap; }
+
+/* Hero "try it now" prompt card (replaces the old link aside) */
+.hero-try {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: .75rem;
+  background: var(--md-default-bg-color);
+  padding: .95rem 1rem 1.05rem;
+  box-shadow: 0 1px 2px rgba(20,30,50,.06), 0 6px 18px rgba(20,30,50,.05);
+}
+.hero-try .ht-eyebrow { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--md-primary-fg-color); margin: 0 0 .3rem; }
+.hero-try .ht-title { display: block; font-size: .98rem; font-weight: 800; line-height: 1.2; color: var(--md-default-fg-color); margin: 0 0 .55rem; }
+.hero-try .highlight, .hero-try pre { margin: 0 0 .55rem; }
+.hero-try pre > code { font-size: .72rem; line-height: 1.55; white-space: pre-wrap; }
+.hero-try .ht-foot { display: block; font-size: .76rem; color: var(--md-default-fg-color--light); line-height: 1.45; }
+.hero-try .ht-foot a { font-weight: 600; }
+
+/* "Try another" — rotates the prompt (home-try.js). Injected by JS, so it never
+   appears (or 404s the interaction) for no-JS visitors. */
+.hero-try .ht-next {
+  display: inline-flex; align-items: center; gap: .35rem;
+  margin: 0 0 .6rem; padding: .3rem .62rem;
+  font-size: .72rem; font-weight: 700;
+  color: var(--md-primary-fg-color);
+  background: color-mix(in srgb, var(--md-primary-fg-color) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--md-primary-fg-color) 22%, transparent);
+  border-radius: 999px; cursor: pointer;
+  transition: background .12s ease;
+}
+.hero-try .ht-next:hover { background: color-mix(in srgb, var(--md-primary-fg-color) 16%, transparent); }
+.hero-try .ht-next span { font-size: .95em; line-height: 1; }
+.hero-try .ht-title, .hero-try pre { transition: opacity .12s ease; }
+.hero-try.ht-fade .ht-title, .hero-try.ht-fade pre { opacity: .25; }

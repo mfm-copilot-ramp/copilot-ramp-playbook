@@ -1657,6 +1657,31 @@
         L.push("");
       }
     }
+    if (connectors.length && wiredConnectors) {
+      L.push("## After import: make your tools work (bind a connection)");
+      L.push("A tool only runs once its connector has a **bound connection**. Until then the agent will call the");
+      L.push("tool and get a connection error (you'll see *\u201cnot connected\u201d* or *`Invalid organization URL 'null'`*");
+      L.push("in the test chat) — the tool wiring is fine, it just has no connection yet.");
+      L.push("");
+      L.push("- **Imported via the maker portal?** The **Connections** step above already bound them — nothing more to do.");
+      L.push("- **Imported with `pac solution import` or a pipeline?** Connections import **unbound**. Create one per");
+      L.push("  connector (**make.powerapps.com \u2192 Connections \u2192 + New connection**), bind it under **Solutions \u2192");
+      L.push("  this solution \u2192 Connection references**, then **re-publish**.");
+      L.push("- **One shared connection vs. per-user:** each tool's **Details \u2192 Authentication mode** defaults to");
+      L.push("  **User** (every end user signs in once). Switch a tool to **Maker** to use a **single shared");
+      L.push("  connection** for everyone \u2014 the lowest-config option for demos and internal agents.");
+      L.push("");
+      if (connectors.some(function (c) { return c.connector === "shared_commondataserviceforapps"; })) {
+        L.push("> **\u26a0 Microsoft Dataverse tools need one extra step.** The Dataverse connector resolves the target");
+        L.push("> **environment** from an internal default that Copilot Studio sets **only when a tool is added in the");
+        L.push("> portal** \u2014 a *solution-imported* Dataverse tool doesn't have it, so it fails with **`Invalid");
+        L.push("> organization URL 'null'`** even after you bind a connection. There is no environment field to fill in.");
+        L.push("> **Fix:** open the agent \u2192 **Tools**, **remove** each Microsoft Dataverse tool, then **re-add** it via");
+        L.push("> **Tools \u2192 Add a tool \u2192 Microsoft Dataverse \u2192 \u003caction\u003e** (adding it in the portal sets the");
+        L.push("> environment), and **Publish**. This quirk is Dataverse-only \u2014 other connectors don't need it.");
+        L.push("");
+      }
+    }
     if (unmapped.length) {
       L.push("## Actions to wire up after import");
       L.push("Your description mentioned systems that don't have a built-in starter action here. Add these");
@@ -1740,6 +1765,10 @@
       L.push("## Knowledge sources");
       L.push("One or more knowledge sources use a **placeholder** URL/site because your description didn't");
       L.push("include a specific link. Open Knowledge on the agent and point each source at your real content.");
+      L.push("");
+      L.push("> **Tip \u2014 skip this step next time:** paste the real link (e.g. your SharePoint site URL) straight");
+      L.push("> into your description in the Agent Builder and re-generate \u2014 it wires the source automatically, with");
+      L.push("> no placeholder to replace.");
       L.push("");
     }
     // Agent description + suggested prompts. We do NOT write these into the package
@@ -1863,6 +1892,10 @@
       var bySystem = c.bySystem && systems.indexOf(c.systemLabel) >= 0; // SP/Teams need action-y text, not just channel/knowledge
       if (byText || bySystem) pushAction(key);
     });
+    // User-added tools (Agent Builder): inject explicit CONNECTOR_ACTIONS keys the NL didn't
+    // detect. pushAction dedupes, and this runs BEFORE the unmapped calc so an added tool for a
+    // system no longer surfaces as "unmapped". Default (no addConnectors) is unchanged.
+    (opts.addConnectors || []).forEach(function (key) { if (CONNECTOR_ACTIONS[key]) pushAction(key); });
 
     // 2) Knowledge sources (free grounding; never adds a credit line).
     var knowledge = [];
@@ -1900,6 +1933,23 @@
 
     // 3c) Stable ids for knowledge sources so the review panel can address them.
     knowledge.forEach(function (k, i) { k.id = "k" + (i + 1); });
+    // User-supplied real URLs (Agent Builder inline field): replace a source's placeholder/site
+    // with the real address, keyed by knowledge id, so the exported source is ready to use with
+    // no post-import placeholder to fix. Only URL-addressable sources (SharePoint / public site)
+    // — Dataverse knowledge isn't a URL. Additive: no opts.knowledgeSites → behavior unchanged.
+    if (opts.knowledgeSites) {
+      knowledge.forEach(function (k) {
+        if (k.kind === "DataverseSearchSource") return;
+        var u = opts.knowledgeSites[k.id];
+        if (typeof u !== "string") return;
+        u = u.trim();
+        if (!u) return;
+        if (!/^https?:\/\//i.test(u)) u = "https://" + u;   // tolerate a bare host
+        k.kind = /sharepoint\.com/i.test(u) ? "SharePointSearchSource" : "PublicSiteSearchSource";
+        k.site = u;
+        k.placeholder = false;
+      });
+    }
 
     // 3d) Honor edits from the Quick review panel: drop excluded connectors,
     // knowledge sources, and read-capabilities so they leave the package AND the
@@ -1956,6 +2006,12 @@
         unmapped: unmapped.slice(),
         capabilities: capabilities.map(function (c) { return { id: c.id, behavior: c.behavior, tool: c.tool }; }),
         metadata: agentMeta,
+        // The exact instructions buildPackage would embed (absent an opts.instructions override),
+        // so a preview/editor shows — and can seed from — the SAME text the .zip will carry.
+        // Mirrors the two build call sites below so display == output across both experiences.
+        instructions: (opts.instructions && String(opts.instructions).trim()) || (useNewExperience
+          ? buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new", workIQ: false, skills: skillComps })
+          : buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, workIQ: workIqComps.length > 0 })),
         notices: shapeNotices(vars, experience),
         shapeFlags: { autonomous: VERIFIED_AUTONOMOUS_SHAPE, flow: VERIFIED_FLOW_SHAPE, contentTool: VERIFIED_CONTENT_TOOL_SHAPE, newExperience: VERIFIED_NEW_EXPERIENCE_SHAPE },
         workIQ: { requested: wantWorkIQ, wired: workIqComps.length > 0, gatedNewExperience: wantWorkIQ && useNewExperience, tools: workIqComps.map(function (w) { return w.modelDisplayName; }) },
@@ -1979,7 +2035,7 @@
       var newTools = (VERIFIED_NEW_CONNECTOR_TOOL_SHAPE && connectors.length) ? newExperienceTools(schema, connectors) : [];
       add("customizations.xml", customizationsXml(newTools));
       add("bots/" + schema + "/bot.xml", newBotXml(schema, name));
-      var newInstr = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new", workIQ: false, skills: skillComps });
+      var newInstr = (opts.instructions && String(opts.instructions).trim()) || buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, experience: "new", workIQ: false, skills: skillComps });
       add("bots/" + schema + "/configuration.json", newConfigJson(schema, newInstr, agentMeta.webBrowsing));
 
       // Connector tools (type 9) + shared connection-reference set (one `.cr.<connector>`
@@ -2024,7 +2080,7 @@
       // knowledge determined above, by their exact display names, and describe any
       // read capabilities to add in prose.
       var gptSchema = schema + ".gpt.default";
-      var instructions = buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, workIQ: workIqComps.length > 0 });
+      var instructions = (opts.instructions && String(opts.instructions).trim()) || buildInstructions(name, desc, { connectors: connectors, knowledge: knowledge, vars: vars, capabilities: capabilities, steps: steps, workIQ: workIqComps.length > 0 });
       add("botcomponents/" + gptSchema + "/data", gptComponentData(instructions, agentMeta));
       add("botcomponents/" + gptSchema + "/botcomponent.xml", botcomponentXml(gptSchema, 15, name));
 

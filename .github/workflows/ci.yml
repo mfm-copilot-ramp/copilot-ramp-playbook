@@ -60,6 +60,11 @@ jobs:
       - name: Run JavaScript estimator tests
         run: node tooling/run-js-tests.mjs   # gates on the estimator/cowork/portfolio smoke suites
 
+      - name: Verify Agent Builder handoff equivalence
+        # Proves a Quick-mode handoff, seeded into /build/ with no edits, produces a package
+        # whose content is identical to the Quick exporter's (normalized past per-call GUIDs).
+        run: node tooling/golden-exports/verify-handoff-equivalence.cjs
+
       - name: Build the site (strict)
         run: mkdocs build --strict   # --strict fails the build on broken internal links
 

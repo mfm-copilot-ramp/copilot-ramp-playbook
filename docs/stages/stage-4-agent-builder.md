@@ -129,6 +129,24 @@ Stand up an agent that answers the questions your team keeps asking you.
 
     <span class="rc-meta" data-time="20" data-roles="manager end-user"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Manager</span></span>
 
+-   **[Build a project status agent for your team](../walkthroughs/agent-builder-project-status-agent.md)**
+
+    Ground an agent on the plan and status docs so the team can ask "where are we?" — milestones, risks, owners.
+
+    <span class="rc-meta" data-time="20" data-roles="maker champion"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Build a team policy helper agent](../walkthroughs/agent-builder-policy-helper-agent.md)**
+
+    Turn your team's policy and process docs into a self-serve helper that answers and cites the source.
+
+    <span class="rc-meta" data-time="20" data-roles="maker champion"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Build an expense-policy helper agent](../walkthroughs/agent-builder-expense-helper-agent.md)**
+
+    Answer what's claimable, the limits, and how to submit — grounded on the expense and travel policy.
+
+    <span class="rc-meta" data-time="20" data-roles="maker champion"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
 </div>
 
 </section>
@@ -163,6 +181,24 @@ Ground a personal-scope agent on your own files and mail — value with an audie
     Turn every Friday demo into the same tidy recap — shipped, decisions, next, blockers — in one click.
 
     <span class="rc-meta" data-time="20" data-roles="maker end-user developer"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Build a personal inbox summariser agent](../walkthroughs/agent-builder-inbox-summariser-agent.md)**
+
+    Ground an agent on your mail for a daily digest — what needs a reply, what's FYI, and what can wait.
+
+    <span class="rc-meta" data-time="20" data-roles="maker end-user"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Build a reading assistant over your saved articles](../walkthroughs/agent-builder-reading-assistant-agent.md)**
+
+    Turn your saved articles and PDFs into an assistant you can ask — cited answers and themes across your reading.
+
+    <span class="rc-meta" data-time="20" data-roles="maker end-user"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+-   **[Build a daily stand-up note-taker agent](../walkthroughs/agent-builder-standup-agent.md)**
+
+    Turn your scattered updates into a consistent stand-up format — yesterday, today, blockers — to paste into Teams.
+
+    <span class="rc-meta" data-time="20" data-roles="maker end-user"><span class="rc-chip rc-chip-time">⏱ 20 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
 
 </div>
 
