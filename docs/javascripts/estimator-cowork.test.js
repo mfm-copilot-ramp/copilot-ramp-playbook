@@ -140,5 +140,49 @@ ok("importToSeed has creditsLow", impSeed.creditsLow != null, impSeed.creditsLow
 ok("importToSeed has creditsHigh", impSeed.creditsHigh != null, impSeed.creditsHigh);
 ok("importToSeed bounds bracket mean", impSeed.creditsLow <= impSeed.creditsPerActiveUser && impSeed.creditsPerActiveUser <= impSeed.creditsHigh, [impSeed.creditsLow, impSeed.creditsPerActiveUser, impSeed.creditsHigh]);
 
+// 19. Consumption export (new per-user M365 admin export) — license, caps, idle rows
+var consumptionCsv =
+  "Display Name,User Principal Name,Monthly credit limit,Monthly credits used,User ID,Microsoft 365 Copilot license,Last activity date,Session Count,% Used\n" +
+  "Colin Ballinger,colinb@x.com,50000,4936,c-1,Yes,2026-09-10T11:09:08.487,3,9.87\n" +
+  "Microsoft Administrator,admin@x.com,100000,2353,a-1,Yes,2026-09-10T11:11:35.36,2,2.35\n" +
+  "Idle Ivan,idle@x.com,50000,0,i-1,Yes,,0,0\n" +                       // licensed but never used → provisioned-idle
+  "Connie Contractor,connie@x.com,50000,999,x-1,No,2026-09-01,1,2\n" +  // unlicensed → excluded
+  "Power Paula,paula@x.com,50000,48000,p-1,Yes,2026-09-09,40,96\n";     // pinned near cap → cap-limited
+var ce = C.parseConsumptionExport(consumptionCsv);
+ok("consumption import ok", ce.ok === true, ce.ok);
+ok("consumption source label", ce.source === "consumption-export", ce.source);
+ok("consumption licensed users = 4 (excludes unlicensed)", ce.licensedUsers === 4, ce.licensedUsers);
+ok("consumption active users = 3 (used>0 & licensed)", ce.activeUsers === 3, ce.activeUsers);
+ok("consumption provisioned-idle = 1", ce.provisionedInactive === 1, ce.provisionedInactive);
+ok("consumption cap-limited count = 1", ce.capLimitedCount === 1, ce.capLimitedCount);
+ok("consumption cap-limited share ~ 1/3", near(ce.capLimitedShare, 1 / 3, 0.01), ce.capLimitedShare);
+ok("consumption total credits = 55289", ce.totalCredits === 55289, ce.totalCredits);
+ok("consumption avg credits/active = 55289/3", near(ce.avgCreditsPerActiveUser, 55289 / 3, 0.1), ce.avgCreditsPerActiveUser);
+ok("consumption median = 4936", ce.medianCreditsPerActiveUser === 4936, ce.medianCreditsPerActiveUser);
+ok("consumption cap-aware p90 > raw p90 (throttle widens liberal bound)", ce.capAwareP90 > ce.distribution.p90, [ce.capAwareP90, ce.distribution.p90]);
+
+// 20. importToSeed auto-derives licensed population from the consumption export
+var ceSeed = C.importToSeed(ce, {});
+ok("consumption seed auto licensed = 4", ceSeed.licensedUsers === 4, ceSeed.licensedUsers);
+ok("consumption seed active = 3", ceSeed.measuredActiveUsers === 3, ceSeed.measuredActiveUsers);
+ok("consumption seed mau = 75% (3/4)", near(ceSeed.mauPct, 75, 0.01), ceSeed.mauPct);
+ok("consumption seed measured credits/user", ceSeed.creditsPerActiveUser === Math.round(ce.avgCreditsPerActiveUser), ceSeed.creditsPerActiveUser);
+ok("consumption seed flags cap-limited", ceSeed.capLimited === true, ceSeed.capLimited);
+ok("consumption seed high = cap-aware p90", ceSeed.creditsHigh === Math.round(ce.capAwareP90), [ceSeed.creditsHigh, Math.round(ce.capAwareP90)]);
+ok("consumption seed low = median (≤ mean)", ceSeed.creditsLow === Math.min(4936, ceSeed.creditsPerActiveUser), ceSeed.creditsLow);
+ok("consumption seed bounds bracket mean", ceSeed.creditsLow <= ceSeed.creditsPerActiveUser && ceSeed.creditsPerActiveUser <= ceSeed.creditsHigh, [ceSeed.creditsLow, ceSeed.creditsPerActiveUser, ceSeed.creditsHigh]);
+
+// 21. Explicit licensed override wins over the export-derived population
+var ceSeed2 = C.importToSeed(ce, { licensedUsers: 100 });
+ok("consumption seed honors explicit licensed", ceSeed2.licensedUsers === 100, ceSeed2.licensedUsers);
+ok("consumption seed mau on override = 3% (3/100)", near(ceSeed2.mauPct, 3, 0.01), ceSeed2.mauPct);
+
+// 22. Export with no license column → every row counts as licensed (graceful fallback)
+var noLicCsv = "Display Name,Monthly credit limit,Monthly credits used,Session Count,% Used\n" +
+  "A,50000,1000,3,2\n" + "B,50000,0,0,0\n";
+var ceNoLic = C.parseConsumptionExport(noLicCsv);
+ok("consumption no-license col → licensed = all rows", ceNoLic.licensedUsers === 2, ceNoLic.licensedUsers);
+ok("consumption no-license col → active = 1", ceNoLic.activeUsers === 1, ceNoLic.activeUsers);
+
 console.log("\n" + (fails === 0 ? "ALL PASSED" : (fails + " FAILED")));
 process.exit(fails === 0 ? 0 : 1);

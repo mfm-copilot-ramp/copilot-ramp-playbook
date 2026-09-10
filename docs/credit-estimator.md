@@ -1807,13 +1807,13 @@ recalc();
 
 <!-- ── COWORK · IMPORT (from M365 admin center) ── -->
 <div class="mode-panel em-hidden" id="cw-panel-import">
-  <p class="cw-intro">Start from your tenant's <strong>real numbers</strong>. In the Microsoft 365 admin center → <em>Reports → Usage → Microsoft 365 Copilot</em>, export the <strong>Credits</strong> report (measured credits per user) or the <strong>Copilot Chat usage</strong> report (active users &amp; prompts). Drop the CSV below — or paste the four dashboard totals, or a screenshot. Everything is parsed in your browser; nothing is uploaded.</p>
+  <p class="cw-intro">Start from your tenant's <strong>real numbers</strong>. In the Microsoft 365 admin center &rarr; <em>Reports &rarr; Usage &rarr; Microsoft 365 Copilot</em>, export the <strong>Consumption</strong> report (per-user monthly credits used &amp; limit, license, sessions) &mdash; or the older <strong>Credits</strong> report (measured credits per user) or <strong>Copilot Chat usage</strong> report (active users &amp; prompts). Drop the CSV below &mdash; or paste the four dashboard totals, or a screenshot. Everything is parsed in your browser; nothing is uploaded.</p>
 
   <div class="section-label">1 &middot; Bring in your data</div>
   <div class="cw-drop" id="cw-drop">
     <input type="file" id="cw-file" accept=".csv,image/*" class="em-visually-hidden" onchange="cwHandleFile(this.files &amp;&amp; this.files[0])">
-    <p><strong>Drop a CSV export</strong> (Credits or Chat usage) or a dashboard screenshot here, or <button type="button" class="cw-linkbtn" onclick="document.getElementById('cw-file').click()">choose a file</button>.</p>
-    <p class="cw-sub" id="cw-drop-status">CSV gives the richest result — per-user rows become measured credits/user and power-user outlier flags.</p>
+    <p><strong>Drop a CSV export</strong> (Consumption, Credits, or Chat usage) or a dashboard screenshot here, or <button type="button" class="cw-linkbtn" onclick="document.getElementById('cw-file').click()">choose a file</button>.</p>
+    <p class="cw-sub" id="cw-drop-status">CSV gives the richest result &mdash; per-user rows become measured credits/user with power-user outlier and credit-cap flags. A Consumption export also auto-detects your licensed population.</p>
   </div>
   <div id="cw-shot-preview" class="em-hidden"></div>
   <button type="button" id="cw-ocr-btn" class="em-btn secondary em-hidden" style="margin-top:0.5rem" onclick="cwTryOcr()">Try auto-read (loads an OCR library)</button>
@@ -1831,7 +1831,7 @@ recalc();
 
   <div class="section-label">2 &middot; Licensed users in scope</div>
   <div class="cw-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,260px))">
-    <div class="cw-field"><label for="cw-imp-licensed">Licensed users</label><input type="number" id="cw-imp-licensed" min="0" step="1" value="1000" oninput="renderImportSummary()"><span class="cw-sub">Admin reports only cover active/metered users. Enter the licensed population so we can compute active-usage %.</span></div>
+    <div class="cw-field"><label for="cw-imp-licensed">Licensed users</label><input type="number" id="cw-imp-licensed" min="0" step="1" value="1000" oninput="renderImportSummary()"><span class="cw-sub">Auto-filled from a Consumption export's license column. For Credits/Chat reports (active users only), enter the licensed population so we can compute active-usage %.</span></div>
   </div>
 
   <div class="section-label">3 &middot; What we found</div>
@@ -1880,7 +1880,7 @@ Reference material — the credit billing rules and a full how-to for every mode
        ??? note "Copilot Cowork — usage-based billing"
            **Microsoft 365 Copilot Chat** meters agent / Cowork usage as **Copilot Credits** through the same Copilot Studio pay-as-you-go meter ([learn.microsoft.com](https://learn.microsoft.com/en-us/microsoft-365/copilot/pay-as-you-go/meters)). On Microsoft 365 surfaces, users **with** an M365 Copilot license are covered by that license; **unlicensed** users on metered agents consume credits (pay-as-you-go). You can pay-as-you-go at the per-credit rate, buy **message packs**, or commit with a **pre-purchase**.
 
-           Unlike Studio, you don't inventory components for Cowork — you forecast a **population**: *licensed users × monthly active-usage % × avg credits per active user*. Ground it in your tenant's real numbers with the admin center's **[Copilot Chat usage report](https://learn.microsoft.com/microsoft-365/admin/activity-reports/microsoft-copilot-usage)** (active users, prompts/user) and **[Copilot Credits report](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-credits)** (measured credits/user); the **Import from M365** mode reads either CSV export. The active-usage % and credits/user *defaults* in this estimator are neutral planning anchors — **not** official Microsoft figures — so adjust them to your data.
+           Unlike Studio, you don't inventory components for Cowork — you forecast a **population**: *licensed users × monthly active-usage % × avg credits per active user*. Ground it in your tenant's real numbers with the admin center's **[Copilot Credits / Consumption report](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-credits)** (per-user measured credits, monthly limit &amp; license) or the **[Copilot Chat usage report](https://learn.microsoft.com/microsoft-365/admin/activity-reports/microsoft-copilot-usage)** (active users, prompts/user); the **Import from M365** mode reads any of these CSV exports. The per-user Consumption export additionally auto-detects your **licensed population**, separates **active vs. provisioned-idle** users, and flags anyone **pinned at their credit cap** (whose usage understates true demand, so the average is treated as a floor). The active-usage % and credits/user *defaults* in this estimator are neutral planning anchors — **not** official Microsoft figures — so adjust them to your data.
 
 ??? note "New here? How to use this estimator"
 
