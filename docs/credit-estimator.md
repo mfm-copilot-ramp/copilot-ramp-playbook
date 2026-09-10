@@ -1611,9 +1611,20 @@ recalc();
 #estimator-cowork .cw-field { display: flex; flex-direction: column; gap: 0.3rem; }
 #estimator-cowork .cw-field label { font-size: 0.8rem; font-weight: 600; }
 #estimator-cowork .cw-field .cw-sub { font-size: 0.72rem; color: var(--md-default-fg-color--lighter); font-weight: 400; }
-#estimator-cowork .cw-field input[type="number"] {
+#estimator-cowork .cw-field input[type="number"],
+#estimator-cowork .cw-field select {
   font: inherit; padding: 0.45rem 0.55rem; border: 1px solid var(--md-default-fg-color--lighter);
   border-radius: 6px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); width: 100%;
+}
+#estimator-cowork .cw-field select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer; padding-right: 1.9rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23888' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.6rem center; background-size: 0.7rem;
+}
+#estimator-cowork .cw-field input[type="number"]:focus,
+#estimator-cowork .cw-field select:focus {
+  outline: none; border-color: var(--md-primary-fg-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-primary-fg-color) 22%, transparent);
 }
 #estimator-cowork .cw-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.15rem; }
 #estimator-cowork .cw-chip {
