@@ -193,7 +193,7 @@
       licensePricePerUser: val("cw-d-floor-price"),
       budgetCap: val("cw-d-budget"),
       rampGrowthPct: val("cw-d-growth"),
-      forecastMonths: 6
+      forecastMonths: val("cw-d-months") || 12
     };
   }
 
@@ -291,14 +291,20 @@
     var C = window.CoworkEstimator, wrap = el("cw-forecast"); if (!C || !wrap) return;
     var fc = C.forecast({ monthlyCredits: totalCredits, licensedUsers: licensed, global: g });
     var max = fc.rows.reduce(function (m, r) { return Math.max(m, r.coworkSpend); }, 0) || 1;
+    // Only show the "+ license cost" column when the optional Copilot license floor is
+    // enabled and adds a non-zero amount — otherwise it just duplicates Cowork spend.
+    var showLic = (fc.totalWithLicenses - fc.totalCoworkSpend) > 0.5;
+    var licTh = showLic ? "<th>Total incl. licenses</th>" : "";
     var body = fc.rows.map(function (r) {
       var w = Math.round(r.coworkSpend / max * 100);
-      return "<tr><td>" + r.label + "</td><td>" + fmt(r.credits) + "</td><td>" + money(r.coworkSpend) + "</td><td>" +
-        money(r.totalWithLicenses) + '</td><td class="cw-bar-cell"><span class="cw-bar" style="width:' + w + '%"></span></td></tr>';
+      var licTd = showLic ? "<td>" + money(r.totalWithLicenses) + "</td>" : "";
+      return "<tr><td>" + r.label + "</td><td>" + fmt(r.credits) + "</td><td>" + money(r.coworkSpend) + "</td>" +
+        licTd + '<td class="cw-bar-cell"><span class="cw-bar" style="width:' + w + '%"></span></td></tr>';
     }).join("");
-    wrap.innerHTML = '<table class="cw-fc"><thead><tr><th>Month</th><th>Credits</th><th>Cowork spend</th><th>Total w/ licenses</th><th>Trend</th></tr></thead><tbody>' +
-      body + "</tbody><tfoot><tr><td>6-mo total</td><td></td><td>" + money(fc.totalCoworkSpend) + "</td><td>" + money(fc.totalWithLicenses) + "</td><td></td></tr></tfoot></table>" +
-      '<p class="cw-note">Peak month \u2248 ' + money(fc.peakMonthlySpend) + ". M1 = today\u2019s modeled spend; each month grows by the growth rate.</p>";
+    var licFoot = showLic ? "<td>" + money(fc.totalWithLicenses) + "</td>" : "";
+    wrap.innerHTML = '<table class="cw-fc"><thead><tr><th>Month</th><th>Credits</th><th>Cowork spend</th>' + licTh + '<th>Trend</th></tr></thead><tbody>' +
+      body + "</tbody><tfoot><tr><td>" + fc.months + "-mo total</td><td></td><td>" + money(fc.totalCoworkSpend) + "</td>" + licFoot + "<td></td></tr></tfoot></table>" +
+      '<p class="cw-note">Peak month \u2248 ' + money(fc.peakMonthlySpend) + ". M1 = today\u2019s modeled spend; each month grows by the growth rate." + (showLic ? " \u201cIncl. licenses\u201d adds the Copilot license cost on top of Cowork credit spend." : "") + "</p>";
   }
 
   // ── Feed-forward: Quick <-> Detailed (mirrors Studio seedDetailed pattern) ──
