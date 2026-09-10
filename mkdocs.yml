@@ -17,7 +17,6 @@ site_author: Copilot Ramp Playbook contributors
 site_url: https://mfm-copilot-ramp.github.io/copilot-ramp-playbook/
 repo_url: https://github.com/mfm-copilot-ramp/copilot-ramp-playbook
 repo_name: mfm-copilot-ramp/copilot-ramp-playbook
-edit_uri: edit/main/docs/
 
 # Markdown source lives in docs/ (walkthroughs, catalog, resources, stage pages).
 docs_dir: docs
@@ -45,7 +44,6 @@ theme:
     - search.highlight
     - search.share
     - content.code.copy          # copy button on the prompt code blocks
-    - content.action.edit
   palette:
     # Light mode (default) with a toggle to dark
     - media: "(prefers-color-scheme: light)"
