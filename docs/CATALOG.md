@@ -478,6 +478,11 @@ Give employees instant answers on compliance policies and legal processes — wi
 
 ---
 
+### Share Copilot Studio agent analytics without edit rights → walkthrough
+**For:** maker, it-admin · `status: walkthrough`
+Use the Analytics Viewer role to give stakeholders read-only access to agent performance data while keeping edit and publish rights locked down.
+→ Fully written: `walkthroughs/studio-govern-your-copilot-studio-agents-with-the-analytics-viewer-.md`
+
 ## Stage 7 · Foundry
 _The pro-code frontier. Build only what the lower stages couldn't — with developers, in Azure._
 
