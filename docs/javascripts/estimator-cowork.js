@@ -38,7 +38,7 @@
     licensePricePerUser: 30,     // $ / licensed user / month (adjustable)
     budgetCap: 0,                // 0 = no cap
     rampGrowthPct: 7,            // monthly adoption growth used by the forecast
-    forecastMonths: 6
+    forecastMonths: 12
   };
 
   // Benchmark chips for the MAU control (shown UNATTRIBUTED in the UI).

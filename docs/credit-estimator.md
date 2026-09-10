@@ -1793,9 +1793,10 @@ recalc();
   <p class="cw-note" id="cw-d-total-note" style="margin-top:0.6rem"></p>
   <div class="cw-range-out em-hidden" id="cw-d-range-out"></div>
 
-  <div class="section-label">6-month adoption forecast</div>
+  <div class="section-label">Adoption forecast</div>
   <div class="cw-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,220px))">
     <div class="cw-field"><label for="cw-d-growth">Monthly growth %</label><input type="number" id="cw-d-growth" min="0" max="100" step="1" value="7" oninput="recomputeDetailed()"><span class="cw-sub">Adoption ramp, month over month.</span></div>
+    <div class="cw-field"><label for="cw-d-months">Forecast horizon</label><select id="cw-d-months" onchange="recomputeDetailed()"><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option></select><span class="cw-sub">How far to project the ramp.</span></div>
   </div>
   <div id="cw-forecast"></div>
 

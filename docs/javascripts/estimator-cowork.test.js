@@ -48,6 +48,11 @@ ok("forecast M1 = base 500000", near(fc.rows[0].credits, 500000, 1), fc.rows[0].
 ok("forecast M6 = 500000×1.07^5", near(fc.rows[5].credits, 500000 * Math.pow(1.07, 5), 1), fc.rows[5].credits);
 ok("forecast peak = M6 spend", near(fc.peakMonthlySpend, fc.rows[5].coworkSpend, 0.01), fc.peakMonthlySpend);
 
+// 6b. Forecast default horizon is 12 months
+var fcDef = C.forecast({ monthlyCredits: 500000, licensedUsers: 1000 });
+ok("forecast default = 12 months", fcDef.rows.length === 12, fcDef.rows.length);
+ok("forecast honors explicit 24 months", C.forecast({ monthlyCredits: 500000, global: { forecastMonths: 24 } }).rows.length === 24, "ok");
+
 // 7. Credits report CSV import + distribution/outliers
 var creditsCsv = "Username,Display name,Past 7 days,Past 30 days,Last activity date\n" +
   "a@x.com,A,100,1000,2026-08-01\n" +
