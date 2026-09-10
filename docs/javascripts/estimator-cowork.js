@@ -406,6 +406,75 @@
     };
   }
 
+  // M365 Copilot Consumption export CSV (per-user credits) → measured credits/active
+  // user, license-derived population, cap-aware liberal bound. This is the newer admin
+  // export whose columns are: Display Name, User Principal Name, Monthly credit limit,
+  // Monthly credits used, User ID, Microsoft 365 Copilot license, Last activity date,
+  // Session Count, % Used. Unlike the rolling "Credits report", it carries the per-user
+  // cap and license flag, so we can (a) auto-derive the licensed population, (b) split
+  // active vs. provisioned-idle, and (c) flag users pinned at their cap — whose recorded
+  // usage UNDERSTATES true demand, making the raw average a floor.
+  var CAP_PCT = 95; // % of limit at/above which a user is treated as cap-limited
+  function parseConsumptionExport(text) {
+    var rows = parseCsv(text);
+    if (rows.length < 2) return { ok: false, error: "No data rows found.", rows: [] };
+    var header = rows[0];
+    var iUsed = headerIndex(header, [/credits?\s*used/i]);
+    var iLimit = headerIndex(header, [/credit\s*limit/i, /monthly\s*limit/i]);
+    var iLic = headerIndex(header, [/copilot\s*license/i, /licen[sc]ed?\b/i]);
+    var iAct = headerIndex(header, [/last\s*activity/i]);
+    var iSess = headerIndex(header, [/session\s*count/i, /sessions?/i]);
+    var iPct = headerIndex(header, [/%\s*used/i, /percent\s*used/i]);
+    var iUser = headerIndex(header, [/user\s*principal|display\s*name|user\s*name|username|user/i]);
+    if (iUsed < 0) return { ok: false, error: "Couldn't find a 'Monthly credits used' column.", rows: [] };
+    function cell(row, idx) { return idx >= 0 ? String(row[idx] == null ? "" : row[idx]) : ""; }
+    function n(row, idx) { return num(cell(row, idx).replace(/[$,%\s]/g, ""), 0); }
+    var users = [], licensedUsers = 0, hasLicCol = iLic >= 0;
+    for (var r = 1; r < rows.length; r++) {
+      var used = n(rows[r], iUsed);
+      var limit = iLimit >= 0 ? n(rows[r], iLimit) : 0;
+      var pct = iPct >= 0 ? n(rows[r], iPct) : (limit > 0 ? used / limit * 100 : 0);
+      var licVal = cell(rows[r], iLic).trim().toLowerCase();
+      var licensed = hasLicCol ? /^(y|true|1)/.test(licVal) : true;
+      var sessions = iSess >= 0 ? n(rows[r], iSess) : null;
+      var activityRaw = cell(rows[r], iAct).trim();
+      var capped = (limit > 0 && used >= limit) || (pct >= CAP_PCT && (used > 0 || limit > 0));
+      if (licensed) licensedUsers++;
+      users.push({
+        name: iUser >= 0 ? rows[r][iUser] : ("user " + r),
+        credits: used, limit: limit, pctUsed: round(pct), licensed: licensed,
+        sessions: sessions, lastActivity: activityRaw || null, capped: capped
+      });
+    }
+    if (!hasLicCol) licensedUsers = users.length;
+    // Active = licensed users who actually consumed credits this period.
+    var active = users.filter(function (u) { return u.licensed && u.credits > 0; });
+    var provisionedInactive = Math.max(0, licensedUsers - active.length);
+    var dist = distribution(active.map(function (u) { return u.credits; }));
+    // Cap-aware liberal bound: for capped users, substitute their LIMIT (true demand is
+    // at least the cap) before taking p90, so throttled tenants don't under-forecast.
+    var capAdjusted = active.map(function (u) { return u.capped && u.limit > 0 ? Math.max(u.credits, u.limit) : u.credits; });
+    var distCapAware = distribution(capAdjusted);
+    var cappedUsers = active.filter(function (u) { return u.capped; });
+    return {
+      ok: true,
+      source: "consumption-export",
+      users: users,
+      licensedUsers: licensedUsers,
+      hasLicenseColumn: hasLicCol,
+      hasLimitColumn: iLimit >= 0,
+      activeUsers: active.length,
+      provisionedInactive: provisionedInactive,
+      totalCredits: dist.sum,
+      avgCreditsPerActiveUser: active.length ? dist.sum / active.length : 0,
+      medianCreditsPerActiveUser: dist.median,
+      capLimitedCount: cappedUsers.length,
+      capLimitedShare: active.length ? cappedUsers.length / active.length : 0,
+      capAwareP90: distCapAware.p90,
+      distribution: dist
+    };
+  }
+
   // Copilot Chat usage report CSV → active users, prompts/user, active days.
   function parseChatUsageCsv(text) {
     var rows = parseCsv(text);
@@ -466,8 +535,13 @@
   function importToSeed(imported, opts) {
     opts = opts || {};
     var licensed = Math.max(0, num(opts.licensedUsers, 0));
+    // Consumption export carries its own license-derived population — use it when the
+    // caller didn't supply one.
+    if (licensed <= 0 && imported && imported.source === "consumption-export") {
+      licensed = Math.max(0, num(imported.licensedUsers, 0));
+    }
     var out = { name: opts.name || "Imported (M365)", licensedUsers: licensed };
-    if (imported && imported.source === "credits-report") {
+    if (imported && (imported.source === "credits-report" || imported.source === "consumption-export")) {
       out.measuredActiveUsers = imported.activeUsers;
       out.creditsPerActiveUser = round(imported.avgCreditsPerActiveUser);
       // If we know the licensed pop, MAU = measured active ÷ licensed.
@@ -478,7 +552,15 @@
       var d = imported.distribution || {};
       var mean = round(imported.avgCreditsPerActiveUser);
       if (d.median != null) out.creditsLow = Math.min(round(d.median), mean);
-      if (d.p90 != null) out.creditsHigh = Math.max(round(d.p90), mean);
+      // For the consumption export, widen the liberal bound to the cap-aware p90 so a
+      // cap-throttled tenant isn't under-forecast; carry the cap flag for messaging.
+      var hi = d.p90 != null ? round(d.p90) : mean;
+      if (imported.source === "consumption-export" && imported.capAwareP90 != null) {
+        hi = Math.max(hi, round(imported.capAwareP90));
+        out.capLimitedShare = imported.capLimitedShare;
+        out.capLimited = imported.capLimitedCount > 0;
+      }
+      if (d.p90 != null) out.creditsHigh = Math.max(hi, mean);
     } else if (imported && imported.source === "chat-usage") {
       out.measuredActiveUsers = imported.activeUsers;
       if (licensed > 0) out.mauPct = clampPct(imported.activeUsers / licensed * 100);
@@ -502,6 +584,7 @@
     seedDetailedFromQuick: seedDetailedFromQuick, seedCohortFromRow: seedCohortFromRow,
     parseCsv: parseCsv, distribution: distribution,
     parseCreditsReportCsv: parseCreditsReportCsv, parseChatUsageCsv: parseChatUsageCsv,
+    parseConsumptionExport: parseConsumptionExport,
     unsupportedReportHint: unsupportedReportHint,
     parseAggregate: parseAggregate, importToSeed: importToSeed
   };

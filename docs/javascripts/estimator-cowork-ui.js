@@ -98,7 +98,10 @@
       if (t) { t.classList.toggle("est-tab--active", m === mode); t.setAttribute("aria-selected", String(m === mode)); }
     });
     if (mode === "quick") cwQuickCalc();
-    if (mode === "detailed") { if (!cwState.cohorts) seedDefaultCohorts(); recomputeDetailed(); }
+    if (mode === "detailed") {
+      if (!cwState.cohorts) { if (!applyImportToDetailed()) seedDefaultCohorts(); }
+      recomputeDetailed();
+    }
   }
 
   // ── MAU benchmark chips ─────────────────────────────────────────────────────
@@ -414,7 +417,9 @@
 
   // ── M365 Import ─────────────────────────────────────────────────────────────
   function sourceLabel(src) {
-    return src === "credits-report" ? "Credits report" : src === "chat-usage" ? "Copilot Chat usage report" : "pasted totals";
+    return src === "consumption-export" ? "Consumption export"
+      : src === "credits-report" ? "Credits report"
+      : src === "chat-usage" ? "Copilot Chat usage report" : "pasted totals";
   }
   function importStatus(m) { setText("cw-drop-status", m); }
   function enableSend(on) { var b = el("cw-import-send"); if (b) b.disabled = !on; }
@@ -422,6 +427,12 @@
   function detectAndParseCsv(text) {
     var C = window.CoworkEstimator;
     var head = (text.split(/\r?\n/)[0] || "").toLowerCase();
+    // Newer per-user Consumption export: has "credits used" alongside a per-user limit,
+    // license flag, or session count. Route it to the license/cap-aware parser first.
+    if (/credits?\s*used/.test(head) && (/credit\s*limit/.test(head) || /session\s*count/.test(head) || /copilot\s*license/.test(head) || /%\s*used/.test(head))) {
+      var ceRes = C.parseConsumptionExport(text);
+      if (ceRes.ok) return ceRes;
+    }
     if (/prompt/.test(head) && !/past\s*30|credits/.test(head)) return C.parseChatUsageCsv(text);
     if (/past\s*30|credits/.test(head)) return C.parseCreditsReportCsv(text);
     var hint = C.unsupportedReportHint && C.unsupportedReportHint(text);
@@ -438,6 +449,12 @@
         var res = detectAndParseCsv(text);
         if (!res.ok) { importStatus(res.error || "Couldn't parse that CSV."); enableSend(false); return; }
         cwLastImport = res;
+        // The consumption export knows the licensed population — pre-fill it so the user
+        // doesn't have to, unless they've already typed a different number.
+        if (res.source === "consumption-export" && res.licensedUsers > 0) {
+          var lf = el("cw-imp-licensed");
+          if (lf && (lf.value === "" || lf.value === "1000")) lf.value = res.licensedUsers;
+        }
         importStatus("Loaded " + file.name + " — detected the " + sourceLabel(res.source) + ".");
         renderImportSummary(); enableSend(true);
       }).catch(function () { importStatus("Couldn't read the file."); });
@@ -471,7 +488,26 @@
     var active = r.activeUsers || 0;
     var mauLine = licensed > 0 ? " At " + fmt(licensed) + " licensed \u2192 active usage \u2248 <strong>" + Math.round(active / licensed * 100) + "%</strong>." : "";
     var h = "";
-    if (r.source === "credits-report") {
+    if (r.source === "consumption-export") {
+      var cd = r.distribution;
+      var cmean = Math.round(r.avgCreditsPerActiveUser);
+      var cmed = Math.min(Math.round(r.medianCreditsPerActiveUser), cmean);
+      var chi = Math.max(Math.round(r.capAwareP90 != null ? r.capAwareP90 : cd.p90), cmean);
+      var licNote = r.hasLicenseColumn
+        ? "<strong>" + fmt(r.licensedUsers) + "</strong> licensed (auto-detected)"
+        : "<strong>" + fmt(r.licensedUsers) + "</strong> users (no license column — treated all as licensed)";
+      var actPct = r.licensedUsers > 0 ? " \u2192 active usage \u2248 <strong>" + Math.round(r.activeUsers / r.licensedUsers * 100) + "%</strong>" : "";
+      h = "<p><strong>Consumption export</strong> \u2014 " + licNote + ", <strong>" + fmt(r.activeUsers) + "</strong> active" + actPct +
+        (r.provisionedInactive > 0 ? " (" + fmt(r.provisionedInactive) + " licensed but idle)" : "") + ".</p><ul>" +
+        "<li>Avg credits / active user / mo: <strong>" + fmt(cmean) + "</strong> (median " + fmt(Math.round(r.medianCreditsPerActiveUser)) + ")</li>" +
+        "<li>Distribution: p90 " + fmt(Math.round(cd.p90)) + " \u00b7 max " + fmt(Math.round(cd.max)) + "</li>";
+      if (r.capLimitedCount > 0) {
+        h += "<li><strong>\u26a0 " + fmt(r.capLimitedCount) + " user" + (r.capLimitedCount === 1 ? "" : "s") +
+          " pinned at their credit cap</strong> (" + Math.round(r.capLimitedShare * 100) + "% of active) \u2014 their true demand is throttled, so treat the average as a <em>floor</em>. The liberal bound uses their cap.</li>";
+      }
+      h += "<li>Power-user outliers (&gt;3\u00d7 median): <strong>" + cd.outliers.length + "</strong>" + (cd.outliers.length ? " \u2014 they skew the average; consider a separate cohort." : "") + "</li>" +
+        "<li><strong>Data-driven range:</strong> conservative " + fmt(cmed) + " (median) \u2192 expected " + fmt(cmean) + " (mean) \u2192 liberal " + fmt(chi) + (r.capLimitedCount > 0 ? " (cap-aware p90)" : " (p90)") + ". <em>Send to Detailed</em> pre-fills this range.</li></ul>";
+    } else if (r.source === "credits-report") {
       var d = r.distribution;
       var mean = Math.round(r.avgCreditsPerActiveUser);
       var med = Math.min(Math.round(r.medianCreditsPerActiveUser), mean);
@@ -490,7 +526,16 @@
   }
 
   function cwImportToDetailed() {
-    var C = window.CoworkEstimator; if (!C || !cwLastImport) return;
+    if (applyImportToDetailed()) setCoworkMode("detailed");
+  }
+
+  // Builds the Detailed cohort(s) from the last M365 import and shows the origin
+  // banner, WITHOUT switching panels. Returns true if an import was applied, false if
+  // there was nothing to apply. Called both by the "Send to Detailed" button and by
+  // setCoworkMode() when the user switches to the Detailed tab with a pending import —
+  // so imported data carries forward either way.
+  function applyImportToDetailed() {
+    var C = window.CoworkEstimator; if (!C || !cwLastImport) return false;
     var licensed = parseFloat(val("cw-imp-licensed")) || 0;
     var seed = C.importToSeed(cwLastImport, { licensedUsers: licensed, name: "Imported \u2014 " + sourceLabel(cwLastImport.source) });
     var cohort = {
@@ -503,8 +548,10 @@
     if (dataDriven) { cohort.creditsLow = seed.creditsLow; cohort.creditsHigh = seed.creditsHigh; }
     cwState.cohorts = [cohort];
     cwState.origin = { kind: "import", source: cwLastImport.source };
-    var measured = cwLastImport.source === "credits-report"
+    var measured = (cwLastImport.source === "credits-report" || cwLastImport.source === "consumption-export")
       ? "Using your measured " + fmt(cohort.creditsPerActiveUser) + " credits/user. "
+      + (cwLastImport.source === "consumption-export" && cwLastImport.capLimitedCount > 0
+          ? "\u26a0 " + fmt(cwLastImport.capLimitedCount) + " user(s) are at their credit cap, so this is a floor. " : "")
       : "No measured credits in this report \u2014 seeded the planning default; adjust as needed. ";
     var mau = licensed > 0 ? "Active usage \u2248 " + cohort.mauPct + "%. " : "Enter licensed users for a % \u2014 using the measured active count as the population. ";
     var rangeMsg = "";
@@ -515,7 +562,7 @@
     }
     renderCohorts();
     showOrigin("Imported from your M365 " + sourceLabel(cwLastImport.source) + ". " + measured + mau + rangeMsg + "Split or tune the cohort below.", "import");
-    setCoworkMode("detailed");
+    return true;
   }
 
   // Optional best-effort OCR (loads Tesseract.js on demand; image stays in the browser).
