@@ -139,13 +139,20 @@ def generate_walkthrough(workitem: dict, retrieval_date: str) -> tuple[str, str,
     title = workitem.get("title", "").strip()
     # Clean title from issue prefixes
     title = re.sub(r"^[📡🔄]\s*(New|Changed):\s*", "", title).strip()
+    title = re.sub(r"^\[intel:[^\]]+\]\s*", "", title, flags=re.IGNORECASE).strip()
+    if not title:
+        raise ValueError("Work item has no usable title")
 
     category = workitem.get("category", "chat")
-    stage_info = STAGE_MAP.get(category, STAGE_MAP["chat"])
+    if category not in STAGE_MAP:
+        raise ValueError(f"Work item has invalid stage: {category!r}")
+    stage_info = STAGE_MAP[category]
     roles = determine_roles(workitem)
     level = determine_level(category)
     source_url = workitem.get("source_url", "")
-    summary = workitem.get("summary", "")
+    summary = " ".join(workitem.get("summary", "").split())
+    description = summary[:150] if summary else title
+    description = description.replace('"', "'")
 
     slug = f"{category}-{slugify(title)}"
     filename = f"{slug}.md"
@@ -197,7 +204,7 @@ def generate_walkthrough(workitem: dict, retrieval_date: str) -> tuple[str, str,
 
     content = f"""---
 title: "{title}"
-description: "{summary[:150] if summary else title}"
+description: "{description}"
 stage: {category}
 roles: {roles_str}
 tags: {tags_str}

@@ -55,19 +55,31 @@ jobs:
             python automation/watcher/fetch_diff.py
           fi
 
-      # ── Step 2: Commit updated state (idempotency) ────────────────────────
-      - name: "Commit state file"
+      # ── Step 2: Persist updated state through a reviewable PR ─────────────
+      - name: "Open state update PR"
         if: inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add automation/state/watcher-seen.json
-          # Only commit if there are changes
           if git diff --cached --quiet; then
             echo "No state changes to commit"
           else
-            git commit -m "watcher: update seen-state [skip ci]"
-            git push
+            BRANCH="automation/watcher-state"
+            git fetch origin "$BRANCH" || true
+            if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH"; then
+              git push origin --delete "$BRANCH"
+            fi
+            git switch -c "$BRANCH"
+            git commit -m "watcher: update seen-state"
+            git push --set-upstream origin "$BRANCH"
+            gh pr create \
+              --title "watcher: update seen-state" \
+              --body "$(printf '## What changed\nUpdated the Watcher seen-state after the scheduled source scan.\n\n## Why\nPreserves idempotency without pushing directly to the protected default branch.\n\n## Backlog issue\nN/A\n\n## Sources\n| Claim | URL | Retrieved |\n|-------|-----|-----------|\n| State-only automation update; no product claims changed | N/A | %s |\n' "$(date -u +%F)")" \
+              --label automation \
+              --label needs-human-review
           fi
 
       # ── Step 3: Assess & file issues (heuristic classification) ────────────
