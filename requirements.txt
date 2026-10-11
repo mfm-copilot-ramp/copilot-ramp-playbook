@@ -4,7 +4,7 @@
 
 mkdocs-material==9.5.39
 mkdocs-rss-plugin==1.19.0
-mkdocs-git-revision-date-localized-plugin==1.5.3
+mkdocs-git-revision-date-localized-plugin==1.5.4
 
 # Social share card generation — Material's "social" plugin (the mkdocs-material[imaging]
 # extra). Pinned within the ranges declared for mkdocs-material 9.5.39 (cairosvg~=2.6,
