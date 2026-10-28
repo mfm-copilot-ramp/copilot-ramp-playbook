@@ -45,3 +45,20 @@ unprotected `automation-state` branch. Sources that fail 3 runs in a row open a 
 Broad feeds carry `match` filters, and new sources are baselined silently instead of flooding
 the backlog.
 **Applies to:** All
+
+### 2026-10-28 — [source] A stale CDN copy of a feed re-filed old posts as news
+
+**Issue:** The first run on the `automation-state` branch filed 10 noise issues (#132–#141) two
+minutes after a clean baseline. Posts like "Copilot Cowork is now generally available" (June) came
+back as "New" and every other Copilot blog post as "Changed".
+**Root cause:** www.microsoft.com serves the Copilot and Power Platform blog feeds from more than
+one cache, and one copy was weeks old. Its older posts were outside the baseline, so they read as
+new. The two copies also differ in the WordPress footer ("appeared first on Microsoft Copilot Blog"
+vs "AI at Work Blog"), which changed every summary hash. One post's URL slug also differed while its
+GUID matched.
+**Fix / guideline:** Never trust a single fetch of a feed. The Watcher records each feed's build
+date, refetches a copy that is older than the last one seen, and skips the source for that run if
+every copy is stale. Feed items are keyed on the entry GUID, the WordPress footer is stripped
+before hashing, and an unseen item dated more than 45 days ago is recorded silently instead of
+reported.
+**Applies to:** Watcher

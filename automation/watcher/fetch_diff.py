@@ -28,6 +28,7 @@ Exit codes:
 """
 
 import argparse
+import calendar
 import hashlib
 import json
 import logging
@@ -57,10 +58,17 @@ USER_AGENT = (
     "CopilotRampPlaybook-Watcher/2.0 "
     "(+https://github.com/mfm-copilot-ramp/copilot-ramp-playbook)"
 )
-HASH_VERSION = 2  # bump when item IDs or hashes change; forces a silent re-baseline
+HASH_VERSION = 3  # bump when item IDs or hashes change; forces a silent re-baseline
 MAX_ITEMS_PER_FEED = 300  # applied after relevance filtering
 MAX_SECTIONS_PER_PAGE = 60
 FAILURE_ALERT_THRESHOLD = 3  # consecutive failed runs before a source is flagged
+# Some CDNs (www.microsoft.com) answer from more than one cache, and one can be weeks
+# behind. Refetch a feed that looks older than the last copy we saw, then skip it if
+# every copy is still stale, so posts that already scrolled off never come back as "new".
+FEED_FETCH_ATTEMPTS = 3
+# A feed entry first seen after this many days is a re-surfaced old post, not news.
+MAX_NEW_ITEM_AGE_DAYS = 45
+NO_CACHE_HEADERS = {"Cache-Control": "no-cache", "Pragma": "no-cache"}
 
 # Page headings that are navigation chrome, not content.
 JUNK_HEADINGS = {
@@ -86,6 +94,10 @@ log = logging.getLogger("watcher.fetch_diff")
 
 class SourceError(Exception):
     """A source could not be fetched or returned nothing usable."""
+
+
+class StaleFeed(Exception):
+    """Every copy of the feed was older than the one already recorded."""
 
 
 def load_sources() -> list[dict]:
@@ -139,23 +151,73 @@ def html_to_text(fragment: str) -> str:
     return " ".join(BeautifulSoup(fragment or "", "html.parser").get_text(" ").split())
 
 
+def strip_feed_boilerplate(text: str) -> str:
+    """Drop the WordPress "The post X appeared first on Blog." footer.
+
+    It names the blog, so renaming a blog changes every summary and would report
+    every post as changed.
+    """
+    end = text.rfind(" appeared first on ")
+    if end == -1 or len(text) - end > 120:
+        return text
+    start = text.rfind("The post ", 0, end)
+    return text[:start].rstrip() if start != -1 else text
+
+
 def http_get(url: str) -> requests.Response:
     try:
-        resp = requests.get(url, timeout=REQUEST_TIMEOUT, headers={"User-Agent": USER_AGENT})
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT,
+                            headers={"User-Agent": USER_AGENT, **NO_CACHE_HEADERS})
         resp.raise_for_status()
     except requests.RequestException as e:
         raise SourceError(f"request failed: {e}") from e
     return resp
 
 
-def fetch_rss(source: dict) -> tuple[list[dict], int]:
-    """Fetch an RSS/Atom feed. Returns (relevant items, raw entry count)."""
+def struct_ts(*structs) -> int:
+    """Newest of the given feedparser time structs as a Unix timestamp (0 if none)."""
+    return max((calendar.timegm(s) for s in structs if s), default=0)
+
+
+def feed_timestamp(feed) -> int:
+    """When the feed was built: the channel date, else its newest entry."""
+    ts = struct_ts(feed.feed.get("updated_parsed"), feed.feed.get("published_parsed"))
+    return ts or max(
+        (struct_ts(e.get("updated_parsed"), e.get("published_parsed")) for e in feed.entries),
+        default=0,
+    )
+
+
+def fetch_freshest_feed(feed_url: str, known_ts: int):
+    """Fetch a feed, refetching while it is older than the copy we last recorded."""
+    best, best_ts = None, -1
+    for attempt in range(FEED_FETCH_ATTEMPTS):
+        feed = feedparser.parse(http_get(feed_url).content)
+        ts = feed_timestamp(feed) if feed.entries else -1
+        if ts > best_ts:
+            best, best_ts = feed, ts
+        if best_ts >= known_ts and best.entries:
+            break
+        log.info(f"  Copy {attempt + 1} is older than the last one recorded, refetching")
+        if attempt + 1 < FEED_FETCH_ATTEMPTS:
+            time.sleep(2)
+    if best is None or not best.entries:
+        detail = best.get("bozo_exception", "no entries") if best is not None else "no response"
+        raise SourceError(f"feed returned no entries ({detail})")
+    if best_ts < known_ts:
+        raise StaleFeed(
+            f"all {FEED_FETCH_ATTEMPTS} copies were built "
+            f"{time.strftime('%Y-%m-%d', time.gmtime(best_ts))}, older than the "
+            f"{time.strftime('%Y-%m-%d', time.gmtime(known_ts))} copy already recorded"
+        )
+    return best, best_ts
+
+
+def fetch_rss(source: dict, known_ts: int = 0) -> tuple[list[dict], int, int]:
+    """Fetch an RSS/Atom feed. Returns (relevant items, raw entry count, feed timestamp)."""
     feed_url = source["feed"]
     log.info(f"  Fetching feed: {feed_url}")
-    feed = feedparser.parse(http_get(feed_url).content)
-    if not feed.entries:
-        detail = feed.get("bozo_exception", "no entries")
-        raise SourceError(f"feed returned no entries ({detail})")
+    feed, feed_ts = fetch_freshest_feed(feed_url, known_ts)
 
     entries = sorted(
         feed.entries,
@@ -167,12 +229,15 @@ def fetch_rss(source: dict) -> tuple[list[dict], int]:
     for entry in entries:
         title = " ".join(entry.get("title", "").split())
         link = entry.get("link", "").strip()
-        summary = html_to_text(entry.get("summary", ""))
+        summary = strip_feed_boilerplate(html_to_text(entry.get("summary", "")))
         if not title or not link:
             continue
         if pattern and not pattern.search(f"{title} {summary}"):
             continue
-        iid = item_id(source["name"], title, link)
+        # Key on the entry GUID when there is one, so a slug or title edit reads as a
+        # change to the same post instead of a brand-new post.
+        guid = (entry.get("id") or "").strip()
+        iid = item_id(source["name"], "", f"guid:{guid}") if guid else item_id(source["name"], title, link)
         items.setdefault(iid, {
             "id": iid,
             "source": source["name"],
@@ -181,14 +246,16 @@ def fetch_rss(source: dict) -> tuple[list[dict], int]:
             "url": link,
             "summary": summary[:500],
             "published": entry.get("published", entry.get("updated", "")),
+            "published_ts": struct_ts(entry.get("published_parsed"), entry.get("updated_parsed")),
             "content_hash": content_hash(f"{title}{summary}"),
         })
         if len(items) >= MAX_ITEMS_PER_FEED:
             log.warning(f"  Feed capped at {MAX_ITEMS_PER_FEED} relevant items")
             break
 
-    log.info(f"  {len(feed.entries)} entries, {len(items)} relevant")
-    return list(items.values()), len(feed.entries)
+    log.info(f"  {len(feed.entries)} entries, {len(items)} relevant "
+             f"(feed built {time.strftime('%Y-%m-%d %H:%M', time.gmtime(feed_ts))} UTC)")
+    return list(items.values()), len(feed.entries), feed_ts
 
 
 def page_sections(root: Tag, level: str | None = None) -> list[dict]:
@@ -256,19 +323,28 @@ def fetch_page(source: dict) -> tuple[list[dict], int]:
     return list(items.values()), len(sections)
 
 
-def fetch_source(source: dict) -> tuple[list[dict], int]:
-    """Route to the right fetcher based on whether a feed URL exists."""
+def fetch_source(source: dict, known_feed_ts: int = 0) -> tuple[list[dict], int, int | None]:
+    """Route to the right fetcher. Returns (items, raw count, feed timestamp or None)."""
     if source.get("feed"):
-        return fetch_rss(source)
-    return fetch_page(source)
+        return fetch_rss(source, known_feed_ts)
+    items, raw = fetch_page(source)
+    return items, raw, None
 
 
-def diff_items(current_items: list[dict], seen_ids: dict[str, str]) -> list[dict]:
-    """Return items whose ID is new or whose content hash changed."""
+def diff_items(current_items: list[dict], seen_ids: dict[str, str], now_ts: float) -> list[dict]:
+    """Return items whose ID is new or whose content hash changed.
+
+    A dated item we have never seen that is older than MAX_NEW_ITEM_AGE_DAYS is an old
+    post resurfacing (stale cache, feed reorder), so it is recorded silently instead.
+    """
+    cutoff = now_ts - MAX_NEW_ITEM_AGE_DAYS * 86400
     new_items = []
     for item in current_items:
         prev_hash = seen_ids.get(item["id"])
         if prev_hash is None:
+            if 0 < item.get("published_ts", 0) < cutoff:
+                log.info(f"  Old item first seen now, not reported: {item['title'][:80]}")
+                continue
             item["change_type"] = "new"
             new_items.append(item)
         elif prev_hash != item["content_hash"]:
@@ -298,6 +374,7 @@ def main():
     args = parser.parse_args()
 
     now = datetime.now(timezone.utc).isoformat()
+    now_ts = time.time()
     log.info(f"Watcher fetch/diff starting at {now}")
 
     sources = load_sources()
@@ -319,9 +396,22 @@ def main():
         prev = state.get(name, {})
         log.info(f"Processing: {name}")
 
+        # Re-baseline when the hash scheme or the source's own config (URL, filter,
+        # section level) changed, so a sources.yml tweak never floods the backlog.
+        cfg = source_config_hash(source)
+        stale_scheme = prev.get("hash_version") != HASH_VERSION or prev.get("config_hash") != cfg
+        known_feed_ts = 0 if stale_scheme else prev.get("feed_updated", 0)
+
         try:
-            current_items, _raw = fetch_source(source)
+            current_items, _raw, feed_ts = fetch_source(source, known_feed_ts)
             time.sleep(1)  # be polite
+        except StaleFeed as e:
+            # Not a failure: the source works, the CDN just answered from an old cache.
+            # Keep the previous state untouched so nothing is lost or re-reported.
+            log.warning(f"  Skipped, served a stale copy: {e}")
+            updated_state[name] = {**prev, "last_checked": now}
+            rows.append((name, "⏭️ stale copy, skipped", "-", "0"))
+            continue
         except Exception as e:  # noqa: BLE001 — any failure is recorded, never fatal
             errors += 1
             failures = prev.get("consecutive_failures", 0) + 1
@@ -342,14 +432,10 @@ def main():
             rows.append((name, f"⚠️ failed ({failures}×)", "-", "-"))
             continue
 
-        # Re-baseline when the hash scheme or the source's own config (URL, filter,
-        # section level) changed, so a sources.yml tweak never floods the backlog.
-        cfg = source_config_hash(source)
-        stale_scheme = prev.get("hash_version") != HASH_VERSION or prev.get("config_hash") != cfg
         seen_ids: dict[str, str] = {} if stale_scheme and not args.no_baseline else dict(prev.get("seen_items", {}))
         baseline = not args.no_baseline and (stale_scheme or not seen_ids)
 
-        new_items = [] if baseline else diff_items(current_items, seen_ids)
+        new_items = [] if baseline else diff_items(current_items, seen_ids, now_ts)
         seen_ids.update({item["id"]: item["content_hash"] for item in current_items})
         updated_state[name] = {
             "config_hash": cfg,
@@ -360,6 +446,8 @@ def main():
             "consecutive_failures": 0,
             "last_error": "",
         }
+        if feed_ts is not None:
+            updated_state[name]["feed_updated"] = max(feed_ts, known_feed_ts)
         all_new_items.extend(new_items)
 
         if baseline:

@@ -100,6 +100,8 @@ See `.github/labels.yml` for the full definitions and colors.
   Blog, the Power Platform blog, the GitHub changelog) carry a `match` keyword list so only
   Copilot, Cowork, Autopilot, Studio, credits and billing items are tracked.
 - **New sources are baselined silently.** Only changes after the first run are reported.
+- **Stale feed copies are ignored.** A feed older than the last copy seen is refetched, then
+  skipped for the run if it stays stale, so old posts are never re-filed as news.
 - **State lives on the `automation-state` branch**, never on protected `main`. See
   `state/README.md`.
 - **Dead sources are flagged.** A source that fails 3 runs in a row gets one
