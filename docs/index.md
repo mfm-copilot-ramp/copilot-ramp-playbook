@@ -20,10 +20,10 @@ hide:
 <p class="home-lede">Stuck at <em>"I have Copilot — now what?"</em> Start with a 2-minute win, then follow a natural ramp all the way to building your own agents.</p>
 
 <p class="hero-actions">
-<a class="md-button md-button--primary" href="stages/stage-1-chat/">Start the journey →</a>
-<a class="md-button hero-btn-ghost" href="start-by-role/">Pick your role →</a>
-<a class="md-button hero-btn-ghost" href="credit-estimator/">Estimate your credits →</a>
-<a class="hero-actions-alt" href="quick-wins/">or browse quick wins →</a>
+<a class="md-button md-button--primary" href="stages/stage-1-chat/" data-rc-track="home-start-journey" data-rc-label="hero">Start the journey →</a>
+<a class="md-button hero-btn-ghost" href="start-by-role/" data-rc-track="home-pick-role" data-rc-label="hero">Pick your role →</a>
+<a class="md-button hero-btn-ghost" href="credit-estimator/" data-rc-track="home-estimator-cta" data-rc-label="hero">Estimate your credits →</a>
+<a class="hero-actions-alt" href="quick-wins/" data-rc-track="home-quick-wins" data-rc-label="hero">or browse quick wins →</a>
 </p>
 
 </div>
@@ -60,54 +60,70 @@ Format the action items as a table I can paste into an email.
   <a class="step dest" href="stages/stage-7-foundry/"><span class="n">STAGE 7</span><span class="t">Foundry</span><span class="d">The pro-code frontier, when you need it.</span></a>
 </div>
 
-<div class="journey-legend">
-  <p class="jl-row"><span class="jl-badge jl-foundation">Foundation</span><span class="jl-text">generally available today — the always-on starting tier any tenant can use right now.</span></p>
-  <p class="jl-row"><span class="jl-badge jl-pioneer">Pioneer</span><span class="jl-text">a frontier capability that's real and worth adopting where you have it — but still in preview and not yet on every tenant.</span></p>
-  <p class="jl-row"><span class="jl-badge jl-dest">Destination</span><span class="jl-text">a mature place to settle in and build — generally available and production-grade.</span></p>
-</div>
-
-<p class="audience"><strong>Who it's for:</strong> end users who want a first win · champions rolling Copilot out to a team · managers building the case · makers ready to build their first agent · developers engineering pro-code agents in Foundry · IT/admins enabling each stage safely.</p>
+<p class="journey-legend jl-inline"><span class="jl-badge jl-foundation">Foundation</span> generally available <span class="jl-sep">·</span> <span class="jl-badge jl-pioneer">Pioneer</span> preview, not on every tenant <span class="jl-sep">·</span> <span class="jl-badge jl-dest">Destination</span> production-grade</p>
 
 ## Choose your path
 
-<p class="path-intro">Pick the card that sounds most like you for a guided path — tuned to your function, your pace, and your goal. Prefer to browse? <a href="start-by-role/">See all roles →</a></p>
+<p class="path-intro">Pick the card that sounds most like you — each one is a short, guided path.</p>
 
 <div class="path-strip">
-  <div class="path-card">
+  <a class="path-card" href="roles/new-user/" data-rc-track="home-role-card" data-rc-label="new-user">
     <span class="pc-role">New user</span>
-    <p class="pc-line">You've got Copilot and want a fast first win — no building, no setup.</p>
-    <a class="pc-cta" href="roles/new-user/">See my path →</a>
-  </div>
-  <div class="path-card">
+    <span class="pc-line">You've got Copilot and want a fast first win — no building, no setup.</span>
+    <span class="pc-cta">See my path →</span>
+  </a>
+  <a class="path-card" href="roles/champion/" data-rc-track="home-role-card" data-rc-label="champion">
     <span class="pc-role">Team champion</span>
-    <p class="pc-line">You're driving adoption for a team — build the habit and scale what works.</p>
-    <a class="pc-cta" href="roles/champion/">See my path →</a>
-  </div>
-  <div class="path-card">
+    <span class="pc-line">You're driving adoption for a team — build the habit and scale what works.</span>
+    <span class="pc-cta">See my path →</span>
+  </a>
+  <a class="path-card" href="roles/manager/" data-rc-track="home-role-card" data-rc-label="manager">
     <span class="pc-role">Manager</span>
-    <p class="pc-line">You run people and projects and want less prep with better meetings.</p>
-    <a class="pc-cta" href="roles/manager/">See my path →</a>
-  </div>
-  <div class="path-card">
+    <span class="pc-line">You run people and projects and want less prep with better meetings.</span>
+    <span class="pc-cta">See my path →</span>
+  </a>
+  <a class="path-card" href="roles/maker/" data-rc-track="home-role-card" data-rc-label="maker">
     <span class="pc-role">Maker</span>
-    <p class="pc-line">You're ready to build agents — start low-code and know where to draw the line.</p>
-    <a class="pc-cta" href="roles/maker/">See my path →</a>
-  </div>
-  <div class="path-card">
+    <span class="pc-line">You're ready to build agents — start low-code and know where to draw the line.</span>
+    <span class="pc-cta">See my path →</span>
+  </a>
+  <a class="path-card" href="roles/developer/" data-rc-track="home-role-card" data-rc-label="developer">
     <span class="pc-role">Developer</span>
-    <p class="pc-line">You've outgrown low-code and build agents as software on Azure.</p>
-    <a class="pc-cta" href="roles/developer/">See my path →</a>
-  </div>
-  <div class="path-card">
+    <span class="pc-line">You've outgrown low-code and build agents as software on Azure.</span>
+    <span class="pc-cta">See my path →</span>
+  </a>
+  <a class="path-card" href="roles/it-admin/" data-rc-track="home-role-card" data-rc-label="it-admin">
     <span class="pc-role">IT / admin</span>
-    <p class="pc-line">You enable each stage safely and keep agents governed at scale.</p>
-    <a class="pc-cta" href="roles/it-admin/">See my path →</a>
-  </div>
+    <span class="pc-line">You enable each stage safely and keep agents governed at scale.</span>
+    <span class="pc-cta">See my path →</span>
+  </a>
 </div>
+
+## Plan & estimate
+
+<div class="path-strip tool-strip">
+  <a class="path-card" href="credit-estimator/" data-rc-track="home-tool-card" data-rc-label="credit-estimator">
+    <span class="pc-role">Copilot Credit Estimator</span>
+    <span class="pc-line">Size a Copilot Studio agent or a Cowork rollout in minutes — describe it in plain words or import your usage.</span>
+    <span class="pc-cta">Estimate credits →</span>
+  </a>
+  <a class="path-card" href="ai-builder-estimator/" data-rc-track="home-tool-card" data-rc-label="ai-builder-estimator">
+    <span class="pc-role">AI Builder → Copilot Credits <span class="pc-badge">Nov 1 deadline</span></span>
+    <span class="pc-line">AI Builder credits reach end of life on November 1, 2026. Map today's usage to the Copilot Credits you'll need.</span>
+    <span class="pc-cta">Convert my usage →</span>
+  </a>
+  <a class="path-card" href="roi-estimator/" data-rc-track="home-tool-card" data-rc-label="roi-estimator">
+    <span class="pc-role">ROI Estimator</span>
+    <span class="pc-line">Put the return next to the cost — value, payback, and ROI for a Copilot Studio agent in one view.</span>
+    <span class="pc-cta">Build the case →</span>
+  </a>
+</div>
+
+<p class="home-estimators">New to credits? <a href="copilot-credits/" data-rc-track="home-tool-link" data-rc-label="copilot-credits">How Copilot Credits work</a>.</p>
 
 ## Find your starting point
 
-Want the detailed view? This map shows where each role tends to spend time day to day — a heavier dot means you're more likely to live there. Click any **stage** to jump straight in.
+<p class="path-intro">Where each role tends to spend its time — a heavier dot means you're more likely to live there. Click any role, stage, or dot to jump in.</p>
 
 <div class="matrix-wrap">
 <table class="home-matrix">
@@ -139,33 +155,11 @@ Want the detailed view? This map shows where each role tends to spend time day t
   <span class="k0"><span class="meter lvl0" aria-hidden="true"><i></i><i></i><i></i></span> Rarely</span>
 </div>
 
-Each stage has an **overview**, **use cases** you can filter by your role, and **curated Microsoft resources**. Start anywhere — but the ramp is the point.
-
-[Start at Stage 1 → Copilot Chat](stages/stage-1-chat.md){ .md-button .md-button--primary }
-
----
-
-## How to read a walkthrough
-
-Before you dive in, here's the shape every walkthrough on this site follows — so you always know where to look:
-
-- **Try it now — the prompt.** A copy-paste prompt you can run in under a minute.
-- **Step by step.** The full path, with screenshots.
-- **Make it better / Watch out for.** How to level up, and the traps to avoid.
-- **Where this leads.** The next rung on the ramp.
-
-The fastest way to start: open **[Turn a meeting into tracked follow-ups](walkthroughs/chat-meeting-followups.md)** and paste the prompt into Copilot Chat.
-
----
-
 !!! tip "Leading a rollout, not just learning yourself?"
     The stages above ramp an *individual*. If you're standing up Copilot for an *organization*, see
     **[Build your AI empowerment team](empowerment/index.md)** — who's on the team, and a
     [decision tree](empowerment/decision-tree.md) for routing each idea to the right tool.
 
----
-
-<p class="home-estimators"><strong>Plan &amp; estimate:</strong> <a href="credit-estimator/">Credit estimator</a> · <a href="roi-estimator/">ROI estimator</a> · <a href="ai-builder-estimator/">AI Builder estimator</a> · <a href="copilot-credits/">how credits work</a></p>
 
 <div class="home-resources">
 <p class="res-heading">📚 Start learning right now — the cross-journey set</p>

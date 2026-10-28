@@ -84,6 +84,7 @@ extra_javascript:
   - javascripts/role-path.js
   - javascripts/home-matrix.js
   - javascripts/home-try.js
+  - javascripts/clarity-ux.js
   - javascripts/feedback.js
   - javascripts/feedback-widget.js
   - javascripts/share.js
