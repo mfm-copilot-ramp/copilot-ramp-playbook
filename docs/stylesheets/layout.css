@@ -12,3 +12,16 @@
 .md-content__inner.md-typeset > ul,
 .md-content__inner.md-typeset > ol,
 .md-content__inner.md-typeset > blockquote { max-width: 46rem; }
+
+/* Visible copy controls for prompts and estimator outputs (wired by clarity-ux.js).
+   Material's tiny clipboard icon still works, but Clarity showed readers clicking
+   the prompt text itself. These buttons make the intended action explicit. */
+.rc-copy-affordance {
+  appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: .35rem;
+  margin: .35rem 0 .3rem; padding: .42rem .7rem; border: 1px solid var(--md-primary-fg-color);
+  border-radius: 999px; background: color-mix(in srgb, var(--md-primary-fg-color) 8%, var(--md-default-bg-color));
+  color: var(--md-primary-fg-color); font: 700 .74rem/1 var(--md-text-font-family, inherit);
+}
+.rc-copy-affordance:hover { background: var(--md-primary-fg-color); color: var(--md-primary-bg-color); }
+.rc-copy-affordance:focus-visible { outline: 3px solid var(--md-accent-fg-color, var(--md-primary-fg-color)); outline-offset: 2px; }
+.rc-copy-result { margin-bottom: .75rem; }

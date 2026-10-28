@@ -760,3 +760,46 @@ table.home-matrix tbody tr:hover td.lvl2 { background: color-mix(in srgb, var(--
 .hero-try .ht-next span { font-size: .95em; line-height: 1; }
 .hero-try .ht-title, .hero-try pre { transition: opacity .12s ease; }
 .hero-try.ht-fade .ht-title, .hero-try.ht-fade pre { opacity: .25; }
+
+/* ---------- homepage usability pass (Oct 2026) ----------
+   Clarity showed ~81% of homepage sessions ending on the homepage and half of
+   visitors gone by 35% scroll, so the page is now: hero → journey → one-line
+   legend → role cards → tool cards → (collapsed) role × stage map. */
+.journey-legend.jl-inline {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: .35rem .5rem; margin: .2rem 0 1.4rem; font-size: .78rem;
+  color: var(--md-default-fg-color--light);
+}
+.journey-legend.jl-inline .jl-badge { margin: 0; }
+.journey-legend.jl-inline { max-width: none; }
+.journey-legend.jl-inline .jl-sep { color: var(--md-default-fg-color--lighter); }
+
+/* Whole role / tool cards are links (dead-click fix: the card looked clickable
+   but only the small CTA text was). */
+a.path-card { color: inherit; text-decoration: none; cursor: pointer; }
+a.path-card:hover .pc-cta, a.path-card:focus-visible .pc-cta { text-decoration: underline; }
+a.path-card:focus-visible { outline: 2px solid var(--md-primary-fg-color); outline-offset: 2px; }
+.path-card .pc-line { display: block; }
+
+.tool-strip { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { .tool-strip { grid-template-columns: 1fr; } }
+.tool-strip .path-card .pc-role {
+  font-size: .9rem; letter-spacing: 0; text-transform: none;
+  color: var(--md-default-fg-color); font-weight: 800;
+}
+.pc-badge {
+  display: inline-block; margin-left: .35rem; padding: .08rem .45rem; border-radius: 999px;
+  font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; vertical-align: middle;
+  color: #b26a00; background: color-mix(in srgb, #b26a00 14%, transparent);
+}
+
+/* Role × stage map, collapsed by default. */
+details.home-map {
+  margin: .4rem 0 1.6rem; padding: .2rem .9rem; border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: .7rem; background: var(--md-default-bg-color);
+}
+details.home-map > summary {
+  cursor: pointer; padding: .55rem 0; font-weight: 700; font-size: .85rem; color: var(--md-primary-fg-color);
+}
+details.home-map[open] > summary { margin-bottom: .4rem; }
+
