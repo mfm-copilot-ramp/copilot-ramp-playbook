@@ -73,32 +73,45 @@ body.ce-modal-lock{overflow:hidden}
 <script>
 (function(){
   var KEY='crp-ce-intro-v1';
+  // Privacy-safe usage signal for the intro: static event names only. GoatCounter is
+  // cookieless (always on); Clarity fires only for visitors who accepted its cookies.
+  function track(name){
+    try{ if(typeof window.clarity==='function'){ window.clarity('event',name); window.clarity('set','ce_intro',name.replace('ce-intro-','')); } }catch(e){}
+    try{ if(window.goatcounter&&window.goatcounter.count){ window.goatcounter.count({path:location.pathname.replace(/\/$/,'')+'#ux-'+name,title:'UX: '+name,event:true}); } }catch(e){}
+  }
   function init(){
     var modal=document.getElementById('ce-intro-modal');
     if(!modal||modal.dataset.ceReady)return;
     modal.dataset.ceReady='1';
     if(modal.parentNode!==document.body)document.body.appendChild(modal);
     var video=modal.querySelector('#ce-intro-video');
-    var lastFocus=null;
-    function open(){
+    var lastFocus=null, ended=false, played=false;
+    if(video){
+      video.addEventListener('play',function(){ if(!played){ played=true; track('ce-intro-play'); } });
+      video.addEventListener('ended',function(){ ended=true; track('ce-intro-completed'); });
+    }
+    function open(how){
       lastFocus=document.activeElement;
+      ended=false; played=false;
       modal.hidden=false;
       document.body.classList.add('ce-modal-lock');
       var x=modal.querySelector('.ce-modal-x');if(x)x.focus();
       try{localStorage.setItem(KEY,'1');}catch(e){}
+      track(how==='auto'?'ce-intro-autoopen':'ce-intro-open-button');
     }
     function close(){
       if(modal.hidden)return;
       modal.hidden=true;
       document.body.classList.remove('ce-modal-lock');
-      if(video){try{video.pause();}catch(e){}}
+      var t=0; if(video){try{t=video.currentTime||0;video.pause();}catch(e){}}
+      if(!ended) track(!played||t<10?'ce-intro-dismissed':'ce-intro-closed-partway');
       if(lastFocus&&lastFocus.focus){try{lastFocus.focus();}catch(e){}}
     }
-    document.querySelectorAll('[data-ce-open]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();open();});});
+    document.querySelectorAll('[data-ce-open]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();open('button');});});
     modal.querySelectorAll('[data-ce-close]').forEach(function(b){b.addEventListener('click',close);});
     document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Esc')close();});
     var seen;try{seen=localStorage.getItem(KEY);}catch(e){seen='1';}
-    // No auto-open: the intro is one click away via the button above (usability: let people reach the tool first).
+    if(!seen)open('auto');
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
   else init();
