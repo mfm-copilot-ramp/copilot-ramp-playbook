@@ -21,7 +21,7 @@ updated: 2026-08-29
     Unlike the Studio templates in this library, this one is a **code blueprint**, not a low-code spec.
     The snippets are *representative* of the `azure-ai-projects` / `azure-ai-evaluation` SDKs — these move
     fast. Pin versions and verify every call against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). **Don't
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). **Don't
     start here if a Studio agent would do** — climb to Foundry only when it won't.
 
 ---
@@ -159,7 +159,7 @@ coverage = run_required_fact_checks("eval/summarisation.jsonl")  # your determin
 assert coverage["missed_required_facts_rate"] <= 0.05
 ```
 
-Full pattern: [Observability in generative AI](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai).
+Full pattern: [Observability in generative AI](https://learn.microsoft.com/en-us/azure/foundry/concepts/observability).
 
 ---
 
@@ -206,5 +206,5 @@ Full pattern: [Observability in generative AI](https://learn.microsoft.com/en-us
 ## Related
 
 - [Marketing Content Repurposing Agent](marketing-content-repurposing-agent.md) — a Studio-first content workflow
-- [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/)
-- [Evaluate agentic workflows](https://learn.microsoft.com/en-us/azure/ai-foundry/observability/how-to/evaluate-agent)
+- [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview)
+- [Evaluate agentic workflows](https://learn.microsoft.com/en-us/azure/foundry/observability/how-to/evaluate-agent)

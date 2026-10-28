@@ -22,7 +22,7 @@ updated: 2026-06-04
     There is no one-click "Studio → Foundry" converter. Graduating means **re-implementing the agent's
     design** on a pro-code platform. The value you carry over is the *design* — the instructions,
     knowledge, and tested behaviour — not the wiring. Verify all APIs against the
-    [Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/).
+    [Foundry docs](https://learn.microsoft.com/en-us/azure/foundry/).
 
 ## When to use this
 Your Studio agent works and people rely on it — but it's bumping a real wall: you need a custom or

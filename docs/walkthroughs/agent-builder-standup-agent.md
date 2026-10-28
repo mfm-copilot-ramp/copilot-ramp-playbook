@@ -43,7 +43,7 @@ as "needs confirmation" instead of inventing details. Do not send the update for
 
 ## Step by step
 1. **Prepare the source.** Put recurring notes in a OneDrive folder or identify the mail scope that contains your work updates. Keep private or unrelated notes out of the grounding set.
-2. **Open Agent Builder.** In Microsoft 365 Copilot, start the agent creation flow. Microsoft explains the extensibility path at [Microsoft 365 Copilot extensibility](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/).
+2. **Open Agent Builder.** In Microsoft 365 Copilot, start the agent creation flow. Microsoft explains the extensibility path at [Microsoft 365 Copilot extensibility](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/).
 3. **Add the knowledge source.** Connect the notes folder or mail scope the agent should use. This is your personal boundary.
 4. **Write the instructions** using the prompt above, adapted to your team's stand-up language.
 5. **Add starter prompts** such as "Create today's stand-up from my latest notes", "Turn this rough update into our stand-up format", and "List blockers I should mention."

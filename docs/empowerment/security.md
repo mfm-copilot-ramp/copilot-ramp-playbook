@@ -183,8 +183,8 @@ documentation. Champions can safely skip these; admins will want them.
     - The **standard agent setup** uses your own single-tenant Azure resources — Storage, Cosmos DB, AI
       Search, and Key Vault — so all agent data stays in **your** tenant, isolated per project. System and
       user-assigned **managed identities** give agents scoped access to those resources.
-    - Reference: [Foundry RBAC](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-azure-ai-foundry)
-      · [Standard agent setup](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/standard-agent-setup)
+    - Reference: [Foundry RBAC](https://learn.microsoft.com/en-us/azure/foundry/concepts/rbac-foundry)
+      · [Standard agent setup](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup)
 
 ??? note "The Agent 365 control plane, in detail"
     - **Identity — Microsoft Entra Agent ID.** Every agent instance is a first-class identity with an

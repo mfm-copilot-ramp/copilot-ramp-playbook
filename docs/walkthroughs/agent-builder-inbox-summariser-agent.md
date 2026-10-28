@@ -43,7 +43,7 @@ unless I specifically ask for them.
 **Why this works:** it names the agent, sets the **knowledge boundary** (your mail), gives the digest structure, requires **citations**, and tells the agent how to handle uncertainty and low-value messages.
 
 ## Step by step
-1. **Open Agent Builder.** In Microsoft 365 Copilot, start the agent creation flow. Microsoft documents the extensibility model at [Microsoft 365 Copilot extensibility](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/).
+1. **Open Agent Builder.** In Microsoft 365 Copilot, start the agent creation flow. Microsoft documents the extensibility model at [Microsoft 365 Copilot extensibility](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/).
 2. **Add the mail grounding.** Choose the mailbox or folder that should drive the digest. Keep the scope personal and narrow so the agent does not mix workstreams by accident.
 3. **Write the instructions** using the prompt above, adapted to your folder and language. Keep the buckets explicit so every digest looks the same.
 4. **Add starter prompts** you will actually use: "Summarise today's inbox", "What needs a reply before end of day?", and "What can wait until tomorrow?"

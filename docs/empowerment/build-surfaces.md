@@ -156,11 +156,11 @@ authoritative Microsoft documentation.
     - **File Search** billed by the **vector storage** it uses;
     - plus the standard-setup Azure resources listed above.
 
-    - Control: [Foundry RBAC](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-azure-ai-foundry)
-      · [Standard agent setup](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/standard-agent-setup)
+    - Control: [Foundry RBAC](https://learn.microsoft.com/en-us/azure/foundry/concepts/rbac-foundry)
+      · [Standard agent setup](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup)
     - Billing: [How am I charged for Foundry Agent Service?](https://learn.microsoft.com/azure/foundry/agents/faq#how-am-i-charged-for-foundry-agent-service)
       · [Manage costs for Foundry](https://learn.microsoft.com/azure/foundry/concepts/manage-costs)
-      · [Foundry pricing](https://azure.microsoft.com/pricing/details/ai-foundry/)
+      · [Foundry pricing](https://azure.microsoft.com/en-us/pricing/details/microsoft-foundry/)
 
 ---
 

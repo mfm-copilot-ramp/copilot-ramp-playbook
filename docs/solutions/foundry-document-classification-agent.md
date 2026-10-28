@@ -24,7 +24,7 @@ updated: 2026-06-05
     unattended and judges images as well as text, so throughput, cost, and a confidence threshold matter as
     much as raw accuracy. The snippets are *representative* of the `azure-ai-projects` /
     `azure-ai-evaluation` SDKs and assume a vision-capable model — verify against the
-    [Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). If you only need to pull
+    [Foundry docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). If you only need to pull
     fields from **one known document type**, use the [extraction template](foundry-document-processing-agent.md)
     instead; this one decides *what each document is*.
 

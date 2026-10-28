@@ -22,7 +22,7 @@ updated: 2026-06-05
     This is a **code blueprint**, not a low-code spec, and NL-to-SQL is **high-risk**: a wrong query returns
     a confidently wrong number, and an unconstrained one can read or mutate data it shouldn't. The snippets
     are *representative* of the `azure-ai-projects` / `azure-ai-evaluation` SDKs — pin versions and verify
-    against the [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/).
+    against the [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview).
     If a [Studio agent](policy-faq-agent.md) answering from a curated report would do, start there instead.
 
 ---

@@ -21,7 +21,7 @@ updated: 2026-06-05
 !!! warning "Adversarial testing is a safety control, not a checkbox"
     A red-team harness reduces risk; it never proves an agent is "safe." The evaluators, attack categories,
     and automated red-teaming tooling **evolve** — verify against the
-    [Foundry evaluation](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai)
+    [Foundry evaluation](https://learn.microsoft.com/en-us/azure/foundry/concepts/observability)
     and AI safety docs. For anything high-stakes or public-facing, pair automated red-teaming with human
     review and your organisation's responsible-AI process.
 

@@ -21,7 +21,7 @@ updated: 2026-08-29
     Unlike the Studio templates in this library, this one is a **code blueprint**, not a low-code spec.
     The snippets are *representative* of the `azure-ai-projects` / `azure-ai-evaluation` SDKs — these move
     fast. Pin versions and verify every call against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). **Don't
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). **Don't
     start here if a Studio agent would do** — climb to Foundry only when it won't.
 
 ---
@@ -171,7 +171,7 @@ assert metrics["field_accuracy"] >= 0.95
 assert run_schema_validation_suite("eval/extraction.jsonl")["pass_rate"] >= 0.98
 ```
 
-Full pattern: [Evaluate agentic workflows](https://learn.microsoft.com/en-us/azure/ai-foundry/observability/how-to/evaluate-agent).
+Full pattern: [Evaluate agentic workflows](https://learn.microsoft.com/en-us/azure/foundry/observability/how-to/evaluate-agent).
 
 ---
 
@@ -216,5 +216,5 @@ Full pattern: [Evaluate agentic workflows](https://learn.microsoft.com/en-us/azu
 ## Related
 
 - [Finance Invoice AP Agent](finance-invoice-ap-agent.md) — a Studio-first invoice workflow
-- [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/)
-- [Microsoft Foundry SDKs](https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/sdk-overview)
+- [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview)
+- [Microsoft Foundry SDKs](https://learn.microsoft.com/en-us/azure/foundry/how-to/develop/sdk-overview)

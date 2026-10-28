@@ -28,6 +28,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urljoin, urlsplit
 
 import requests
 import yaml
@@ -212,6 +213,44 @@ def check_site_coherence():
 
 
 # ── Check 3: External Links ─────────────────────────────────────────────────
+REDIRECT_CODES = (301, 302, 303, 307, 308)
+LOCALE_SEGMENT = re.compile(r"/[a-z]{2}-[a-z]{2}(?=/|$)", re.IGNORECASE)
+
+
+def _request(url: str) -> requests.Response:
+    """Streamed GET (body not downloaded). HEAD is unreliable here: Learn answers HEAD with 200
+    where GET redirects, and some sites (e.g. copilot.cloud.microsoft) reject HEAD with 405."""
+    resp = requests.get(
+        url, timeout=REQUEST_TIMEOUT, headers={"User-Agent": USER_AGENT},
+        allow_redirects=False, stream=True,
+    )
+    resp.close()
+    return resp
+
+
+def probe_url(url: str, max_hops: int = 6) -> tuple[int, str]:
+    """Return (final status, final URL), following redirects one hop at a time."""
+    current = url
+    for _ in range(max_hops):
+        resp = _request(current)
+        if resp.status_code not in REDIRECT_CODES:
+            return resp.status_code, current
+        location = resp.headers.get("Location")
+        if not location:
+            return resp.status_code, current
+        current = urljoin(current, location)
+    return resp.status_code, current
+
+
+def same_page(a: str, b: str) -> bool:
+    """True when two URLs differ only by locale segment, trailing slash, scheme or query string."""
+    def norm(u: str) -> str:
+        p = urlsplit(u)
+        path = LOCALE_SEGMENT.sub("", p.path).rstrip("/").lower()
+        return f"{p.netloc.lower()}{path}"
+    return norm(a) == norm(b)
+
+
 def check_external_links(skip: bool = False):
     """Check external links for dead/redirected URLs."""
     if skip:
@@ -248,16 +287,11 @@ def check_external_links(skip: bool = False):
                 continue
 
             try:
-                resp = requests.head(
-                    url, timeout=REQUEST_TIMEOUT,
-                    headers={"User-Agent": USER_AGENT},
-                    allow_redirects=False,
-                )
-                if resp.status_code >= 400:
-                    broken.append((url, resp.status_code, relpath))
-                elif resp.status_code in (301, 302, 307, 308):
-                    new_url = resp.headers.get("Location", "unknown")
-                    redirected.append((url, new_url, relpath))
+                status, final_url = probe_url(url)
+                if status >= 400:
+                    broken.append((url, status, relpath))
+                elif final_url and not same_page(url, final_url):
+                    redirected.append((url, final_url, relpath))
             except requests.RequestException:
                 # Don't flag transient failures
                 pass

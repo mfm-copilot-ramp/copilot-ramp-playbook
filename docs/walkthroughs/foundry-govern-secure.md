@@ -21,8 +21,8 @@ updated: 2026-06-04
 !!! warning "Governance is the price of the frontier"
     Foundry agents live in **Azure**, not the Microsoft 365 admin center, and they can touch real systems.
     The controls below are the shape of the work — verify exact roles, setup, and governance surfaces
-    against the [Foundry RBAC](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-azure-ai-foundry)
-    and [standard agent setup](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/standard-agent-setup)
+    against the [Foundry RBAC](https://learn.microsoft.com/en-us/azure/foundry/concepts/rbac-foundry)
+    and [standard agent setup](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup)
     docs. Agent 365 and Purview coverage is **evolving — confirm current state**.
 
 ## When to use this

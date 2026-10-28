@@ -162,7 +162,7 @@ EXTERNAL = [
     },
     {
         "title": "Extend Microsoft 365 Copilot — options compared",
-        "href": "https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/",
+        "href": "https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/",
         "source": "Microsoft Learn",
         "stage": "agent-builder", "stageLabel": "Microsoft Learn",
         "roles": ["maker", "developer", "it-admin"],
@@ -178,7 +178,7 @@ EXTERNAL = [
     },
     {
         "title": "Microsoft Foundry documentation",
-        "href": "https://learn.microsoft.com/en-us/azure/ai-foundry/",
+        "href": "https://learn.microsoft.com/en-us/azure/foundry/",
         "source": "Microsoft Learn",
         "stage": "foundry", "stageLabel": "Microsoft Learn",
         "roles": ["developer"],

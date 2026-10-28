@@ -75,7 +75,7 @@ A community agent is only as good as the loop around it:
 
 > **📚 Learn more.** The [Agents in Microsoft 365 hub](https://adoption.microsoft.com/en-us/ai-agents/agents-in-microsoft-365/)
 > describes the shared-agent surfaces in plain language, and Nicole Herskowitz's (CVP, M365 Copilot) blog
-> on [enabling human-agent teams](https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
+> on [enabling human-agent teams](https://www.microsoft.com/en-us/copilot/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
 > covers how shared agents work alongside people.
 
 ## Watch out for

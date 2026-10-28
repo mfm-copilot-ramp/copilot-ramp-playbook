@@ -22,7 +22,7 @@ updated: 2026-06-05
     Most "the model doesn't get our domain" problems are solved by better prompting, examples, or retrieval —
     far cheaper and faster than training. Reach for fine-tuning only when those genuinely fall short. The SDK
     and supported methods (SFT/DPO/RFT) and which models are tunable **change over time** — verify against the
-    [Foundry fine-tuning docs](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/fine-tuning-overview)
+    [Foundry fine-tuning docs](https://learn.microsoft.com/en-us/azure/foundry-classic/concepts/fine-tuning-overview)
     before you commit time and budget.
 
 ## When to use this

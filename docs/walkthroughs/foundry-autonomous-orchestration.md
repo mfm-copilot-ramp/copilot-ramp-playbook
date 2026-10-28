@@ -21,7 +21,7 @@ updated: 2026-06-04
 !!! warning "The most powerful — and most demanding — pattern"
     Multi-agent and autonomous orchestration is where the most can go right *and* wrong. The shapes below
     are representative; confirm orchestration and triggering against the current
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). Build this
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). Build this
     only when a single agent genuinely can't.
 
 ## When to use this

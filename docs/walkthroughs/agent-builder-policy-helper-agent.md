@@ -61,7 +61,7 @@ Make the helper safer and easier to trust:
 - **Separate draft from approved content.** Keep the agent grounded on final docs so it does not cite work in progress as policy.
 - **Invite corrections.** Tell teammates where to report a wrong or stale answer so the source docs can be fixed.
 
-> **📚 Learn more.** See Microsoft Learn for [extending Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) and the Agent Builder path into declarative agents.
+> **📚 Learn more.** See Microsoft Learn for [extending Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/) and the Agent Builder path into declarative agents.
 
 ## Watch out for
 - **It cannot replace a policy owner.** The agent can summarise and cite approved docs, but humans still own exceptions and interpretation.

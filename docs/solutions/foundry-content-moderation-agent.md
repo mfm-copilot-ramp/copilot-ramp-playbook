@@ -21,7 +21,7 @@ updated: 2026-08-29
     Unlike the Studio templates in this library, this one is a **code blueprint**, not a low-code spec.
     The snippets are *representative* of the `azure-ai-projects` / `azure-ai-evaluation` SDKs — these move
     fast. Pin versions and verify every call against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). **Don't
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). **Don't
     start here if a Studio agent would do** — climb to Foundry only when it won't.
 
 ---
@@ -175,7 +175,7 @@ assert policy_metrics["false_positive_rate"] <= 0.05
 assert policy_metrics["required_review_routing_recall"] >= 0.99
 ```
 
-Full pattern: [Observability in generative AI](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai).
+Full pattern: [Observability in generative AI](https://learn.microsoft.com/en-us/azure/foundry/concepts/observability).
 
 ---
 
@@ -224,5 +224,5 @@ Full pattern: [Observability in generative AI](https://learn.microsoft.com/en-us
 ## Related
 
 - [Support Escalation Routing Agent](support-escalation-routing-agent.md) — a Studio-first routing workflow
-- [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/)
-- [Content filtering for Microsoft Foundry Models](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/content-filtering)
+- [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview)
+- [Content filtering for Microsoft Foundry Models](https://learn.microsoft.com/en-us/azure/foundry-classic/foundry-models/concepts/content-filter)

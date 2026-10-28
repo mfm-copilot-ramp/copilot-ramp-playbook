@@ -83,7 +83,7 @@ A channel agent gets better with use:
 
 > **📚 Learn more.** The [Agents in Microsoft 365 Adoption Hub](https://adoption.microsoft.com/en-us/copilot/)
 > covers shared and channel agents, and Nicole Herskowitz's (CVP, M365 Copilot) blog on
-> [enabling human-agent teams](https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
+> [enabling human-agent teams](https://www.microsoft.com/en-us/copilot/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
 > frames how agents work alongside a team.
 
 ## Watch out for

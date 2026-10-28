@@ -32,6 +32,18 @@ Each entry follows this template:
 
 ## Entries
 
+### 2026-10-28 — [process] Link checks must use GET, not HEAD
+
+**Issue:** The Auditor's first working run flagged `copilot.cloud.microsoft` as dead (HTTP 405) and
+reported Learn redirects inconsistently between the Actions runner and a local run.
+**Root cause:** It probed links with HEAD. Some sites reject HEAD, and Learn can answer HEAD with 200
+for pages whose GET redirects (for example `azure/ai-foundry/` → `azure/foundry/`). It also counted
+locale-only redirects (`/x` → `/en-us/x`) as stale links.
+**Fix / guideline:** Probe with a streamed GET, follow redirects to the final URL, and ignore
+locale, trailing-slash and query-only differences. When Microsoft moves a docs set, fix every
+occurrence site-wide and in generators such as `tooling/gen_path_catalog.py`, not just the sampled pages.
+**Applies to:** All
+
 ### 2026-10-28 — [process] Author, Reconciler and Auditor looked busy but delivered nothing
 
 **Issue:** Since August the Author failed every week, the Reconciler "succeeded" daily without

@@ -22,7 +22,7 @@ updated: 2026-06-05
     Every cost lever below — smaller models, shorter context, caching — can trade away quality if you pull it
     blind. Always re-run your [evaluation suite](foundry-evaluate-monitor.md) after a change. Model pricing,
     caching behaviour, and token accounting **change over time**; verify current numbers against the
-    [Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/) and model pricing docs.
+    [Foundry](https://learn.microsoft.com/en-us/azure/foundry/) and model pricing docs.
 
 ## When to use this
 Your agent works, and now it's about to run a lot — many users, a batch pipeline, or an always-on workflow.

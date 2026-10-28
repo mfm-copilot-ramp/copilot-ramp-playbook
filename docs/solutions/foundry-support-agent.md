@@ -22,7 +22,7 @@ updated: 2026-06-05
     This is a **code blueprint**, not a low-code spec, and it is **customer-facing and action-taking** — the
     riskiest combination in this library. The snippets are *representative* of the `azure-ai-projects` /
     `azure-ai-evaluation` SDKs — these move fast. Pin versions and verify every call against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). If the audience
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). If the audience
     is internal and read-only, use the [grounded Q&A template](foundry-knowledge-agent.md) or a
     [Studio agent](policy-faq-agent.md) instead.
 

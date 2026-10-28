@@ -23,7 +23,7 @@ updated: 2026-06-05
     handing the keyboard to an automated process: run it in a **sandbox or dedicated VM**, scope its reachable
     sites with an allow-list, and require **human confirmation before any irreversible action** (submit, pay,
     delete, send). The computer-use capability and SDK surface are **evolving fast** — verify every call and
-    the current availability against the [Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/)
+    the current availability against the [Foundry docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview)
     before you build, and prefer a real API whenever one exists.
 
 ---

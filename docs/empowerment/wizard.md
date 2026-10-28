@@ -325,7 +325,7 @@ trade-offs of each. It's the [decision tree](decision-tree.md), made clickable a
         "Highest build and governance cost",
         "Overkill until you've outgrown low-code"
       ],
-      href: "https://learn.microsoft.com/en-us/azure/ai-foundry/", cta: "Explore Microsoft Foundry", external: true
+      href: "https://learn.microsoft.com/en-us/azure/foundry/", cta: "Explore Microsoft Foundry", external: true
     }
   };
 
@@ -531,5 +531,5 @@ trade-offs of each. It's the [decision tree](decision-tree.md), made clickable a
 > **📚 Learn more.**
 >
 > - [Which Copilot is right for you](https://learn.microsoft.com/en-us/copilot/) — Microsoft's official front door.
-> - [Extend Microsoft 365 Copilot — options compared](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) — declarative vs. custom-engine agents.
+> - [Extend Microsoft 365 Copilot — options compared](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/) — declarative vs. custom-engine agents.
 > - [Build your AI empowerment team](index.md) — who owns this decision, and how to prioritize the backlog behind it.

@@ -21,7 +21,7 @@ updated: 2026-06-04
 !!! warning "Pro-code, and it moves fast"
     Foundry is a developer platform on Azure, not a low-code designer. The SDK names, versions, and
     portal screens below are **illustrative** — treat them as the shape of the work and confirm exact
-    APIs against the linked [Microsoft Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/),
+    APIs against the linked [Microsoft Foundry docs](https://learn.microsoft.com/en-us/azure/foundry/),
     which stay current with the product.
 
 ## When to use this
@@ -36,7 +36,7 @@ project, identity, and SDK plumbing all work before you build anything real.
 - A local dev environment with **Python 3.10+** (or the .NET/JS SDK if you prefer) and the
   **Azure CLI** signed in (`az login`) for `DefaultAzureCredential`.
 - The **Azure AI User** (or higher) role on the project — see
-  [Foundry RBAC](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-azure-ai-foundry).
+  [Foundry RBAC](https://learn.microsoft.com/en-us/azure/foundry/concepts/rbac-foundry).
 
 ## Try it now — the build
 Authenticate with Entra ID, connect to your project, and create a minimal agent. This is the
@@ -95,7 +95,7 @@ Once the hello-agent runs, layer on capability — each is its own walkthrough:
 - **Give it tools.** Add file search, code interpreter, or a function tool so it can *do* things, not just
   talk. Then go further with [custom + MCP tools](foundry-mcp-tools.md).
 - **Bring your own data home.** Switch to the
-  [standard agent setup](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/standard-agent-setup)
+  [standard agent setup](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup)
   so agent state lives in *your* Azure resources, in *your* tenant.
 - **Wrap it in tests.** Add an [evaluation harness](foundry-evaluate-monitor.md) before anyone depends on it.
 

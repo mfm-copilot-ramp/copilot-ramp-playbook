@@ -65,8 +65,8 @@ Stage 1 walkthrough instead of re-listing prompts.
 | **Agents in Microsoft 365 (dedicated hub)** | The canonical roster of the prebuilt agents included with M365 Copilot (Researcher, Analyst, Facilitator, Interpreter, …) — what each does, in plain language | [adoption.microsoft.com/ai-agents](https://adoption.microsoft.com/en-us/ai-agents/agents-in-microsoft-365/) |
 | **Agents in Microsoft 365 (Adoption Hub → agents section)** | Overview of prebuilt agents and the Agent Store, within the broader adoption hub | [adoption.microsoft.com/copilot](https://adoption.microsoft.com/en-us/copilot/) |
 | **M365 Copilot resources (CAT)** | CAT-curated adopt/deploy/extend hub for M365 Copilot + its agents | [aka.ms/m365copilot/resources](https://aka.ms/m365copilot/resources) |
-| **Researcher & Analyst now GA (M365 blog)** | Jared Spataro (CMO, AI at Work) announcing the two reasoning agents reaching general availability — what each is built for | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/microsoft-365/blog/2025/06/02/researcher-and-analyst-are-now-generally-available-in-microsoft-365-copilot/) |
-| **Enabling human-agent teams (M365 blog)** | Nicole Herskowitz (CVP, Microsoft 365 Copilot) on how prebuilt agents work alongside people | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/) |
+| **Researcher & Analyst now GA (M365 blog)** | Jared Spataro (CMO, AI at Work) announcing the two reasoning agents reaching general availability — what each is built for | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/copilot/blog/2025/06/02/researcher-and-analyst-are-now-generally-available-in-microsoft-365-copilot/) |
+| **Enabling human-agent teams (M365 blog)** | Nicole Herskowitz (CVP, Microsoft 365 Copilot) on how prebuilt agents work alongside people | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/copilot/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/) |
 
 **Reuse tip:** the dedicated **Agents in Microsoft 365 hub** is the roster source of truth — it lists
 each included agent and what it's for, so link to it from the Stage 2 overview rather than re-documenting
@@ -106,7 +106,7 @@ didn't even have to build it" demos that warm customers up before they build the
 |----------|-----------|------|
 | **Introducing the new Copilot with Home, Code and Autopilot (Official Microsoft Blog)** | The September 25, 2026 announcement of **Autopilot (formerly Microsoft Scout)** — a persistent, proactive and personal agent, expanding to private preview | [Introducing the new Copilot with Home, Code and Autopilot](https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/) |
 | **Microsoft Scout desktop app (Learn)** | Overview + setup for the Frontier desktop app, not yet renamed on Learn — admin access, the Intune policy + attestation, and license requirements | [learn.microsoft.com/microsoft-scout](https://learn.microsoft.com/en-us/microsoft-scout/) |
-| **Work IQ APIs** | The work-context layer Autopilot is built on — the same intelligence opened up to developers | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/microsoft-365/blog/2026/06/02/announcing-the-new-work-iq-apis/) |
+| **Work IQ APIs** | The work-context layer Autopilot is built on — the same intelligence opened up to developers | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/copilot/blog/2026/06/02/announcing-the-new-work-iq-apis/) |
 | **Frontier program** | The early-access path — admins turn on Copilot Frontier to unlock the Microsoft Scout desktop app today | [Microsoft Frontier program](https://learn.microsoft.com/microsoft-365/admin/manage/get-started-frontier) |
 
 **Reuse tip:** the **Microsoft Scout desktop app (Learn)** pages are the source of truth for the desktop app's
@@ -142,11 +142,11 @@ a proof-of-concept for our hosting approach (five static sites on GitHub Pages, 
 
 | Resource | What it is | Link |
 |----------|-----------|------|
-| **Microsoft Foundry docs** | The canonical Learn documentation set — build, evaluate, deploy AI apps and agents | [learn.microsoft.com/azure/ai-foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/) |
-| **Foundry Agent Service** | Build, deploy, and run agents with tools and orchestration | [learn.microsoft.com/azure/ai-foundry/agents](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/) |
-| **Standard agent setup** | Bring-your-own Azure resources so agent data stays in your tenant (project-level isolation) | [learn.microsoft.com/standard-agent-setup](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/standard-agent-setup) |
-| **Role-based access control in Foundry** | Least-privilege built-in roles and Entra ID authentication | [learn.microsoft.com/rbac-foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-azure-ai-foundry) |
-| **Extend Microsoft 365 Copilot — options compared** | Where custom-engine (Foundry) agents fit next to declarative ones | [learn.microsoft.com/extensibility](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) |
+| **Microsoft Foundry docs** | The canonical Learn documentation set — build, evaluate, deploy AI apps and agents | [learn.microsoft.com/azure/foundry](https://learn.microsoft.com/en-us/azure/foundry/) |
+| **Foundry Agent Service** | Build, deploy, and run agents with tools and orchestration | [learn.microsoft.com/azure/foundry/agents](https://learn.microsoft.com/en-us/azure/foundry/agents/overview) |
+| **Standard agent setup** | Bring-your-own Azure resources so agent data stays in your tenant (project-level isolation) | [learn.microsoft.com/standard-agent-setup](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup) |
+| **Role-based access control in Foundry** | Least-privilege built-in roles and Entra ID authentication | [learn.microsoft.com/rbac-foundry](https://learn.microsoft.com/en-us/azure/foundry/concepts/rbac-foundry) |
+| **Extend Microsoft 365 Copilot — options compared** | Where custom-engine (Foundry) agents fit next to declarative ones | [learn.microsoft.com/microsoft-365/copilot/extensibility](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/) |
 | **Agent samples (low-code → pro-code)** | Microsoft-owned and community GitHub starting points | [learn.microsoft.com/agent-samples](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/agent-samples) |
 
 **Note:** Foundry is a fast-moving developer platform — these links track the product, so prefer them over
