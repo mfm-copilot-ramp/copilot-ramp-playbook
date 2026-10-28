@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": "cb04a8add48a1f6f4f0e",
+    "source": "Microsoft Copilot blog",
+    "category": "cross-journey",
+    "title": "Introducing the new Copilot with Home, Code and Autopilot",
+    "url": "https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/",
+    "summary": "We’re reimagining Microsoft Copilot to enable work as it evolves and to help expand what every individual and every organization can accomplish in the flow of human ambition.",
+    "published": "Fri, 25 Sep 2026 12:07:25 +0000",
+    "published_ts": 1790338045,
+    "content_hash": "2dd0576296390841",
+    "change_type": "new",
+    "retrieved_at": "2026-10-28T19:08:36.896731+00:00"
+  }
+]
