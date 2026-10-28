@@ -1,6 +1,6 @@
 ---
 title: "One skill, three surfaces: the customer-health capability"
-description: Follow one skill — ranking accounts worst-first by risk — across three surfaces: a Cowork recipe, an always-on Autopilot skill, and a governed Studio tool.
+description: 'Follow one skill — ranking accounts worst-first by risk — across three surfaces: a Cowork recipe, an always-on Autopilot skill, and a governed Studio tool.'
 stage: studio
 roles: [end-user, manager, champion, maker]
 tags: [skill, lineage, cowork, autopilots, scout, autopilot, studio, customer-health, three-surfaces]
@@ -110,6 +110,13 @@ actually needs:
 | Should run continuously, on its own, for *you* | **Autopilot** (equipped skill) | Always-on, re-scores itself, keeps you in the loop |
 | Must take governed actions on systems, org-wide | **Studio** (tool) | Real actions, policy, monitoring, sharing |
 
+## Screenshots
+This page is a conceptual map, so the visuals live on the three build walkthroughs it points to:
+
+- [Cowork — generate a weekly customer-health digest](cowork-customer-health-digest.md)
+- [Autopilots — equip Autopilot with a continuous customer-health watch](autopilots-customer-health-watch.md)
+- [Studio — govern and monitor your agents at scale](studio-govern-monitor.md)
+
 ## Make it better
 A skill isn't fixed to one surface. Graduate it as it earns more autonomy and reach — these are the signals it's ready:
 
@@ -138,10 +145,3 @@ Follow the same capability onward, or build any single surface end-to-end:
 - [Studio → Configure an autonomous event-triggered agent](studio-autonomous-triggers.md)
 - [Studio → Give a Studio agent a real action with a connector](studio-connector-action.md)
 - [Studio → Govern and monitor your agents at scale](studio-govern-monitor.md)
-
-## Screenshots
-This page is a conceptual map, so the visuals live on the three build walkthroughs it points to:
-
-- [Cowork — generate a weekly customer-health digest](cowork-customer-health-digest.md)
-- [Autopilots — equip Autopilot with a continuous customer-health watch](autopilots-customer-health-watch.md)
-- [Studio — govern and monitor your agents at scale](studio-govern-monitor.md)

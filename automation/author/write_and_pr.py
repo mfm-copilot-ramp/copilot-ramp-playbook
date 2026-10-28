@@ -79,6 +79,20 @@ def slugify(title: str) -> str:
     return slug.strip("-")[:60]
 
 
+def clean_title(title: str) -> str:
+    """Strip Watcher issue prefixes ("📡 New: ", "🔄 Changed: ", "[intel:new-usecase] ")."""
+    title = re.sub(r"^[📡🔄]\s*(New|Changed):\s*", "", title or "").strip()
+    return re.sub(r"^\[intel:[^\]]+\]\s*", "", title, flags=re.IGNORECASE).strip()
+
+
+def delete_remote_branch(branch: str) -> None:
+    """Remove a pushed branch whose PR could not be opened, so the next run can retry."""
+    subprocess.run(
+        ["git", "push", "origin", "--delete", branch],
+        capture_output=True, text=True, cwd=REPO_ROOT, timeout=60,
+    )
+
+
 def fetch_source_content(url: str) -> str:
     """Fetch a source URL for grounding."""
     if not url:
@@ -137,15 +151,20 @@ def generate_walkthrough(workitem: dict, retrieval_date: str) -> tuple[str, str,
     content that a human reviewer can verify and enrich.
     """
     title = workitem.get("title", "").strip()
-    # Clean title from issue prefixes
-    title = re.sub(r"^[📡🔄]\s*(New|Changed):\s*", "", title).strip()
+    title = clean_title(title)
+    if not title:
+        raise ValueError("Work item has no usable title")
 
-    category = workitem.get("category", "chat")
-    stage_info = STAGE_MAP.get(category, STAGE_MAP["chat"])
+    category = workitem.get("category", "")
+    if category not in STAGE_MAP:
+        raise ValueError(f"Work item has invalid stage: {category!r}")
+    stage_info = STAGE_MAP[category]
     roles = determine_roles(workitem)
     level = determine_level(category)
     source_url = workitem.get("source_url", "")
-    summary = workitem.get("summary", "")
+    summary = " ".join(workitem.get("summary", "").split())
+    description = (summary[:150] if summary else title).replace('"', "'")
+    title = title.replace('"', "'")
 
     slug = f"{category}-{slugify(title)}"
     filename = f"{slug}.md"
@@ -197,7 +216,7 @@ def generate_walkthrough(workitem: dict, retrieval_date: str) -> tuple[str, str,
 
     content = f"""---
 title: "{title}"
-description: "{summary[:150] if summary else title}"
+description: "{description}"
 stage: {category}
 roles: {roles_str}
 tags: {tags_str}
@@ -503,6 +522,12 @@ def create_pr(
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT, timeout=30)
     if result.returncode != 0:
         log.error(f"  PR creation failed: {result.stderr}")
+        if "not permitted to create or approve pull requests" in result.stderr:
+            log.error(
+                "  Enable Settings → Actions → General → 'Allow GitHub Actions to create "
+                "and approve pull requests' for this repository."
+            )
+        delete_remote_branch(branch)
         return None
 
     return result.stdout.strip()
@@ -532,7 +557,11 @@ def main():
 
     # Generate the content
     output_type = workitem.get("output_type", "walkthrough")
-    content, filename, sources_cited = generate_walkthrough(workitem, retrieval_date)
+    try:
+        content, filename, sources_cited = generate_walkthrough(workitem, retrieval_date)
+    except ValueError as exc:
+        log.error(f"Cannot author this work item: {exc}")
+        sys.exit(1)
 
     # Determine output path
     if output_type == "solution":
@@ -546,7 +575,7 @@ def main():
         sys.exit(0)
 
     # Create branch
-    branch_name = f"author/{slugify(workitem.get('title', 'new-content')[:40])}"
+    branch_name = f"author/{slugify(clean_title(workitem.get('title', 'new-content'))[:40])}"
     if not args.dry_run:
         if not create_branch(branch_name):
             sys.exit(1)
@@ -557,9 +586,8 @@ def main():
         output_path.write_text(content, encoding="utf-8")
 
     # Wire into site
-    title = workitem.get("title", "New content")
-    title = re.sub(r"^[📡🔄]\s*(New|Changed):\s*", "", title).strip()
-    category = workitem.get("category", "chat")
+    title = clean_title(workitem.get("title", "New content")).replace('"', "'")
+    category = workitem["category"]
     roles = determine_roles(workitem)
 
     if not args.dry_run:
@@ -647,6 +675,10 @@ Added new {output_type}: `{filename}`
             f.write(f"| File | `{filename}` |\n")
             f.write(f"| Selection reason | {workitem.get('selection_reason', 'N/A')} |\n")
             f.write(f"| PR | {pr_url or 'N/A'} |\n")
+
+    if not pr_url and not args.dry_run:
+        log.error("Author could not open its PR — failing the run so it shows up in Actions")
+        sys.exit(1)
 
     log.info("Author write step complete")
 

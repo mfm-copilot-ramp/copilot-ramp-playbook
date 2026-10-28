@@ -70,12 +70,6 @@ Break each milestone into 3-5 tasks and suggest assignments based on the names I
    Give me a 5-bullet project status update for [project] I can share in a standup.
    ```
 
-## Make it better
-
-- **From meeting notes:** paste in notes from a project kickoff and ask the Planner agent to extract the tasks and assignments.
-- **Weekly nudge:** ask `"What was completed on [project] this week and what's coming up next week?"` before each standup.
-- **Risk surfacing:** `"Are there any tasks with no due date or no owner in [project]?"` — finds gaps before they become problems.
-
 ## Screenshots
 
 Captured live with the **Planner (Frontier)** agent in Microsoft 365 Copilot Chat.
@@ -91,6 +85,12 @@ Captured live with the **Planner (Frontier)** agent in Microsoft 365 Copilot Cha
 
 **4. Ask about it in plain language.** Follow-up questions get plain-language answers — here, who owns each milestone and whose workload is heaviest, with an offer to rebalance.
 ![A plain-language workload summary from the Planner agent](../screenshots/first-party-planner-agent/04-status-question.png)
+
+## Make it better
+
+- **From meeting notes:** paste in notes from a project kickoff and ask the Planner agent to extract the tasks and assignments.
+- **Weekly nudge:** ask `"What was completed on [project] this week and what's coming up next week?"` before each standup.
+- **Risk surfacing:** `"Are there any tasks with no due date or no owner in [project]?"` — finds gaps before they become problems.
 
 ## Watch out for
 

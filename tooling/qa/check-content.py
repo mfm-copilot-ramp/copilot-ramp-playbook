@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Content QA guard for the Copilot Ramp Playbook.
 
-Stdlib-only. Run from the repo root:
+Stdlib-only, plus PyYAML when it's installed (it ships with MkDocs). Run from the repo root:
 
     python tooling/qa/check-content.py
 
@@ -31,6 +31,8 @@ What it checks:
      page that *does* declare a description is still held to the length limit.
   10. Stale walkthrough/solution count claims: non-history pages must not cite
       a specific count that disagrees with the actual file counts.
+  11. Frontmatter parses as a YAML mapping (when PyYAML is available, which it is
+      wherever MkDocs runs). MkDocs prints unparseable frontmatter as page text.
 """
 from __future__ import annotations
 
@@ -114,9 +116,43 @@ def clean_description(raw: str) -> str:
     return d
 
 
+try:  # PyYAML ships with MkDocs, so it's present anywhere the site builds.
+    import yaml
+except ImportError:  # pragma: no cover - keeps the guard usable stdlib-only
+    yaml = None
+
+FRONTMATTER_RE = re.compile(r"^-{3}[ \t]*\n(.*?\n)(?:-{3}|\.{3})[ \t]*\n", re.S)
+
+
+def frontmatter_yaml_error(text: str) -> str | None:
+    """Return why MkDocs can't read this page's frontmatter, or None if it can.
+
+    MkDocs silently gives up on frontmatter that isn't a valid YAML mapping and renders it as
+    raw text at the top of the page (typically an unquoted value containing ': ').
+    """
+    if yaml is None or not text.startswith("---"):
+        return None
+    m = FRONTMATTER_RE.match(text)
+    if not m:
+        return None
+    try:
+        data = yaml.safe_load(m.group(1))
+    except yaml.YAMLError as exc:
+        return str(exc).splitlines()[0]
+    return None if isinstance(data, dict) else "frontmatter is not a key: value mapping"
+
+
 for path in sorted(DOCS.rglob("*.md")):
     relpath = rel(path)
     text = path.read_text(encoding="utf-8")
+
+    # 0. Frontmatter must be valid YAML or MkDocs prints it on the page.
+    yaml_err = frontmatter_yaml_error(text)
+    if yaml_err:
+        errors.append(
+            f"{relpath}: frontmatter is not valid YAML ({yaml_err}) — it would render as raw text; "
+            "quote values that contain ': '"
+        )
 
     # 1. Leaked scaffolding label.
     if "**One-line value.**" in text:
