@@ -1,15 +1,41 @@
 [
   {
-    "id": "cb04a8add48a1f6f4f0e",
+    "id": "d1fb242170809b0beea4",
     "source": "Microsoft Copilot blog",
     "category": "cross-journey",
-    "title": "Introducing the new Copilot with Home, Code and Autopilot",
-    "url": "https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/",
-    "summary": "We’re reimagining Microsoft Copilot to enable work as it evolves and to help expand what every individual and every organization can accomplish in the flow of human ambition.",
-    "published": "Fri, 25 Sep 2026 12:07:25 +0000",
-    "published_ts": 1790338045,
-    "content_hash": "2dd0576296390841",
+    "title": "The AI advantage your company can keep",
+    "url": "https://www.microsoft.com/en-us/copilot/blog/2026/10/27/the-ai-advantage-your-company-can-keep/",
+    "summary": "New research across more than 200 enterprises looks at how shared knowledge can help companies coordinate their agents—and turn lessons from their work into an operational edge.",
+    "published": "Tue, 27 Oct 2026 16:00:00 +0000",
+    "published_ts": 1793116800,
+    "content_hash": "1207b0ac5b85ba34",
     "change_type": "new",
-    "retrieved_at": "2026-10-28T19:08:36.896731+00:00"
+    "retrieved_at": "2026-10-28T19:20:17.476689+00:00"
+  },
+  {
+    "id": "5dda5d4eeb87dc677893",
+    "source": "Microsoft Copilot blog",
+    "category": "cross-journey",
+    "title": "Bringing CRM into the flow of work and agents into business process for sales and service teams",
+    "url": "https://www.microsoft.com/en-us/copilot/blog/2026/10/08/bringing-crm-into-the-flow-of-work-and-agents-into-business-process-for-sales-and-service-teams/",
+    "summary": "The traditional boundaries of business applications are disappearing. For decades, people went to their customer relationship management (CRM) to find customer context, take action, and move work forward. AI is inverting that model. This shift creates two complementary opportunities: greater individual productivity and organization-wide process transformation.",
+    "published": "Thu, 08 Oct 2026 15:00:00 +0000",
+    "published_ts": 1791471600,
+    "content_hash": "c693eac831e9d86d",
+    "change_type": "new",
+    "retrieved_at": "2026-10-28T19:20:17.476689+00:00"
+  },
+  {
+    "id": "ddcd2c9d30731957b9ec",
+    "source": "Copilot Cowork — What's new",
+    "category": "cowork",
+    "title": "October 2026",
+    "display_title": "Copilot Cowork — What's new: October 2026",
+    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#october-2026",
+    "summary": "New features Feature Description Learn more GPT 6.1 Sol model GPT 6.1 Sol is now available in the model selector as an intelligent and efficient model for hard work, replacing GPT 6 Sol. Choose a model for Cowork Grok 4.7 model Grok 4.7 is now available in the model selector for long documents, codi",
+    "published": "",
+    "content_hash": "f906ba2f793aab92",
+    "change_type": "changed",
+    "retrieved_at": "2026-10-28T19:20:17.476689+00:00"
   }
 ]
