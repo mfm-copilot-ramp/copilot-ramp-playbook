@@ -23,12 +23,20 @@ The branch history is the audit trail: one small commit per day.
 
 | File | What it holds |
 |------|---------------|
-| `watcher-seen.json` | Per source: item ID → content hash, plus `hash_version`, `config_hash`, `last_checked`, `consecutive_failures`, `last_error` |
+| `watcher-seen.json` | Per source: item ID → content hash, plus `hash_version`, `config_hash`, `feed_updated` (feeds only), `last_checked`, `consecutive_failures`, `last_error` |
 | `watcher-new-items.json` | Items reported by the latest run |
 | `watcher-health.json` | Sources that have failed 3 or more runs in a row |
 
 Pages are tracked one top-level section at a time (h2, or h3 if the page has none), so an edit
-anywhere in a section changes its hash. Feeds are tracked one entry at a time.
+anywhere in a section changes its hash. Feeds are tracked one entry at a time, keyed on the entry's
+GUID, with the WordPress "appeared first on" footer removed before hashing.
+
+## Stale feed copies
+
+Some CDNs serve more than one copy of a feed, and one can be weeks old. The Watcher records each
+feed's build date in `feed_updated`. If a fetch returns an older copy, it refetches (3 tries); if
+every copy is older, it skips that source for the run and keeps its state as it was. An entry seen
+for the first time that is dated more than 45 days ago is recorded without being reported.
 
 ## Idempotency and baselining
 
