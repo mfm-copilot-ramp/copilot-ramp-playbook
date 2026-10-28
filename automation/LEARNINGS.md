@@ -32,6 +32,27 @@ Each entry follows this template:
 
 ## Entries
 
+### 2026-10-28 — [process] Author, Reconciler and Auditor looked busy but delivered nothing
+
+**Issue:** Since August the Author failed every week, the Reconciler "succeeded" daily without
+opening a PR, and the Auditor reported 140 findings a week but filed none. Meanwhile one
+accuracy-risk issue collected 88 identical Reconciler comments.
+**Root cause:** Four separate bugs. (1) Author read `title`, but the selector only wrote
+`issue_title`, and it read the stage from a format the Watcher no longer used, so every draft
+was `unknown-.md` and failed QA. (2) "Allow GitHub Actions to create and approve pull requests"
+was off, so `gh pr create` failed. The script logged the error, kept the pushed branch and exited
+0, and the leftover branch then made later runs skip the item. (3) The Reconciler re-commented on
+accuracy-risk issues every day with no memory that it already had. (4) The Auditor's section-order
+rule put Screenshots last, against CONTENT-MODEL.md, so all 140 walkthroughs "failed". Its fuzzy
+dedupe then treated every "Section order mismatch in X" as a duplicate of the first, so it filed
+nothing. The real problems it was hiding were three walkthroughs whose invalid YAML frontmatter
+rendered as raw text on the live site.
+**Fix / guideline:** A failed PR or issue write must exit non-zero, never just log. Each
+automation needs one check that it produced output, not only that it ran. Rules that every page
+fails mean the rule is wrong. Dedupe on exact keys, not word overlap. Parse frontmatter with a
+real YAML parser in CI.
+**Applies to:** All
+
 ### 2026-10-28 — [process] Watcher silently stopped filing issues for two months
 
 **Issue:** From 2026-08-21 every daily Watcher run failed at "Commit state file", so the

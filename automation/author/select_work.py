@@ -33,6 +33,28 @@ SOLUTIONS_DIR = DOCS_DIR / "solutions"
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger("author.select")
 
+STAGE_VOCAB = {"chat", "first-party", "cowork", "agent-builder", "autopilots", "studio", "foundry"}
+STAGE_BY_NUMBER = {
+    "1": "chat", "2": "first-party", "3": "cowork", "4": "agent-builder",
+    "5": "autopilots", "6": "studio", "7": "foundry",
+}
+# Product names that pin a stage unambiguously. Checked before the issue's "Stage N" hints,
+# which the legacy Watcher often guessed wrong (e.g. a Copilot Studio post tagged Stage 1).
+STAGE_KEYWORDS = [
+    (r"\bcowork\b", "cowork"),
+    (r"\bautopilots?\b|\bmicrosoft scout\b", "autopilots"),
+    (r"\bcopilot studio\b", "studio"),
+    (r"\bfoundry\b", "foundry"),
+    (r"\bagent builder\b", "agent-builder"),
+]
+
+
+def infer_stage_from_text(text: str) -> str:
+    for pattern, stage in STAGE_KEYWORDS:
+        if re.search(pattern, text or "", re.IGNORECASE):
+            return stage
+    return ""
+
 
 def query_usecase_issues() -> list[dict]:
     """Query open intel:new-usecase issues, priority-sorted."""
@@ -80,30 +102,22 @@ def find_catalog_stubs() -> list[dict]:
     stubs = []
 
     # Find entries with status: stub
-    current_stage = "unknown"
+    current_stage = ""
     for line in content.split("\n"):
-        # Track current stage heading
-        stage_match = re.match(r"^## Stage \d+ . (.+)$", line)
+        stage_match = re.match(r"^## Stage ([1-7])\b", line)
         if stage_match:
-            current_stage = stage_match.group(1).lower().strip()
+            current_stage = STAGE_BY_NUMBER[stage_match.group(1)]
+            continue
+        if line.startswith("## "):
+            current_stage = ""
             continue
 
-        # Find stub entries (lines with `status: stub`)
-        if "`status: stub`" in line:
-            # Extract title from the preceding ### heading
-            title_match = re.match(r"^###\s+(.+?)(?:\s*$)", line)
-            if not title_match:
-                # Check if it's on the same line as the heading
-                continue
-
-        # Match ### headings that don't have "→ walkthrough" (indicating they're stubs)
         heading_match = re.match(r"^### (.+?)$", line)
-        if heading_match:
+        if heading_match and current_stage:
             title = heading_match.group(1).strip()
-            # Skip if it already has a walkthrough
-            if "→ walkthrough" in title:
+            # "→ walkthrough" / "→ solution template" mark entries that are already built
+            if "→" in title:
                 continue
-            # This is a stub candidate
             stubs.append({
                 "title": title.rstrip(" ★").strip(),
                 "stage": current_stage,
@@ -164,24 +178,38 @@ def find_matrix_gaps() -> list[dict]:
 
 def extract_issue_details(issue: dict) -> dict:
     """Extract structured details from a new-usecase issue."""
-    body = issue.get("body", "")
+    body = issue.get("body", "") or ""
 
-    # Try to find the category/stage
-    category = "unknown"
-    category_match = re.search(r"\*\*Category\*\*\s*\|\s*(\w+)", body)
-    if category_match:
-        category = category_match.group(1)
-
-    # Extract source URL
-    url_match = re.search(r"(https://[^\s|]+)", body)
-    source_url = url_match.group(1) if url_match else ""
-
-    # Extract summary
-    summary_match = re.search(r"## Why it matters\s*\n\s*(.+)", body)
+    summary_match = re.search(
+        r"## (?:Why it matters|Summary)\s*\n\s*(.+?)(?=\n## |\n---|\Z)", body, re.DOTALL
+    )
     summary = summary_match.group(1).strip() if summary_match else ""
+    # Drop the WordPress feed footer ("The post X appeared first on Y.")
+    summary = re.sub(r"\s*The post .+? appeared first on .+$", "", summary, flags=re.DOTALL).strip()
+
+    # Current Watcher format: "| **Category** | studio |". Legacy format: "## Relevant stages\nStage 6 — ..."
+    category = ""
+    category_match = re.search(r"\|\s*\*\*Category\*\*\s*\|\s*([a-z-]+)\s*\|", body, re.IGNORECASE)
+    if category_match:
+        category = category_match.group(1).lower()
+
+    if category not in STAGE_VOCAB:
+        category = infer_stage_from_text(issue.get("title", "")) or infer_stage_from_text(summary)
+
+    if category not in STAGE_VOCAB:
+        stage_match = re.search(r"Stage\s+([1-7])\b", body, re.IGNORECASE)
+        category = STAGE_BY_NUMBER.get(stage_match.group(1), "") if stage_match else ""
+
+    if not category:
+        log.warning(f"Issue #{issue['number']} has no valid stage; skipping")
+        return {}
+
+    url_match = re.search(r"(https://[^\s|)]+)", body)
+    source_url = url_match.group(1) if url_match else ""
 
     return {
         "issue_number": issue["number"],
+        "title": issue["title"],
         "issue_title": issue["title"],
         "issue_url": issue["url"],
         "category": category,
@@ -204,10 +232,13 @@ def main():
     issues = query_usecase_issues()
     if issues:
         log.info(f"Found {len(issues)} open new-usecase issues")
-        issue = issues[0]
-        workitem = extract_issue_details(issue)
-        workitem["selection_reason"] = "Highest-priority open intel:new-usecase issue"
-        log.info(f"Selected issue #{issue['number']}: {issue['title']}")
+        for issue in issues:
+            candidate = extract_issue_details(issue)
+            if candidate:
+                workitem = candidate
+                workitem["selection_reason"] = "Highest-priority open intel:new-usecase issue with a valid stage"
+                log.info(f"Selected issue #{issue['number']}: {issue['title']}")
+                break
 
     # Priority (b): Catalog stubs
     if not workitem:

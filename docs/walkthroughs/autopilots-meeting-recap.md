@@ -1,6 +1,6 @@
 ---
 title: Equip Autopilot with a meeting-recap and follow-through skill
-description: Make "recap the meeting and chase follow-ups" a skill Autopilot runs when each meeting ends: clean recap, owners on actions, drafted follow-ups.
+description: 'Make "recap the meeting and chase follow-ups" a skill Autopilot runs when each meeting ends: clean recap, owners on actions, drafted follow-ups.'
 stage: autopilots
 roles: [manager, end-user, champion]
 tags: [autopilots, scout, autopilot, skill, meetings, recap, action-items, follow-up]

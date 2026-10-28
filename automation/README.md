@@ -39,7 +39,7 @@
 │   └──────────────┘     └─────────────┘                                     │
 │          │                                                                  │
 │          ▼                                                                  │
-│   LEARNINGS.md (append findings for compounding knowledge)                  │
+│   LEARNINGS.md (curated by maintainers; Auditor files issues, never pushes) │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -107,6 +107,21 @@ See `.github/labels.yml` for the full definitions and colors.
 - **Dead sources are flagged.** A source that fails 3 runs in a row gets one
   `⚠️ Watcher source failing` issue so a moved URL doesn't go quiet.
 
+## Reconciler, Author and Auditor
+
+- **PRs need a repo setting.** Reconciler and Author open PRs with the workflow `GITHUB_TOKEN`, which
+  only works when *Settings → Actions → General → Allow GitHub Actions to create and approve pull
+  requests* is on. If it's off, the run fails (red) and deletes the branch it pushed, so the item is
+  retried next run instead of being silently skipped.
+- **Accuracy-risk issues get one verification comment.** The Reconciler comments once, then adds
+  `needs-human-review` and stops picking the issue up. Remove the label to have it re-checked.
+- **Author skips issues it can't place on a stage.** Stage comes from the issue's Category, then
+  product names in the title/summary (Cowork, Autopilot, Copilot Studio, Foundry, Agent Builder),
+  then any "Stage N" hint.
+- **Auditor only files issues.** Section order is checked against the template in
+  `CONTENT-MODEL.md`; a walkthrough with frontmatter that isn't valid YAML is flagged p2 because it
+  renders as raw text on the page. Duplicates are matched on exact title.
+
 ---
 
 ## Directory Layout
@@ -115,8 +130,11 @@ See `.github/labels.yml` for the full definitions and colors.
 automation/
 ├── README.md          ← you are here
 ├── sources.yml        ← registry of monitored Microsoft sources (+ relevance filters)
-├── LEARNINGS.md       ← append-only knowledge base for recurring issues
+├── LEARNINGS.md       ← curated knowledge base for recurring issues (maintainer-edited)
 ├── watcher/           ← fetch_diff.py + assess_and_file.py
+├── reconciler/        ← select_issues.py + edit_and_pr.py
+├── author/            ← select_work.py + write_and_pr.py
+├── auditor/           ← audit.py
 └── state/             ← runtime outputs (git-ignored on main)
     └── README.md      ← state format; Watcher state persists on the automation-state branch
 ```

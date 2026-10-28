@@ -44,6 +44,7 @@ RESOURCES_FILE = DOCS_DIR / "RESOURCES.md"
 MAX_FILES_PER_PR = 3  # scope cap from copilot-instructions.md
 REQUEST_TIMEOUT = 30
 USER_AGENT = "CopilotRampCookbook-Reconciler/1.0"
+HUMAN_REVIEW_LABEL = "needs-human-review"
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger("reconciler.edit")
@@ -58,12 +59,26 @@ def load_workplan() -> list[dict]:
 
 
 def git_branch_exists(branch: str) -> bool:
-    """Check if a git branch already exists."""
+    """Check if a branch already exists locally or on origin (an open PR branch counts)."""
     result = subprocess.run(
         ["git", "branch", "--list", branch],
         capture_output=True, text=True, cwd=REPO_ROOT,
     )
+    if result.stdout.strip():
+        return True
+    result = subprocess.run(
+        ["git", "ls-remote", "--heads", "origin", branch],
+        capture_output=True, text=True, cwd=REPO_ROOT, timeout=30,
+    )
     return bool(result.stdout.strip())
+
+
+def delete_remote_branch(branch: str) -> None:
+    """Remove a pushed branch whose PR could not be opened, so the next run can retry."""
+    subprocess.run(
+        ["git", "push", "origin", "--delete", branch],
+        capture_output=True, text=True, cwd=REPO_ROOT, timeout=60,
+    )
 
 
 def create_branch(branch_name: str) -> bool:
@@ -253,6 +268,12 @@ def create_pr(
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT, timeout=30)
     if result.returncode != 0:
         log.error(f"  PR creation failed: {result.stderr}")
+        if "not permitted to create or approve pull requests" in result.stderr:
+            log.error(
+                "  Enable Settings → Actions → General → 'Allow GitHub Actions to create "
+                "and approve pull requests' for this repository."
+            )
+        delete_remote_branch(branch)
         return None
 
     pr_url = result.stdout.strip()
@@ -403,6 +424,11 @@ def handle_accuracy_risk(item: dict, dry_run: bool = False) -> list[str]:
             ["gh", "issue", "comment", str(item["issue_number"]), "--body", comment],
             capture_output=True, timeout=15, cwd=REPO_ROOT,
         )
+        # Park the issue for a human so the daily run doesn't re-post the same comment
+        subprocess.run(
+            ["gh", "issue", "edit", str(item["issue_number"]), "--add-label", HUMAN_REVIEW_LABEL],
+            capture_output=True, timeout=15, cwd=REPO_ROOT,
+        )
 
     return modified
 
@@ -419,6 +445,7 @@ def main():
 
     log.info(f"Processing {len(workplan)} workplan items")
     retrieval_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    pr_failures: list[int] = []
 
     for item in workplan:
         issue_number = item["issue_number"]
@@ -479,6 +506,8 @@ def main():
             issue_number=issue_number,
             dry_run=args.dry_run,
         )
+        if not pr_url and not args.dry_run:
+            pr_failures.append(issue_number)
 
         if pr_url and not args.dry_run:
             # Mark issue as in-progress
@@ -497,6 +526,9 @@ def main():
 
     log.info(f"\n{'='*50}")
     log.info("Reconciler edit step complete")
+    if pr_failures:
+        log.error(f"Could not open PRs for issue(s): {', '.join(f'#{n}' for n in pr_failures)}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 Auditor · Weekly Governance Check
 
 Checks what CI can't judge mechanically and files intel:governance issues.
-NEVER makes content edits — only issues + LEARNINGS.md updates.
+NEVER makes content edits — only files issues (main is protected, so it never pushes).
 
 Checks:
 1. Voice/tone + structural consistency vs CONTENT-MODEL.md
@@ -16,7 +16,6 @@ Usage:
 
 Outputs:
     - GitHub issues labeled intel:governance
-    - Appends findings to automation/LEARNINGS.md
 """
 
 import argparse
@@ -37,7 +36,6 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DOCS_DIR = REPO_ROOT / "docs"
 MKDOCS_YML = REPO_ROOT / "mkdocs.yml"
-LEARNINGS_FILE = REPO_ROOT / "automation" / "LEARNINGS.md"
 WALKTHROUGHS_DIR = DOCS_DIR / "walkthroughs"
 SOLUTIONS_DIR = DOCS_DIR / "solutions"
 
@@ -69,23 +67,35 @@ def check_voice_and_structure():
     """Check walkthroughs follow CONTENT-MODEL.md structure."""
     log.info("Check 1: Voice/tone & structural consistency")
 
+    # Mirrors the rich-walkthrough template in CONTENT-MODEL.md (Screenshots sits after Step by step)
     required_sections = [
         "when to use this",
         "what you'll need",
+        "try it now",
         "step by step",
+        "screenshots",
         "make it better",
         "watch out for",
         "where this leads",
-        "screenshots",
+        "related",
     ]
 
     for md_file in sorted(WALKTHROUGHS_DIR.glob("*.md")):
         text = md_file.read_text(encoding="utf-8")
+        relpath = md_file.relative_to(REPO_ROOT).as_posix()
         fm = parse_frontmatter(text)
+        if fm is None and text.startswith("---"):
+            findings.append(Finding(
+                "structure", "p2",
+                f"Invalid YAML frontmatter in {relpath}",
+                "The frontmatter does not parse as YAML, so MkDocs renders it as raw text at the top of "
+                "the page and drops the page metadata. Quote values that contain ': '.",
+                [relpath],
+            ))
+            continue
         if not fm or fm.get("status") != "walkthrough":
             continue
 
-        relpath = md_file.relative_to(REPO_ROOT).as_posix()
         headings = [
             re.sub(r"^#+\s*", "", line).strip().lower()
             for line in text.splitlines()
@@ -96,7 +106,7 @@ def check_voice_and_structure():
         found_indices = []
         for section in required_sections:
             for i, h in enumerate(headings):
-                if section in h:
+                if h.startswith(section):
                     found_indices.append(i)
                     break
             else:
@@ -390,34 +400,38 @@ def parse_frontmatter(text: str) -> dict | None:
         return None
 
 
+_open_governance_titles: set[str] | None = None
+
+
 def check_duplicate_issue(title: str) -> bool:
-    """Check if an open governance issue with similar title exists."""
-    try:
-        short_title = " ".join(title.split()[:6])
-        result = subprocess.run(
-            ["gh", "issue", "list", "--state", "open", "--label", "intel:governance",
-             "--search", short_title, "--json", "title", "--limit", "5"],
-            capture_output=True, text=True, timeout=15,
-        )
-        if result.returncode == 0:
-            issues = json.loads(result.stdout)
-            for issue in issues:
-                existing = set(issue["title"].lower().split())
-                new = set(title.lower().split())
-                if len(existing & new) / max(len(new), 1) > 0.5:
-                    return True
-    except (subprocess.TimeoutExpired, json.JSONDecodeError):
-        pass
-    return False
+    """True if an open governance issue already has exactly this title.
+
+    Titles embed the affected file path, so an exact match is the right key. (A fuzzy word-overlap
+    match made every "Section order mismatch in <file>" look like a duplicate of the first one.)
+    """
+    global _open_governance_titles
+    if _open_governance_titles is None:
+        _open_governance_titles = set()
+        try:
+            result = subprocess.run(
+                ["gh", "issue", "list", "--state", "open", "--label", "intel:governance",
+                 "--json", "title", "--limit", "500"],
+                capture_output=True, text=True, timeout=30,
+            )
+            if result.returncode == 0:
+                _open_governance_titles = {i["title"].strip() for i in json.loads(result.stdout)}
+        except (subprocess.TimeoutExpired, json.JSONDecodeError):
+            pass
+    return title.strip() in _open_governance_titles
 
 
-def file_issue(finding: Finding, dry_run: bool = False) -> bool:
-    """File a governance issue for a finding."""
+def file_issue(finding: Finding, dry_run: bool = False) -> str:
+    """File a governance issue for a finding. Returns "filed", "duplicate" or "failed"."""
     title = f"🔍 Governance: {finding.title}"
 
     if not dry_run and check_duplicate_issue(title):
         log.info(f"  Duplicate issue exists — skipping: {finding.title}")
-        return False
+        return "duplicate"
 
     affected = "\n".join(f"- `{f}`" for f in finding.affected_files) if finding.affected_files else "N/A"
 
@@ -445,7 +459,7 @@ to catch it automatically in CI.
 
     if dry_run:
         log.info(f"  [DRY RUN] Would file: {title} ({finding.severity})")
-        return True
+        return "filed"
 
     cmd = ["gh", "issue", "create", "--title", title, "--body", body]
     for label in labels:
@@ -454,48 +468,9 @@ to catch it automatically in CI.
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
     if result.returncode == 0:
         log.info(f"  Filed: {result.stdout.strip()}")
-        return True
-    else:
-        log.error(f"  Failed to file issue: {result.stderr}")
-        return False
-
-
-def update_learnings(filed_findings: list[Finding]) -> None:
-    """Append recurring patterns to LEARNINGS.md."""
-    if not filed_findings:
-        return
-
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-    # Group by category
-    by_category: dict[str, list[Finding]] = {}
-    for f in filed_findings:
-        by_category.setdefault(f.category, []).append(f)
-
-    entry_lines = [f"\n### {today} — [process] Auditor run findings\n"]
-    entry_lines.append(f"**Issue:** {len(filed_findings)} governance finding(s) detected.\n")
-
-    for category, cat_findings in by_category.items():
-        entry_lines.append(f"- **{category}**: {len(cat_findings)} issue(s)")
-        for f in cat_findings[:3]:
-            entry_lines.append(f"  - {f.title}")
-
-    entry_lines.append(f"**Root cause:** Drift from CONTENT-MODEL.md or stale content.")
-    entry_lines.append(f"**Fix / guideline:** Address filed issues; add CI rules for recurring patterns.")
-    entry_lines.append(f"**Applies to:** All\n")
-
-    # Append to LEARNINGS.md
-    content = LEARNINGS_FILE.read_text(encoding="utf-8")
-    # Find the "## Entries" section and append
-    marker = "## Entries"
-    if marker in content:
-        pos = content.index(marker) + len(marker)
-        content = content[:pos] + "\n" + "\n".join(entry_lines) + content[pos:]
-    else:
-        content += "\n" + "\n".join(entry_lines)
-
-    LEARNINGS_FILE.write_text(content, encoding="utf-8")
-    log.info(f"Updated LEARNINGS.md with {len(filed_findings)} findings")
+        return "filed"
+    log.error(f"  Failed to file issue: {result.stderr}")
+    return "failed"
 
 
 def main():
@@ -528,16 +503,18 @@ def main():
             seen_titles.add(f.title)
             unique_findings.append(f)
 
-    # File issues (up to cap)
+    # File issues (up to cap). Already-open duplicates don't count against the cap.
     filed = []
-    for finding in unique_findings[:MAX_ISSUES_PER_RUN]:
+    failed = []
+    for finding in unique_findings:
+        if len(filed) >= MAX_ISSUES_PER_RUN:
+            break
         log.info(f"\n  [{finding.severity}] {finding.title}")
-        if file_issue(finding, dry_run=args.dry_run):
+        status = file_issue(finding, dry_run=args.dry_run)
+        if status == "filed":
             filed.append(finding)
-
-    # Update LEARNINGS.md
-    if filed and not args.dry_run:
-        update_learnings(filed)
+        elif status == "failed":
+            failed.append(finding)
 
     # Summary
     log.info(f"\n{'='*60}")
@@ -558,6 +535,10 @@ def main():
             f.write(f"| Issues filed | {len(filed)} |\n")
             f.write(f"| Walkthroughs (actual) | {actual_wt} |\n")
             f.write(f"| Solutions (actual) | {actual_sol} |\n")
+
+    if failed:
+        log.error(f"Could not file {len(failed)} issue(s) — failing the run so it shows up in Actions")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -217,7 +217,8 @@ def main():
     resource_issues = query_issues("intel:new-resource")
 
     # Filter out issues already in-progress or done
-    skip_labels = {"intel:in-progress", "intel:done", "intel:wontfix", "intel:framing-major"}
+    # needs-human-review = Reconciler already verified it and handed it to a person
+    skip_labels = {"intel:in-progress", "intel:done", "intel:wontfix", "intel:framing-major", "needs-human-review"}
     all_issues = []
     for issue in accuracy_issues + resource_issues:
         issue_labels = {l["name"] for l in issue.get("labels", [])}

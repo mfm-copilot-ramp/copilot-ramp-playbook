@@ -1,6 +1,6 @@
 # ── Auditor: Weekly Governance Check ─────────────────────────────────────────
 # Checks what CI can't judge mechanically and files intel:governance issues.
-# NEVER makes content edits — only issues + LEARNINGS.md updates.
+# NEVER makes content edits and never pushes (main is protected) — issues only.
 #
 # See automation/README.md for the full pipeline architecture.
 
@@ -23,7 +23,7 @@ on:
         default: false
 
 permissions:
-  contents: write    # needed to commit LEARNINGS.md
+  contents: read
   issues: write      # needed to file/search issues
 
 jobs:
@@ -60,15 +60,3 @@ jobs:
           if [ "${{ inputs.dry_run }}" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
           if [ "${{ inputs.skip_links }}" = "true" ]; then FLAGS="$FLAGS --skip-links"; fi
           python automation/auditor/audit.py $FLAGS
-
-      # ── Commit LEARNINGS.md updates ────────────────────────────────────────
-      - name: "Commit LEARNINGS.md"
-        if: inputs.dry_run != true
-        run: |
-          git add automation/LEARNINGS.md
-          if git diff --cached --quiet; then
-            echo "No LEARNINGS.md changes"
-          else
-            git commit -m "auditor: append governance findings [skip ci]"
-            git push
-          fi
