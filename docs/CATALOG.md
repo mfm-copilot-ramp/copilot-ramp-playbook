@@ -314,51 +314,54 @@ Auto-generate talking points and agenda items before every recurring meeting —
 ---
 
 ## Stage 5 · Autopilots
-_Always-on, autonomous agents that work in the background. Goal: hand a standing job to Microsoft Scout — the first Autopilot — and let it act on your behalf under your guardrails._
+_Always-on, autonomous agents that work in the background. Goal: hand a standing job to Autopilot (formerly Microsoft Scout), Microsoft's always-on agent, and let it act on your behalf under your guardrails._
 
-> **Autopilots are a category; Scout is the first product in it.** Start with the field guide to get the
-> hierarchy straight, then find out if you can turn Scout on (it's in private preview via the Frontier
-> program) before you hand it a standing job.
+> **Start with the field guide, then check access.** Get the picture straight on what Autopilot is, then
+> find out if you can turn it on before you hand it a standing job. You need access to **Autopilot** (private
+> preview) — or, today, the Frontier desktop app still documented on Learn as **Microsoft Scout** (needs
+> Frontier turned on by your admin, an Intune policy + admin attestation, a Microsoft 365 Copilot license, and
+> a GitHub Copilot Business or Enterprise license). See
+> [Find out if you can get Autopilot](walkthroughs/autopilots-get-access.md).
 
-### ★ Meet Microsoft Scout — and what Autopilots are → walkthrough
+### ★ Meet Autopilot (formerly Microsoft Scout) → walkthrough
 **For:** end-user, champion, manager, maker, it-admin · `status: walkthrough`
-The field guide to the category and the first product: what an Autopilot is, what Scout connects to, how it builds context with Work IQ, and what it can do today. No access required.
+The field guide to Autopilot: what it is, what it connects to, how it builds context with Work IQ, and what it can do today. No access required.
 **Sample prompt:** `Keep an eye on my week. When a meeting needs prep, pull the materials together and flag it before it starts — and check with me before acting on anything sensitive.`
 → Fully written: `walkthroughs/autopilots-meet-scout.md`
 
-### Find out if you can get Scout — and turn it on → walkthrough
+### Find out if you can get Autopilot — and turn it on → walkthrough
 **For:** end-user, champion, it-admin · `status: walkthrough`
-The honest on-ramp: confirm Frontier enrollment, the Intune policy and opt-in attestation, and the GitHub Copilot license needed to install the desktop app.
-**Sample prompt:** `Draft a message to my IT admin asking: are we in the Frontier program, is the Scout Intune policy configured and opted in, and do I have a GitHub Copilot license to install the desktop app?`
+The honest on-ramp: whether Autopilot (private preview) is open to you yet — and, today, what the Frontier desktop app still documented on Learn as Microsoft Scout needs: Frontier turned on by your admin, an Intune policy + admin attestation, a Microsoft 365 Copilot license, and a GitHub Copilot Business or Enterprise license.
+**Sample prompt:** `Draft a message to my IT admin asking: can we get Autopilot in private preview, and for the Microsoft Scout desktop app today — is Copilot Frontier turned on, is the Intune policy configured with admin attestation, and do I have a Microsoft 365 Copilot license and a GitHub Copilot Business or Enterprise license?`
 → Fully written: `walkthroughs/autopilots-get-access.md`
 
-### Let Scout coordinate your meetings and prep → walkthrough
+### Let Autopilot coordinate your meetings and prep → walkthrough
 **For:** end-user, manager · `status: walkthrough`
-Hand Scout a standing job: coordinate meeting times across time zones, flag the meetings that matter, and pull prep together — with you in the loop.
+Hand Autopilot a standing job: coordinate meeting times across time zones, flag the meetings that matter, and pull prep together — with you in the loop.
 **Sample prompt:** `Take ownership of my meeting logistics this week: propose times that work across time zones, flag the meetings that matter, and draft prep before each one for me to review.`
 → Fully written: `walkthroughs/autopilots-coordinate-meetings.md`
 
-### Have Scout watch your deliverables and flag risks → walkthrough
+### Have Autopilot watch your deliverables and flag risks → walkthrough
 **For:** manager, champion, end-user · `status: walkthrough`
-Give Scout a standing watch: identify what's coming due and block calendar time, and spot stalled decisions before they turn into blockers.
+Give Autopilot a standing watch: identify what's coming due and block calendar time, and spot stalled decisions before they turn into blockers.
 **Sample prompt:** `Keep a standing watch on my deliverables: block calendar time for what's coming due, and flag decisions that have gone quiet before they become blockers.`
 → Fully written: `walkthroughs/autopilots-track-deliverables.md`
 
-### Equip Scout with an always-on inbox-triage skill → walkthrough
+### Equip Autopilot with an always-on inbox-triage skill → walkthrough
 **For:** end-user, manager, champion · `status: walkthrough`
-Turn "surface what actually needs me" into a reusable skill Scout reruns every workday — triaging your inbox and signals into one short daily brief instead of you digging for it.
+Turn "surface what actually needs me" into a reusable skill Autopilot reruns every workday — triaging your inbox and signals into one short daily brief instead of you digging for it.
 **Sample prompt:** `Take on a standing "morning triage" skill: scan my inbox and Teams for what actually needs me, ignore the noise, and post me one short brief by 8am — draft the obvious replies but don't send without me.`
 → Fully written: `walkthroughs/autopilots-inbox-triage.md`
 
-### Equip Scout with a continuous customer-health watch → walkthrough
+### Equip Autopilot with a continuous customer-health watch → walkthrough
 **For:** manager, champion, end-user · `status: walkthrough`
-Take the worst-first customer-health digest you'd run by hand in Cowork and equip it onto Scout as an always-on skill, so the ranked list of at-risk accounts is never stale. A lineage skill: Cowork recipe → Autopilot skill.
+Take the worst-first customer-health digest you'd run by hand in Cowork and equip it onto Autopilot as an always-on skill, so the ranked list of at-risk accounts is never stale. A lineage skill: Cowork recipe → Autopilot skill.
 **Sample prompt:** `Take on a standing "customer-health watch" skill: rank my accounts worst-first by risk, re-score as signals change, and ping me the moment one moves sharply the wrong way — don't contact any customer without checking first.`
 → Fully written: `walkthroughs/autopilots-customer-health-watch.md`
 
-### Equip Scout with a meeting-recap and follow-through skill → walkthrough
+### Equip Autopilot with a meeting-recap and follow-through skill → walkthrough
 **For:** manager, end-user, champion · `status: walkthrough`
-Make "recap the meeting and chase the follow-ups" a reusable skill Scout runs every time a meeting ends — a clean recap, owners on the actions, and drafted follow-ups waiting for your sign-off.
+Make "recap the meeting and chase the follow-ups" a reusable skill Autopilot runs every time a meeting ends — a clean recap, owners on the actions, and drafted follow-ups waiting for your sign-off.
 **Sample prompt:** `Take on a standing "meeting recap" skill: whenever a meeting with notes ends, draft a recap with decisions and owned action items, draft the follow-up to attendees, and post it to me — don't send until I approve.`
 → Fully written: `walkthroughs/autopilots-meeting-recap.md`
 
@@ -369,7 +372,7 @@ _Build real, production-grade agents. The low-code maker destination._
 
 ### ★ One skill, three surfaces: the customer-health capability → walkthrough
 **For:** end-user, manager, champion, maker · `status: walkthrough`
-Follow a single reusable skill — rank my accounts worst-first by risk — across all three surfaces: a Cowork recipe you run on demand, an always-on Scout autopilot that re-scores itself, and a hardened, governed Studio **tool** that acts on the system of record. The cross-surface lineage that ties the Skills Catalog together; pick the surface by the job, not the product.
+Follow a single reusable skill — rank my accounts worst-first by risk — across all three surfaces: a Cowork recipe you run on demand, an always-on Autopilot skill that re-scores itself, and a hardened, governed Studio **tool** that acts on the system of record. The cross-surface lineage that ties the Skills Catalog together; pick the surface by the job, not the product.
 **Sample prompt:** `Rank my accounts worst-first by risk, tell me which ones are moving the wrong way, and don't contact any customer without checking first.`
 → Fully written: `walkthroughs/skill-lineage-customer-health.md`
 

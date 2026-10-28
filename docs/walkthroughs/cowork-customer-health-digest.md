@@ -8,7 +8,7 @@ level: intermediate
 time: 25 min
 status: walkthrough
 prereqs: [m365-copilot-license, cowork-access]
-updated: 2026-06-05
+updated: 2026-10-28
 ---
 
 # Generate a weekly customer-health digest across your accounts
@@ -103,5 +103,5 @@ accounts, signals, and rating rules into an agent everyone can run.
 ## Related
 - [Stand up a recurring weekly digest](../walkthroughs/cowork-recurring-weekly-digest.md) — the general recurring pattern
 - [Run a full QBR prep cycle in Cowork](../walkthroughs/cowork-qbr-prep-cycle.md) — go deep on one account
-- [One skill, three surfaces: the customer-health lineage](../walkthroughs/skill-lineage-customer-health.md) — this recipe as a Cowork → Scout → Studio arc
+- [One skill, three surfaces: the customer-health lineage](../walkthroughs/skill-lineage-customer-health.md) — this recipe as a Cowork → Autopilot → Studio arc
 - Stage 3 Resources: see `RESOURCES.md` → Cowork

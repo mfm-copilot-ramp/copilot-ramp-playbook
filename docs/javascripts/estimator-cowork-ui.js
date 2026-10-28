@@ -141,7 +141,7 @@
 
     var p = r.purchase;
     setHtml("cw-purchase",
-      "<strong>Purchase:</strong> ~" + fmt(p.packsNeeded) + " message pack" + (p.packsNeeded === 1 ? "" : "s") +
+      "<strong>Purchase:</strong> ~" + fmt(p.packsNeeded) + " capacity pack" + (p.packsNeeded === 1 ? "" : "s") +
       " (25,000 credits each \u2248 " + money(p.packsCost) + "/mo) &middot; or a committed pre-purchase \u2248 " +
       money(p.committedMonthlyCost) + "/mo (" + money(p.committedAnnualCost) + "/yr).");
 
@@ -255,7 +255,7 @@
     setText("cw-d-res-spend", money(t.coworkSpend));
     setText("cw-d-res-peruser", money(t.costPerActiveUser));
     var p = res.purchase;
-    setHtml("cw-d-purchase", "<strong>Purchase:</strong> ~" + fmt(p.packsNeeded) + " message pack" + (p.packsNeeded === 1 ? "" : "s") +
+    setHtml("cw-d-purchase", "<strong>Purchase:</strong> ~" + fmt(p.packsNeeded) + " capacity pack" + (p.packsNeeded === 1 ? "" : "s") +
       " (" + money(p.packsCost) + "/mo) &middot; committed pre-purchase \u2248 " + money(p.committedMonthlyCost) + "/mo (" + money(p.committedAnnualCost) + "/yr).");
     if (res.budget && res.budget.pct != null) {
       setHtml("cw-d-budget-out", "<strong>Budget:</strong> uses " + Math.round(res.budget.pct) + "% of your " +

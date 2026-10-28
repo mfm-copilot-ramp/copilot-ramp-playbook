@@ -12,8 +12,8 @@ The maker path is a build sequence: know when to graduate past Agent Builder, st
 
 !!! tip "One choice shapes every Studio agent — its harness"
     Before you build in Studio, decide which **[harness](../pick-the-engine.md)** (engine) powers the agent: the
-    **standard** harness (authored topics/rules — predictable and covered by a Microsoft 365 Copilot license in
-    M365 channels), the **Copilot chat** harness, or the autonomous **GitHub Copilot harness** (generative
+    **standard** harness (authored topics/rules — predictable and covered by a Microsoft 365 Copilot license for
+    licensed employees), the **Customer Conversation** harness (customer-facing voice and chat), or the autonomous **GitHub Copilot harness** (generative
     orchestration — the direction to grow into, but it bills Copilot Credits for all usage and a license never
     covers it). [Estimate the net cost](../credit-estimator.md) before you scale.
 

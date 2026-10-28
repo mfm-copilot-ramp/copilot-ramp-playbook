@@ -34,7 +34,7 @@ Seven stages. Each one builds on the last — but you can start wherever you are
 
     ---
 
-    Stop prompting step by step. Hand off whole multi-step tasks — a full deck, a weekly digest, a synthesis across a dozen documents — and let Copilot run them.
+    Stop prompting step by step. Hand off whole multi-step tasks — a full deck, a weekly digest, a synthesis across a dozen documents — and let Copilot run them. Generally available; billed on usage in Copilot Credits.
 
     **You're ready for this if** you trust Copilot for individual steps and want to delegate whole workflows.
 
@@ -54,9 +54,9 @@ Seven stages. Each one builds on the last — but you can start wherever you are
 
     ---
 
-    **Autopilots** are a new category of always-on, autonomous agents that run a defined job in the background — triggered by events, not by your prompt. **Microsoft Scout** is the first one. In **Frontier private preview** today: real where you're enrolled, not yet available to everyone.
+    Always-on agents that keep working in the background — following up, re-checking, and running recurring jobs without waiting for your prompt. **Autopilot** (formerly Microsoft Scout) is the one you'll meet. In **private preview** today: real where you have it, not yet available to everyone.
 
-    **You're ready for this if** you have a recurring job that shouldn't wait for you to start it — and access to Scout (the first Autopilot) in your tenant.
+    **You're ready for this if** you have a recurring job that shouldn't wait for you to start it — and access to Autopilot in your tenant.
 
     [→ Go to Stage 5](stages/stage-5-autopilots.md)
 
