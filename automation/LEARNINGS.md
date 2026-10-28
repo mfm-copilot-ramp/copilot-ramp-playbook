@@ -59,6 +59,16 @@ GUID matched.
 **Fix / guideline:** Never trust a single fetch of a feed. The Watcher records each feed's build
 date, refetches a copy that is older than the last one seen, and skips the source for that run if
 every copy is stale. Feed items are keyed on the entry GUID, the WordPress footer is stripped
-before hashing, and an unseen item dated more than 45 days ago is recorded silently instead of
-reported.
+**Applies to:** Watcher
+
+### 2026-10-28 — [source] No-cache headers don't reach www.microsoft.com's stale cache copies
+
+**Issue:** After #142, the re-baseline run recorded the Copilot blog from a copy built 9/23, a
+month stale. The next run got a 9/25 copy and filed #143 for a real but month-old post. The fresh
+copy (built 10/27) also held two October posts that the stale baseline missed.
+**Root cause:** The CDN ignores `Cache-Control: no-cache`. Plain requests got the stale copy 3 times
+out of 5. A first-run baseline also accepted the first copy, because there was no recorded build
+date to compare against.
+**Fix / guideline:** Every feed request carries a unique `_wcb=<nanoseconds>` query string, which got
+the fresh copy 5 times out of 5. Retries and the stale-copy check stay as a second line of defence.
 **Applies to:** Watcher

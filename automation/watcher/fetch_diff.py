@@ -164,9 +164,12 @@ def strip_feed_boilerplate(text: str) -> str:
     return text[:start].rstrip() if start != -1 else text
 
 
-def http_get(url: str) -> requests.Response:
+def http_get(url: str, bust_cache: bool = False) -> requests.Response:
+    # www.microsoft.com ignores no-cache headers, but a unique query string always
+    # misses its stale edge copies (verified 5/5 fresh vs 2/5 without it).
+    params = {"_wcb": str(time.time_ns())} if bust_cache else None
     try:
-        resp = requests.get(url, timeout=REQUEST_TIMEOUT,
+        resp = requests.get(url, params=params, timeout=REQUEST_TIMEOUT,
                             headers={"User-Agent": USER_AGENT, **NO_CACHE_HEADERS})
         resp.raise_for_status()
     except requests.RequestException as e:
@@ -192,7 +195,7 @@ def fetch_freshest_feed(feed_url: str, known_ts: int):
     """Fetch a feed, refetching while it is older than the copy we last recorded."""
     best, best_ts = None, -1
     for attempt in range(FEED_FETCH_ATTEMPTS):
-        feed = feedparser.parse(http_get(feed_url).content)
+        feed = feedparser.parse(http_get(feed_url, bust_cache=True).content)
         ts = feed_timestamp(feed) if feed.entries else -1
         if ts > best_ts:
             best, best_ts = feed, ts
