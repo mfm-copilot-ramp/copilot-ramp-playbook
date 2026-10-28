@@ -12,6 +12,9 @@ mkdocs.local.yml
 # covered by the site/ rule above.)
 .cache/
 
+# Automation runtime outputs. Watcher seen-state is saved on the automation-state branch.
+automation/state/*.json
+
 # Python
 __pycache__/
 *.pyc

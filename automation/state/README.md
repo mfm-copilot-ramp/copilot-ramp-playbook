@@ -1,46 +1,45 @@
-# automation/state/ — Watcher State Directory
+# automation/state/ — Automation State
 
-This directory stores **per-source state files** that track what the Watcher has already seen.
+Runtime outputs of the content-ops automations. The JSON files here are generated on each run and
+are git-ignored on `main`.
 
-## How it works
+## Where the Watcher's state lives
 
-Each time the Watcher runs, it:
+The Watcher's memory of what it has already seen is saved on the **`automation-state` branch**, not
+on `main`. `main` only accepts changes through pull requests with passing checks, so an automation
+can't push to it. The `automation-state` branch is unprotected and holds nothing but state.
 
-1. Reads the state file for each source (e.g., `state/m365-copilot-learn-hub.json`)
-2. Fetches current content from the source
-3. Diffs against the stored state to identify new/changed items
-4. Creates backlog issues for genuinely new signals
-5. **Commits the updated state file** back to this directory
+Each Watcher run:
 
-## Why commit state?
+1. Restores `watcher-seen.json` from the `automation-state` branch into this folder.
+2. Fetches every source in `automation/sources.yml` and keeps only relevant items.
+3. Diffs against the seen-state to find new or changed items.
+4. Files backlog issues (at most 10 per run).
+5. Commits the updated state back to the `automation-state` branch.
 
-- **Idempotency** — if the Watcher runs twice, it won't create duplicate issues because it knows
-  what it already processed.
-- **Auditability** — git history shows exactly when each item was first seen and what changed
-  between runs.
-- **Reproducibility** — any contributor can inspect state to understand what the automation has
-  already detected.
+The branch history is the audit trail: one small commit per day.
 
-## File format
+## Files
 
-Each state file is JSON with this shape:
+| File | What it holds |
+|------|---------------|
+| `watcher-seen.json` | Per source: item ID → content hash, plus `hash_version`, `config_hash`, `last_checked`, `consecutive_failures`, `last_error` |
+| `watcher-new-items.json` | Items reported by the latest run |
+| `watcher-health.json` | Sources that have failed 3 or more runs in a row |
 
-```json
-{
-  "source": "source-name-from-sources.yml",
-  "last_checked": "2026-08-02T12:00:00Z",
-  "seen_items": [
-    {
-      "id": "unique-identifier-for-item",
-      "title": "Item title",
-      "url": "https://...",
-      "first_seen": "2026-08-02T12:00:00Z"
-    }
-  ]
-}
-```
+Pages are tracked one top-level section at a time (h2, or h3 if the page has none), so an edit
+anywhere in a section changes its hash. Feeds are tracked one entry at a time.
+
+## Idempotency and baselining
+
+- A source with no saved state is **baselined**: its current items are recorded silently and only
+  later changes are reported. Adding a source or resetting state never floods the backlog.
+- Changing `HASH_VERSION` in `fetch_diff.py`, or a source's `url`, `feed`, `match` or
+  `section_level`, re-baselines that source the same way.
+- Items over the per-run issue cap are removed from the seen-state, so the next run reports them.
+- A further change to an item that already has an open issue becomes a comment on that issue.
 
 ## Do not manually edit
 
-These files are automation-managed. If you need to reset a source (e.g., to re-scan), delete its
-state file and the next Watcher run will treat everything as new.
+To re-scan a source from scratch, delete its key from `watcher-seen.json` on the `automation-state`
+branch. The next run baselines it again.

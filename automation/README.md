@@ -88,9 +88,22 @@ See `.github/labels.yml` for the full definitions and colors.
 
 | Automation | Cap |
 |-----------|-----|
-| Watcher | ≤ 25 new issues |
+| Watcher | ≤ 10 new issues (overflow carries to the next run) |
 | Reconciler | ≤ 3 files OR 1 logical change per PR |
 | Author | ≤ 1 new walkthrough OR 1 new solution template |
+
+---
+
+## Watcher sources, filters and state
+
+- **Sources** are listed in `sources.yml`. Broad feeds (the M365 Roadmap, the Official Microsoft
+  Blog, the Power Platform blog, the GitHub changelog) carry a `match` keyword list so only
+  Copilot, Cowork, Autopilot, Studio, credits and billing items are tracked.
+- **New sources are baselined silently.** Only changes after the first run are reported.
+- **State lives on the `automation-state` branch**, never on protected `main`. See
+  `state/README.md`.
+- **Dead sources are flagged.** A source that fails 3 runs in a row gets one
+  `⚠️ Watcher source failing` issue so a moved URL doesn't go quiet.
 
 ---
 
@@ -99,11 +112,11 @@ See `.github/labels.yml` for the full definitions and colors.
 ```
 automation/
 ├── README.md          ← you are here
-├── sources.yml        ← registry of monitored Microsoft sources
+├── sources.yml        ← registry of monitored Microsoft sources (+ relevance filters)
 ├── LEARNINGS.md       ← append-only knowledge base for recurring issues
-└── state/             ← committed watcher state (last-seen per source)
-    ├── .gitkeep
-    └── README.md      ← explains state file format and idempotency model
+├── watcher/           ← fetch_diff.py + assess_and_file.py
+└── state/             ← runtime outputs (git-ignored on main)
+    └── README.md      ← state format; Watcher state persists on the automation-state branch
 ```
 
 ---
