@@ -121,8 +121,9 @@ Format the action items as a table I can paste into an email.
 
 <p class="home-estimators">New to credits? <a href="copilot-credits/" data-rc-track="home-tool-link" data-rc-label="copilot-credits">How Copilot Credits work</a>.</p>
 
-<details class="home-map">
-<summary>Not sure where you fit? See which stages each role uses most</summary>
+## Find your starting point
+
+<p class="path-intro">Where each role tends to spend its time — a heavier dot means you're more likely to live there. Click any role, stage, or dot to jump in.</p>
 
 <div class="matrix-wrap">
 <table class="home-matrix">
@@ -153,8 +154,6 @@ Format the action items as a table I can paste into an email.
   <span class="k1"><span class="meter lvl1" aria-hidden="true"><i></i><i></i><i></i></span> Occasional</span>
   <span class="k0"><span class="meter lvl0" aria-hidden="true"><i></i><i></i><i></i></span> Rarely</span>
 </div>
-
-</details>
 
 !!! tip "Leading a rollout, not just learning yourself?"
     The stages above ramp an *individual*. If you're standing up Copilot for an *organization*, see

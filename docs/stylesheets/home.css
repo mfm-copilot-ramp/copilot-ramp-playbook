@@ -764,7 +764,7 @@ table.home-matrix tbody tr:hover td.lvl2 { background: color-mix(in srgb, var(--
 /* ---------- homepage usability pass (Oct 2026) ----------
    Clarity showed ~81% of homepage sessions ending on the homepage and half of
    visitors gone by 35% scroll, so the page is now: hero → journey → one-line
-   legend → role cards → tool cards → (collapsed) role × stage map. */
+   legend → role cards → tool cards → role × stage map → resources. */
 .journey-legend.jl-inline {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
   gap: .35rem .5rem; margin: .2rem 0 1.4rem; font-size: .78rem;
@@ -793,13 +793,4 @@ a.path-card:focus-visible { outline: 2px solid var(--md-primary-fg-color); outli
   color: #b26a00; background: color-mix(in srgb, #b26a00 14%, transparent);
 }
 
-/* Role × stage map, collapsed by default. */
-details.home-map {
-  margin: .4rem 0 1.6rem; padding: .2rem .9rem; border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: .7rem; background: var(--md-default-bg-color);
-}
-details.home-map > summary {
-  cursor: pointer; padding: .55rem 0; font-weight: 700; font-size: .85rem; color: var(--md-primary-fg-color);
-}
-details.home-map[open] > summary { margin-bottom: .4rem; }
 

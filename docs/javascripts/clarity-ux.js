@@ -142,6 +142,17 @@
       });
     });
 
+    var matrix = root.querySelector(".home-matrix");
+    if (matrix && matrix.dataset.rcMatrixTrack !== "1") {
+      matrix.dataset.rcMatrixTrack = "1";
+      matrix.addEventListener("click", function (e) {
+        var a = e.target.closest ? e.target.closest("a") : null;
+        if (!a) return;
+        var kind = a.classList.contains("matrix-cell-link") ? "cell" : (a.closest("thead") ? "stage" : "role");
+        track("home-matrix-" + kind, (a.getAttribute("aria-label") || a.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60));
+      });
+    }
+
     root.querySelectorAll(".journey .step").forEach(function (el) {
       if (el.dataset.rcTrackBound === "1") return;
       el.dataset.rcTrackBound = "1";
