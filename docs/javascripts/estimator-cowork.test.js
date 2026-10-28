@@ -4,6 +4,18 @@ var fails = 0;
 function ok(name, cond, got) { if (!cond) { fails++; console.log("FAIL: " + name + (got !== undefined ? "  got=" + JSON.stringify(got) : "")); } else console.log("pass: " + name); }
 function near(a, b, eps) { return Math.abs(a - b) <= (eps || 0.5); }
 
+// 0. Microsoft persona bands reproduce the official estimator's 100-user totals
+//    (Corporate 510K–906K, Leaders 713K–1.3M, Customer-facing 1.3M–2.3M, Technical 348K–616K).
+var pb = { corporate: C.msPersonaBand("corporate"), leaders: C.msPersonaBand("leaders"),
+           customer: C.msPersonaBand("customer"), technical: C.msPersonaBand("technical") };
+ok("persona corporate 100 users = 510,400–906,400", pb.corporate.low * 100 === 510400 && pb.corporate.high * 100 === 906400, [pb.corporate.low, pb.corporate.high]);
+ok("persona leaders 100 users = 712,800–1,267,200", pb.leaders.low * 100 === 712800 && pb.leaders.high * 100 === 1267200, [pb.leaders.low, pb.leaders.high]);
+ok("persona customer 100 users = 1,315,600–2,332,000", pb.customer.low * 100 === 1315600 && pb.customer.high * 100 === 2332000, [pb.customer.low, pb.customer.high]);
+ok("persona technical 100 users = 347,600–616,000", pb.technical.low * 100 === 347600 && pb.technical.high * 100 === 616000, [pb.technical.low, pb.technical.high]);
+ok("persona mid = average of band", pb.corporate.mid === Math.round((5104 + 9064) / 2), pb.corporate.mid);
+ok("persona all-light split", C.msPersonaBand("corporate", { light: 100, medium: 0, heavy: 0 }).low === 2200);
+ok("unknown persona → null", C.msPersonaBand("nope") === null);
+
 // 1. Quick macro — Austin's AA-style example: 1000 licensed × 10% × 5000 credits
 var q = C.quickEstimate({ licensedUsers: 1000, mauPct: 10, creditsPerActiveUser: 5000 });
 ok("quick active users = 100", q.activeUsers === 100, q.activeUsers);

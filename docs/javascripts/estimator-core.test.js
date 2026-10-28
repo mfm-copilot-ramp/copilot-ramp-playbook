@@ -140,6 +140,19 @@ ok("solution reasoning row present", !!rRow);
 ok("solution reasoning uses = 5 (REASON_TOKENS_K raised 2→5)", rRow && rRow.uses === 5);
 ok("solution reasoning credits/use = 10 (premium meter)", rRow && rRow.credits === 10);
 
+// ── Import: renamed "M365 Copilot agent" label (formerly "Copilot chat") still maps to the chat key ──
+(function () {
+  var hdr = EC.IMPORT_SCHEMA.map(function (c) { return c.header; });
+  var row = EC.IMPORT_SCHEMA.map(function (c) {
+    var o = { name: "Policy Q&A", archetype: "Interactive", channel: "Chat", users: 100, interactions: 4, deployment: "Embedded", licensePct: 100 };
+    return c.key === "harness" ? "M365 Copilot agent" : (o[c.key] == null ? "" : o[c.key]);
+  });
+  var legacy = EC.IMPORT_SCHEMA.map(function (c) { return c.key === "harness" ? "Copilot chat" : (c.key === "name" ? "Legacy" : ""); });
+  var r = EC.analyzeImport([hdr, row, legacy]);
+  ok("import: 'M365 Copilot agent' → chat key", r.scenarios[0].vars.harness === "chat", r.scenarios[0].vars.harness);
+  ok("import: legacy 'Copilot chat' still → chat key", r.scenarios[1].vars.harness === "chat", r.scenarios[1].vars.harness);
+})();
+
 // ── Quick + Import: the Harness column is honored end-to-end ─────
 var IMPORT_HEADERS = EC.IMPORT_SCHEMA.map(function (c) { return c.header; });
 function impRow(o) { return EC.IMPORT_SCHEMA.map(function (c) { return o[c.key] == null ? "" : o[c.key]; }); }

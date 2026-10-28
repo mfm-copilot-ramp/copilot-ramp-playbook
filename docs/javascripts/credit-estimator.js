@@ -213,7 +213,7 @@
           '<div class="deploy-toggle" id="' + p + '-harness-toggle">' +
             '<button type="button" class="deploy-btn' + (scale.harness === "github-copilot" || scale.harness === "chat" ? "" : " active") + '" id="' + p + '-harness-standard" data-harness="standard" onclick="emSetHarness(\'' + p + '\',\'standard\')">Standard</button>' +
             '<button type="button" class="deploy-btn' + (scale.harness === "github-copilot" ? " active" : "") + '" id="' + p + '-harness-github" data-harness="github-copilot" onclick="emSetHarness(\'' + p + '\',\'github-copilot\')">GitHub Copilot</button>' +
-            '<button type="button" class="deploy-btn' + (scale.harness === "chat" ? " active" : "") + '" id="' + p + '-harness-chat" data-harness="chat" onclick="emSetHarness(\'' + p + '\',\'chat\')">Copilot chat</button>' +
+            '<button type="button" class="deploy-btn' + (scale.harness === "chat" ? " active" : "") + '" id="' + p + '-harness-chat" data-harness="chat" onclick="emSetHarness(\'' + p + '\',\'chat\')">M365 Copilot agent</button>' +
           '</div><div class="hint">GitHub Copilot harness is never zero-rated — net billable = gross.</div></div>' +
       '</div>';
   }
@@ -357,7 +357,7 @@
     var grossMonthly = grossSplit.blendMonthly;
     var buildTest = scale.harness === "github-copilot" ? Math.round(EC.GH_DEFAULTS.buildRuns * effAvgPer) : 0;
     var hName = scale.harness === "github-copilot" ? "GitHub Copilot harness"
-      : scale.harness === "chat" ? "Copilot chat harness" : "Standard harness";
+      : scale.harness === "chat" ? "M365 Copilot agent" : "Standard harness";
     var covHtml;
     if (scale.harness === "github-copilot") {
       covHtml = "<strong>" + hName + " — never license-covered.</strong> \u2248 <strong>" + fmtDec(effAvgPer) + "</strong> credits/task. Microsoft publishes per-task ranges by complexity (Light 100–300 · Medium 300–500 · Heavy &gt;500) — this defaults to the Heavy anchor; tune the tier in the Detailed estimator. Net billable = gross = <strong>" + fmt(grossMonthly) + "</strong> credits / month. One-time build &amp; test \u2248 <strong>" + fmt(buildTest) + "</strong> credits.";
@@ -562,7 +562,7 @@
         selField("qe-channel", "Channel", [["chat", "Chat / text"], ["voice", "Voice / phone"]], v.channel, "") +
         (v.channel === "voice" ? numField("qe-voicemin", "Avg voice minutes / conversation", v.voiceMinutes != null ? v.voiceMinutes : 5, "Voice is billed per minute; core answer/action activity during the call is included.") : "") +
         selField("qe-orch", "Orchestration", [["generative", "Generative (agent decides)"], ["classic", "Classic (fixed topics)"]], v.orchestration, "") +
-        selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "Copilot chat (extend M365)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard / chat are covered in M365 channels.", "qeRebuildStructural()") +
+        selField("qe-harness", "Harness (engine)", [["standard", "Standard (topics · license-covered)"], ["github-copilot", "GitHub Copilot (autonomous · credits for all usage)"], ["chat", "M365 Copilot agent (declarative · license-covered)"]], v.harness || "standard", "GitHub Copilot harness is never covered by an M365 Copilot license; standard harness and M365 Copilot agents are covered for licensed employees.", "qeRebuildStructural()") +
         (v.harness === "github-copilot" ? (
           qeModelSelect("qe-ghmodel", v.model || "", "qeRebuildStructural()") +
           (v.model ? (
@@ -920,7 +920,7 @@
       ? qeCard(fmt(est.units), "Events / mo") + qeCard(fmtDec(est.perUnit), "Credits / event") + qeCard(fmt(est.monthly), "Credits / mo")
       : qeCard(fmt(est.grossMonthly), "Gross credits / mo") + qeCard(fmt(est.netMonthly), "Net billable / mo") + qeCard(fmt(est.billed), "Billed users");
     var harnessName = est.harness === "github-copilot" ? "GitHub Copilot harness"
-      : est.harness === "chat" ? "Copilot chat harness" : "Standard harness";
+      : est.harness === "chat" ? "M365 Copilot agent" : "Standard harness";
 
     // ── Inline GitHub-harness refinement (tier or model note) — harness selection itself
     // now lives in the plain-language confirmation cards at the top of the results.
@@ -969,7 +969,7 @@
         ghLo = tasks * band[0]; ghHi = tasks * band[1];
         ghBandNote = "\u2248 " + fmt(tasks) + " tasks/mo \u00d7 " + band[0] + "\u2013" + band[1] + " cr \u00b7 " + effTier + " band \u00b7 midpoint " + fmt(ghEst.grossMonthly);
       }
-      var covLine = '<span' + (isGh ? "" : ' style="font-weight:700"') + '>&bull; <strong>Standard / Copilot chat</strong> \u2014 billed <em>per response</em>, covered in Teams &middot; Copilot Chat &middot; SharePoint: net <strong>' + fmt(covEst.netMonthly) + '</strong> / mo <span class="hint" style="display:inline">(gross ' + fmt(covEst.grossMonthly) + '; ' + covPct + '% zero-rated for licensed users)</span></span>';
+      var covLine = '<span' + (isGh ? "" : ' style="font-weight:700"') + '>&bull; <strong>Standard / M365 Copilot agent</strong> \u2014 billed <em>per response</em>, covered in Teams &middot; Copilot Chat &middot; SharePoint: net <strong>' + fmt(covEst.netMonthly) + '</strong> / mo <span class="hint" style="display:inline">(gross ' + fmt(covEst.grossMonthly) + '; ' + covPct + '% zero-rated for licensed users)</span></span>';
       var ghLine = '<span' + (isGh ? ' style="font-weight:700"' : "") + '>&bull; <strong>GitHub Copilot</strong> \u2014 billed <em>per task</em>, never covered: net = gross <strong>' + fmt(ghLo) + '\u2013' + fmt(ghHi) + '</strong> / mo <span class="hint" style="display:inline">(' + ghBandNote + ' &middot; + one-time build &amp; test ' + fmt(ghEst.buildTestCredits) + ')</span></span>';
       var unitNote = '<div class="hint" style="margin:.35rem 0 .1rem">Different units: standard bills each <strong>response</strong>; the GitHub harness bills each <strong>task</strong> \u2014 a multistep run that does the work of several responses. We estimate <strong>' + fmt(tasks) + ' tasks/mo</strong> from your volume assuming ~<strong>' + fmtDec(cpt) + ' responses per task</strong> \u2014 tune it: ' +
         '<input type="number" min="1" step="0.5" value="' + fmtDec(cpt) + '" aria-label="Responses per task" style="width:4.5rem" onchange="qeSetConvPerTask(this.value)"> responses / task.</div>';
@@ -1010,7 +1010,7 @@
       autoName: "Deterministic agent flow",
       autoDesc: "Fixed steps per event \u2014 extract fields, look up or update a record, run an approval flow.",
       autoBenefit: "Lowest, most predictable cost. Best when every event follows the same rules and needs no reasoning." },
-    { key: "chat", icon: "\uD83D\uDCAC", name: "Answers from Microsoft 365", sub: "Copilot chat harness",
+    { key: "chat", icon: "\uD83D\uDCAC", name: "Answers from Microsoft 365", sub: "M365 Copilot agent",
       desc: "Answers from your company\u2019s files and data, right inside Teams or Copilot Chat.",
       benefit: "Often included with a Microsoft 365 Copilot license \u2014 frequently free for licensed users." }
   ];
@@ -2692,7 +2692,7 @@
     var defs = schema.map(function (c) { return "- " + c.header + ": " + (c.hint || ""); }).join("\n");
     return "Act as a Copilot Studio sizing analyst and fill the 'Scenarios' sheet of this Copilot Credit Estimator workbook. " +
       "Work through my agent list step by step. For each agent: infer every column from the description, and be explicit about two judgements \u2014 " +
-      "(1) the Harness: 'GitHub Copilot' for reasoning-heavy, multistep/agentic work (billed per task in Copilot Credits, never license-covered) vs 'Standard' / 'Copilot chat' for rule-based, license-covered conversations; and " +
+      "(1) the Harness: 'GitHub Copilot' for reasoning-heavy, multistep/agentic work (billed per task in Copilot Credits, never license-covered) vs 'Standard' / 'M365 Copilot agent' for rule-based, license-covered conversations; and " +
       "(2) for GitHub-harness agents, the task complexity (light / medium / heavy) based on how many systems, steps and reasoning each task needs. " +
       "Use the 'Examples' sheet as the row pattern, one row per agent; leave a cell blank if it isn't implied \u2014 don't invent enum or number values. " +
       "Return the rows as a table I can paste back into the sheet, plus a one-line rationale per agent for the Harness choice.\n\n" +
@@ -2750,7 +2750,7 @@
   function plainVolume(s) { var v = s.vars; return v.archetype === "autonomous" ? (fmt(v.events || 0) + " events/mo") : (fmt((v.users || 0) * (v.interactions || 0)) + " conv/mo"); }
   // Copilot Studio engine (billing harness) label. GitHub Copilot bills Copilot Credits for ALL
   // usage and is never license-covered; standard / chat are covered in M365 channels.
-  function harnessLabel(h) { h = h || "standard"; return h === "github-copilot" ? "GitHub Copilot" : (h === "chat" ? "Copilot chat" : "Standard"); }
+  function harnessLabel(h) { h = h || "standard"; return h === "github-copilot" ? "GitHub Copilot" : (h === "chat" ? "M365 Copilot agent" : "Standard"); }
   function engineCell(s) {
     var h = (s.vars && s.vars.harness) || "standard", lbl = harnessLabel(h);
     return h === "github-copilot"

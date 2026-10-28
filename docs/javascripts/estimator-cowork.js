@@ -48,6 +48,31 @@
     { key: "high", label: "High", pct: 23 }
   ];
 
+  // ── Microsoft's published Cowork persona bands ─────────────────────────────
+  // Source: Microsoft's official Copilot Credit Estimator (aka.ms/CustomerCoworkEstimator
+  // → "Cowork" product), retrieved 2026-10-28. Credits per user per WORKING DAY by
+  // intensity, with Microsoft's standard 40 / 40 / 20 light/medium/heavy split and
+  // 22 working days a month. Directional — Microsoft labels these illustrative.
+  var MS_WORKING_DAYS = 22;
+  var MS_SPLIT = { light: 40, medium: 40, heavy: 20 };
+  var MS_PERSONAS = {
+    corporate: { label: "Corporate knowledge workers", light: [100, 280], medium: [280, 400], heavy: [400, 700] },
+    leaders:   { label: "Management & senior leaders", light: [140, 390], medium: [390, 560], heavy: [560, 980] },
+    customer:  { label: "Customer-facing knowledge workers", light: [260, 720], medium: [720, 1030], heavy: [1030, 1800] },
+    technical: { label: "Technical workers", light: [70, 190], medium: [190, 270], heavy: [270, 480] }
+  };
+  // Credits / user / month band for a persona at a light/medium/heavy split (%).
+  function msPersonaBand(key, split) {
+    var p = MS_PERSONAS[key]; if (!p) return null;
+    split = split || MS_SPLIT;
+    var tot = num(split.light, 0) + num(split.medium, 0) + num(split.heavy, 0) || 100;
+    var w = { light: num(split.light, 0) / tot, medium: num(split.medium, 0) / tot, heavy: num(split.heavy, 0) / tot };
+    var lo = 0, hi = 0;
+    ["light", "medium", "heavy"].forEach(function (k) { lo += w[k] * p[k][0]; hi += w[k] * p[k][1]; });
+    lo = round(lo * MS_WORKING_DAYS); hi = round(hi * MS_WORKING_DAYS);
+    return { key: key, label: p.label, low: lo, high: hi, mid: round((lo + hi) / 2) };
+  }
+
   // Optional intensity helper — illustrative credit weights (adjustable, not official).
   var INTENSITY_WEIGHTS = { light: 125, medium: 500, heavy: 2500 };
 
@@ -577,6 +602,7 @@
   var api = {
     RATE_PAYG: RATE_PAYG, RATE_PREPAID: RATE_PREPAID, PACK_SIZE: PACK_SIZE, PACK_PRICE: PACK_PRICE,
     DEFAULTS: DEFAULTS, MAU_BENCHMARKS: MAU_BENCHMARKS, INTENSITY_WEIGHTS: INTENSITY_WEIGHTS,
+    MS_PERSONAS: MS_PERSONAS, MS_SPLIT: MS_SPLIT, MS_WORKING_DAYS: MS_WORKING_DAYS, msPersonaBand: msPersonaBand,
     intensityToCredits: intensityToCredits, activeUsers: activeUsers, normalizeGlobal: normalizeGlobal,
     creditsToSpend: creditsToSpend, budgetUsage: budgetUsage, purchasePlan: purchasePlan,
     quickEstimate: quickEstimate, cohortRow: cohortRow, detailedEstimate: detailedEstimate, forecast: forecast,
