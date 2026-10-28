@@ -6,23 +6,10 @@ hide: [toc]
 
 # AI Builder → Copilot Credits Estimator
 
-Microsoft is retiring the way AI Builder is funded: **AI Builder capacity add-ons can only be
-renewed by existing customers (from November 1, 2025), and the AI Builder credits seeded in Power
-Platform and Dynamics licenses are removed in November 2026.** After that, the same AI Builder
-capabilities — document processing, prompts, text and image analysis — run on **Copilot Credits**.
+Map what you run on AI Builder today to the **Copilot Credits** you'll need. Runs in your browser — nothing is uploaded.
 
-This tool answers the one question every customer with existing AI Builder usage asks:
-**"What will my current AI Builder workload cost me in Copilot Credits?"** Enter what you use today,
-get the Copilot Credits you need to provision. Everything runs in your browser; nothing is uploaded.
-
-!!! borrow "Borrow, don't build — this is grounded, but Microsoft owns the truth"
-    Every rate in this estimator is transcribed **verbatim** from Microsoft's official
-    **AI Builder Capability Rate table**, retrieved **2026-08-10**. Rates and packaging change; for
-    any customer-facing number, go to the source:
-
-    - [AI Builder licensing — Capability Rate table](https://learn.microsoft.com/en-us/ai-builder/administer-licensing#ai-builder-capability-rate-table) — the rate card (Copilot Credit **and** AI Builder credit rate per capability)
-    - [Licensing and Copilot Credits](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) — how Copilot Credits are bought and pooled
-    - [Microsoft Copilot Studio Licensing Guide (PDF)](https://go.microsoft.com/fwlink/?linkid=2320995) — the most complete, most current pricing
+!!! warning "November 1, 2026: AI Builder credits reach end of life"
+    Features keep working — they draw **Copilot Credits** once AI Builder credits run out. [What changes ↓](#what-changes)
 
 <div id="aib-estimator" markdown="0">
 
@@ -224,6 +211,50 @@ get the Copilot Credits you need to provision. Everything runs in your browser; 
   border: 1px dashed color-mix(in srgb, var(--md-primary-fg-color) 40%, transparent);
   border-radius: 8px; padding: 0.6rem 0.75rem; margin: 0 0 0.9rem;
 }
+
+/* Planning assumptions + range */
+#aib-estimator .aib-assumptions {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem;
+  margin: 0.5rem 0 0;
+}
+@media (max-width: 720px) { #aib-estimator .aib-assumptions { grid-template-columns: 1fr; } }
+#aib-estimator .aib-assumption-card {
+  border: 1px solid var(--md-default-fg-color--lighter); border-radius: 10px;
+  background: var(--md-code-bg-color); padding: 0.75rem 0.85rem;
+}
+#aib-estimator .aib-assumption-card label {
+  display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.82rem; font-weight: 700;
+}
+#aib-estimator .aib-assumption-help {
+  display: block; margin-top: 0.35rem; font-size: 0.72rem; line-height: 1.45;
+  color: var(--md-default-fg-color--light);
+}
+#aib-estimator .aib-range {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem;
+  margin: 1rem 0;
+}
+@media (max-width: 720px) { #aib-estimator .aib-range { grid-template-columns: 1fr; } }
+#aib-estimator .aib-range-card {
+  padding: 0.85rem 0.95rem; border-radius: 10px;
+  border: 1px solid var(--md-default-fg-color--lighter); background: var(--md-code-bg-color);
+}
+#aib-estimator .aib-range-card--expected {
+  border-color: color-mix(in srgb, var(--md-primary-fg-color) 45%, transparent);
+  background: color-mix(in srgb, var(--md-primary-fg-color) 9%, transparent);
+}
+#aib-estimator .aib-range-tag { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--md-default-fg-color--light); }
+#aib-estimator .aib-range-num { margin-top: 0.2rem; font-size: 1.45rem; line-height: 1.1; font-weight: 800; font-variant-numeric: tabular-nums; }
+#aib-estimator .aib-range-sub { margin-top: 0.25rem; font-size: 0.75rem; color: var(--md-default-fg-color--light); }
+.aib-method {
+  border: 1px solid var(--md-default-fg-color--lighter); border-radius: 12px;
+  background: var(--md-code-bg-color); padding: 1rem 1.1rem; margin: 1.1rem 0;
+}
+.aib-method h3 { margin-top: 0; }
+.aib-method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; }
+@media (max-width: 760px) { .aib-method-grid { grid-template-columns: 1fr; } }
+.aib-method-card { padding: 0.75rem; border-radius: 10px; background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--lightest); }
+.aib-method-card strong { display: block; margin-bottom: 0.25rem; }
+.aib-method-card span { display: block; font-size: 0.78rem; line-height: 1.45; color: var(--md-default-fg-color--light); }
 </style>
 
 <div class="aib-step">
@@ -250,7 +281,7 @@ get the Copilot Credits you need to provision. Everything runs in your browser; 
 
 <div class="aib-step" id="aib-step-input">
   <div class="aib-step-h"><span class="aib-step-n">3</span> Enter your monthly numbers</div>
-  <div id="aib-empty" class="aib-empty">Pick a capability above (or tap a preset) and a row will appear here to enter your monthly numbers.</div>
+  <div id="aib-empty" class="aib-empty" role="button" tabindex="0" style="cursor:pointer" title="Jump to the capability picker" onclick="var c=document.getElementById('aib-step-cap');if(c){c.scrollIntoView({behavior:'smooth',block:'center'});}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">↑ Pick a capability above (or tap a preset) and a row will appear here to enter your monthly numbers.</div>
   <div id="aib-rows"><!-- capability input rows injected by ai-builder-estimator.js --></div>
   <button type="button" class="em-chip aib-reset em-hidden" id="aib-reset-btn" onclick="aibReset()">Reset all</button>
 </div>
@@ -309,7 +340,108 @@ get the Copilot Credits you need to provision. Everything runs in your browser; 
 
 <div id="aib-results" class="em-hidden"><!-- results injected here --></div>
 
+<div class="aib-step" id="aib-step-assumptions">
+  <div class="aib-step-h"><span class="aib-step-n">4</span> Add planning assumptions</div>
+  <p class="aib-mode-desc">Use this when customer telemetry is incomplete. Keep <strong>Current</strong> as the observed baseline, then model the expected migration month and a peak/burst month for provisioning.</p>
+  <div class="aib-assumptions">
+    <div class="aib-assumption-card">
+      <label for="aib-growth-pct">Expected growth %
+        <input type="number" min="0" step="1" inputmode="decimal" class="aib-input" id="aib-growth-pct" value="0" aria-label="Expected monthly growth percent">
+      </label>
+      <span class="aib-assumption-help">Known volume growth, new teams, more flows, or increased automation throughput.</span>
+    </div>
+    <div class="aib-assumption-card">
+      <label for="aib-peak-pct">Peak / burst buffer %
+        <input type="number" min="0" step="1" inputmode="decimal" class="aib-input" id="aib-peak-pct" value="20" aria-label="Peak or burst buffer percent">
+      </label>
+      <span class="aib-assumption-help">Use because capacity is monthly and production workloads rarely follow a perfect average.</span>
+    </div>
+    <div class="aib-assumption-card">
+      <label for="aib-confidence">Data confidence
+        <select id="aib-confidence" class="aib-select" aria-label="Data confidence">
+          <option value="high">High - reconciled ledger and activity</option>
+          <option value="medium" selected>Medium - partial enrichment</option>
+          <option value="low">Low - telemetry only</option>
+        </select>
+      </label>
+      <span class="aib-assumption-help">Use lower confidence when the activity export lacks environment, user, page, token, or process-owner validation.</span>
+    </div>
+  </div>
+</div>
+
 </div><!-- /#aib-estimator -->
+
+---
+
+## What changes on November 1, 2026 { #what-changes }
+
+Per Microsoft's [End of AI Builder credits](https://learn.microsoft.com/en-us/ai-builder/endofaibcredits) calendar:
+
+- **AI Builder capacity add-ons** stopped selling to new customers on **November 1, 2025** and reach
+  **end of life on November 1, 2026**. Existing add-on credits stay usable until those licenses expire —
+  and Microsoft notes customers **must turn off auto-renew** in the Microsoft 365 admin center or Partner Center.
+- **Seeded AI Builder credits** (in Power Apps / Power Automate premium, Dynamics 365, and similar licenses)
+  also reach end of life on **November 1, 2026**: future premium licenses won't include them, and existing
+  seeded credits are honored **through the end of the contract term**.
+- There's **no automatic conversion**. Environments consume AI Builder credits first, then **Copilot
+  Credits**; if neither is available, AI Builder features are **blocked**. That's why sizing the Copilot
+  Credits you need — below — matters now.
+
+## Expedited conversion assessment workflow { #conversion-assessment }
+
+Use this when a customer has Power Platform reports but the reports do not match the actual conversion planning process.
+
+<div class="aib-method" markdown="0">
+  <h3>Fast but defensible model</h3>
+  <div class="aib-method-grid">
+    <div class="aib-method-card">
+      <strong>1. Anchor the total</strong>
+      <span>Load the AI Builder consumption export first. Sum the actual consumption field over the agreed reporting window by environment and day.</span>
+    </div>
+    <div class="aib-method-card">
+      <strong>2. Explain the mix</strong>
+      <span>Use AI Builder Activity to group estimated consumption by tool/model. This creates the capability split needed for the rate table.</span>
+    </div>
+    <div class="aib-method-card">
+      <strong>3. Enrich only the gaps</strong>
+      <span>Ask process owners for pages, documents, tokens, peak periods, production/test status, and expected growth for the top consumers only.</span>
+    </div>
+  </div>
+</div>
+
+Recommended order of operations:
+
+1. Normalize both files to the same date window and timezone. Use actual timestamp columns, not filenames.
+2. Treat the consumption export as the top-down ledger baseline.
+3. Treat the activity export as the bottom-up workload mix and reconciliation view.
+4. Do not row-join the files unless both expose stable environment/user/execution keys.
+5. Ask Delta to enrich the top 10-20 tools/models or the workloads that represent roughly 80% of usage.
+6. Use the estimator's planning assumptions to publish **Current**, **Expected**, and **Peak** Copilot Credit ranges.
+
+Manual enrichment template:
+
+<button type="button" class="md-button" onclick="aibCopyIntakeTemplate()">Copy intake columns</button>
+<button type="button" class="md-button md-button--primary" onclick="aibDownloadIntakeTemplate()">Download intake CSV</button>
+
+| Column | Purpose |
+| --- | --- |
+| BusinessProcess | Human-friendly process name, such as vendor invoice intake or claims extraction |
+| FlowOrAppOrAgent | Owning Power Automate flow, Power App, Copilot Studio agent, or agent flow |
+| EnvironmentId | Join back to the consumption export where possible |
+| ToolName | Tool/model/prompt name from AI Builder Activity |
+| CapabilityMapping | One of the estimator capabilities, reviewed by the process owner |
+| MonthlyRuns | Current monthly run volume |
+| AvgPagesImagesPerRun | Required for document, OCR, image, and ID processing |
+| AvgInputTokensOrChars | Required for prompt and text workloads |
+| AvgOutputTokens | Required for prompt workloads |
+| ProductionStatus | Production, pilot, test, retired, or unknown |
+| IncludeInForecast | Yes or no |
+| ExpectedGrowthPct | Known growth for this workload |
+| PeakMultiplier | Burst factor for busiest month |
+| Confidence | High, medium, or low |
+| Notes | Assumptions, data gaps, or owner comments |
+
+The goal is not to ask every maker for perfect telemetry. Start with the reports, reconcile the obvious totals, then use this short intake only where the export cannot tell the difference between estimated activity, production usage, page/token volume, and future growth.
 
 ---
 
@@ -338,6 +470,15 @@ You don't need exact numbers to get a useful estimate — but the closer you are
 ---
 
 ## The rate card this tool uses { #rate-card }
+
+??? borrow "Borrow, don't build — this is grounded, but Microsoft owns the truth"
+    Every rate in this estimator is transcribed **verbatim** from Microsoft's official
+    **AI Builder Capability Rate table**, retrieved **2026-08-10**. Rates and packaging change; for
+    any customer-facing number, go to the source:
+
+    - [AI Builder licensing — Capability Rate table](https://learn.microsoft.com/en-us/ai-builder/administer-licensing#ai-builder-capability-rate-table) — the rate card (Copilot Credit **and** AI Builder credit rate per capability)
+    - [Licensing and Copilot Credits](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) — how Copilot Credits are bought and pooled
+    - [Microsoft Copilot Studio Licensing Guide (PDF)](https://go.microsoft.com/fwlink/?linkid=2320995) — the most complete, most current pricing
 
 Straight from Microsoft's [AI Builder Capability Rate table](https://learn.microsoft.com/en-us/ai-builder/administer-licensing#ai-builder-capability-rate-table)
 (retrieved **2026-08-10**). "Copilot Credit rate" is what the capability costs in Copilot Studio;
@@ -393,6 +534,7 @@ All rate and licensing claims are grounded in official Microsoft documentation, 
 | Claim | Source | Retrieved |
 | --- | --- | --- |
 | AI Builder Capability Rate table (Copilot Credit + AI Builder credit rate per capability, units, $ footnotes: $0.01/Copilot Credit PAYG, Tier 1 prepaid $500/mo per 1M AI Builder credits); AI Builder features in Copilot Studio always consume Copilot Credits; add-on renewal-only from Nov 1 2025 and seeded credits removed Nov 2026 | [AI Builder — Overview of licensing](https://learn.microsoft.com/en-us/ai-builder/administer-licensing#ai-builder-capability-rate-table) | 2026-08-10 |
+| End-of-life calendar: add-ons end of sales 11/1/2025 and end of life 11/1/2026 (turn off auto-renew); seeded credits end of life 11/1/2026, honored through contract term; no automatic conversion; AI Builder credits consumed first, then Copilot Credits, else blocked | [End of AI Builder credits](https://learn.microsoft.com/en-us/ai-builder/endofaibcredits) | 2026-10-28 |
 | How Copilot Credits are bought, pooled per tenant, and enforced monthly with no carryover | [Licensing and Copilot Credits — Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) | 2026-08-10 |
 | PPAC **AI Builder consumption report** is a downloadable **Excel** (admin-only, rolling 30 days) with columns `Date, UserId, EnvironmentId, EnvironmentName, AIConsumption, IsTrial` — an aggregate credit total, **no per-capability breakdown** | [AI Builder consumption report](https://learn.microsoft.com/ai-builder/administer-consumption-report) | 2026-08-11 |
 | Power Automate **AI Builder activity** grid (Automation Center → Monitor) lists per-run `Tool name` + `Consumption`, covering Power Automate, Power Apps, and Copilot Studio | [Monitor AI Builder models and prompts activity](https://learn.microsoft.com/ai-builder/activity-monitoring) | 2026-08-11 |

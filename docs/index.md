@@ -53,7 +53,7 @@ Format the action items as a table I can paste into an email.
   <span class="arrow">→</span>
   <a class="step foundation" href="stages/stage-4-agent-builder/"><span class="n">STAGE 4</span><span class="t">Agent Builder</span><span class="d">Your first taste of <em>making</em>.</span></a>
   <span class="arrow">→</span>
-  <a class="step pioneer" href="stages/stage-5-autopilots/"><span class="n">STAGE 5</span><span class="t">Autopilots</span><span class="d">Always-on agents — Microsoft Scout is the first. Frontier preview.</span></a>
+  <a class="step pioneer" href="stages/stage-5-autopilots/"><span class="n">STAGE 5</span><span class="t">Autopilots</span><span class="d">Always-on agents — Autopilot (formerly Scout). Private preview.</span></a>
   <span class="arrow">→</span>
   <a class="step dest" href="stages/stage-6-studio/"><span class="n">STAGE 6</span><span class="t">Copilot Studio</span><span class="d">Build real, production-grade agents.</span></a>
   <span class="arrow">→</span>

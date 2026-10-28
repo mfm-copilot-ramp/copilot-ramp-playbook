@@ -1,17 +1,17 @@
 ---
-title: Equip Scout with a continuous customer-health watch
-description: Equip the worst-first customer-health digest onto Microsoft Scout as an always-on skill, so your ranked list of at-risk accounts never goes stale.
+title: Equip Autopilot with a continuous customer-health watch
+description: Equip the worst-first customer-health digest onto Autopilot as an always-on skill, so your ranked list of at-risk accounts never goes stale.
 stage: autopilots
 roles: [manager, champion, end-user]
-tags: [autopilots, scout, skill, customer-health, accounts, risk, lineage]
+tags: [autopilots, scout, autopilot, skill, customer-health, accounts, risk, lineage]
 level: intermediate
 time: 15 min
 status: walkthrough
 prereqs: [scout-enabled, frontier-enrollment, github-copilot-license]
-updated: 2026-08-21
+updated: 2026-10-28
 ---
 
-# Equip Scout with a continuous customer-health watch
+# Equip Autopilot with a continuous customer-health watch
 
 > You already know how to rank your book of business worst-first as a Cowork recipe. This is that same
 > **skill** — equipped onto an always-on agent so the ranked list stays live, instead of being as old as the
@@ -21,7 +21,7 @@ updated: 2026-08-21
 
 !!! tip "This is a lineage skill"
     The [customer-health digest](cowork-customer-health-digest.md) is a **Cowork recipe** — a skill you
-    *describe and run on demand*. This walkthrough equips that exact capability onto **Scout** so it runs
+    *describe and run on demand*. This walkthrough equips that exact capability onto **Autopilot (formerly Microsoft Scout)** so it runs
     *continuously*. Same skill, one rung up the ramp. That progression — recipe → Autopilot skill → governed
     Studio tool — is the spine of the [Skills Catalog](../skills.md).
 
@@ -29,16 +29,19 @@ updated: 2026-08-21
 A worst-first health ranking is only useful the day you run it. By Thursday an account that was green on
 Monday has gone quiet, a renewal clock started ticking, a support thread escalated — and your list doesn't
 know. Re-running the digest by hand every few days is exactly the kind of recurring job you shouldn't have to
-remember. Equip it onto Scout as a **standing skill** and the ranked list re-scores itself as the signals
+remember. Equip it onto Autopilot as a **standing skill** and the ranked list re-scores itself as the signals
 change, surfacing the account that just slipped *before* your next check-in.
 
-As always, Scout works **on your behalf under your governed identity** and keeps **you in the loop** — it
+As always, Autopilot works **on your behalf, with its own identity in your tenant** (permissions, audit and
+governance behind it) and keeps **you in the loop** — it
 ranks and flags; you decide where the week goes.
 
 ## What you'll need
-- **Scout enabled for you** — Frontier-gated and installed via the desktop experience (GitHub Copilot
-  license required). See [the access walkthrough](autopilots-get-access.md).
-- Scout connected to where account signals live — **Outlook, Teams, calendar**, and any **OneDrive/SharePoint**
+- Access to **Autopilot** (private preview) — or, today, the Frontier desktop app still documented on Learn
+  as **Microsoft Scout** (needs Frontier turned on by your admin, an Intune policy + admin attestation, a
+  Microsoft 365 Copilot license, and a GitHub Copilot Business or Enterprise license). See
+  [Find out if you can get Autopilot](autopilots-get-access.md).
+- Autopilot connected to where account signals live — **Outlook, Teams, calendar**, and any **OneDrive/SharePoint**
   where account notes or docs sit.
 - A working definition of **health** for your accounts — the signals that mean "at risk" (gone quiet,
   escalating thread, slipped date, negative sentiment) so the ranking reflects your reality, not a generic one.
@@ -62,16 +65,17 @@ Don't message any customer directly without checking with me first.
 an always-on capability.
 
 ## Step by step
-1. **Open Scout in Teams** and confirm it can see the surfaces your account signals run on — Outlook, Teams,
+1. **Reach Autopilot where you already work** (Teams, Outlook, a chat or a channel) and confirm it can see
+   the surfaces your account signals run on — Outlook, Teams,
    calendar, and the OneDrive/SharePoint where account context lives.
 2. **Equip the skill.** Paste the prompt above and name your accounts and what "at risk" means for you.
    You're handing over a standing watch, not asking for a single ranking.
-3. **Read the first ranking as calibration.** Scout posts a worst-first brief. Check whether its risk signals
+3. **Read the first ranking as calibration.** Autopilot posts a worst-first brief. Check whether its risk signals
    match your gut — this first pass is where you teach it your definition of health.
-4. **Tune the signals.** Tell Scout what to weight ("a renewal inside 60 days always floats to the top,"
+4. **Tune the signals.** Tell Autopilot what to weight ("a renewal inside 60 days always floats to the top,"
    "ignore the internal thread — that's not the customer"). The skill's ranking sharpens each correction.
-5. **Act on the sharp movers.** When Scout pings you that an account moved hard the wrong way, you decide the
-   move — reach out, loop in the team, or watch it. Scout surfaces; you steer.
+5. **Act on the sharp movers.** When Autopilot pings you that an account moved hard the wrong way, you decide the
+   move — reach out, loop in the team, or watch it. Autopilot surfaces; you steer.
 6. **Leave it running.** Once calibrated, the list stays live on its own — no more stale rankings, no more
    remembering to re-run it. The skill *is* the always-on version of your Cowork recipe.
 
@@ -89,15 +93,15 @@ _We deliberately don't ship screenshots that go stale — the Microsoft Copilot 
   auto-open a save-the-account task, write to the CRM — that's the cue to build it as a Studio tool.
 
 ## Watch out for
-- **The ranking is a lens, not the truth.** Scout ranks on the signals it can see; a quiet account may be
+- **The ranking is a lens, not the truth.** Autopilot ranks on the signals it can see; a quiet account may be
   fine and a noisy one may be healthy. Use it to aim your attention, not to replace your judgment.
-- **You own any outreach.** Scout stays behind your sign-off on anything that reaches a customer — it flags
-  and drafts under your governed identity, you decide what actually gets sent.
-- **Garbage signals, garbage ranking.** If Scout can't see the surfaces where account reality lives, the
+- **You own any outreach.** Autopilot stays behind your sign-off on anything that reaches a customer — it flags
+  and drafts on your behalf, you decide what actually gets sent.
+- **Garbage signals, garbage ranking.** If Autopilot can't see the surfaces where account reality lives, the
   watch ranks on partial data. Connect the sources that matter, or scope the skill to the accounts it can
   actually see.
-- **It's private preview.** Capabilities shift as Scout evolves — verify against the
-  [Microsoft Scout docs](https://learn.microsoft.com/en-us/microsoft-scout/) if behavior differs from what's
+- **It's private preview.** Capabilities shift as Autopilot evolves — verify against the
+  [Microsoft Scout desktop app docs](https://learn.microsoft.com/en-us/microsoft-scout/) if behavior differs from what's
   described here.
 
 ## Where this leads (the ramp)
@@ -110,8 +114,8 @@ update the CRM, notify a team channel on a rule — you've outgrown the ready-ma
 
 ## Related
 - [Cowork → Customer-health digest (the recipe this graduates from)](../walkthroughs/cowork-customer-health-digest.md)
-- [One skill, three surfaces: the customer-health lineage](../walkthroughs/skill-lineage-customer-health.md) — this watch as a Cowork → Scout → Studio arc
-- [Autopilots → Equip Scout with an always-on inbox-triage skill](../walkthroughs/autopilots-inbox-triage.md)
-- [Autopilots → Have Scout watch your deliverables and flag risks](../walkthroughs/autopilots-track-deliverables.md)
-- [Skills Catalog → Autopilots (Scout) skills](../skills.md#autopilots-scout-skills)
+- [One skill, three surfaces: the customer-health lineage](../walkthroughs/skill-lineage-customer-health.md) — this watch as a Cowork → Autopilot → Studio arc
+- [Autopilots → Equip Autopilot with an always-on inbox-triage skill](../walkthroughs/autopilots-inbox-triage.md)
+- [Autopilots → Have Autopilot watch your deliverables and flag risks](../walkthroughs/autopilots-track-deliverables.md)
+- [Skills Catalog → Autopilots skills](../skills.md#autopilots-scout-skills)
 - Stage 5 Resources: see `RESOURCES.md` → Autopilots

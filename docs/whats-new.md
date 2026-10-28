@@ -10,6 +10,46 @@ Updates to the Copilot Ramp Playbook — new walkthroughs, improvements, and str
 
 ---
 
+## October 2026
+
+### Accuracy refresh — Autopilot, Cowork GA, and what your license covers
+*October 28, 2026*
+
+A lot moved while the site stood still. This release brings it back in line with Microsoft's current docs:
+
+- **Stage 5 · Autopilots** now leads with **Autopilot** — Microsoft renamed **Microsoft Scout** to Autopilot on
+  [September 25, 2026](https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/)
+  and moved it to the cloud in private preview. The stage, its walkthroughs, and the glossary explain the rename,
+  what the Scout desktop app still documents on Learn, the real access gates (Frontier, Intune + attestation,
+  Microsoft 365 Copilot and GitHub Copilot Business/Enterprise licenses), and that it bills in Copilot Credits.
+- **Stage 3 · Cowork** now reflects **general availability (June 16, 2026)**: no Frontier enrollment, a
+  **spending policy** as the on-switch, **usage-based Copilot Credits** on top of the license, `/cost`,
+  scheduled and event-driven tasks, skills, plugins, and model choice.
+- **[How Copilot Credits work](copilot-credits.md)** adds Microsoft's **everyday AI vs. advanced AI** split and the
+  broader zero-rating: every standard-harness feature is now "No charge" for licensed employees (computer use and
+  non-agent-triggered flows still bill).
+- **[Pick the engine](pick-the-engine.md)** shows the current three harnesses — **GitHub Copilot**, the new
+  **Customer Conversation** harness, and **standard**.
+- **[AI Builder → Copilot Credits](ai-builder-estimator.md)** flags the **November 1, 2026** end of life for AI
+  Builder add-ons and seeded credits, and adds **planning assumptions** (growth and peak buffer) with a
+  current / expected / peak range.
+- **[Licensing & Prerequisites](prerequisites.md)** gains the missing Stage 5 entry and corrects Stage 3.
+
+---
+
+## September 2026
+
+### Cowork estimator — import your real usage, forecast 12 months
+*September 10, 2026*
+
+- **Import from M365** now reads the Microsoft 365 admin center's **per-user Copilot Credits consumption export**:
+  it detects your licensed population, separates active from provisioned-idle users, and flags users pinned at
+  their credit cap (so the average is treated as a floor).
+- The Cowork forecast extends to a **12-month horizon**, and the import gives a helpful hint if you upload the
+  usage/adoption report instead of the consumption export.
+
+---
+
 ## July 2026
 
 ### Credit Estimator gains three modes — Quick, Detailed, and Solution package

@@ -50,21 +50,27 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
 - **First-party agents** — the prebuilt agents Microsoft bundles into the Microsoft 365 Copilot license
   (Researcher, Analyst, Facilitator, Interpreter, Project Manager, and more). You delegate to them rather
   than building anything. The whole of [Stage 2](stages/stage-2-first-party.md).
-- **Cowork** — Microsoft 365 Copilot's ability to take a whole multi-step task — plan it, run the steps
-  across your tools, and hand back a finished result — instead of answering one prompt at a time. The focus
-  of [Stage 3](stages/stage-3-cowork.md).
+- **Cowork (Copilot Cowork)** — Copilot's agentic system for delegated work: you describe a whole
+  multi-step task and it plans the steps, runs them across your tools, and hands back a finished result —
+  on demand, on a schedule, or when an email or Teams message arrives. **Generally available since June 16,
+  2026**; requires a Microsoft 365 Copilot license plus **usage-based Copilot Credits**. The focus of
+  [Stage 3](stages/stage-3-cowork.md).
 - **Copilot Pages** — a shared, editable canvas. Turn any Copilot response into a living document your team
   can co-edit with Copilot in the loop.
-- **Frontier** — Microsoft's early-access program. The newest Copilot capabilities (including the fuller
-  Cowork feature set) often land in Frontier *first*, weeks or months ahead of general availability. See the
-  [Cowork stage](stages/stage-3-cowork.md) for how to check eligibility and enroll.
-- **Autopilot (category)** — Microsoft's category of **always-on, autonomous agents**: each runs under its
-  own governed Microsoft Entra identity and acts on your behalf in the background, within the permissions and
-  policies you set, instead of waiting for a prompt. Announced June 2, 2026. The focus of
-  [Stage 5](stages/stage-5-autopilots.md).
-- **Microsoft Scout** — the **first Autopilot**: an always-on personal agent that builds context over time
-  through Work IQ and can coordinate meetings, prep, and deliverables for you. In **Frontier private preview**
-  today. ([Microsoft Scout on Learn](https://learn.microsoft.com/en-us/microsoft-scout/))
+- **Frontier (Microsoft Frontier program)** — Microsoft's opt-in preview program for Microsoft 365 features
+  (AI and non-AI) before general availability. Admins enroll users in the Microsoft 365 admin center under
+  **Copilot → Settings → Copilot Frontier**. Frontier experiences are previews with their own terms (for
+  example, no HIPAA BAA coverage). ([Get started with Frontier](https://learn.microsoft.com/microsoft-365/admin/manage/get-started-frontier))
+- **Autopilot** — Microsoft's persistent, proactive agent, **previously called Microsoft Scout** (renamed
+  September 25, 2026). You give it a name, a role and a goal; it's cloud-hosted, lives in your tenant with its
+  own identity, memory and workspace, and keeps working between prompts. In **private preview**; billed with
+  usage-based Copilot Credits. *Autopilots* is also the name of [Stage 5](stages/stage-5-autopilots.md).
+- **Microsoft Scout** — the original name of Autopilot, and still the name Learn uses for the **Frontier
+  desktop app** (Windows/macOS) that works across your files, shell, browser, and Microsoft 365.
+  ([Microsoft Scout docs](https://learn.microsoft.com/microsoft-scout/overview))
+- **Everyday AI vs. advanced AI** — Microsoft's split between Copilot work covered by the **user license
+  (USL)** and long-running agentic work on **usage-based billing (UBB)** in Copilot Credits (Cowork, Code,
+  Autopilot, frontier models). See [How Copilot Credits work](copilot-credits.md).
 - **Declarative agent** — an agent defined by configuration, not code: instructions, knowledge sources, and
   starter prompts. What you build in [Agent Builder](stages/stage-4-agent-builder.md), and the simpler option
   in Studio.
@@ -73,16 +79,17 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
   isn't enough.
 - **Harness (Studio engine)** — the **engine underneath a Copilot Studio agent**: it sets how autonomously
   the agent reasons, what files it can touch, where you can publish it, and — critically — *how it bills and
-  whether your existing licenses cover it*. Same builder, three engines today:
+  whether your existing licenses cover it*. Same builder, three engines today
+  ([harnesses overview](https://learn.microsoft.com/en-us/microsoft-copilot-studio/harnesses-overview)):
     - **GitHub Copilot harness** — autonomous and agentic: reasons through a goal step by step, retries,
       works with Word/Excel/PowerPoint/PDF files, and has skills and memory. The modern direction for
       complex, multi-step work. Bills **Copilot Credits for *all* usage — creation *and* runtime — and is
       *never* covered by a Microsoft 365 Copilot license.**
     - **Standard harness** — follows the **topics and rules you author**: predictable, structured
-      conversations. Usage is **covered by a Microsoft 365 Copilot license when it runs inside Microsoft 365
-      channels** (billed only for unlicensed users or use outside those channels).
-    - **Copilot chat harness** — extends **Microsoft 365 Copilot Chat** with your enterprise knowledge;
-      included in Microsoft 365 Copilot USLs / consumption.
+      conversations. Usage is **covered for Microsoft 365 Copilot-licensed employees** using it under their
+      own identity (unlicensed users, autonomous runs, and computer use still bill).
+    - **Customer Conversation harness** — customer-facing agents over **web chat or a phone number**, with
+      escalation to a human representative; billed in **Copilot Credits** on usage.
 
     Pick for the *job*, then confirm the cost and coverage implications — see
     [Pick the engine for the job](pick-the-engine.md) and [How Copilot Credits work](copilot-credits.md).
@@ -93,8 +100,9 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
 
 - **Skill** — a **reusable, packaged capability you save once and reuse or share**. Today the clearest
   example is a **Cowork recipe** ([Stage 3](stages/stage-3-cowork.md)). In **[Autopilots](stages/stage-5-autopilots.md)** — Microsoft's category of always-on agents —
-  that same instinct is equipped onto **Microsoft Scout**, the first Autopilot, so it draws on the capability
-  in the background (Frontier private preview). In **Copilot Studio**, *skill*
+  that same instinct is equipped onto **Autopilot** (formerly Microsoft Scout), so it draws on the capability
+  in the background (private preview). Cowork (custom skills), the Scout desktop app (`SKILL.md` files), and
+  the GitHub Copilot harness all support reusable skills now. In **Copilot Studio**'s standard harness, *skill*
   is a precise term for **one specific kind of tool** — an embedded pro-code agent (Bot Framework /
   Microsoft 365 Agents SDK) registered so your agent can call it; the connector actions, flows, and
   MCP tools in [Stage 6](stages/stage-6-studio.md) are **tools**, not skills. See the

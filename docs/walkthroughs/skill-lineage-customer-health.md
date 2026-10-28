@@ -1,34 +1,34 @@
 ---
 title: "One skill, three surfaces: the customer-health capability"
-description: Follow one skill — ranking accounts worst-first by risk — across three surfaces: a Cowork recipe, an always-on Scout autopilot, and a governed Studio tool.
+description: Follow one skill — ranking accounts worst-first by risk — across three surfaces: a Cowork recipe, an always-on Autopilot skill, and a governed Studio tool.
 stage: studio
 roles: [end-user, manager, champion, maker]
-tags: [skill, lineage, cowork, autopilots, scout, studio, customer-health, three-surfaces]
+tags: [skill, lineage, cowork, autopilots, scout, autopilot, studio, customer-health, three-surfaces]
 level: intermediate
 time: 12 min
 status: walkthrough
-updated: 2026-08-21
+updated: 2026-10-28
 ---
 
 # One skill, three surfaces: the customer-health capability
 
 > A skill isn't tied to one product. The *same* reusable capability can be **described in Cowork**,
-> **equipped onto Scout**, or **hardened into a governed tool in Studio** — you pick the surface by how
-> often it runs, how autonomously, and how much governance it needs. This page follows one concrete skill
-> across all three.
+> **equipped onto Autopilot (formerly Microsoft Scout)**, or **hardened into a governed tool in Studio** — you
+> pick the surface by how often it runs, how autonomously, and how much governance it needs. This page follows
+> one concrete skill across all three.
 
 **Stage:** Cross-surface (Cowork → Autopilots → Studio) · **For:** End user, Manager, Champion, Maker · **Level:** Intermediate · **Time:** 12 min
 
 ## When to use this
 Read this when you've captured a reusable skill and need to decide *where it should run* — on demand in
-[Cowork](../stages/stage-3-cowork.md), always-on in [Scout](../stages/stage-5-autopilots.md), or hardened into
+[Cowork](../stages/stage-3-cowork.md), always-on in [Autopilot](../stages/stage-5-autopilots.md), or hardened into
 a governed tool in [Copilot Studio](../stages/stage-6-studio.md). It's a decision guide, not a build guide;
 each surface links out to its own step-by-step walkthrough.
 
 ## What you'll need
 - A skill you can state in one plain-language sentence (the example below)
 - A rough sense of how often it runs, how autonomously, and how much governance it needs
-- Familiarity with the three surfaces: Cowork, Scout / Autopilots, and Copilot Studio
+- Familiarity with the three surfaces: Cowork, Autopilot (the Autopilots stage), and Copilot Studio
 
 ## Try it now
 The whole page follows one capability, stated in plain language:
@@ -59,23 +59,25 @@ capture once — name, inputs, expected output — so anyone can rerun it cold i
     Get the ranking logic and the "what counts as risk" definition right *here*, on demand, before you ever
     hand it to an always-on agent. A recipe that's still fuzzy shouldn't be promoted.
 
-### Surface 2 — Autopilots (Scout): the same skill, equipped onto an always-on agent
+### Surface 2 — Autopilot: the same skill, equipped onto an always-on agent
 When the recipe is stable and worth running *continuously*, you graduate it onto
-[Microsoft Scout](../stages/stage-5-autopilots.md) — the first **Autopilot**. Now the identical capability is
+[Autopilot](../stages/stage-5-autopilots.md), Microsoft's always-on agent. Now the identical capability is
 **equipped**, not described:
 
-- **Scout** runs it in the background on its own trigger — the at-risk list **re-scores itself** as signals
+- **Autopilot** runs it in the background on its own trigger — the at-risk list **re-scores itself** as signals
   change and never goes stale.
-- It works **on your behalf under your governed identity**, and keeps **you in the loop** — it surfaces and
-  flags; you decide and it never contacts a customer without your say-so.
+- It works **on your behalf, with its own identity in your tenant** (permissions, audit and governance behind
+  it), and keeps **you in the loop** — it surfaces and flags; you decide and it never contacts a customer
+  without your say-so.
 - You stopped *starting* the skill. You just get pinged when something moves.
 
-→ **Equip it:** [Equip Scout with a continuous customer-health watch](autopilots-customer-health-watch.md)
+→ **Equip it:** [Equip Autopilot with a continuous customer-health watch](autopilots-customer-health-watch.md)
 
 !!! info "Emerging and gated"
-    Scout is in **Frontier private preview** — availability, and how you equip and manage its skills, roll out
-    by tenant, license, and region. Treat the
-    [Microsoft Scout Learn page](https://learn.microsoft.com/en-us/microsoft-scout/) as the source of truth
+    Autopilot is in **private preview** — availability, and how you equip and manage its skills, roll out
+    by tenant, license, and region. Check the
+    [announcement](https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/)
+    and the [Microsoft Scout desktop app docs](https://learn.microsoft.com/en-us/microsoft-scout/) on Learn
     before any customer-facing claim.
 
 ### Surface 3 — Studio: the skill *hardened* into a governed tool
@@ -105,34 +107,34 @@ actually needs:
 | If the skill… | Run it on… | Because |
 | --- | --- | --- |
 | Runs occasionally, when *you* decide | **Cowork** (recipe) | Cheapest to build and change; you pull it on demand |
-| Should run continuously, on its own, for *you* | **Scout** (autopilot) | Always-on, re-scores itself, keeps you in the loop |
+| Should run continuously, on its own, for *you* | **Autopilot** (equipped skill) | Always-on, re-scores itself, keeps you in the loop |
 | Must take governed actions on systems, org-wide | **Studio** (tool) | Real actions, policy, monitoring, sharing |
 
 ## Make it better
 A skill isn't fixed to one surface. Graduate it as it earns more autonomy and reach — these are the signals it's ready:
 
 !!! note "Promotion signals — when to graduate a skill"
-    - **Cowork → Scout:** you're rerunning the same recipe on a rhythm and wish it just *ran itself*.
-    - **Scout → Studio:** you need it to **act** on a system of record, run **org-wide**, or be **governed
+    - **Cowork → Autopilot:** you're rerunning the same recipe on a rhythm and wish it just *ran itself*.
+    - **Autopilot → Studio:** you need it to **act** on a system of record, run **org-wide**, or be **governed
       and monitored** — beyond what an equipped agent should do under one person's identity.
 
 ## Watch out for
 - **Don't skip the cheap proof.** Promoting a fuzzy recipe straight to a governed Studio tool bakes the fuzz
-  into production. Prove the logic in Cowork first, tighten it on Scout, *then* harden it.
-- **Terminology shifts on the Studio surface.** Cowork and Scout call it a *skill*; Studio building blocks
+  into production. Prove the logic in Cowork first, tighten it on Autopilot, *then* harden it.
+- **Terminology shifts on the Studio surface.** Cowork and Autopilot call it a *skill*; Studio building blocks
   (connector actions, flows, MCP tools, triggers) are **tools**. A Studio *skill* is a narrower, pro-code
   thing — [details here](../skills.md#studio-skills-a-specific-kind-of-tool).
 - **Governance scales with autonomy.** The more autonomously and broadly the skill runs, the more the
   guardrails matter — which is exactly why the customer-health tool ends with governance, not an action.
-- **Scout is private preview.** Verify behavior against the
-  [Microsoft Scout docs](https://learn.microsoft.com/en-us/microsoft-scout/) if it differs from what's here.
+- **Autopilot is in private preview.** Verify behavior against the
+  [Microsoft Scout desktop app docs](https://learn.microsoft.com/en-us/microsoft-scout/) if it differs from what's here.
 
 ## Where this leads
 Follow the same capability onward, or build any single surface end-to-end:
 
 - [Skills Catalog](../skills.md) — the full three-surface model and the reusable skills worth building first
 - [Cowork → Generate a weekly customer-health digest](cowork-customer-health-digest.md)
-- [Autopilots → Equip Scout with a continuous customer-health watch](autopilots-customer-health-watch.md)
+- [Autopilots → Equip Autopilot with a continuous customer-health watch](autopilots-customer-health-watch.md)
 - [Studio → Configure an autonomous event-triggered agent](studio-autonomous-triggers.md)
 - [Studio → Give a Studio agent a real action with a connector](studio-connector-action.md)
 - [Studio → Govern and monitor your agents at scale](studio-govern-monitor.md)
@@ -141,5 +143,5 @@ Follow the same capability onward, or build any single surface end-to-end:
 This page is a conceptual map, so the visuals live on the three build walkthroughs it points to:
 
 - [Cowork — generate a weekly customer-health digest](cowork-customer-health-digest.md)
-- [Autopilots — equip Scout with a continuous customer-health watch](autopilots-customer-health-watch.md)
+- [Autopilots — equip Autopilot with a continuous customer-health watch](autopilots-customer-health-watch.md)
 - [Studio — govern and monitor your agents at scale](studio-govern-monitor.md)

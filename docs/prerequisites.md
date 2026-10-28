@@ -22,9 +22,10 @@ stage actually needs.
 | --- | --- | --- | --- | --- |
 | **[1 · Chat](stages/stage-1-chat.md)** | Microsoft 365 Copilot license *(for work-grounded answers)* | — | IT assigns the license | Per-user M365 Copilot license |
 | **[2 · First-Party Agents](stages/stage-2-first-party.md)** | Microsoft 365 Copilot license | Some agents roll out in waves | IT + the agent's admin controls | Included in the M365 Copilot license |
-| **[3 · Cowork](stages/stage-3-cowork.md)** | Microsoft 365 Copilot license | **Frontier** enrollment for the full feature set | Account team / Global Admin | License covers licensed users; unlicensed usage metered as Copilot Credits |
+| **[3 · Cowork](stages/stage-3-cowork.md)** | Microsoft 365 Copilot license | A **spending policy** that selects Cowork (it's off by default) | Admin in M365 admin center → Copilot → Cost Management | **Usage-based Copilot Credits** for every task, on top of the license |
 | **[4 · Agent Builder](stages/stage-4-agent-builder.md)** | Microsoft 365 Copilot license | Agent Builder enabled for makers | IT (maker permissions) | Included in the license; metered features (e.g. tenant-graph grounding) accrue Copilot Credits |
-| **[6 · Copilot Studio](stages/stage-6-studio.md)** | Copilot Studio license + Power Platform environment | Connectors, auth, publishing rights | IT / Power Platform admin | Copilot Credits — pay-as-you-go, message packs, or pre-purchase |
+| **[5 · Autopilots](stages/stage-5-autopilots.md)** | Microsoft 365 Copilot license | **Private preview** access to Autopilot — or the Frontier **Scout desktop app** (Frontier + Intune policy + attestation + GitHub Copilot Business/Enterprise license) | Account team / AI admin / Intune admin | **Usage-based Copilot Credits** (Autopilot); the Scout desktop app bills model tokens through GitHub Copilot |
+| **[6 · Copilot Studio](stages/stage-6-studio.md)** | Copilot Studio license + Power Platform environment | Connectors, auth, publishing rights | IT / Power Platform admin | Copilot Credits — pay-as-you-go, capacity packs, or pre-purchase (licensed employees zero-rated on the standard harness) |
 | **[7 · Foundry](stages/stage-7-foundry.md)** | Azure subscription + Microsoft Foundry project | Developer skills, Azure RBAC, CI/CD | Engineering / Azure admin | Azure consumption — model inference tokens + Azure resources |
 
 ---
@@ -46,19 +47,30 @@ stage actually needs.
 - **Admin must:** Confirm the specific agents are enabled and rolled out to the right users.
 
 ### Stage 3 · Cowork
-- **License:** **Microsoft 365 Copilot.** Basic end-to-end task delegation and document synthesis work with
-  standard licensing.
-- **Special access:** The fuller Cowork capabilities — autonomous multi-step runs, recurring background
-  tasks, and advanced Copilot Pages features — often require **Frontier** enrollment, Microsoft's
-  early-access program. Walkthroughs that need it are marked on the
-  [Cowork stage page](stages/stage-3-cowork.md).
-- **Admin must:** Nominate the tenant for Frontier (via your CSM / AE / FastTrack contact) or opt in through
-  the Frontier portal if eligible.
+- **License:** **Microsoft 365 Copilot**, plus **usage-based billing in Copilot Credits**. Cowork has been
+  **generally available since June 16, 2026**; no Frontier enrollment is needed (a few extras, like the App
+  skill, are still Frontier-only).
+- **Special access:** Cowork is **off by default**. Access is granted only by a **spending policy** that
+  includes the user and selects Cowork — even a tiny limit grants access, so scope it by group.
+- **Admin must:** Set up usage-based billing and create the spending policy in the Microsoft 365 admin center
+  (**Copilot → Cost Management**), set limits and alerts, and decide whether users can discover and request
+  Cowork. See [Manage Copilot Cowork](https://learn.microsoft.com/copilot/cowork/cowork-admin-governance).
 
 ### Stage 4 · Agent Builder
 - **License:** **Microsoft 365 Copilot** — Agent Builder lives inside the M365 Copilot experience.
 - **Special access:** Your tenant must allow makers to *create and share* agents; some orgs restrict this.
 - **Admin must:** Grant agent-creation/sharing permissions and set any approval or publishing controls.
+
+### Stage 5 · Autopilots
+- **License:** **Microsoft 365 Copilot.** Autopilot (formerly Microsoft Scout) is *advanced AI* on
+  **usage-based billing**, so it also needs a Copilot Credits billing policy.
+- **Special access:** Autopilot is in **private preview** — ask your account team. The hands-on path today
+  is the Frontier **Scout desktop app**, which needs **Copilot Frontier** turned on for the user, an **Intune
+  policy plus admin attestation**, and a **GitHub Copilot Business or Enterprise** license with the GitHub
+  Copilot app policy enabled. Not available in GCC, GCC High, DoD, or sovereign clouds.
+- **Admin must:** Turn on Copilot Frontier (Microsoft 365 admin center → Copilot → Settings → Copilot
+  Frontier), deploy the Intune policy, complete the attestation, and review the data-handling notes — model
+  calls run through GitHub Copilot. See [Admin access overview](https://learn.microsoft.com/microsoft-scout/admin-access-overview).
 
 ### Stage 6 · Copilot Studio
 - **License:** A **Copilot Studio** license (standalone capacity or a qualifying bundle) plus a **Power
@@ -78,8 +90,8 @@ stage actually needs.
        license (Stage 6)? Your IT admin can confirm.
     2. **Rollout wave** — for first-party agents and newer capabilities, the feature may still be rolling out
        to your tenant.
-    3. **Frontier** — for the advanced Cowork features, your tenant may need
-       [Frontier enrollment](stages/stage-3-cowork.md).
+    3. **A spending policy** — Cowork and Autopilot need an admin-created Copilot Credits policy before
+       anyone can use them. See [Cowork access and cost](stages/stage-3-cowork.md#access-and-cost).
     4. **Admin policy** — maker permissions, connector approvals, and DLP can all hide or block a capability
        even when it's licensed.
 

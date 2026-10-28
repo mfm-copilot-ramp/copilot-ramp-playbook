@@ -25,8 +25,8 @@
   // ── Rates (public Learn — aligned with the Studio engine) ───────────────────
   var RATE_PAYG = 0.01;      // $/credit, pay-as-you-go
   var RATE_PREPAID = 0.008;  // $/credit, $200 / 25,000 prepaid pack
-  var PACK_SIZE = 25000;     // credits per message pack
-  var PACK_PRICE = 200;      // $ per message pack
+  var PACK_SIZE = 25000;     // credits per capacity pack
+  var PACK_PRICE = 200;      // $ per capacity pack
 
   // ── Planning defaults (neutral, adjustable — NOT official rates) ────────────
   var DEFAULTS = {
@@ -101,7 +101,7 @@
     return { cap: cap, pct: pct, over: pct > 100 };
   }
 
-  // ── Purchase planning helper (grounded: message packs; committed = prepaid rate) ──
+  // ── Purchase planning helper (grounded: capacity packs; committed = prepaid rate) ──
   function purchasePlan(monthlyCredits, opts) {
     opts = opts || {};
     var packSize = Math.max(1, num(opts.packSize, PACK_SIZE));

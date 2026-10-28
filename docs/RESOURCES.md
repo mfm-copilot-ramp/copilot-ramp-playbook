@@ -16,13 +16,15 @@ the matching stage page on the site. These are the "broad set of resources to le
 > first-party or first-party-adjacent.
 
 > Verification note: product surfaces move fast (Cowork, Agent Builder, first-party agents). Treat
-> these hubs as the source of truth and re-check before customer-facing claims. **New as of June 2026:**
-> Microsoft introduced the **Autopilots** always-on agent category and **Microsoft Scout**, its first
-> Autopilot, on June 2, 2026 — a **Frontier private-preview** release now folded into the journey as
+> these hubs as the source of truth and re-check before customer-facing claims. **New as of June 2026,
+> updated October 2026:** Microsoft introduced the **Autopilots** always-on agent category on June 2, 2026, and
+> on September 25, 2026 renamed the category's first agent: it is now **Autopilot (formerly Microsoft Scout)**, expanding to
+> **private preview** and folded into the journey as
 > **[Stage 5 · Autopilots](stages/stage-5-autopilots.md)**. The
-> [Microsoft Scout Learn page](https://learn.microsoft.com/en-us/microsoft-scout/) and the
-> [announcement blog](https://www.microsoft.com/en-us/microsoft-365/blog/2026/06/02/introducing-microsoft-scout-your-always-on-personal-agent/)
-> are the source of truth for setup and current availability.
+> [announcement blog](https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/)
+> is the source of truth for Autopilot; the
+> [Microsoft Scout desktop app docs](https://learn.microsoft.com/en-us/microsoft-scout/) on Learn cover setup and
+> current availability for today's Frontier app.
 
 ---
 
@@ -102,14 +104,14 @@ didn't even have to build it" demos that warm customers up before they build the
 
 | Resource | What it is | Link |
 |----------|-----------|------|
-| **Introducing Microsoft Scout (M365 blog)** | The June 2, 2026 announcement of the **Autopilots** always-on agent category and **Microsoft Scout**, its first Autopilot | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/microsoft-365/blog/2026/06/02/introducing-microsoft-scout-your-always-on-personal-agent/) |
-| **Microsoft Scout (Learn)** | Overview + setup instructions — the source of truth for turning Scout on and its current availability | [learn.microsoft.com/microsoft-scout](https://learn.microsoft.com/en-us/microsoft-scout/) |
-| **Work IQ APIs** | The work-context layer Scout is built on — the same intelligence opened up to developers | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/microsoft-365/blog/2026/06/02/announcing-the-new-work-iq-apis/) |
-| **Frontier program** | The early-access path — Scout ships in private preview through Frontier | [m365.cloud.microsoft/frontier](https://m365.cloud.microsoft/frontier) |
+| **Introducing the new Copilot with Home, Code and Autopilot (Official Microsoft Blog)** | The September 25, 2026 announcement of **Autopilot (formerly Microsoft Scout)** — a persistent, proactive and personal agent, expanding to private preview | [Introducing the new Copilot with Home, Code and Autopilot](https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/) |
+| **Microsoft Scout desktop app (Learn)** | Overview + setup for the Frontier desktop app, not yet renamed on Learn — admin access, the Intune policy + attestation, and license requirements | [learn.microsoft.com/microsoft-scout](https://learn.microsoft.com/en-us/microsoft-scout/) |
+| **Work IQ APIs** | The work-context layer Autopilot is built on — the same intelligence opened up to developers | [microsoft.com/m365-blog](https://www.microsoft.com/en-us/microsoft-365/blog/2026/06/02/announcing-the-new-work-iq-apis/) |
+| **Frontier program** | The early-access path — admins turn on Copilot Frontier to unlock the Microsoft Scout desktop app today | [Microsoft Frontier program](https://learn.microsoft.com/microsoft-365/admin/manage/get-started-frontier) |
 
-**Reuse tip:** the **Microsoft Scout (Learn)** page is the source of truth for setup and current
-availability — link to it from Stage 5 walkthroughs rather than restating prerequisites that may change
-during private preview.
+**Reuse tip:** the **Microsoft Scout desktop app (Learn)** pages are the source of truth for the desktop app's
+setup and current availability, and the announcement blog for Autopilot — link to them from Stage 5
+walkthroughs rather than restating prerequisites that may change during private preview.
 
 ---
 

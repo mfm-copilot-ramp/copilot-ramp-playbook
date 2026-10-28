@@ -47,15 +47,39 @@
 
   // STATE.values keeps typed numbers keyed by capability id so progressive
   // show/hide of rows never loses input. STATE.selected tracks picked chips.
-  // Import state: parsed rows + per-row capability mapping (Path A), and the
-  // total + capability mix allocation (Path B).
+  // Import state: parsed rows + per-row capability mapping (Path A), the total +
+  // capability mix allocation (Path B), and planning assumptions used to turn an
+  // observed baseline into low/expected/peak ranges.
   var STATE = {
     mode: "usage", values: {}, selected: {}, last: null,
     importPath: "paste",
     parsed: [],            // Path A: [{ label, value, capId }]
     total: "",             // Path B: total AI Builder credits
-    alloc: {}              // Path B: { capId: percent }
+    alloc: {},             // Path B: { capId: percent }
+    assumptions: {
+      growthPct: 0,
+      peakPct: 20,
+      confidence: "medium"
+    }
   };
+
+  var INTAKE_COLUMNS = [
+    "BusinessProcess",
+    "FlowOrAppOrAgent",
+    "EnvironmentId",
+    "ToolName",
+    "CapabilityMapping",
+    "MonthlyRuns",
+    "AvgPagesImagesPerRun",
+    "AvgInputTokensOrChars",
+    "AvgOutputTokens",
+    "ProductionStatus",
+    "IncludeInForecast",
+    "ExpectedGrowthPct",
+    "PeakMultiplier",
+    "Confidence",
+    "Notes"
+  ];
 
   // Example presets — quick starting points (values are per-month volumes in
   // each capability's native unit, keyed by capability id).
@@ -87,6 +111,39 @@
   function inputValue(id) {
     var v = parseFloat(String(STATE.values[id]).replace(/,/g, ""));
     return isFinite(v) && v > 0 ? v : 0;
+  }
+
+  function pctValue(id, fallback) {
+    var el = $(id);
+    var v = parseFloat(String(el ? el.value : fallback).replace(/,/g, ""));
+    return isFinite(v) && v > 0 ? v : 0;
+  }
+
+  function readAssumptions() {
+    var conf = $("aib-confidence");
+    STATE.assumptions = {
+      growthPct: pctValue("aib-growth-pct", STATE.assumptions.growthPct),
+      peakPct: pctValue("aib-peak-pct", STATE.assumptions.peakPct),
+      confidence: conf && conf.value ? conf.value : STATE.assumptions.confidence
+    };
+    return STATE.assumptions;
+  }
+
+  function planningRange(res) {
+    var a = readAssumptions();
+    var growth = 1 + (a.growthPct / 100);
+    var peak = 1 + (a.peakPct / 100);
+    return {
+      currentCredits: res.totalCopilotCredits,
+      currentUSD: res.totalCopilotUSD,
+      expectedCredits: res.totalCopilotCredits * growth,
+      expectedUSD: res.totalCopilotUSD * growth,
+      peakCredits: res.totalCopilotCredits * growth * peak,
+      peakUSD: res.totalCopilotUSD * growth * peak,
+      growthPct: a.growthPct,
+      peakPct: a.peakPct,
+      confidence: a.confidence
+    };
   }
 
   function unitLabelFor(c) {
@@ -309,6 +366,28 @@
             '<span class="aib-compare-sub"> · PAYG (' + money(annual) + '/yr)</span></div>' +
         "</div>" +
       "</div>";
+
+    var range = planningRange(res);
+    html +=
+      '<div class="aib-range" aria-label="Planning range">' +
+        '<div class="aib-range-card">' +
+          '<div class="aib-range-tag">Current observed</div>' +
+          '<div class="aib-range-num">' + fmt(range.currentCredits) + "</div>" +
+          '<div class="aib-range-sub">Copilot Credits/mo · ' + money(range.currentUSD) + "/mo PAYG</div>" +
+        "</div>" +
+        '<div class="aib-range-card aib-range-card--expected">' +
+          '<div class="aib-range-tag">Expected migration month</div>' +
+          '<div class="aib-range-num">' + fmt(range.expectedCredits) + "</div>" +
+          '<div class="aib-range-sub">Includes ' + fmt(range.growthPct) + "% growth &middot; " + money(range.expectedUSD) + "/mo PAYG</div>" +
+        "</div>" +
+        '<div class="aib-range-card">' +
+          '<div class="aib-range-tag">Peak / provision target</div>' +
+          '<div class="aib-range-num">' + fmt(range.peakCredits) + "</div>" +
+          '<div class="aib-range-sub">Adds ' + fmt(range.peakPct) + "% burst buffer &middot; " + money(range.peakUSD) + "/mo PAYG</div>" +
+        "</div>" +
+      "</div>" +
+      '<p class="aib-modeled"><strong>Data confidence: ' + esc(range.confidence) + ".</strong> " +
+      "Use high only after the consumption ledger and activity mix reconcile over the same window. Use medium/low when process owners still need to fill in pages, tokens, production status, or expected growth.</p>";
 
     // Plain-English "why the count drops but $/credit rises".
     if (pctFewer > 0) {
@@ -736,6 +815,12 @@
     lines.push("Copilot Credits/month: " + fmt(r.totalCopilotCredits));
     lines.push("Pay-as-you-go: " + money(r.totalCopilotUSD) + "/mo (" + money(r.totalCopilotUSD * 12) + "/yr)");
     lines.push("AI Builder credits today (reference): " + fmt(r.totalAibCredits) + "/mo (" + money(r.totalAibUSD) + "/mo prepaid Tier 1)");
+    var range = planningRange(r);
+    lines.push("Planning range:");
+    lines.push("- Current observed: " + fmt(range.currentCredits) + " Copilot Credits/mo");
+    lines.push("- Expected migration month: " + fmt(range.expectedCredits) + " Copilot Credits/mo (" + fmt(range.growthPct) + "% growth)");
+    lines.push("- Peak / provision target: " + fmt(range.peakCredits) + " Copilot Credits/mo (" + fmt(range.peakPct) + "% burst buffer)");
+    lines.push("- Data confidence: " + range.confidence);
     lines.push("");
     r.rows.forEach(function (row) {
       lines.push("- " + row.label + ": " + fmt(row.copilotCredits) + " Copilot Credits (" + money(row.copilotUSD) + "/mo)");
@@ -765,11 +850,17 @@
   function downloadCsv() {
     var r = STATE.last;
     if (!r || !r.rows.length) return;
+    var range = planningRange(r);
     var rows = [["Capability", "Volume", "Unit", "Copilot Credits/mo", "$/mo PAYG", "AI Builder credits/mo", "$/mo AIB prepaid"]];
     r.rows.forEach(function (row) {
       rows.push([row.label, row.volume, row.unit, row.copilotCredits, row.copilotUSD, row.aibCredits, row.aibUSD]);
     });
     rows.push(["TOTAL", "", "", r.totalCopilotCredits, r.totalCopilotUSD, r.totalAibCredits, r.totalAibUSD]);
+    rows.push([]);
+    rows.push(["Scenario", "Copilot Credits/mo", "$/mo PAYG", "Assumption"]);
+    rows.push(["Current observed", range.currentCredits, range.currentUSD, "Observed/reconciled baseline"]);
+    rows.push(["Expected migration month", range.expectedCredits, range.expectedUSD, range.growthPct + "% growth"]);
+    rows.push(["Peak / provision target", range.peakCredits, range.peakUSD, range.peakPct + "% burst buffer; confidence=" + range.confidence]);
     var csv = rows.map(function (line) {
       return line.map(function (cell) {
         var s = String(cell);
@@ -788,10 +879,66 @@
     flash("CSV downloaded");
   }
 
+  function intakeCsv() {
+    var example = [
+      "Vendor invoice intake",
+      "Invoice Processing Flow",
+      "00000000-0000-0000-0000-000000000000",
+      "Contoso invoice model",
+      "Receipt, invoice, identity document analysis",
+      "5000",
+      "1.2",
+      "",
+      "",
+      "Production",
+      "Yes",
+      "10",
+      "1.25",
+      "Medium",
+      "Replace with customer-validated process-owner assumptions"
+    ];
+    return [INTAKE_COLUMNS, example].map(function (line) {
+      return line.map(function (cell) {
+        var s = String(cell == null ? "" : cell);
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      }).join(",");
+    }).join("\r\n");
+  }
+
+  function copyIntakeTemplate() {
+    var text = INTAKE_COLUMNS.join("\t");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+    }
+  }
+
+  function downloadIntakeTemplate() {
+    var blob = new Blob([intakeCsv()], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "ai-builder-conversion-intake-template.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function wireAssumptions() {
+    ["aib-growth-pct", "aib-peak-pct", "aib-confidence"].forEach(function (id) {
+      var el = $(id);
+      if (!el || el._wired) return;
+      el._wired = true;
+      el.addEventListener("input", recompute);
+      el.addEventListener("change", recompute);
+    });
+  }
+
   // ── Init ──────────────────────────────────────────────────────────────────
   function init() {
     if (!document.getElementById("aib-rows")) return; // not on this page
     if (!Rates) return;
+    wireAssumptions();
     buildChooser();
     setMode("usage"); // sets description + builds rows (empty state) + recompute
   }
@@ -813,6 +960,8 @@
   window.aibApplyMapping = applyMapping;
   window.aibMixPreset = applyMixPreset;
   window.aibSetAlloc = setAlloc;
+  window.aibCopyIntakeTemplate = copyIntakeTemplate;
+  window.aibDownloadIntakeTemplate = downloadIntakeTemplate;
 
   if (window.document$ && typeof window.document$.subscribe === "function") window.document$.subscribe(init);
   else if (document.readyState !== "loading") init();

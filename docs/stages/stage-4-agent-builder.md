@@ -248,7 +248,7 @@ Recognize the limits of declarative building — and where Studio takes over.
 
 <div class="rc-exit" markdown>
 <div class="rc-exit-text" markdown>
-**Got a job that shouldn't wait for you to start it?** The next rung is **Autopilots** — a new category of always-on, autonomous agents that own a recurring job in the background, triggered by events rather than your prompt. **Microsoft Scout** is the first one (in **Frontier private preview** today), and the bridge toward building production agents in Studio.
+**Got a job that shouldn't wait for you to start it?** The next rung is **Autopilots** — always-on agents that own a recurring job in the background instead of waiting for your prompt. **Autopilot** (formerly Microsoft Scout) is the one to meet first (in **private preview** today), and the bridge toward building production agents in Studio.
 </div>
 [Continue to Stage 5 · Autopilots →](stage-5-autopilots.md){ .rc-exit-cta }
 </div>

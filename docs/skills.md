@@ -125,25 +125,27 @@ cold instead of reinventing the prompt. The ones worth capturing first:
 
 </div>
 
-## Autopilots (Scout) skills — capabilities for an always-on agent { #autopilots-scout-skills }
+## Autopilots skills — capabilities for an always-on agent { #autopilots-scout-skills }
 
 In [Stage 5 · Autopilots](stages/stage-5-autopilots.md), a skill is the same reusable capability — but
-handed to an **always-on, autonomous agent**. **Autopilots** are Microsoft's category of such agents, and
-**Microsoft Scout** is the first one — so the capability is carried out *in the background*, without you
-starting it each time.
+handed to an **always-on agent**: **Autopilot** (formerly Microsoft Scout) — so the capability is carried
+out *in the background*, without you starting it each time. The Scout desktop app documents these as
+`SKILL.md` files you write once and it discovers automatically
+([manage skills](https://learn.microsoft.com/microsoft-scout/use-microsoft-scout#manage-skills)).
 
 - A **Cowork recipe** is a skill you *describe* and run on demand.
 - An **Autopilot skill** is that same instinct equipped onto an agent that's always watching: the
-  capability Scout draws on to do the job when its trigger fires, then report back.
+  capability Autopilot draws on to do the job when its schedule or trigger fires, then report back.
 
 !!! info "Emerging and gated"
-    Autopilots are a newer, **gated** capability — Scout is in **Frontier private preview** — and the way you
-    equip and manage their skills is still rolling out by tenant, license, and region. This lens stays scoped
-    to what exists today and will grow as the capability does. Treat the
-    [Microsoft Scout Learn page](https://learn.microsoft.com/en-us/microsoft-scout/) as the source of truth
-    before any customer-facing claims.
+    Autopilot (formerly Microsoft Scout) is in **private preview** and bills usage in **Copilot Credits**, so
+    the way you equip and manage its skills is still rolling out. This lens stays scoped to what exists today
+    and will grow as the capability does. Treat the
+    [Microsoft Scout desktop-app docs](https://learn.microsoft.com/microsoft-scout/overview) and the
+    [Autopilot announcement](https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/)
+    as the source of truth before any customer-facing claims.
 
-The skills worth equipping onto Scout first — each captured once, then run always-on in the background:
+The skills worth equipping onto Autopilot first — each captured once, then run always-on in the background:
 
 <div class="grid cards" markdown>
 
@@ -153,7 +155,7 @@ The skills worth equipping onto Scout first — each captured once, then run alw
 
 -   **[Continuous customer-health watch](walkthroughs/autopilots-customer-health-watch.md)**
 
-    The worst-first account-ranking recipe from Cowork, equipped onto Scout so the at-risk list re-scores itself and never goes stale.
+    The worst-first account-ranking recipe from Cowork, equipped onto Autopilot so the at-risk list re-scores itself and never goes stale.
 
 -   **[Meeting recap & follow-through](walkthroughs/autopilots-meeting-recap.md)**
 
@@ -165,7 +167,7 @@ The skills worth equipping onto Scout first — each captured once, then run alw
 
 -   **[Always-on competitive & news monitor](walkthroughs/autopilots-competitive-monitor.md)**
 
-    Scout watches named competitors and topics and delivers a short digest of what changed and why it matters.
+    Autopilot watches named competitors and topics and delivers a short digest of what changed and why it matters.
 
 -   **[Auto-draft your weekly report](walkthroughs/autopilots-weekly-report.md)**
 
@@ -185,7 +187,7 @@ The skills worth equipping onto Scout first — each captured once, then run alw
 
 -   **[Watch key documents & flag changes](walkthroughs/autopilots-doc-change-watch.md)**
 
-    Scout watches the documents that matter and flags meaningful changes with a short what-changed-and-why note.
+    Autopilot watches the documents that matter and flags meaningful changes with a short what-changed-and-why note.
 
 -   **[Guide a new hire through their first weeks](walkthroughs/autopilots-onboarding-guide.md)**
 
@@ -200,7 +202,7 @@ The skills worth equipping onto Scout first — each captured once, then run alw
 !!! note "Cowork recipe → Autopilot skill"
     Notice the lineage: the [customer-health digest](walkthroughs/cowork-customer-health-digest.md) is a
     **Cowork recipe** you run on demand; the [customer-health watch](walkthroughs/autopilots-customer-health-watch.md)
-    is that *same skill* equipped onto an always-on agent. Capture it once in Cowork, graduate it to Scout when
+    is that *same skill* equipped onto an always-on agent. Capture it once in Cowork, graduate it to Autopilot when
     it's worth running continuously.
 
 ## Studio skills — a specific kind of tool
@@ -224,7 +226,7 @@ walkthrough. As skills in Studio evolve, this section will expand alongside them
 
 ### Harden a skill into a governed tool
 
-Here's the practical bridge. A reusable skill you've been *describing* in Cowork or *equipping* onto Scout can
+Here's the practical bridge. A reusable skill you've been *describing* in Cowork or *equipping* onto Autopilot can
 be **hardened** on the Studio surface — rebuilt as a governed **tool** an agent calls against a real system,
 under policy and monitoring. Same capability; durable, auditable, and shareable. Each card maps a skill you
 already run to the Studio **tool** that hardens it:
@@ -257,7 +259,7 @@ already run to the Studio **tool** that hardens it:
     The clearest way to see the whole arc is to follow a *single* skill across all three surfaces. The
     **[customer-health lineage](walkthroughs/skill-lineage-customer-health.md)** walkthrough does exactly
     that — the same "rank my accounts worst-first by risk" capability as a **Cowork recipe** you run on
-    demand, a **Scout autopilot** that re-scores itself, and a **hardened, governed Studio tool** that acts
+    demand, an **Autopilot** skill that re-scores itself, and a **hardened, governed Studio tool** that acts
     on the system of record. Pick the surface by the job, not the product.
 
 ---
@@ -269,4 +271,4 @@ language. When a recipe is stable, repeated, and worth making bulletproof, it's 
 a real capability in [Stage 6 · Copilot Studio](stages/stage-6-studio.md) — built as a **tool**
 (a connector action, flow, or MCP tool) an agent calls against a real system, governed and shared.
 
-> **Next:** [Stage 3 · Cowork](stages/stage-3-cowork.md) — where a saved recipe becomes a team skill · [Stage 5 · Autopilots](stages/stage-5-autopilots.md) for equipping an always-on agent like Scout · or [Stage 6 · Studio](stages/stage-6-studio.md) for the tools an agent calls.
+> **Next:** [Stage 3 · Cowork](stages/stage-3-cowork.md) — where a saved recipe becomes a team skill · [Stage 5 · Autopilots](stages/stage-5-autopilots.md) for equipping an always-on agent like Autopilot · or [Stage 6 · Studio](stages/stage-6-studio.md) for the tools an agent calls.

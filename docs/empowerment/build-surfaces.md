@@ -52,7 +52,7 @@ routinely conflate them with the build surfaces — so here they are in the same
 | --- | --- | --- |
 | **[Chat](../stages/stage-1-chat.md)** | Microsoft 365 admin center | **Covered by the Microsoft 365 Copilot per-user license.** Without a license, web-grounded chat is free but can't reason over your work content |
 | **[First-party agents](../stages/stage-2-first-party.md)** | Microsoft 365 admin center → **Integrated apps** (per-agent enablement) | **Included in the Microsoft 365 Copilot license** — the prebuilt agents aren't sold separately |
-| **[Cowork](../stages/stage-3-cowork.md)** | Microsoft 365 admin center; **Frontier** enrollment for the full feature set | Metered as **Copilot Credits** through the Microsoft 365 Copilot Chat pay-as-you-go meter — **licensed users are covered by their license**; unlicensed usage is metered |
+| **[Cowork](../stages/stage-3-cowork.md)** | Microsoft 365 admin center — access granted by a **spending policy** under Copilot → Cost Management | **Usage-based Copilot Credits** for every task; requires a Microsoft 365 Copilot license, which does **not** zero-rate Cowork usage |
 
 ---
 

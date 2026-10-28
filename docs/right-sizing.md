@@ -58,7 +58,7 @@ exists for exactly that moment, and so does the reverse instinct.
 
 ## Stage 5 → Stage 4 · Autopilots back to Agent Builder { #autopilots-to-agent-builder }
 
-**Autopilots** are always-on, autonomous agents — Microsoft's category for them — and **Microsoft Scout** is the first one. They earn their keep on a *recurring,
+**Autopilots** are always-on, autonomous agents — Microsoft's category for them — and **Autopilot (formerly Microsoft Scout)** is Microsoft's always-on agent in it. They earn their keep on a *recurring,
 background* job — one triggered by an event or signal, not a task you're happy to start yourself.
 
 !!! warning "You've gone too far if…"
