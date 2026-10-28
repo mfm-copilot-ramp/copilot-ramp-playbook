@@ -259,7 +259,8 @@
   }
   // ── Harness-aware licensing ───────────────────────────────────────────────
   // A Microsoft 365 Copilot license can zero-rate interactive usage ONLY on the
-  // standard and Copilot chat harnesses, and only inside M365 channels (embedded).
+  // standard harness and M365 Copilot (declarative) agents — internal key "chat",
+  // formerly labelled the "Copilot chat harness" — and only for licensed employees (embedded).
   // The GitHub Copilot harness is NEVER covered — every interaction (and building
   // and testing) bills Copilot Credits regardless of license. See MS Learn:
   // "Manage costs for agents powered by the GitHub Copilot harness".
@@ -1474,7 +1475,7 @@
     { key: "harness", header: "Harness", type: "enum", applies: "all", def: "standard",
       enum: { "github-copilot": ["github-copilot", "github copilot", "github", "githubcopilot", "autonomous harness", "generative harness", "agentic"],
               "standard": ["standard", "topics", "topic", "topic-based", "classic", "rules", "rule-based"],
-              "chat": ["chat", "copilot chat", "m365 chat", "bizchat", "extend copilot"] },
+              "chat": ["chat", "copilot chat", "m365 chat", "bizchat", "extend copilot", "m365 copilot agent", "m365 copilot", "declarative", "declarative agent"] },
       hint: "Copilot Studio engine. GitHub Copilot harness bills Copilot Credits for ALL usage and is never covered by an M365 Copilot license; standard/chat are covered in M365 channels for licensed users." },
     { key: "channel", header: "Channel", type: "enum", applies: "interactive", def: "chat",
       enum: { chat: ["chat", "text", "teams", "web", "message", "messaging"], voice: ["voice", "phone", "call", "telephony", "ivr"] },

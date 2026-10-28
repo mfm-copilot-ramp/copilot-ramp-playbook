@@ -203,7 +203,7 @@
   // Enum columns → dropdown lists (matched to IMPORT_SCHEMA order/keys).
   var ENUM_LISTS = {
     archetype: ["Interactive", "Autonomous"],
-    harness: ["Standard", "GitHub Copilot", "Copilot chat"],
+    harness: ["Standard", "GitHub Copilot", "M365 Copilot agent"],
     channel: ["Chat", "Voice"],
     knowledge: ["None", "Documents", "Tenant graph"],
     deployment: ["Embedded", "Standalone"],
@@ -238,7 +238,7 @@
       instr.push([schema[s].header, applies[schema[s].key] || "All", schema[s].hint || ""]);
     }
     instr.push([""]);
-    instr.push(["Enum values — Agent type: Interactive / Autonomous · Harness: Standard / GitHub Copilot / Copilot chat · Channel: Chat / Voice · " +
+    instr.push(["Enum values — Agent type: Interactive / Autonomous · Harness: Standard / GitHub Copilot / M365 Copilot agent · Channel: Chat / Voice · " +
       "Knowledge: None / Documents / Tenant graph · Deployment: Embedded / Standalone · Yes/No columns: Yes / No"]);
 
     /* Examples sheet */

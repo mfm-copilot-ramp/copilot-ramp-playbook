@@ -6,9 +6,6 @@ hide: [toc]
 
 # Copilot Credit Estimator
 
-!!! warning "Still being worked on — use with caution"
-    This estimator is still under active development. Numbers, defaults, and logic may change, so treat the results as directional rather than final and double-check anything you rely on for planning or budgeting.
-
 <div class="ce-video-intro" markdown="0">
   <button type="button" class="md-button ce-intro-open" data-ce-open>&#9654;&nbsp; Watch the 90-second intro</button>
   <span class="ce-intro-hint">New here? Take the quick tour &mdash; then everything below is yours to explore.</span>
@@ -76,39 +73,52 @@ body.ce-modal-lock{overflow:hidden}
 <script>
 (function(){
   var KEY='crp-ce-intro-v1';
+  // Privacy-safe usage signal for the intro: static event names only. GoatCounter is
+  // cookieless (always on); Clarity fires only for visitors who accepted its cookies.
+  function track(name){
+    try{ if(typeof window.clarity==='function'){ window.clarity('event',name); window.clarity('set','ce_intro',name.replace('ce-intro-','')); } }catch(e){}
+    try{ if(window.goatcounter&&window.goatcounter.count){ window.goatcounter.count({path:location.pathname.replace(/\/$/,'')+'#ux-'+name,title:'UX: '+name,event:true}); } }catch(e){}
+  }
   function init(){
     var modal=document.getElementById('ce-intro-modal');
     if(!modal||modal.dataset.ceReady)return;
     modal.dataset.ceReady='1';
     if(modal.parentNode!==document.body)document.body.appendChild(modal);
     var video=modal.querySelector('#ce-intro-video');
-    var lastFocus=null;
-    function open(){
+    var lastFocus=null, ended=false, played=false;
+    if(video){
+      video.addEventListener('play',function(){ if(!played){ played=true; track('ce-intro-play'); } });
+      video.addEventListener('ended',function(){ ended=true; track('ce-intro-completed'); });
+    }
+    function open(how){
       lastFocus=document.activeElement;
+      ended=false; played=false;
       modal.hidden=false;
       document.body.classList.add('ce-modal-lock');
       var x=modal.querySelector('.ce-modal-x');if(x)x.focus();
       try{localStorage.setItem(KEY,'1');}catch(e){}
+      track(how==='auto'?'ce-intro-autoopen':'ce-intro-open-button');
     }
     function close(){
       if(modal.hidden)return;
       modal.hidden=true;
       document.body.classList.remove('ce-modal-lock');
-      if(video){try{video.pause();}catch(e){}}
+      var t=0; if(video){try{t=video.currentTime||0;video.pause();}catch(e){}}
+      if(!ended) track(!played||t<10?'ce-intro-dismissed':'ce-intro-closed-partway');
       if(lastFocus&&lastFocus.focus){try{lastFocus.focus();}catch(e){}}
     }
-    document.querySelectorAll('[data-ce-open]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();open();});});
+    document.querySelectorAll('[data-ce-open]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();open('button');});});
     modal.querySelectorAll('[data-ce-close]').forEach(function(b){b.addEventListener('click',close);});
     document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Esc')close();});
     var seen;try{seen=localStorage.getItem(KEY);}catch(e){seen='1';}
-    if(!seen)open();
+    if(!seen)open('auto');
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
   else init();
 })();
 </script>
 
-Estimate monthly **Copilot Credits** for **Copilot Studio agents** or **Copilot Cowork** — pick what you're estimating below, choose a mode, and your live estimate builds as you go. Everything runs in your browser; nothing is uploaded. New to credit billing? See [**How Copilot Credits are billed**](#billing-details), or try the [**ROI Estimator**](roi-estimator.md) for the *return*, not just the cost.
+Estimate monthly **Copilot Credits** for **Copilot Studio agents** or **Copilot Cowork**. Runs in your browser — nothing is uploaded. Numbers are **directional** and the tool is still evolving; for Microsoft's own figures, see the official [Copilot Credit Estimator](https://aka.ms/CustomerCoworkEstimator){ target=_blank rel=noopener }.
 {: .ce-lead }
 
 <div id="estimator-modes" markdown="0">
@@ -1633,6 +1643,7 @@ recalc();
   background: var(--md-code-bg-color); color: var(--md-default-fg-color);
 }
 #estimator-cowork .cw-chip:hover { border-color: var(--md-primary-fg-color); }
+#estimator-cowork .cw-chip--on { border-color: var(--md-primary-fg-color); background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent); color: var(--md-primary-fg-color); font-weight: 700; }
 #estimator-cowork details.cw-adv { margin: 0.8rem 0; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px; padding: 0.2rem 0.7rem; background: var(--md-code-bg-color); }
 #estimator-cowork details.cw-adv summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; padding: 0.45rem 0; }
 #estimator-cowork .cw-note { font-size: 0.74rem; color: var(--md-default-fg-color--lighter); margin-top: 0.3rem; }
@@ -1693,7 +1704,8 @@ recalc();
     <div class="cw-field">
       <label for="cw-cpu">Avg credits / active user / month</label>
       <input type="number" id="cw-cpu" min="0" step="50" value="5000" oninput="cwQuickCalc()">
-      <span class="cw-sub">The primary driver. Planning default 5,000 — adjust to your data.</span>
+      <div class="cw-chips" id="cw-persona-chips" aria-label="Microsoft persona presets"></div>
+      <span class="cw-sub" id="cw-persona-note">The primary driver. Tap a persona to use Microsoft's published band, or enter your own.</span>
     </div>
   </div>
 
@@ -1731,7 +1743,7 @@ recalc();
         <span class="cw-sub">0 = no cap.</span>
       </div>
     </div>
-    <p class="cw-note">Credit &amp; price mechanics follow public Microsoft Learn (PAYG $0.01/credit; $200 / 25,000-credit pack). Active-usage % and credits/user are neutral planning anchors, not official Microsoft figures.</p>
+    <p class="cw-note">Credit &amp; price mechanics follow public Microsoft Learn (PAYG $0.01/credit; $200 / 25,000-credit pack). Persona presets use the bands in Microsoft's official <a href="https://aka.ms/CustomerCoworkEstimator" target="_blank" rel="noopener">Copilot Credit Estimator</a> (retrieved 2026-10-28); active-usage % is a neutral planning anchor.</p>
   </details>
 
   <div class="section-label">Estimated monthly consumption</div>
@@ -1858,6 +1870,21 @@ recalc();
 ## Not sure GitHub Copilot is the right engine?
 
 For a *could-go-either-way* agent, the deciding factor is often **cost structure**, not features — GitHub Copilot bills per **token** (grows with payload) while Microsoft 365 / Copilot Studio bills per **event** (flat per turn). The **[Cost Structure Comparator](compare.md)** shows which wins for your workload shape and where the crossover sits.
+
+??? info "Building a customer-facing voice or chat agent? (Customer Conversation harness)"
+    Copilot Studio's newer **Customer Conversation harness** — customer service over web chat or a phone number,
+    with hand-off to a human — bills **per conversation** in Copilot Credits and is never covered by a Microsoft 365
+    Copilot license. Microsoft publishes these illustrative ranges per conversation
+    ([billing overview](https://learn.microsoft.com/microsoft-copilot-studio/agents-experience/billing-credit-overview), diagram, retrieved 2026-10-28):
+
+    | Scenario | Digital chat | GenAI voice | Premium (S2S) voice |
+    | --- | --- | --- | --- |
+    | **Light** — simple FAQ or confirmation (~2 min voice) | 5–15 | 20–30 | 34–44 |
+    | **Medium** — multi-turn, one or two tools (~5 min voice) | 15–25 | 50–75 | 85–110 |
+    | **Heavy** — reasons across facts and tools (~10 min voice) | 25–50 | 100–150 | 170–220 |
+
+    Multiply by conversations per month for a first read, or model it in Microsoft's official
+    [Copilot Credit Estimator](https://aka.ms/CustomerCoworkEstimator) (Contact Center Intelligence).
 
 ---
 

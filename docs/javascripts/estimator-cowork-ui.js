@@ -114,6 +114,32 @@
   }
   function cwSetMau(p) { var e = el("cw-mau"); if (e) { e.value = p; cwQuickCalc(); } }
 
+  // ── Microsoft persona chips (credits / active user) ─────────────────────────
+  function renderPersonaChips() {
+    var C = window.CoworkEstimator, wrap = el("cw-persona-chips");
+    if (!C || !wrap || !C.msPersonaBand) return;
+    wrap.innerHTML = ["corporate", "leaders", "customer", "technical"].map(function (k) {
+      var b = C.msPersonaBand(k);
+      return '<button type="button" class="cw-chip" data-persona="' + k + '" title="' + b.label + ": " + fmt(b.low) + "\u2013" + fmt(b.high) +
+        ' credits / user / month (Microsoft persona band)" onclick="cwUsePersona(\'' + k + '\')">' + b.label.split(" ")[0] + " " + fmt(Math.round(b.mid / 100) * 100) + "</button>";
+    }).join("");
+  }
+  function cwUsePersona(k) {
+    var C = window.CoworkEstimator; if (!C || !C.msPersonaBand) return;
+    var b = C.msPersonaBand(k); if (!b) return;
+    setVal("cw-cpu", b.mid);
+    var on = el("cw-range-on");
+    if (on && !on.checked) { on.checked = true; var f = el("cw-range-fields"); if (f) f.classList.remove("em-hidden"); }
+    var mau = parseFloat(val("cw-mau")) || 0;
+    if (!val("cw-mau-low")) setVal("cw-mau-low", mau);
+    if (!val("cw-mau-high")) setVal("cw-mau-high", mau);
+    setVal("cw-cpu-low", b.low); setVal("cw-cpu-high", b.high);
+    var wrap = el("cw-persona-chips");
+    if (wrap) Array.prototype.forEach.call(wrap.querySelectorAll(".cw-chip"), function (c) { c.classList.toggle("cw-chip--on", c.getAttribute("data-persona") === k); });
+    setText("cw-persona-note", b.label + ": " + fmt(b.low) + "\u2013" + fmt(b.high) + " credits / user / month in Microsoft\u2019s estimator (40/40/20 light/medium/heavy, 22 working days). Using the midpoint; the range below brackets the band.");
+    cwQuickCalc();
+  }
+
   // ── Quick estimate render ───────────────────────────────────────────────────
   function cwQuickCalc() {
     var C = window.CoworkEstimator; if (!C || !el("cw-licensed")) return;
@@ -621,6 +647,7 @@
     window.setCoworkMode = setCoworkMode;
     window.cwQuickCalc = cwQuickCalc;
     window.cwSetMau = cwSetMau;
+    window.cwUsePersona = cwUsePersona;
     window.cwToggleRange = cwToggleRange;
     window.cwOpenInDetailed = cwOpenInDetailed;
     window.cwReturnToQuick = cwReturnToQuick;
@@ -657,6 +684,7 @@
       });
     }
     renderChips();
+    renderPersonaChips();
     cwQuickCalc();
   }
 

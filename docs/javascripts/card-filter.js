@@ -26,7 +26,7 @@
   // that work on every engine) always show; harness-specific cards show under their
   // own chip or "All". The group only appears when a page actually mixes harnesses.
   var HARNESS_ORDER = ["github-copilot", "standard", "chat"];
-  var HARNESS_LABEL = { "github-copilot": "GitHub Copilot", "standard": "Standard", "chat": "Copilot chat" };
+  var HARNESS_LABEL = { "github-copilot": "GitHub Copilot", "standard": "Standard", "chat": "M365 Copilot agent" };
 
   function init() {
     var mount = document.getElementById("rc-filterbar");
