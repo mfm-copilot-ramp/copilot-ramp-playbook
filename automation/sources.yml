@@ -1,18 +1,26 @@
 # ── Monitored Sources Registry ───────────────────────────────────────────────
 # Each entry is an official Microsoft source the Watcher automation monitors for
-# new content, changes, or announcements relevant to the Copilot Ramp Cookbook.
+# new content, changes, or announcements relevant to the Copilot Ramp Playbook.
 #
 # ┌─────────────────────────────────────────────────────────────────────────────
 # │ HOW TO ADD A SOURCE
 # │
 # │ 1. Verify the URL is Microsoft-direct (microsoft.com, learn.microsoft.com,
-# │    aka.ms, techcommunity.microsoft.com, or official MS GitHub/YouTube).
-# │ 2. Add an entry below with all four fields:
-# │    - name:     Human-readable source name
+# │    aka.ms, blogs.microsoft.com, official MS GitHub/YouTube, or the official
+# │    GitHub changelog at github.blog/changelog).
+# │ 2. Add an entry below:
+# │    - name:     Human-readable source name (also the state key; renaming
+# │                re-baselines the source)
 # │    - url:      Canonical page URL
-# │    - feed:     RSS/Atom feed URL (use null if none available)
-# │    - category: Which cookbook stage(s) this maps to
-# │ 3. Commit and the next Watcher run will pick it up.
+# │    - feed:     RSS/Atom feed URL, or null to track the page's h2/h3 sections
+# │    - category: Which playbook stage(s) this maps to
+# │    - match:    Optional list of regex keywords. When set, only items whose
+# │                title or summary matches one of them are tracked. Use it for
+# │                broad feeds so unrelated products don't flood the backlog.
+# │    - section_level: Optional h2 or h3, pages only. Default is h2, so each
+# │                top-level section (e.g. one month of "What's new") is one item.
+# │ 3. Commit. The next Watcher run baselines the new source silently and
+# │    reports only what changes after that.
 # │
 # │ INCLUSION RULE: Only Microsoft-direct sources. No MVPs, no community blogs.
 # │ See docs/RESOURCES.md for the full inclusion criteria.
@@ -20,34 +28,78 @@
 
 sources:
 
-  # ── Cross-journey / general ──────────────────────────────────────────────────
+  # ── Cross-journey / announcements ────────────────────────────────────────────
 
-  - name: "M365 Copilot Learn hub"
-    url: "https://learn.microsoft.com/en-us/copilot/"
-    feed: null
+  - name: "Microsoft Copilot blog"
+    url: "https://www.microsoft.com/en-us/copilot/blog/"
+    feed: "https://www.microsoft.com/en-us/copilot/blog/feed/"
     category: cross-journey
+
+  - name: "Official Microsoft Blog"
+    url: "https://blogs.microsoft.com/"
+    feed: "https://blogs.microsoft.com/feed/"
+    category: cross-journey
+    match: ["copilot", "cowork", "autopilot", "scout", "agent", "frontier", "foundry"]
 
   - name: "Microsoft 365 Roadmap"
     url: "https://www.microsoft.com/en-us/microsoft-365/roadmap"
     feed: "https://www.microsoft.com/en-us/microsoft-365/RoadmapFeatureRSS"
     category: cross-journey
+    match:
+      - "\\bcowork\\b"
+      - "autopilot"
+      - "microsoft scout"
+      - "copilot studio"
+      - "agent builder"
+      - "copilot credit"
+      - "pay-as-you-go"
+      - "usage-based billing"
+      - "frontier"
+      - "harness"
+      - "\\bresearcher\\b"
+      - "\\banalyst\\b"
 
-  - name: "Microsoft Adoption hub + Scenario Library"
-    url: "https://adoption.microsoft.com/"
+  - name: "Microsoft 365 Copilot release notes"
+    url: "https://learn.microsoft.com/en-us/microsoft-365/copilot/release-notes"
     feed: null
     category: cross-journey
 
-  - name: "Microsoft 365 Copilot Tech Community blog"
-    url: "https://techcommunity.microsoft.com/t5/microsoft-365-copilot/bg-p/Microsoft365CopilotBlog"
-    feed: "https://techcommunity.microsoft.com/plugins/custom/microsoft/o365/custom-blog-rss?board=Microsoft365CopilotBlog"
+  - name: "Microsoft Adoption Scenario Library"
+    url: "https://adoption.microsoft.com/en-us/scenario-library/"
+    feed: null
     category: cross-journey
+
+  # ── Credits & billing ────────────────────────────────────────────────────────
+
+  - name: "Copilot USL and usage-based billing"
+    url: "https://learn.microsoft.com/en-us/microsoft-365/copilot/user-subscription-license-usage-based-billing"
+    feed: null
+    category: cross-journey
+
+  - name: "Copilot Credits usage-based billing costs"
+    url: "https://learn.microsoft.com/en-us/microsoft-365/copilot/usage-based-billing-copilot-credits-cost"
+    feed: null
+    category: cross-journey
+
+  # ── Stage 3 · Cowork ─────────────────────────────────────────────────────────
+
+  - name: "Copilot Cowork — What's new"
+    url: "https://learn.microsoft.com/en-us/copilot/cowork/whats-new"
+    feed: null
+    category: cowork
 
   # ── Stage 5 · Autopilots ─────────────────────────────────────────────────────
 
-  - name: "Microsoft Scout Learn page"
-    url: "https://learn.microsoft.com/en-us/microsoft-scout/"
+  - name: "Autopilot (Microsoft Scout) — What's new"
+    url: "https://learn.microsoft.com/en-us/microsoft-scout/whats-new"
     feed: null
     category: autopilots
+
+  - name: "GitHub changelog — Copilot app & billing"
+    url: "https://github.blog/changelog/label/copilot/"
+    feed: "https://github.blog/changelog/label/copilot/feed/"
+    category: autopilots
+    match: ["autopilot", "scout", "copilot app", "cowork", "microsoft 365", "premium request", "billing", "budget", "harness"]
 
   # ── Stage 6 · Copilot Studio ─────────────────────────────────────────────────
 
@@ -55,15 +107,22 @@ sources:
     url: "https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new"
     feed: null
     category: studio
+    section_level: h3   # one item per month, not one giant "Notable changes" block
 
-  - name: "Copilot Studio billing & message requirements"
-    url: "https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management"
+  - name: "Copilot Studio billing & credits"
+    url: "https://learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/billing-credit-overview"
     feed: null
     category: studio
 
+  - name: "Microsoft Power Platform blog"
+    url: "https://www.microsoft.com/en-us/power-platform/blog/"
+    feed: "https://www.microsoft.com/en-us/power-platform/blog/feed/"
+    category: studio
+    match: ["copilot studio", "agent", "ai builder", "credit", "licens", "billing"]
+
   # ── Stage 7 · Foundry ────────────────────────────────────────────────────────
 
-  - name: "Azure AI Foundry docs — What's new"
-    url: "https://learn.microsoft.com/en-us/azure/ai-foundry/whats-new"
+  - name: "Microsoft Foundry — What's new"
+    url: "https://learn.microsoft.com/en-us/azure/foundry/whats-new-foundry"
     feed: null
     category: foundry

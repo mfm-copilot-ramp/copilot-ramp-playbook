@@ -5,12 +5,15 @@ Reads automation/state/watcher-new-items.json (output of fetch_diff.py),
 classifies each item, and files GitHub issues with appropriate labels.
 
 Enforces:
-- Deduplication against open issues (by title/URL match)
-- Cap of 25 new issues per run
+- Deduplication against open issues (by title/URL match). A changed item that
+  already has an open issue gets a comment on that issue instead of a new one.
+- Cap of 10 new issues per run. Items over the cap are removed from the
+  seen-state so the next run picks them up; nothing is silently dropped.
 - Grounding contract (every issue cites official MS URL + retrieval date)
+- Source health: a source failing several runs in a row gets one tracking issue.
 
 Usage:
-    python automation/watcher/assess_and_file.py [--dry-run] [--max-issues 25]
+    python automation/watcher/assess_and_file.py [--dry-run] [--max-issues 10]
 
 Requires:
     - gh CLI authenticated
@@ -23,16 +26,17 @@ import logging
 import os
 import re
 import subprocess
-import sys
 from pathlib import Path
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NEW_ITEMS_FILE = REPO_ROOT / "automation" / "state" / "watcher-new-items.json"
+STATE_FILE = REPO_ROOT / "automation" / "state" / "watcher-seen.json"
+HEALTH_FILE = REPO_ROOT / "automation" / "state" / "watcher-health.json"
 DOCS_DIR = REPO_ROOT / "docs"
 
 # ── Config ───────────────────────────────────────────────────────────────────
-DEFAULT_MAX_ISSUES = 25
+DEFAULT_MAX_ISSUES = 10
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger("watcher.assess")
@@ -142,12 +146,12 @@ def find_affected_pages(item: dict) -> list[str]:
     return affected[:10]  # Cap to avoid giant lists
 
 
-def check_duplicate_issue(title: str, url: str) -> bool:
-    """Check if an open issue already covers this item (by URL or title similarity)."""
+def check_duplicate_issue(title: str, url: str) -> int | None:
+    """Return the number of an open issue that already covers this item (by URL or title), else None."""
     try:
         # Search by URL in issue body
         result = subprocess.run(
-            ["gh", "issue", "list", "--state", "open", "--search", url, "--json", "title,body", "--limit", "5"],
+            ["gh", "issue", "list", "--state", "open", "--search", url, "--json", "number,title,body", "--limit", "5"],
             capture_output=True, text=True, timeout=15,
         )
         if result.returncode == 0:
@@ -155,12 +159,12 @@ def check_duplicate_issue(title: str, url: str) -> bool:
             for issue in issues:
                 if url in issue.get("body", ""):
                     log.info(f"  Duplicate found (URL match): {issue['title']}")
-                    return True
+                    return issue["number"]
 
         # Also search by title keywords
         short_title = " ".join(title.split()[:5])
         result = subprocess.run(
-            ["gh", "issue", "list", "--state", "open", "--search", short_title, "--json", "title", "--limit", "5"],
+            ["gh", "issue", "list", "--state", "open", "--search", short_title, "--json", "number,title", "--limit", "5"],
             capture_output=True, text=True, timeout=15,
         )
         if result.returncode == 0:
@@ -171,12 +175,95 @@ def check_duplicate_issue(title: str, url: str) -> bool:
                 new_words = set(title.lower().split())
                 if len(existing_words & new_words) / max(len(new_words), 1) > 0.6:
                     log.info(f"  Duplicate found (title match): {issue['title']}")
-                    return True
+                    return issue["number"]
 
     except (subprocess.TimeoutExpired, json.JSONDecodeError) as e:
         log.warning(f"  Dedup check failed: {e}")
 
-    return False
+    return None
+
+
+def comment_on_issue(number: int, item: dict) -> None:
+    """Note a further change on an issue that is already open for this item."""
+    body = (
+        f"🔄 **Changed again** — detected {item.get('retrieved_at', '')[:10]}.\n\n"
+        f"{item.get('summary', '') or 'No summary available.'}\n\n"
+        f"Source: {item.get('url', '')}"
+    )
+    result = subprocess.run(
+        ["gh", "issue", "comment", str(number), "--body", body],
+        capture_output=True, text=True, timeout=30,
+    )
+    if result.returncode == 0:
+        log.info(f"  Commented on #{number}")
+    else:
+        log.warning(f"  Could not comment on #{number}: {result.stderr.strip()}")
+
+
+def unsee_items(items: list[dict]) -> None:
+    """Remove deferred items from the seen-state so the next run reports them again."""
+    if not items or not STATE_FILE.exists():
+        return
+    with open(STATE_FILE, "r", encoding="utf-8") as f:
+        state = json.load(f)
+    for item in items:
+        state.get(item.get("source", ""), {}).get("seen_items", {}).pop(item["id"], None)
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2, ensure_ascii=False)
+    log.info(f"  Deferred {len(items)} item(s) to the next run")
+
+
+def find_open_issue_by_title(title: str) -> int | None:
+    """Return the number of an open issue with exactly this title, else None."""
+    try:
+        result = subprocess.run(
+            ["gh", "issue", "list", "--state", "open", "--search", f"{title} in:title",
+             "--json", "number,title", "--limit", "20"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if result.returncode == 0:
+            for issue in json.loads(result.stdout):
+                if issue["title"].strip() == title.strip():
+                    return issue["number"]
+    except (subprocess.TimeoutExpired, json.JSONDecodeError) as e:
+        log.warning(f"  Title lookup failed: {e}")
+    return None
+
+
+def file_health_issues(dry_run: bool) -> int:
+    """Open one tracking issue per source that keeps failing. Returns issues created."""
+    if not HEALTH_FILE.exists():
+        return 0
+    with open(HEALTH_FILE, "r", encoding="utf-8") as f:
+        failing = json.load(f)
+
+    created = 0
+    for src in failing:
+        title = f"⚠️ Watcher source failing: {src['source']}"
+        if not dry_run and find_open_issue_by_title(title):
+            continue
+        body = f"""## Source health
+
+The Watcher could not read this source for **{src['consecutive_failures']} runs in a row**, so changes
+to it are not being tracked.
+
+| Field | Value |
+|-------|-------|
+| **Source** | {src['source']} |
+| **URL** | {src.get('url', '')} |
+| **Last error** | {src.get('last_error', '').replace('|', '/')} |
+
+## Fix
+
+Open the URL. If it moved, update its entry in `automation/sources.yml`. If it is gone for good,
+remove the entry. Close this issue once the next Watcher run reads the source again.
+
+---
+*Filed automatically by the Watcher automation. See `automation/README.md` for pipeline docs.*
+"""
+        if create_issue(title, body, ["automation", "needs-human-review"], dry_run=dry_run):
+            created += 1
+    return created
 
 
 def format_issue_body(item: dict, classification: dict, affected_pages: list[str]) -> str:
@@ -257,29 +344,29 @@ def main():
                         help=f"Max issues to create per run (default: {DEFAULT_MAX_ISSUES})")
     args = parser.parse_args()
 
-    # Load new items
-    if not NEW_ITEMS_FILE.exists():
-        log.info("No new items file found — nothing to assess")
-        sys.exit(0)
+    # Source health runs even when there are no new items
+    health_created = file_health_issues(args.dry_run)
 
-    with open(NEW_ITEMS_FILE, "r", encoding="utf-8") as f:
-        new_items = json.load(f)
+    new_items: list[dict] = []
+    if NEW_ITEMS_FILE.exists():
+        with open(NEW_ITEMS_FILE, "r", encoding="utf-8") as f:
+            new_items = json.load(f)
 
     if not new_items:
         log.info("No new items to assess")
-        sys.exit(0)
-
-    log.info(f"Assessing {len(new_items)} new/changed items (cap: {args.max_issues})")
+    else:
+        log.info(f"Assessing {len(new_items)} new/changed items (cap: {args.max_issues})")
 
     # Counters for summary
     counts = {"intel:accuracy-risk": 0, "intel:new-resource": 0, "intel:new-usecase": 0}
     created = 0
     skipped_dup = 0
-    skipped_cap = 0
+    commented = 0
+    deferred: list[dict] = []
 
     for item in new_items:
         if created >= args.max_issues:
-            skipped_cap += 1
+            deferred.append(item)
             continue
 
         title_prefix = {
@@ -287,12 +374,18 @@ def main():
             "changed": "🔄 Changed:",
         }.get(item.get("change_type", "new"), "📡")
 
-        issue_title = f"{title_prefix} {item['title'][:100]}"
+        display_title = item.get("display_title") or item["title"]
+        issue_title = f"{title_prefix} {display_title[:100]}"
 
-        # Dedup check
-        if not args.dry_run and check_duplicate_issue(issue_title, item.get("url", "")):
-            skipped_dup += 1
-            continue
+        # Dedup check — a further change to an already-open item becomes a comment
+        if not args.dry_run:
+            existing = check_duplicate_issue(issue_title, item.get("url", ""))
+            if existing:
+                skipped_dup += 1
+                if item.get("change_type") == "changed":
+                    comment_on_issue(existing, item)
+                    commented += 1
+                continue
 
         # Classify
         classification = classify_item(item)
@@ -316,14 +409,20 @@ def main():
         if create_issue(issue_title, body, labels, dry_run=args.dry_run):
             created += 1
             counts[type_label] = counts.get(type_label, 0) + 1
+        else:
+            deferred.append(item)
+
+    if not args.dry_run:
+        unsee_items(deferred)
 
     # Summary
     log.info(f"\n{'='*60}")
     log.info("WATCHER RUN SUMMARY")
     log.info(f"  Items assessed: {len(new_items)}")
     log.info(f"  Issues created: {created}")
-    log.info(f"  Skipped (duplicate): {skipped_dup}")
-    log.info(f"  Skipped (cap reached): {skipped_cap}")
+    log.info(f"  Skipped (duplicate): {skipped_dup} ({commented} commented)")
+    log.info(f"  Deferred to next run: {len(deferred)}")
+    log.info(f"  Source-health issues: {health_created}")
     log.info(f"  By type:")
     for label, count in counts.items():
         if count > 0:
@@ -339,11 +438,12 @@ def main():
             f.write(f"| Items assessed | {len(new_items)} |\n")
             f.write(f"| Issues created | {created} |\n")
             f.write(f"| Skipped (duplicate) | {skipped_dup} |\n")
-            f.write(f"| Skipped (cap) | {skipped_cap} |\n")
+            f.write(f"| Commented on open issue | {commented} |\n")
+            f.write(f"| Deferred to next run | {len(deferred)} |\n")
+            f.write(f"| Source-health issues | {health_created} |\n")
             for label, count in counts.items():
                 if count > 0:
                     f.write(f"| {label} | {count} |\n")
-
 
 if __name__ == "__main__":
     main()

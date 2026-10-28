@@ -32,4 +32,16 @@ Each entry follows this template:
 
 ## Entries
 
-*(None yet — the Auditor will append the first entry after its initial run.)*
+### 2026-10-28 — [process] Watcher silently stopped filing issues for two months
+
+**Issue:** From 2026-08-21 every daily Watcher run failed at "Commit state file", so the
+assess step never ran. Cowork GA follow-ups, the Scout → Autopilot rename and the billing
+changes were all missed and had to be found by hand.
+**Root cause:** The workflow pushed its seen-state straight to `main`, which requires PRs and a
+passing `build` check. Separately, the Tech Community Copilot blog feed started returning 404 and
+the Foundry what's-new URL moved, and nothing flagged either.
+**Fix / guideline:** Automations must never push to `main`. Watcher state now lives on the
+unprotected `automation-state` branch. Sources that fail 3 runs in a row open a tracking issue.
+Broad feeds carry `match` filters, and new sources are baselined silently instead of flooding
+the backlog.
+**Applies to:** All

@@ -3,7 +3,10 @@
 # Never edits docs/ content or opens content PRs.
 #
 # Trigger: Daily at 13:00 UTC + manual dispatch (matches repo pattern).
-# Pipeline: Fetch/Diff (deterministic) → Assess & File (heuristic classification)
+# Pipeline: Restore state → Fetch/Diff (deterministic) → Assess & File → Persist state
+#
+# Seen-state lives on the unprotected `automation-state` branch, never on main.
+# main requires PRs and status checks, so a direct push there always fails.
 #
 # See automation/README.md for the full pipeline architecture.
 
@@ -15,14 +18,21 @@ on:
   workflow_dispatch:          # Manual trigger from Actions tab
     inputs:
       dry_run:
-        description: "Dry run — detect changes but don't file issues"
+        description: "Dry run — detect changes but don't file issues or save state"
         required: false
         type: boolean
         default: false
 
 permissions:
-  contents: write    # needed to commit state file
-  issues: write      # needed to create/search issues
+  contents: write    # push seen-state to the automation-state branch (not main)
+  issues: write      # needed to create/search/comment on issues
+
+concurrency:
+  group: watcher
+  cancel-in-progress: false
+
+env:
+  STATE_BRANCH: automation-state
 
 jobs:
   watcher:
@@ -32,8 +42,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          # Use a token that can push back (default GITHUB_TOKEN works for same-repo)
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -45,29 +53,24 @@ jobs:
       - name: Install watcher dependencies
         run: pip install -r automation/watcher/requirements.txt --quiet
 
-      # ── Step 1: Fetch/Diff (deterministic, no LLM) ────────────────────────
+      # ── Step 1: Restore seen-state ────────────────────────────────────────
+      - name: "Restore seen-state"
+        run: |
+          if git fetch --quiet --depth 1 origin "$STATE_BRANCH" 2>/dev/null \
+             && git cat-file -e FETCH_HEAD:watcher-seen.json 2>/dev/null; then
+            git show FETCH_HEAD:watcher-seen.json > automation/state/watcher-seen.json
+            echo "Restored seen-state from $STATE_BRANCH"
+          else
+            echo "No saved state yet. This run baselines every source without filing issues."
+          fi
+
+      # ── Step 2: Fetch/Diff (deterministic, no LLM) ────────────────────────
       - name: "Fetch & diff sources"
-        id: fetch
         run: |
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             python automation/watcher/fetch_diff.py --dry-run
           else
             python automation/watcher/fetch_diff.py
-          fi
-
-      # ── Step 2: Commit updated state (idempotency) ────────────────────────
-      - name: "Commit state file"
-        if: inputs.dry_run != true
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add automation/state/watcher-seen.json
-          # Only commit if there are changes
-          if git diff --cached --quiet; then
-            echo "No state changes to commit"
-          else
-            git commit -m "watcher: update seen-state [skip ci]"
-            git push
           fi
 
       # ── Step 3: Assess & file issues (heuristic classification) ────────────
@@ -83,17 +86,29 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python automation/watcher/assess_and_file.py --dry-run
 
-      # ── Summary ────────────────────────────────────────────────────────────
-      - name: "Post run summary"
-        if: always()
+      # ── Step 4: Persist seen-state (only after issues are filed) ──────────
+      - name: "Save seen-state to the automation-state branch"
+        if: inputs.dry_run != true
         run: |
-          if [ -f automation/state/watcher-new-items.json ]; then
-            ITEM_COUNT=$(python -c "import json; print(len(json.load(open('automation/state/watcher-new-items.json'))))")
-            echo "### 📡 Watcher completed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "New/changed items detected: **${ITEM_COUNT}**" >> $GITHUB_STEP_SUMMARY
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          WORK="$RUNNER_TEMP/state"
+          if git fetch --quiet --depth 1 origin "$STATE_BRANCH" 2>/dev/null; then
+            git worktree add --quiet --detach "$WORK" FETCH_HEAD
           else
-            echo "### 📡 Watcher completed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "No new items file generated (sources may be unchanged or unreachable)." >> $GITHUB_STEP_SUMMARY
+            git worktree add --quiet --detach "$WORK" HEAD
+            git -C "$WORK" checkout --quiet --orphan "$STATE_BRANCH"
+            git -C "$WORK" rm -rfq .
+          fi
+          cp automation/state/README.md "$WORK/README.md"
+          cp automation/state/watcher-seen.json automation/state/watcher-new-items.json \
+             automation/state/watcher-health.json "$WORK/"
+          cd "$WORK"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Seen-state unchanged"
+          else
+            git commit --quiet -m "watcher: seen-state $(date -u +%F)"
+            git push --quiet origin "HEAD:refs/heads/$STATE_BRANCH"
+            echo "Saved seen-state to $STATE_BRANCH"
           fi
