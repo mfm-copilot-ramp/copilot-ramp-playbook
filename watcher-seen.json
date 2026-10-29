@@ -14,14 +14,15 @@
       "cda17a932ca68ea672a1": "cfc70f7423c99995",
       "cb04a8add48a1f6f4f0e": "2dd0576296390841",
       "d1fb242170809b0beea4": "1207b0ac5b85ba34",
-      "5dda5d4eeb87dc677893": "c693eac831e9d86d"
+      "5dda5d4eeb87dc677893": "c693eac831e9d86d",
+      "19fe56323f0e7ab26f20": "610a277addb8d8f0"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
-    "item_count": 13,
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
+    "item_count": 14,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1793117150
+    "feed_updated": 1793293725
   },
   "Official Microsoft Blog": {
     "config_hash": "c6c0477c948eda31",
@@ -32,7 +33,7 @@
       "071606ff34383fe9411a": "951a7d249908c4fa",
       "6efe57623f3ee3b4e5ba": "c9577fa4fedb9d5b"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 5,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -46,7 +47,7 @@
       "a63ebee365256de42093": "de27e2591cf7a6ec",
       "8a5f7d3f06dc53902b76": "3dbccfc444d6a817",
       "b168baf0317a0bc46f52": "009af2932903e883",
-      "d11354afdb5e893a8f42": "c4e1d39d338edea8",
+      "d11354afdb5e893a8f42": "e4e389470c75b771",
       "8aef8b1e3fe6f359b6fe": "337707ab28f88470",
       "3f540ebcaaa9c8c5b348": "770b99dd1639e718",
       "e6e758d60297cb041d79": "8d381ccc62d6126c",
@@ -76,7 +77,7 @@
       "1e05bfadb9a407207acf": "6ccda3bdc442acf5",
       "f742e2050c6abee13aaa": "c9d4486ff448d430",
       "aeeb51288514616dd2ae": "7e0ad77ce8163f2c",
-      "e907146616c060694243": "aa1c13ad86fd4967",
+      "e907146616c060694243": "7e8109ed537b1c46",
       "584f4d89839430a653da": "b79fcc39be1f82e9",
       "73ed8ed7a66b2db91855": "d94bca2e19ee4091",
       "157f7a8ef185503f183d": "02bb25337683a992",
@@ -132,16 +133,16 @@
       "96072f616f9733945597": "37b07c502de3bae6",
       "0147be8ce83b6ce413f0": "04f3eaf30ed20f85",
       "241732a358a34d79a6f1": "99341cba938cd2c1",
-      "5def373dc6599c9f06cb": "4e25cb5daef6c9be",
+      "5def373dc6599c9f06cb": "f4b2f8f2ccd9ce7f",
       "c187abc53dc6ee1b2a49": "fd2dc024159a82b2",
       "1febd011b5a1e0b5fb0a": "6037c3af45749200"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 93,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1793142302
+    "feed_updated": 1793228671
   },
   "Microsoft 365 Copilot release notes": {
     "config_hash": "ac2c937597b28535",
@@ -207,7 +208,7 @@
       "6c1bd84be9b94bfbf435": "5573971d1f804f93",
       "115493b8faa70c3093b1": "de60d832ecac5d0d"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 60,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -219,7 +220,7 @@
       "e53164f83e478be788c7": "0547dce403a7ffe4",
       "5bddd4eac16b72cf9361": "dd5ec8ae5b57c440"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -232,7 +233,7 @@
       "21024c85e5fcae42312a": "b4370f3eef2dacae",
       "d68a1977529ca1d3ab86": "a96596b2ca895ffb"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 3,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -246,7 +247,7 @@
       "439ca2feb0af894d7be9": "4c75fdd409bece97",
       "70942beb5188660b875c": "91062e4685de4faa"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -255,7 +256,7 @@
   "Copilot Cowork — What's new": {
     "config_hash": "f8808d3280d6e597",
     "seen_items": {
-      "ddcd2c9d30731957b9ec": "f906ba2f793aab92",
+      "ddcd2c9d30731957b9ec": "e3d19652e7b9c3ea",
       "19cc1c58c74727f4578a": "dcc9ab16f1a93d62",
       "887cbc12ee5f02d3e901": "d2b12f3298363325",
       "479960b2a7aaf0ce8522": "f430527d6877faa1",
@@ -263,7 +264,7 @@
       "d33071708ef89b5be6e2": "af669edb611a567d",
       "5b4a249d1617b62590d5": "045e80a67e4668cc"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 7,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -275,7 +276,7 @@
       "3088d6ab293b248fcd2b": "3772e2739090838e",
       "28e7123037565de08717": "aeaf125fc62f8750"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -287,7 +288,7 @@
       "3a003b09903d323c02f8": "ac580a49a8ed957f",
       "d2d305783edc2e6426c4": "156e4039aad71191"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -309,7 +310,7 @@
       "af86c95332688c704a26": "660ef2a65b6b65f0",
       "bec61b2ff9a7ce3ee8f5": "d93c0698a1abae35"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 11,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -323,7 +324,7 @@
       "8053b037488b31691f08": "17fc1efd0e529854",
       "6145104670ca53a407f0": "2fd383055e808684"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -338,12 +339,12 @@
       "a94fbce2cdcb1b807d92": "a151c37282e21c41",
       "43b6ee8019caa0047bbc": "95d22a95387ee8c1"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 5,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1793061188
+    "feed_updated": 1793290000
   },
   "Microsoft Foundry — What's new": {
     "config_hash": "6844db1337fd92b1",
@@ -351,7 +352,7 @@
       "290693a3c87acbc0553a": "05f13d9427193665",
       "45834d243b1022a585ea": "07e45d14543730fc"
     },
-    "last_checked": "2026-10-28T19:21:39.235756+00:00",
+    "last_checked": "2026-10-29T18:44:41.081925+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
