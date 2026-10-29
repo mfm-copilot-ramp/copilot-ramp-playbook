@@ -21,7 +21,7 @@ updated: 2026-06-04
 !!! warning "Tools are power and surface area"
     Every tool you add is something the agent can *do* on your behalf. The patterns below are
     representative — confirm tool registration, schemas, and the MCP wiring against the current
-    [Foundry Agent Service tools docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/).
+    [Foundry Agent Service tools docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview).
 
 ## When to use this
 Your agent can reason but can't act: it needs to look up an order, call an internal API, run a

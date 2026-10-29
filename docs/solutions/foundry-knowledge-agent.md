@@ -21,7 +21,7 @@ updated: 2026-06-04
     Unlike the Studio templates in this library, this one is a **code blueprint**, not a low-code spec.
     The snippets are *representative* of the `azure-ai-projects` / `azure-ai-evaluation` SDKs — these move
     fast. Pin versions and verify every call against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). **Don't
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). **Don't
     start here if a [Studio agent](policy-faq-agent.md) would do** — climb to Foundry only when it won't.
 
 ---

@@ -21,7 +21,7 @@ updated: 2026-08-29
     Unlike the Studio templates in this library, this one is a **code blueprint**, not a low-code spec.
     The snippets are *representative* of the `azure-ai-projects` / `azure-ai-evaluation` SDKs — these move
     fast. Pin versions and verify every call against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). **Don't
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). **Don't
     start here if a Studio agent would do** — climb to Foundry only when it won't.
 
 ---
@@ -239,5 +239,5 @@ Security and governance detail: [Secure and govern Foundry agents](../walkthroug
 ## Related
 
 - [Content Repurposing Agent](marketing-content-repurposing-agent.md) — Studio pattern for approved marketing copy adaptation
-- [Microsoft Foundry SDKs](https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/sdk-overview) — current SDK and endpoint guidance
-- [Evaluate your AI agents](https://learn.microsoft.com/en-us/azure/ai-foundry/observability/how-to/evaluate-agent) — agent evaluation and CI gate pattern
+- [Microsoft Foundry SDKs](https://learn.microsoft.com/en-us/azure/foundry/how-to/develop/sdk-overview) — current SDK and endpoint guidance
+- [Evaluate your AI agents](https://learn.microsoft.com/en-us/azure/foundry/observability/how-to/evaluate-agent) — agent evaluation and CI gate pattern

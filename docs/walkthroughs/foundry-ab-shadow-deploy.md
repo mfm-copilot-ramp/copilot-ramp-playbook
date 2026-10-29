@@ -21,7 +21,7 @@ updated: 2026-06-05
 !!! warning "Treat a model swap like a production change"
     A model change can shift quality, latency, cost, *and* behaviour all at once — sometimes invisibly. The
     routing and deployment mechanics below are representative; confirm the current deployment and traffic
-    options against the [Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/) and your hosting
+    options against the [Foundry docs](https://learn.microsoft.com/en-us/azure/foundry/) and your hosting
     setup. Never flip a production agent to a new model in one step on a hunch.
 
 ## When to use this

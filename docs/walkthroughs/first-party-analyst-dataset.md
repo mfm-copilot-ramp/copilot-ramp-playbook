@@ -90,7 +90,7 @@ A first chart is the start of a conversation, not the end:
 
 > **📚 Learn more.** The [Agents in Microsoft 365 Adoption Hub](https://adoption.microsoft.com/en-us/copilot/)
 > describes Analyst and the other prebuilt agents in plain language, and Nicole Herskowitz's (CVP,
-> M365 Copilot) blog on [enabling human-agent teams](https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
+> M365 Copilot) blog on [enabling human-agent teams](https://www.microsoft.com/en-us/copilot/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
 > explains how these agents work alongside you.
 
 ## Watch out for

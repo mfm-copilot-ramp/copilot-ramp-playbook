@@ -258,8 +258,8 @@ Put shared agents where your team already works, then see where adoption is land
     re-documenting the lineup.
 
     - [Agents in Microsoft 365 hub](https://adoption.microsoft.com/en-us/ai-agents/agents-in-microsoft-365/) — the always-current roster of included agents
-    - [Researcher & Analyst now GA](https://www.microsoft.com/en-us/microsoft-365/blog/2025/06/02/researcher-and-analyst-are-now-generally-available-in-microsoft-365-copilot/) — what the two flagship agents do
-    - [Enabling human-agent teams](https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/) — how agents fit into team workflows
+    - [Researcher & Analyst now GA](https://www.microsoft.com/en-us/copilot/blog/2025/06/02/researcher-and-analyst-are-now-generally-available-in-microsoft-365-copilot/) — what the two flagship agents do
+    - [Enabling human-agent teams](https://www.microsoft.com/en-us/copilot/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/) — how agents fit into team workflows
     - [M365 Copilot resources (CAT)](https://aka.ms/m365copilot/resources) — the curated front door for everything M365 Copilot
 
     The full curated set for this stage lives in [Resources → Stage 2](../RESOURCES.md).

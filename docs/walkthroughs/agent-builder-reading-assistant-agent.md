@@ -43,7 +43,7 @@ saved reading, say so clearly and suggest which file or topic I should add next.
 
 ## Step by step
 1. **Collect the source material.** Put the saved articles, PDFs, and notes in a OneDrive folder with a clear name. Remove drafts or duplicates you do not want cited.
-2. **Open Agent Builder.** In Microsoft 365 Copilot, start the agent creation flow. For the broader model, see [Microsoft 365 Copilot extensibility](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/).
+2. **Open Agent Builder.** In Microsoft 365 Copilot, start the agent creation flow. For the broader model, see [Microsoft 365 Copilot extensibility](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/).
 3. **Add the OneDrive folder as knowledge.** Scope the agent to the reading folder rather than your whole OneDrive so it stays focused on the collection.
 4. **Write the instructions** using the prompt above, adapted to your topics and citation preference.
 5. **Add starter prompts** such as "What are the main themes across my articles on [topic]?", "Which saved article should I read first for [question]?", and "Where do my sources disagree?"

@@ -70,7 +70,7 @@ siblings the same way:
 - Pair it with **agents in Teams channels** so the recap is posted where the team already lives.
 
 > **📚 Learn more.** Microsoft frames this human + agent shift directly:
-> [Enabling human-agent teams](https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
+> [Enabling human-agent teams](https://www.microsoft.com/en-us/copilot/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
 > (Nicole Herskowitz, CVP, Microsoft 365 Copilot). For the full set of prebuilt agents, see the
 > [Agents in Microsoft 365 Adoption Hub](https://adoption.microsoft.com/en-us/copilot/).
 

@@ -21,7 +21,7 @@ updated: 2026-06-05
 !!! warning "A different kind of template"
     This is a **code blueprint**, not a low-code spec. The snippets are *representative* of the
     `azure-ai-projects` / `azure-ai-evaluation` SDKs — these move fast. Pin versions and verify every
-    call against the [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/).
+    call against the [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview).
     **Don't start here if one agent would do** — most jobs don't need an orchestrator. Climb to this only
     when a single agent genuinely can't sequence the work.
 

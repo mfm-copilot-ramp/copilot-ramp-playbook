@@ -22,7 +22,7 @@ updated: 2026-06-05
     This is a **code blueprint**, not a low-code spec, and it is **not a chat agent**. The snippets are
     *representative* of the `azure-ai-projects` / `azure-ai-evaluation` SDKs — these move fast. Pin versions
     and verify every call against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). If your volume
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). If your volume
     is low and the shape is loose, a [Studio agent](policy-faq-agent.md) or a Cowork task may be enough.
 
 ---

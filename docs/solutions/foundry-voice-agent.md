@@ -24,7 +24,7 @@ updated: 2026-06-05
     *representative* of the Azure AI **Speech** and `azure-ai-projects` SDKs plus your telephony platform
     (e.g. Azure Communication Services) — verify against the
     [Speech docs](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/) and the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). If a chat or
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). If a chat or
     web agent meets the need, the voice channel adds real cost and complexity — add it only when callers must
     use the phone.
 

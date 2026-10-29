@@ -24,7 +24,7 @@ updated: 2026-06-05
     matter as much as quality: a least-privilege token, no write-to-main, and never auto-merge. The snippets
     are *representative* of the `azure-ai-projects` SDK plus your Git host's API/webhooks (GitHub, Azure
     Repos) — pin versions and verify against the
-    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/). This **augments**
+    [Foundry Agent Service docs](https://learn.microsoft.com/en-us/azure/foundry/agents/overview). This **augments**
     human review; it does not replace a required approval.
 
 ---

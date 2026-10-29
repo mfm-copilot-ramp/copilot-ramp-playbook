@@ -196,5 +196,5 @@ The same considerations, compared across all three harnesses. Find the row that 
 >
 > - [Harnesses in Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/harnesses-overview) — Microsoft's own comparison of the three harnesses.
 > - [Microsoft Copilot Studio documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/) — the official product hub.
-> - [Extend Microsoft 365 Copilot — options compared](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) — declarative vs. custom-engine agents.
+> - [Extend Microsoft 365 Copilot — options compared](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/) — declarative vs. custom-engine agents.
 > - [Stage 6 · Copilot Studio](stages/stage-6-studio.md) — where you build, test, publish, and govern these agents.

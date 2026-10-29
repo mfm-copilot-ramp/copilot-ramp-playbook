@@ -63,7 +63,7 @@ Make the helper more useful before a claim is submitted:
 - **Keep process docs current.** Submission screens and approval routes change; update the grounded docs when the process changes.
 - **Collect confusion points.** Use team feedback to improve the policy wording rather than patching around unclear docs in the agent.
 
-> **📚 Learn more.** See Microsoft Learn for [extending Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) and the Agent Builder path into declarative agents.
+> **📚 Learn more.** See Microsoft Learn for [extending Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/) and the Agent Builder path into declarative agents.
 
 ## Watch out for
 - **Personal reimbursement cases need finance.** The agent should not decide exceptions, missing payments, or tax-sensitive questions.

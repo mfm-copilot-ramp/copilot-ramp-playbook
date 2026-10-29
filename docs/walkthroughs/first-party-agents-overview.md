@@ -107,9 +107,9 @@ The roster is most powerful when you stop using agents in isolation:
 
 > **📚 Learn more.** The [Agents in Microsoft 365 hub](https://adoption.microsoft.com/en-us/ai-agents/agents-in-microsoft-365/)
 > describes each prebuilt agent in plain language, Jared Spataro's (CMO, AI at Work) post on
-> [Researcher and Analyst reaching general availability](https://www.microsoft.com/en-us/microsoft-365/blog/2025/06/02/researcher-and-analyst-are-now-generally-available-in-microsoft-365-copilot/)
+> [Researcher and Analyst reaching general availability](https://www.microsoft.com/en-us/copilot/blog/2025/06/02/researcher-and-analyst-are-now-generally-available-in-microsoft-365-copilot/)
 > covers the two reasoning agents, and Nicole Herskowitz's (CVP, M365 Copilot) blog on
-> [human-agent teams](https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
+> [human-agent teams](https://www.microsoft.com/en-us/copilot/blog/2025/09/18/microsoft-365-copilot-enabling-human-agent-teams/)
 > explains how these agents work alongside you.
 
 ## Watch out for

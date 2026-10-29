@@ -20,7 +20,7 @@ updated: 2026-06-04
 
 !!! warning "Evaluation is engineering, not vibes"
     The evaluators and SDK calls below are representative. Confirm the current evaluator set and wiring
-    against the [Foundry evaluation docs](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai)
+    against the [Foundry evaluation docs](https://learn.microsoft.com/en-us/azure/foundry/concepts/observability)
     — the catalog of built-in evaluators grows over time.
 
 ## When to use this
@@ -68,7 +68,7 @@ every change and you can prove an edit improved things — or catch that it quie
    becomes a check like any test, not a hope.
 5. **Turn on continuous monitoring.** In production, sample live traffic and run the same evaluators on a
    schedule, emitting to Azure Monitor / Application Insights. Alert when a metric drifts. See
-   [continuous evaluation / agent monitoring](https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/online-evaluation).
+   [continuous evaluation / agent monitoring](https://learn.microsoft.com/en-us/azure/foundry-classic/how-to/monitor-applications).
 6. **Close the loop.** Feed surprising production failures back into the offline dataset so the same
    regression can never ship twice.
 

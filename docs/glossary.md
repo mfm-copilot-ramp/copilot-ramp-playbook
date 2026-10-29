@@ -20,7 +20,7 @@ Microsoft's [Copilot hub](https://learn.microsoft.com/en-us/copilot/) is the sou
     - [Which Copilot is right for you](https://learn.microsoft.com/en-us/copilot/) — the Microsoft Learn hub that names and maps every Copilot
     - [Microsoft 365 Copilot documentation](https://learn.microsoft.com/en-us/copilot/microsoft-365/) — canonical terms for Chat, agents, and Graph grounding
     - [Copilot Studio documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/) — the official reference for makers and builders
-    - [Microsoft Foundry documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/) — canonical terms for the pro-code platform
+    - [Microsoft Foundry documentation](https://learn.microsoft.com/en-us/azure/foundry/) — canonical terms for the pro-code platform
 
 ---
 

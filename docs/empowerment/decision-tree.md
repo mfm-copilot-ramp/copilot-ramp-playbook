@@ -85,5 +85,5 @@ Prefer words to boxes? Find the row whose **need** matches yours — frequency f
 > **📚 Learn more.**
 >
 > - [Which Copilot is right for you](https://learn.microsoft.com/en-us/copilot/) — Microsoft's official front door.
-> - [Extend Microsoft 365 Copilot — options compared](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) — declarative vs. custom-engine agents.
+> - [Extend Microsoft 365 Copilot — options compared](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/) — declarative vs. custom-engine agents.
 > - [Stage 7 · Foundry](../stages/stage-7-foundry.md) — when you outgrow low-code.

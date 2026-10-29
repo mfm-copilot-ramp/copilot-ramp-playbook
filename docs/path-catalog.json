@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28T17:25:48Z",
+  "generated": "2026-10-28T20:38:57Z",
   "items": [
     {
       "path": "walkthroughs/agent-builder-expense-helper-agent/",
@@ -3114,7 +3114,7 @@
     },
     {
       "title": "Extend Microsoft 365 Copilot — options compared",
-      "href": "https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/",
+      "href": "https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/",
       "source": "Microsoft Learn",
       "stage": "agent-builder",
       "stageLabel": "Microsoft Learn",
@@ -3144,7 +3144,7 @@
     },
     {
       "title": "Microsoft Foundry documentation",
-      "href": "https://learn.microsoft.com/en-us/azure/ai-foundry/",
+      "href": "https://learn.microsoft.com/en-us/azure/foundry/",
       "source": "Microsoft Learn",
       "stage": "foundry",
       "stageLabel": "Microsoft Learn",

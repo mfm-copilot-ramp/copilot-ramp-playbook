@@ -157,5 +157,5 @@ Reach for these only when a Studio agent genuinely can't carry the job — custo
 
     - [Copilot Studio documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/) — the build-to-govern reference for every low-code template
     - [Agent Library](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/agent-library-overview) — Microsoft's own catalog of production-ready agent templates
-    - [Microsoft Foundry documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/) — the canonical reference for every pro-code blueprint
-    - [Foundry Agent Service](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/) — build, deploy, and run pro-code agents with tools and orchestration
+    - [Microsoft Foundry documentation](https://learn.microsoft.com/en-us/azure/foundry/) — the canonical reference for every pro-code blueprint
+    - [Foundry Agent Service](https://learn.microsoft.com/en-us/azure/foundry/agents/overview) — build, deploy, and run pro-code agents with tools and orchestration

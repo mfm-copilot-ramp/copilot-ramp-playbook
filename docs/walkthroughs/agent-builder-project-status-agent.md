@@ -61,7 +61,7 @@ Turn a status helper into a trusted project cockpit:
 - **Teach conflict handling.** Add a rule to call out conflicting docs instead of silently choosing one when dates are unclear.
 - **Review after key updates.** Re-test the starter prompts after major plan changes so the shared answers stay useful.
 
-> **📚 Learn more.** See Microsoft Learn for [extending Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/) and the Agent Builder path into declarative agents.
+> **📚 Learn more.** See Microsoft Learn for [extending Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/) and the Agent Builder path into declarative agents.
 
 ## Watch out for
 - **Stale docs create stale confidence.** The agent can cite an old plan perfectly; keep the project source tidy.
