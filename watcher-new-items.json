@@ -1,28 +1,28 @@
 [
   {
-    "id": "dbea6cd46317cd587369",
-    "source": "Microsoft 365 Roadmap",
+    "id": "6c4dc2e6169f4d7dbd20",
+    "source": "Microsoft Copilot blog",
     "category": "cross-journey",
-    "title": "Microsoft Copilot Studio: Copilot studio cost controls in MAC",
-    "url": "https://www.microsoft.com/microsoft-365/roadmap?id=577834",
-    "summary": "We’re expanding cost management for Microsoft Copilot Studio into the Microsoft 365 admin center. This gives administrators a more centralized way to manage Copilot Credit spend across usage-based AI workloads while retaining Copilot Studio cost management capabilities in the Power Platform admin center. With this update, administrators can bring supported Copilot Studio environments and agents under Cost Management spending policies. Resource-based policies for environments and agents are the f",
-    "published": "Thu, 29 Oct 2026 23:01:00 Z",
-    "published_ts": 1793314860,
-    "content_hash": "ec0d18a2153d6665",
+    "title": "Introducing Microsoft Copilot for legal",
+    "url": "https://techcommunity.microsoft.com/blog/microsoft-copilot-blog/introducing-microsoft-copilot-for-legal/4564246",
+    "summary": "In legal work, the answer rarely sits neatly in one place. It may depend on precedent, organizational standards, or a regulatory consideration that changes the whole analysis.",
+    "published": "Fri, 23 Oct 2026 15:00:00 +0000",
+    "published_ts": 1792767600,
+    "content_hash": "22104552ba7576c4",
     "change_type": "new",
-    "retrieved_at": "2026-10-30T18:20:35.723533+00:00"
+    "retrieved_at": "2026-10-31T17:27:22.125526+00:00"
   },
   {
-    "id": "7cd9d7e092f9ffe3698e",
-    "source": "GitHub changelog — Copilot app & billing",
-    "category": "autopilots",
-    "title": "Repository plugin defaults and enterprise plugin controls generally available",
-    "url": "https://github.blog/changelog/2026-10-28-repository-plugin-defaults-and-enterprise-plugin-controls-generally-available",
-    "summary": "Repository plugin defaults and enterprise-managed plugin controls are now generally available in VS Code, Copilot CLI, and the GitHub Copilot app. Trusted repositories can install and enable default plugins for…",
-    "published": "Wed, 28 Oct 2026 15:33:00 +0000",
-    "published_ts": 1793201580,
-    "content_hash": "5ac3ea078d1a7eb9",
+    "id": "a91e5475e0b91c194938",
+    "source": "Microsoft 365 Roadmap",
+    "category": "cross-journey",
+    "title": "Microsoft 365: Frontier expands to public previews in Teams, Outlook, OneDrive, and SharePoint",
+    "url": "https://www.microsoft.com/microsoft-365/roadmap?id=578225",
+    "summary": "Frontier is expanding to bring eligible public preview features across Microsoft 365 into one program. Users enrolled in Frontier can get eligible previews for new Outlook for Windows, OneDrive, SharePoint, Microsoft Teams, and Copilot, managed through a single admin-controlled enrollment experience. Frontier enrollment is optional and separate from Standard and Deferred release preferences for generally available features. Existing Frontier users do not need to re-enroll. More info: https://lea",
+    "published": "Fri, 30 Oct 2026 22:08:34 Z",
+    "published_ts": 1793398114,
+    "content_hash": "e5926da41c062290",
     "change_type": "new",
-    "retrieved_at": "2026-10-30T18:20:35.723533+00:00"
+    "retrieved_at": "2026-10-31T17:27:22.125526+00:00"
   }
 ]
