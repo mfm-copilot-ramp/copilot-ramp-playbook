@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": "a9a60e3dbfaf2b3a620b",
+    "source": "Microsoft Power Platform blog",
+    "category": "studio",
+    "title": "Dataverse goes where you build: Copilot Cowork, coding agents and n8n",
+    "url": "https://www.microsoft.com/en-us/power-platform/blog/2026/11/02/dataverse-for-coding-agents-n8n-copilot-cowork/",
+    "summary": "The Dataverse plugin and native integrations now reach Copilot Cowork, GitHub Copilot, Claude, Codex and ChatGPT, Cursor, Gemini CLI, Google Antigravity and n8n, so developers and makers get the same trusted business data and guardrails in the tools they already use.",
+    "published": "Mon, 02 Nov 2026 16:00:00 +0000",
+    "published_ts": 1793635200,
+    "content_hash": "291a1bc350549203",
+    "change_type": "new",
+    "retrieved_at": "2026-11-02T22:02:03.706944+00:00"
+  }
+]
