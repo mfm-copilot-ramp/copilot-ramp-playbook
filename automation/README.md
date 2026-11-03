@@ -121,6 +121,10 @@ See `.github/labels.yml` for the full definitions and colors.
 - **Auditor only files issues.** Section order is checked against the template in
   `CONTENT-MODEL.md`; a walkthrough with frontmatter that isn't valid YAML is flagged p2 because it
   renders as raw text on the page. Duplicates are matched on exact title.
+- **Auditor flags past-dated claims (p1).** A sentence that ties a date that has already passed to
+  future-tense wording ("reaches end of life on…", "will", "deadline", "by <date>", "What changes on…")
+  becomes one issue per page. `whats-new.md`, code blocks and table rows (source citations) are exempt.
+  Test against a fixed day with `--as-of YYYY-MM-DD`.
 
 ---
 

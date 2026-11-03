@@ -188,12 +188,91 @@
         if (/\/stages\//.test(location.pathname)) track("stage-to-home-click", location.pathname);
       });
     });
+  }
 
-    var estimatorStart = root.querySelector('button[onclick*="qeAnalyze"], button[onclick*="bulkAnalyze"]');
-    if (estimatorStart && estimatorStart.dataset.rcEstimatorStart !== "1") {
-      estimatorStart.dataset.rcEstimatorStart = "1";
-      estimatorStart.addEventListener("click", function () { track("estimator-start", estimatorStart.textContent.trim()); });
+  /* ── Estimator instrumentation ────────────────────────────────────────────
+   * One delegated listener covers every product tab, mode, run button, export
+   * and live-calculating input on the three estimator pages. Labels are static
+   * handler names or element ids — never the values a visitor typed. */
+  var EST_PAGE = /\/(credit-estimator|ai-builder-estimator|roi-estimator)\//;
+  var EST_PRODUCT_FNS = ["setEstimatorProduct"];
+  var EST_MODE_FNS = ["setEstimatorMode", "setCoworkMode", "setHarnessMode", "setDeployMode",
+    "setDetailedAgentType", "setGhComplexity", "aibSetMode", "aibSetImportPath", "roiSetMode"];
+  var EST_START_FNS = ["qeAnalyze", "bulkAnalyze", "qeExample", "bulkExample", "applyScenario",
+    "applyAutoScenario", "cwUsePaste", "cwTryOcr", "aibPreset", "aibMixPreset", "aibApplyMapping",
+    "aibParsePaste", "aibPasteSample", "roiCalculate", "roiQuickEstimate", "roiQuickExample", "roiLoadExample"];
+  var EST_EXPORT_FNS = ["emCopySummary", "emCopyLink", "emDownloadCsv", "emDownloadSummary",
+    "cwDownloadCohortsCsv", "cwSaveToWorkspace", "cwSaveDetailedToWorkspace", "cwImportToDetailed",
+    "cwOpenInDetailed", "qiDownloadCsv", "qiCopyPrompt", "qiDownloadTemplate",
+    "aibCopyIntakeTemplate", "aibDownloadIntakeTemplate"];
+  var EST_START_IDS = ["ctx-go"];
+  var EST_RESULT_IDS = ["qe-results", "sp-results", "qi-results", "bulk-results", "ctx-out",
+    "aib-results", "roi-results", "roi-q-results"];
+
+  var est = { page: "", product: "", mode: "", interacted: false, inputSeen: {}, resultSeen: {} };
+
+  function estimatorPage() {
+    var m = location.pathname.match(EST_PAGE);
+    return m ? m[1] : "";
+  }
+
+  function handlerCall(el) {
+    var attr = el.getAttribute && el.getAttribute("onclick");
+    if (!attr) return null;
+    var m = attr.match(/^\s*([A-Za-z_$][\w$]*)\s*\(\s*(?:['"]([\w-]{1,40})['"])?/);
+    return m ? { fn: m[1], arg: m[2] || "" } : null;
+  }
+
+  function onEstimatorClick(e) {
+    if (!est.page) return;
+    var el = e.target.closest && e.target.closest("[onclick], button[id], a[id]");
+    if (!el) return;
+    est.interacted = true;
+    var call = handlerCall(el);
+    if (call) {
+      var label = est.page + ":" + call.fn + (call.arg ? ":" + call.arg : "");
+      if (EST_PRODUCT_FNS.indexOf(call.fn) !== -1) {
+        est.product = call.arg;
+        est.mode = "";
+        tagSession("rc_estimator_product", call.arg);
+        track("estimator-product", label);
+      } else if (EST_MODE_FNS.indexOf(call.fn) !== -1) {
+        if (/^set(Estimator|Cowork)Mode$|^(aib|roi)SetMode$/.test(call.fn)) est.mode = call.arg;
+        track("estimator-mode", label);
+      } else if (EST_START_FNS.indexOf(call.fn) !== -1) {
+        track("estimator-start", label);
+      } else if (EST_EXPORT_FNS.indexOf(call.fn) !== -1) {
+        track("estimator-export", label);
+      }
+      return;
     }
+    if (el.id && EST_START_IDS.indexOf(el.id) !== -1) track("estimator-start", est.page + ":" + el.id);
+  }
+
+  // Cowork and Detailed recalculate as you type — the first edit per panel is their "run".
+  function onEstimatorInput(e) {
+    if (!est.page) return;
+    var t = e.target;
+    if (!t || !/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+    if (!t.closest("article")) return;
+    est.interacted = true;
+    if (t.type === "file") {
+      track("estimator-upload", est.page + ":" + (t.id || "file"));
+      return;
+    }
+    var panel = t.parentElement && t.parentElement.closest("[id^='cw-panel-'], [id^='mode-'], [id$='-panel'], [id^='roi-'], [id^='aib-'], [id^='ctx-']");
+    var key = est.page + ":" + (est.product || "default") + ":" + (panel ? panel.id : (est.mode || "page"));
+    if (est.inputSeen[key]) return;
+    est.inputSeen[key] = true;
+    track("estimator-input", key);
+  }
+
+  function bindEstimatorDelegation() {
+    if (window.__rcEstimatorDelegated) return;
+    window.__rcEstimatorDelegated = true;
+    document.addEventListener("click", onEstimatorClick, true);
+    document.addEventListener("change", onEstimatorInput, true);
+    document.addEventListener("input", onEstimatorInput, true);
   }
 
   function tagCurrentPage() {
@@ -208,9 +287,11 @@
     } else if (/\/stages\/stage-1-chat\//.test(p)) {
       tagSession("rc_page_type", "stage-1");
       track("stage1-view", "stage-1-chat");
-    } else if (/\/credit-estimator\/|\/ai-builder-estimator\//.test(p)) {
+    } else if (estimatorPage()) {
       tagSession("rc_page_type", "estimator");
+      tagSession("rc_estimator", estimatorPage());
       tagSession("rc_segment_candidate", "dead-clicks-on-estimator-pages");
+      track("estimator-view", estimatorPage());
     } else if (isHome) {
       tagSession("rc_page_type", "home");
     }
@@ -226,20 +307,29 @@
   }
 
   function watchEstimatorResults() {
-    var root = document.getElementById("estimator-studio") || document.body;
+    est.page = estimatorPage();
+    est.product = "";
+    est.mode = "";
+    est.interacted = false;
+    est.inputSeen = {};
+    est.resultSeen = {};
+    if (!est.page) return;
+    var root = document.querySelector("article") || document.body;
     if (!root || root.dataset.rcEstimatorWatch === "1") return;
     root.dataset.rcEstimatorWatch = "1";
-    var seen = {};
     var mo = new MutationObserver(function () {
-      ["qe-results", "sp-results", "qi-results", "bulk-results"].forEach(function (id) {
+      // Some panels render a default estimate on load — only count results after a visitor acts.
+      if (!est.interacted) return;
+      EST_RESULT_IDS.forEach(function (id) {
         var el = document.getElementById(id);
-        if (!el || el.classList.contains("em-hidden") || !el.textContent.trim() || seen[id]) return;
-        seen[id] = true;
-        track("estimator-result", id);
+        if (!el || est.resultSeen[id] || !el.textContent.trim()) return;
+        if (el.classList.contains("em-hidden") || el.hidden || el.offsetParent === null) return;
+        est.resultSeen[id] = true;
+        track("estimator-result", est.page + ":" + id);
         enhanceCopyAffordances(document);
       });
     });
-    mo.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+    mo.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden", "style"] });
   }
 
   function watchHomeNoClick() {
@@ -262,6 +352,7 @@
     wireTracking(document);
     enhanceCopyAffordances(document);
     watchEstimatorResults();
+    bindEstimatorDelegation();
     watchHomeNoClick();
   }
 

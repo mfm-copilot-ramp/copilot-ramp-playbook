@@ -10,6 +10,18 @@ Updates to the Copilot Ramp Playbook — new walkthroughs, improvements, and str
 
 ---
 
+## November 2026
+
+### AI Builder end of life is now in effect
+*November 3, 2026*
+
+- The **[AI Builder → Copilot Credits](ai-builder-estimator.md)** estimator, the homepage, and
+  [Copilot Credits](copilot-credits.md) now describe the **November 1, 2026** end of life as something that
+  has happened. Existing add-on and seeded AI Builder credits still run to the end of their contract;
+  after that, AI Builder features draw Copilot Credits.
+
+---
+
 ## October 2026
 
 ### Accuracy refresh — Autopilot, Cowork GA, and what your license covers
