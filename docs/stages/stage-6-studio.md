@@ -169,6 +169,20 @@ Everything that makes a Studio agent real — designed conversation, tools and a
 
 ---
 
+-   **[Share agent analytics without edit rights — Analytics Viewer role](../walkthroughs/studio-govern-your-copilot-studio-agents-with-the-analytics-viewer-.md)**
+
+    Grant stakeholders read-only access to your agent's Analytics page without giving them edit or publish rights.
+
+    <span class="rc-meta" data-time="15" data-roles="maker it-admin"><span class="rc-chip rc-chip-time">⏱ 15 min</span> <span class="rc-chip rc-chip-role">👤 Maker</span></span>
+
+</div>
+
+</section>
+
+</div>
+
+---
+
 ## Walkthroughs — functional use cases
 
 Agents designed for a specific business function. Each pairs with a [Solution Template](../solutions/index.md) you can copy, adapt, and build from directly.
