@@ -1,15 +1,54 @@
 [
   {
-    "id": "a9a60e3dbfaf2b3a620b",
-    "source": "Microsoft Power Platform blog",
-    "category": "studio",
-    "title": "Dataverse goes where you build: Copilot Cowork, coding agents and n8n",
-    "url": "https://www.microsoft.com/en-us/power-platform/blog/2026/11/02/dataverse-for-coding-agents-n8n-copilot-cowork/",
-    "summary": "The Dataverse plugin and native integrations now reach Copilot Cowork, GitHub Copilot, Claude, Codex and ChatGPT, Cursor, Gemini CLI, Google Antigravity and n8n, so developers and makers get the same trusted business data and guardrails in the tools they already use.",
-    "published": "Mon, 02 Nov 2026 16:00:00 +0000",
-    "published_ts": 1793635200,
-    "content_hash": "291a1bc350549203",
+    "id": "059738b3439172c787cd",
+    "source": "Copilot Cowork — What's new",
+    "category": "cowork",
+    "title": "November 2026",
+    "display_title": "Copilot Cowork — What's new: November 2026",
+    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#november-2026",
+    "summary": "New features Feature Description Learn more Planner Plugin for Copilot Cowork The Planner Plugin connects Planner to Cowork. What is the Planner Plugin?",
+    "published": "",
+    "content_hash": "f4d1b2f1d2c86511",
     "change_type": "new",
-    "retrieved_at": "2026-11-02T22:02:03.706944+00:00"
+    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
+  },
+  {
+    "id": "ddcd2c9d30731957b9ec",
+    "source": "Copilot Cowork — What's new",
+    "category": "cowork",
+    "title": "October 2026",
+    "display_title": "Copilot Cowork — What's new: October 2026",
+    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#october-2026",
+    "summary": "New features Feature Description Learn more Open Cowork in the Home tab ( Frontier ) Select the Home tab. The Chat and Cowork toggle appears in the conversation box. Copilot Cowork overview Accounting, Finance, and Capital Markets plugins Accounting for Cowork (Frontier Public), Finance for Cowork, ",
+    "published": "",
+    "content_hash": "25cc3bb4c68bdcfa",
+    "change_type": "changed",
+    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
+  },
+  {
+    "id": "97824dc68811a569988e",
+    "source": "Copilot Cowork — What's new",
+    "category": "cowork",
+    "title": "New features",
+    "display_title": "Copilot Cowork — What's new: New features",
+    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#new-features-6",
+    "summary": "Feature Description Learn more Expanded skills support You can now add 50 custom skills through natural language or OneDrive. Manage your tasks Markdown support in OneDrive OneDrive and SharePoint now have native support for Markdown files, including custom skill files. Introducing Markdown support ",
+    "published": "",
+    "content_hash": "045e80a67e4668cc",
+    "change_type": "new",
+    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
+  },
+  {
+    "id": "1d922548f56a6efd0ee0",
+    "source": "Copilot Cowork — What's new",
+    "category": "cowork",
+    "title": "Related information",
+    "display_title": "Copilot Cowork — What's new: Related information",
+    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#related-information",
+    "summary": "Cowork overview Get started with Cowork Use Cowork Cowork common questions",
+    "published": "",
+    "content_hash": "153d2c57d8087ef7",
+    "change_type": "new",
+    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
   }
 ]
