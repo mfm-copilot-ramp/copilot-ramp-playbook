@@ -108,8 +108,8 @@ Format the action items as a table I can paste into an email.
     <span class="pc-cta">Estimate credits →</span>
   </a>
   <a class="path-card" href="ai-builder-estimator/" data-rc-track="home-tool-card" data-rc-label="ai-builder-estimator">
-    <span class="pc-role">AI Builder → Copilot Credits <span class="pc-badge">Nov 1 deadline</span></span>
-    <span class="pc-line">AI Builder credits reach end of life on November 1, 2026. Map today's usage to the Copilot Credits you'll need.</span>
+    <span class="pc-role">AI Builder → Copilot Credits <span class="pc-badge">Now in effect</span></span>
+    <span class="pc-line">AI Builder credits reached end of life on November 1, 2026. Map today's usage to the Copilot Credits you'll need as remaining credits run out.</span>
     <span class="pc-cta">Convert my usage →</span>
   </a>
   <a class="path-card" href="roi-estimator/" data-rc-track="home-tool-card" data-rc-label="roi-estimator">

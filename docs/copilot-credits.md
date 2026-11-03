@@ -215,7 +215,7 @@ Estimating high and the number scares you? That's often a **right-sizing** signa
 
 - [Stage 6 · Copilot Studio](stages/stage-6-studio.md) — where credit-bearing agents get built.
 - [Credit Estimator](credit-estimator.md) — turn this model into a real number.
-- [AI Builder → Copilot Credits](ai-builder-estimator.md) — already use AI Builder? AI Builder capacity add-ons and seeded credits reach **end of life on November 1, 2026** — map that usage to the Copilot Credits you'll need.
+- [AI Builder → Copilot Credits](ai-builder-estimator.md) — already use AI Builder? AI Builder capacity add-ons and seeded credits reached **end of life on November 1, 2026** (existing credits run to the end of their contract) — map that usage to the Copilot Credits you'll need.
 - [Right-sizing](right-sizing.md) — the cheapest agent is the one you didn't need to build.
 
 ---

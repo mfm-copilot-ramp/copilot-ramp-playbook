@@ -8,8 +8,8 @@ hide: [toc]
 
 Map what you run on AI Builder today to the **Copilot Credits** you'll need. Runs in your browser — nothing is uploaded.
 
-!!! warning "November 1, 2026: AI Builder credits reach end of life"
-    Features keep working — they draw **Copilot Credits** once AI Builder credits run out. [What changes ↓](#what-changes)
+!!! warning "Since November 1, 2026: AI Builder credits are end of life"
+    Features keep working — they draw **Copilot Credits** once your remaining AI Builder credits run out or your contract ends. [What changed ↓](#what-changes)
 
 <div id="aib-estimator" markdown="0">
 
@@ -373,15 +373,15 @@ Map what you run on AI Builder today to the **Copilot Credits** you'll need. Run
 
 ---
 
-## What changes on November 1, 2026 { #what-changes }
+## What changed on November 1, 2026 { #what-changes }
 
 Per Microsoft's [End of AI Builder credits](https://learn.microsoft.com/en-us/ai-builder/endofaibcredits) calendar:
 
-- **AI Builder capacity add-ons** stopped selling to new customers on **November 1, 2025** and reach
+- **AI Builder capacity add-ons** stopped selling to new customers on **November 1, 2025** and reached
   **end of life on November 1, 2026**. Existing add-on credits stay usable until those licenses expire —
   and Microsoft notes customers **must turn off auto-renew** in the Microsoft 365 admin center or Partner Center.
 - **Seeded AI Builder credits** (in Power Apps / Power Automate premium, Dynamics 365, and similar licenses)
-  also reach end of life on **November 1, 2026**: future premium licenses won't include them, and existing
+  also reached end of life on **November 1, 2026**: future premium licenses don't include them, and existing
   seeded credits are honored **through the end of the contract term**.
 - There's **no automatic conversion**. Environments consume AI Builder credits first, then **Copilot
   Credits**; if neither is available, AI Builder features are **blocked**. That's why sizing the Copilot
@@ -534,7 +534,7 @@ All rate and licensing claims are grounded in official Microsoft documentation, 
 | Claim | Source | Retrieved |
 | --- | --- | --- |
 | AI Builder Capability Rate table (Copilot Credit + AI Builder credit rate per capability, units, $ footnotes: $0.01/Copilot Credit PAYG, Tier 1 prepaid $500/mo per 1M AI Builder credits); AI Builder features in Copilot Studio always consume Copilot Credits; add-on renewal-only from Nov 1 2025 and seeded credits removed Nov 2026 | [AI Builder — Overview of licensing](https://learn.microsoft.com/en-us/ai-builder/administer-licensing#ai-builder-capability-rate-table) | 2026-08-10 |
-| End-of-life calendar: add-ons end of sales 11/1/2025 and end of life 11/1/2026 (turn off auto-renew); seeded credits end of life 11/1/2026, honored through contract term; no automatic conversion; AI Builder credits consumed first, then Copilot Credits, else blocked | [End of AI Builder credits](https://learn.microsoft.com/en-us/ai-builder/endofaibcredits) | 2026-10-28 |
+| End-of-life calendar: add-ons end of sales 11/1/2025 and end of life 11/1/2026 (turn off auto-renew); seeded credits end of life 11/1/2026, honored through contract term; no automatic conversion; AI Builder credits consumed first, then Copilot Credits, else blocked | [End of AI Builder credits](https://learn.microsoft.com/en-us/ai-builder/endofaibcredits) | 2026-11-03 |
 | How Copilot Credits are bought, pooled per tenant, and enforced monthly with no carryover | [Licensing and Copilot Credits — Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) | 2026-08-10 |
 | PPAC **AI Builder consumption report** is a downloadable **Excel** (admin-only, rolling 30 days) with columns `Date, UserId, EnvironmentId, EnvironmentName, AIConsumption, IsTrial` — an aggregate credit total, **no per-capability breakdown** | [AI Builder consumption report](https://learn.microsoft.com/ai-builder/administer-consumption-report) | 2026-08-11 |
 | Power Automate **AI Builder activity** grid (Automation Center → Monitor) lists per-run `Tool name` + `Consumption`, covering Power Automate, Power Apps, and Copilot Studio | [Monitor AI Builder models and prompts activity](https://learn.microsoft.com/ai-builder/activity-monitoring) | 2026-08-11 |

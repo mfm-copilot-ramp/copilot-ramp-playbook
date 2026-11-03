@@ -10,9 +10,10 @@ Checks:
 3. Dead or redirected external links
 4. Stale count claims (N walkthroughs / M templates) vs actual counts
 5. Basic accessibility spot-checks on custom components
+6. Past-dated claims: future-tense phrasing ("reach", "will", "deadline", "by …") tied to a date that has passed
 
 Usage:
-    python automation/auditor/audit.py [--dry-run] [--skip-links]
+    python automation/auditor/audit.py [--dry-run] [--skip-links] [--as-of YYYY-MM-DD]
 
 Outputs:
     - GitHub issues labeled intel:governance
@@ -26,7 +27,7 @@ import re
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
@@ -421,6 +422,94 @@ def check_accessibility():
             ))
 
 
+# ── Check 6: Past-Dated Claims ──────────────────────────────────────────────
+_MONTHS = {m: i for i, m in enumerate(
+    ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], start=1)}
+_MONTH_RE = r"(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?"
+_DATE_PATTERNS = [
+    # November 1, 2026 / Nov 1 2026
+    (re.compile(_MONTH_RE + r"\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(20\d{2})\b", re.IGNORECASE), "mdy"),
+    # 2026-11-01
+    (re.compile(r"\b(20\d{2})-(\d{2})-(\d{2})\b"), "iso"),
+    # 11/1/2026
+    (re.compile(r"\b(\d{1,2})/(\d{1,2})/(20\d{2})\b"), "us"),
+    # Yearless "Nov 1 deadline" — only meaningful next to a deadline word
+    (re.compile(_MONTH_RE + r"\s+(\d{1,2})(?:st|nd|rd|th)?(?!,?\s*\d)\b(?=[^.\n]{0,20}\b(?:deadline|cut-?off)\b)", re.IGNORECASE), "md"),
+]
+# Phrases that only make sense while the date is still ahead of us (anywhere in the sentence).
+_FUTURE_CUES = re.compile(
+    r"\b(will|won't|reach(?:es)?\s+end|deadline|upcoming|coming\s+soon|"
+    r"(?:starts|ends|expires|retires|changes|goes\s+live|lands)\s+on|what\s+changes)\b",
+    re.IGNORECASE,
+)
+# Prepositions that only signal a future date when they sit right before it ("by Nov 1").
+_PRE_DATE_CUES = re.compile(r"\b(by|before|until|no\s+later\s+than|due|ahead\s+of|starting)\s*$", re.IGNORECASE)
+_EMPHASIS = re.compile(r"[*_`]+")
+_PAST_DATE_GRACE_DAYS = 0
+
+
+def _parse_date(match: re.Match, kind: str, today: date) -> date | None:
+    try:
+        if kind == "mdy":
+            return date(int(match.group(3)), _MONTHS[match.group(1)[:3].lower()], int(match.group(2)))
+        if kind == "iso":
+            return date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+        if kind == "us":
+            return date(int(match.group(3)), int(match.group(1)), int(match.group(2)))
+        if kind == "md":
+            return date(today.year, _MONTHS[match.group(1)[:3].lower()], int(match.group(2)))
+    except (ValueError, KeyError):
+        return None
+    return None
+
+
+def find_past_dated_claims(text: str, today: date) -> list[tuple[int, str, date]]:
+    """Return (line_no, snippet, date) for future-tense phrasing tied to a past date."""
+    hits = []
+    in_fence = False
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        if line.lstrip().startswith(("```", "~~~")):
+            in_fence = not in_fence
+        # Code blocks and source/citation table rows record facts, not promises.
+        if in_fence or line.lstrip().startswith("|"):
+            continue
+        line = _EMPHASIS.sub("", line)
+        for pattern, kind in _DATE_PATTERNS:
+            for m in pattern.finditer(line):
+                d = _parse_date(m, kind, today)
+                if not d or (today - d).days <= _PAST_DATE_GRACE_DAYS:
+                    continue
+                # Same sentence only: clip the window at sentence boundaries.
+                start = max(line.rfind(". ", 0, m.start()) + 1, m.start() - 120, 0)
+                end_dot = line.find(". ", m.end())
+                end = min(end_dot if end_dot != -1 else len(line), m.end() + 120)
+                window = line[start:end]
+                if _FUTURE_CUES.search(window) or _PRE_DATE_CUES.search(line[start:m.start()]):
+                    hits.append((line_no, window.strip()[:200], d))
+    return hits
+
+
+def check_past_dated_claims(today: date):
+    """Flag pages that still talk about a past date as if it were upcoming."""
+    log.info(f"Check 6: Past-dated claims (as of {today.isoformat()})")
+    history_pages = {"docs/whats-new.md"}
+    for md_file in sorted(DOCS_DIR.rglob("*.md")):
+        relpath = md_file.relative_to(REPO_ROOT).as_posix()
+        if relpath in history_pages:
+            continue
+        hits = find_past_dated_claims(md_file.read_text(encoding="utf-8"), today)
+        if not hits:
+            continue
+        lines = "\n".join(f"- L{n} ({d.isoformat()}): `{s}`" for n, s, d in hits[:10])
+        findings.append(Finding(
+            "freshness", "p1",
+            f"Past-dated claim(s) in {relpath}",
+            f"{len(hits)} sentence(s) describe a date that has already passed in future tense. "
+            f"Rewrite in past tense and re-verify against the cited source.\n\n{lines}",
+            [relpath],
+        ))
+
+
 # ── Utilities ────────────────────────────────────────────────────────────────
 def parse_frontmatter(text: str) -> dict | None:
     if not text.startswith("---"):
@@ -511,6 +600,8 @@ def main():
     parser = argparse.ArgumentParser(description="Auditor weekly governance check")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--skip-links", action="store_true", help="Skip external link checks")
+    parser.add_argument("--as-of", type=date.fromisoformat, default=None,
+                        help="Treat this date (YYYY-MM-DD) as today for the past-dated-claims check")
     args = parser.parse_args()
 
     log.info(f"Auditor starting — {datetime.now(timezone.utc).isoformat()}")
@@ -521,6 +612,7 @@ def main():
     check_external_links(skip=args.skip_links)
     check_stale_counts(actual_wt, actual_sol)
     check_accessibility()
+    check_past_dated_claims(args.as_of or datetime.now(timezone.utc).date())
 
     log.info(f"\n{'='*60}")
     log.info(f"AUDIT COMPLETE: {len(findings)} finding(s)")
