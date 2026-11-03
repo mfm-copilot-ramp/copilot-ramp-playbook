@@ -10,6 +10,10 @@
     return location.pathname.replace(/\/$/, "") || "/";
   }
 
+  // GoatCounter counts every visitor (no consent needed), so keep its event list to milestones —
+  // the chatty interaction events stay Clarity-only.
+  var GOAT_SKIP = ["estimator-view", "estimator-product", "estimator-mode", "estimator-input"];
+
   function track(name, label) {
     var safeName = String(name || "").replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
     var safeLabel = label ? String(label).slice(0, 80) : "";
@@ -19,7 +23,7 @@
       window.clarity("set", "rc_last_event", safeName);
       if (safeLabel) window.clarity("set", "rc_last_label", safeLabel);
     }
-    if (window.goatcounter) {
+    if (window.goatcounter && GOAT_SKIP.indexOf(safeName) === -1) {
       window.goatcounter.count({
         path: pathKey() + "#ux-" + safeName + (safeLabel ? "-" + safeLabel.replace(/[^a-z0-9_-]/gi, "-").toLowerCase() : ""),
         title: "UX: " + safeName + (safeLabel ? " / " + safeLabel : ""),
