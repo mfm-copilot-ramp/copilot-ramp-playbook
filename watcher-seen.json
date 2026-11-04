@@ -18,7 +18,7 @@
       "19fe56323f0e7ab26f20": "610a277addb8d8f0",
       "6c4dc2e6169f4d7dbd20": "22104552ba7576c4"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 15,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -34,7 +34,7 @@
       "071606ff34383fe9411a": "951a7d249908c4fa",
       "6efe57623f3ee3b4e5ba": "c9577fa4fedb9d5b"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 5,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -138,14 +138,15 @@
       "c187abc53dc6ee1b2a49": "fd2dc024159a82b2",
       "1febd011b5a1e0b5fb0a": "6037c3af45749200",
       "dbea6cd46317cd587369": "ec0d18a2153d6665",
-      "a91e5475e0b91c194938": "e5926da41c062290"
+      "a91e5475e0b91c194938": "e5926da41c062290",
+      "ae84cc95dff5af9c54d6": "337e8a3f243686cc"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
-    "item_count": 95,
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
+    "item_count": 96,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1793664851
+    "feed_updated": 1793750529
   },
   "Microsoft 365 Copilot release notes": {
     "config_hash": "ac2c937597b28535",
@@ -211,7 +212,7 @@
       "6c1bd84be9b94bfbf435": "5573971d1f804f93",
       "115493b8faa70c3093b1": "de60d832ecac5d0d"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 60,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -223,7 +224,7 @@
       "e53164f83e478be788c7": "0547dce403a7ffe4",
       "5bddd4eac16b72cf9361": "dd5ec8ae5b57c440"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -236,7 +237,7 @@
       "21024c85e5fcae42312a": "b4370f3eef2dacae",
       "d68a1977529ca1d3ab86": "a96596b2ca895ffb"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 3,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -250,7 +251,7 @@
       "439ca2feb0af894d7be9": "4c75fdd409bece97",
       "70942beb5188660b875c": "91062e4685de4faa"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -259,7 +260,7 @@
   "Copilot Cowork — What's new": {
     "config_hash": "f8808d3280d6e597",
     "seen_items": {
-      "ddcd2c9d30731957b9ec": "25cc3bb4c68bdcfa",
+      "ddcd2c9d30731957b9ec": "70f6854e3eb9f942",
       "19cc1c58c74727f4578a": "dcc9ab16f1a93d62",
       "887cbc12ee5f02d3e901": "d2b12f3298363325",
       "479960b2a7aaf0ce8522": "f430527d6877faa1",
@@ -270,7 +271,7 @@
       "97824dc68811a569988e": "045e80a67e4668cc",
       "1d922548f56a6efd0ee0": "153d2c57d8087ef7"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 10,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -282,7 +283,7 @@
       "3088d6ab293b248fcd2b": "3772e2739090838e",
       "28e7123037565de08717": "aeaf125fc62f8750"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -295,12 +296,12 @@
       "d2d305783edc2e6426c4": "156e4039aad71191",
       "7cd9d7e092f9ffe3698e": "5ac3ea078d1a7eb9"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 3,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1793721610
+    "feed_updated": 1793822950
   },
   "Copilot Studio — What's new": {
     "config_hash": "53f55ce2b9e55904",
@@ -310,14 +311,14 @@
       "d5330e18c56f408fc605": "850bd33b04168f15",
       "a8f30ffe5bdc88dbf616": "726d8d2458588e10",
       "bff5fa610731a17eaaa3": "58a287696db3cf2a",
-      "150951473e48a721caba": "fa9f163d15e88e26",
+      "150951473e48a721caba": "e4a30e51df7a1acd",
       "c5b5b177257c88dc844e": "e5c03bb117c0f888",
       "4286b159cccfdf08ae10": "a272a6b17280dedb",
       "4c1c2476481969e4a8b7": "e1641d03e96670f2",
       "af86c95332688c704a26": "660ef2a65b6b65f0",
-      "bec61b2ff9a7ce3ee8f5": "d93c0698a1abae35"
+      "bec61b2ff9a7ce3ee8f5": "00293c0c7580f3cc"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 11,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -331,7 +332,7 @@
       "8053b037488b31691f08": "17fc1efd0e529854",
       "6145104670ca53a407f0": "2fd383055e808684"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -347,7 +348,7 @@
       "43b6ee8019caa0047bbc": "95d22a95387ee8c1",
       "a9a60e3dbfaf2b3a620b": "291a1bc350549203"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 6,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -360,7 +361,7 @@
       "290693a3c87acbc0553a": "05f13d9427193665",
       "45834d243b1022a585ea": "07e45d14543730fc"
     },
-    "last_checked": "2026-11-03T19:55:27.600277+00:00",
+    "last_checked": "2026-11-04T20:10:50.901817+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,

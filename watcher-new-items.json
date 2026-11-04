@@ -1,16 +1,16 @@
 [
   {
-    "id": "059738b3439172c787cd",
-    "source": "Copilot Cowork — What's new",
-    "category": "cowork",
-    "title": "November 2026",
-    "display_title": "Copilot Cowork — What's new: November 2026",
-    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#november-2026",
-    "summary": "New features Feature Description Learn more Planner Plugin for Copilot Cowork The Planner Plugin connects Planner to Cowork. What is the Planner Plugin?",
-    "published": "",
-    "content_hash": "f4d1b2f1d2c86511",
+    "id": "ae84cc95dff5af9c54d6",
+    "source": "Microsoft 365 Roadmap",
+    "category": "cross-journey",
+    "title": "Dynamics 365 Customer Insights - Journeys: Marketing tools, skills and plugin are now available in Copilot Cowork",
+    "url": "https://www.microsoft.com/microsoft-365/roadmap?id=577746",
+    "summary": "The Customer Insights plugin brings Dynamics 365 Customer Insights context, actions, and guided workflows to Copilot Cowork. Marketers and other customer-facing teams can understand customer profiles, author brand-compliant content, and prepare consent-aware outreach using existing segments directly in the flow of work, reducing the need to switch to Dynamics 365 Customer Insights. The native Customer Insights skills (Customer Brief & Value Metrics, Email Content Advisor, and Customer Outreach) ",
+    "published": "Wed, 04 Nov 2026 00:02:09 Z",
+    "published_ts": 1793750529,
+    "content_hash": "337e8a3f243686cc",
     "change_type": "new",
-    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
+    "retrieved_at": "2026-11-04T20:10:50.901817+00:00"
   },
   {
     "id": "ddcd2c9d30731957b9ec",
@@ -21,34 +21,34 @@
     "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#october-2026",
     "summary": "New features Feature Description Learn more Open Cowork in the Home tab ( Frontier ) Select the Home tab. The Chat and Cowork toggle appears in the conversation box. Copilot Cowork overview Accounting, Finance, and Capital Markets plugins Accounting for Cowork (Frontier Public), Finance for Cowork, ",
     "published": "",
-    "content_hash": "25cc3bb4c68bdcfa",
+    "content_hash": "70f6854e3eb9f942",
     "change_type": "changed",
-    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
+    "retrieved_at": "2026-11-04T20:10:50.901817+00:00"
   },
   {
-    "id": "97824dc68811a569988e",
-    "source": "Copilot Cowork — What's new",
-    "category": "cowork",
-    "title": "New features",
-    "display_title": "Copilot Cowork — What's new: New features",
-    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#new-features-6",
-    "summary": "Feature Description Learn more Expanded skills support You can now add 50 custom skills through natural language or OneDrive. Manage your tasks Markdown support in OneDrive OneDrive and SharePoint now have native support for Markdown files, including custom skill files. Introducing Markdown support ",
+    "id": "150951473e48a721caba",
+    "source": "Copilot Studio — What's new",
+    "category": "studio",
+    "title": "April 2026",
+    "display_title": "Copilot Studio — What's new: April 2026",
+    "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new#april-2026",
+    "summary": "Configure hold and resume for voice-enabled agents to pause mid-conversation and resume where you left off, giving users a more natural calling experience. (Preview) Build and deploy real-time voice agents for Copilot Studio and Dynamics 365 Contact Center, with support for NLU, multilingual convers",
     "published": "",
-    "content_hash": "045e80a67e4668cc",
-    "change_type": "new",
-    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
+    "content_hash": "e4a30e51df7a1acd",
+    "change_type": "changed",
+    "retrieved_at": "2026-11-04T20:10:50.901817+00:00"
   },
   {
-    "id": "1d922548f56a6efd0ee0",
-    "source": "Copilot Cowork — What's new",
-    "category": "cowork",
-    "title": "Related information",
-    "display_title": "Copilot Cowork — What's new: Related information",
-    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#related-information",
-    "summary": "Cowork overview Get started with Cowork Use Cowork Cowork common questions",
+    "id": "bec61b2ff9a7ce3ee8f5",
+    "source": "Copilot Studio — What's new",
+    "category": "studio",
+    "title": "November 2025",
+    "display_title": "Copilot Studio — What's new: November 2025",
+    "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new#november-2025",
+    "summary": "Updates for models used in Copilot Studio: On November 24, 2025, GPT-5 Chat rolls out to Copilot Studio in general availability for European and United States regions. You can use generally available models for orchestration in production agents. For more information on choosing orchestration models",
     "published": "",
-    "content_hash": "153d2c57d8087ef7",
-    "change_type": "new",
-    "retrieved_at": "2026-11-03T19:55:27.600277+00:00"
+    "content_hash": "00293c0c7580f3cc",
+    "change_type": "changed",
+    "retrieved_at": "2026-11-04T20:10:50.901817+00:00"
   }
 ]
