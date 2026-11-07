@@ -1,41 +1,28 @@
 [
   {
-    "id": "8c564ed68e8a21441bbe",
-    "source": "Microsoft 365 Roadmap",
-    "category": "cross-journey",
-    "title": "Microsoft 365 Copilot (Microsoft 365): Accounting skills",
-    "url": "https://www.microsoft.com/microsoft-365/roadmap?id=578864",
-    "summary": "Streamline corporate accounting work New accounting capabilities in Excel and Cowork help accountants spend less time on repetitive, manual tasks in the places they already work, including: • Reconcile accounts with confidence: Compare balances and transactions, identify discrepancies, and prepare reconciling items for review. • Prepare journal entries faster: Draft accruals, reclassifications, allocations, reversals, and recurring entries, with checks for required inputs and balanced entries. •",
-    "published": "Thu, 05 Nov 2026 23:59:28 Z",
-    "published_ts": 1793923168,
-    "content_hash": "d0e15b75b4e2ecbc",
-    "change_type": "new",
-    "retrieved_at": "2026-11-06T19:46:04.106202+00:00"
-  },
-  {
-    "id": "19cc1c58c74727f4578a",
+    "id": "059738b3439172c787cd",
     "source": "Copilot Cowork — What's new",
     "category": "cowork",
-    "title": "September 2026",
-    "display_title": "Copilot Cowork — What's new: September 2026",
-    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#september-2026",
-    "summary": "New features Feature Description Learn more App skill (Frontier) Create lightweight, interactive apps from a description without writing code. Refine your app in chat, open it, publish it, and share it with people in your organization. Build apps in Copilot Cowork (preview) Claude Fable 5.1 model Fa",
+    "title": "November 2026",
+    "display_title": "Copilot Cowork — What's new: November 2026",
+    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#november-2026",
+    "summary": "New features Feature Description Learn more Planner Plugin for Copilot Cowork The Planner Plugin connects Planner to Cowork. What is the Planner Plugin? OneNote support Read OneNote notebooks and, when editing is available, update pages with your approval. Work with OneNote notebooks",
     "published": "",
-    "content_hash": "4ed6785672acd779",
+    "content_hash": "b6d7b6bb3a51ffa3",
     "change_type": "changed",
-    "retrieved_at": "2026-11-06T19:46:04.106202+00:00"
+    "retrieved_at": "2026-11-07T17:54:33.156022+00:00"
   },
   {
-    "id": "7f1cb7d6b40e730ed982",
-    "source": "Microsoft Power Platform blog",
-    "category": "studio",
-    "title": "Create and edit non-SPA Power Pages sites with Agentic Coding tools",
-    "url": "https://www.microsoft.com/en-us/power-platform/blog/power-pages/create-and-edit-non-spa-power-pages-sites-with-agentic-coding-tools/",
-    "summary": "We’re pleased to introduce preview support for Power Pages sites built with web templates and Liquid (non-SPA or traditional portals). With the Power Pages plugin for GitHub Copilot CLI and Claude Code, describe the site you want to create or edit. The plugin helps you build pages, update content and templates, and customize styling.",
-    "published": "Fri, 06 Nov 2026 17:26:59 +0000",
-    "published_ts": 1793986019,
-    "content_hash": "6444b63987e424f2",
+    "id": "19d1ce0915183baaa160",
+    "source": "GitHub changelog — Copilot app & billing",
+    "category": "autopilots",
+    "title": "GitHub Copilot weekly releases — November 2",
+    "url": "https://github.blog/changelog/2026-11-06-github-copilot-weekly-releases-november-2",
+    "summary": "This week, Copilot comes to JetBrains Air and Xcode’s coding assistant, with updates to help you manage pull requests, settings, and agent sessions. GitHub Copilot app Set up Agent Merge…",
+    "published": "Fri, 06 Nov 2026 21:00:26 +0000",
+    "published_ts": 1793998826,
+    "content_hash": "61fc9e8facb6f936",
     "change_type": "new",
-    "retrieved_at": "2026-11-06T19:46:04.106202+00:00"
+    "retrieved_at": "2026-11-07T17:54:33.156022+00:00"
   }
 ]
