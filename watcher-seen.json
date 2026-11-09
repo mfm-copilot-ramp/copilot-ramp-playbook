@@ -19,7 +19,7 @@
       "6c4dc2e6169f4d7dbd20": "22104552ba7576c4",
       "833d59290e6e1191cd9e": "59546ce31e12dd2a"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 16,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -35,7 +35,7 @@
       "071606ff34383fe9411a": "951a7d249908c4fa",
       "6efe57623f3ee3b4e5ba": "c9577fa4fedb9d5b"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 5,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -144,7 +144,7 @@
       "7ca08e21b104d31066b8": "37cf09cb30bd4fb8",
       "8c564ed68e8a21441bbe": "d0e15b75b4e2ecbc"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 98,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -218,7 +218,7 @@
       "a039b9eb419b5a083bbb": "6e9e0e32ff0716a9",
       "01059b7b2c384c206371": "d678b763486ecb99"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 63,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -230,7 +230,7 @@
       "e53164f83e478be788c7": "0547dce403a7ffe4",
       "5bddd4eac16b72cf9361": "dd5ec8ae5b57c440"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -243,7 +243,7 @@
       "21024c85e5fcae42312a": "b4370f3eef2dacae",
       "d68a1977529ca1d3ab86": "a96596b2ca895ffb"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 3,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -257,7 +257,7 @@
       "439ca2feb0af894d7be9": "4c75fdd409bece97",
       "70942beb5188660b875c": "91062e4685de4faa"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -277,7 +277,7 @@
       "97824dc68811a569988e": "045e80a67e4668cc",
       "1d922548f56a6efd0ee0": "153d2c57d8087ef7"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 10,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -289,7 +289,7 @@
       "3088d6ab293b248fcd2b": "3772e2739090838e",
       "28e7123037565de08717": "aeaf125fc62f8750"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -303,12 +303,12 @@
       "7cd9d7e092f9ffe3698e": "5ac3ea078d1a7eb9",
       "19d1ce0915183baaa160": "61fc9e8facb6f936"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1794011457
+    "feed_updated": 1794264487
   },
   "Copilot Studio — What's new": {
     "config_hash": "53f55ce2b9e55904",
@@ -325,7 +325,7 @@
       "af86c95332688c704a26": "660ef2a65b6b65f0",
       "bec61b2ff9a7ce3ee8f5": "00293c0c7580f3cc"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 11,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -339,7 +339,7 @@
       "8053b037488b31691f08": "17fc1efd0e529854",
       "6145104670ca53a407f0": "2fd383055e808684"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -356,12 +356,12 @@
       "a9a60e3dbfaf2b3a620b": "291a1bc350549203",
       "7f1cb7d6b40e730ed982": "6444b63987e424f2"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 7,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1793986464
+    "feed_updated": 1794239673
   },
   "Microsoft Foundry — What's new": {
     "config_hash": "6844db1337fd92b1",
@@ -369,7 +369,7 @@
       "290693a3c87acbc0553a": "efda7f8545477379",
       "45834d243b1022a585ea": "07e45d14543730fc"
     },
-    "last_checked": "2026-11-08T18:09:48.661104+00:00",
+    "last_checked": "2026-11-09T22:48:18.770133+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
