@@ -1,1 +1,41 @@
-[]
+[
+  {
+    "id": "744756b23dc49a05f8fd",
+    "source": "Microsoft 365 Roadmap",
+    "category": "cross-journey",
+    "title": "Microsoft Copilot (Microsoft 365): Copilot Cowork: Access Business Applications with Work IQ",
+    "url": "https://www.microsoft.com/microsoft-365/roadmap?id=573293",
+    "summary": "Users can access Business Applications through Work IQ in Copilot Cowork and use Business Skills to complete end-to-end business processes grounded in their enterprise data and apps. This helps users move from finding the right business application to taking action across key workflows with less context switching. GA date: December CY2026 Preview date: September CY2026",
+    "published": "Wed, 11 Nov 2026 00:53:34 Z",
+    "published_ts": 1794358414,
+    "content_hash": "83a346429ad62e0d",
+    "change_type": "new",
+    "retrieved_at": "2026-11-11T19:56:13.764275+00:00"
+  },
+  {
+    "id": "6a0df590cc35e56fda4b",
+    "source": "Microsoft 365 Roadmap",
+    "category": "cross-journey",
+    "title": "Microsoft Copilot (Microsoft 365): Federated Copilot Connectors in Microsoft 365 Copilot",
+    "url": "https://www.microsoft.com/microsoft-365/roadmap?id=569212",
+    "summary": "Federated Copilot connectors enable users to securely connect Microsoft Copilot to their favorite third party sources, retrieving data in real-time using the Model Context Protocol (MCP). Federated Copilot connectors do not store or index customer data in Microsoft - access happens in real time using the user’s own identity, while administrators retain full governance and control through the Microsoft 365 Admin Center. With GA, federated Copilot connectors will be supported across Researcher age",
+    "published": "Tue, 18 Aug 2026 23:05:00 Z",
+    "published_ts": 1794358366,
+    "content_hash": "c7b786dd5818e467",
+    "change_type": "changed",
+    "retrieved_at": "2026-11-11T19:56:13.764275+00:00"
+  },
+  {
+    "id": "1e01bb623eef5e1bca19",
+    "source": "Microsoft Power Platform blog",
+    "category": "studio",
+    "title": "Act faster: hourly alerts for your critical flows, apps, and agents",
+    "url": "https://www.microsoft.com/en-us/power-platform/blog/2026/11/11/act-faster-hourly-alerts-for-your-critical-flows-apps-and-agents/",
+    "summary": "Spot performance and reliability issues sooner with hourly alerts in Monitor. By checking supported health metrics hourly instead of daily, these alerts help your team identify issues across apps, flows, and agents—and respond faster when thresholds are breached.",
+    "published": "Wed, 11 Nov 2026 17:00:00 +0000",
+    "published_ts": 1794416400,
+    "content_hash": "adfa81023eabbda5",
+    "change_type": "new",
+    "retrieved_at": "2026-11-11T19:56:13.764275+00:00"
+  }
+]
