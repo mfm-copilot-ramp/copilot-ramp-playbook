@@ -19,7 +19,7 @@
       "6c4dc2e6169f4d7dbd20": "22104552ba7576c4",
       "833d59290e6e1191cd9e": "59546ce31e12dd2a"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 16,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -37,7 +37,7 @@
       "866489b4a021765a2b3d": "a86750a834ab5865",
       "237049c13412ef128f32": "b7f70347e2f67159"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 7,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -147,12 +147,12 @@
       "8c564ed68e8a21441bbe": "d0e15b75b4e2ecbc",
       "744756b23dc49a05f8fd": "83a346429ad62e0d"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 99,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1794448256
+    "feed_updated": 1794598904
   },
   "Microsoft 365 Copilot release notes": {
     "config_hash": "ac2c937597b28535",
@@ -221,7 +221,7 @@
       "a039b9eb419b5a083bbb": "6e9e0e32ff0716a9",
       "01059b7b2c384c206371": "d678b763486ecb99"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 63,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -233,7 +233,7 @@
       "e53164f83e478be788c7": "0547dce403a7ffe4",
       "5bddd4eac16b72cf9361": "dd5ec8ae5b57c440"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -246,7 +246,7 @@
       "21024c85e5fcae42312a": "b4370f3eef2dacae",
       "d68a1977529ca1d3ab86": "a96596b2ca895ffb"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 3,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -260,7 +260,7 @@
       "439ca2feb0af894d7be9": "4c75fdd409bece97",
       "70942beb5188660b875c": "91062e4685de4faa"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -280,7 +280,7 @@
       "97824dc68811a569988e": "045e80a67e4668cc",
       "1d922548f56a6efd0ee0": "153d2c57d8087ef7"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 10,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -292,7 +292,7 @@
       "3088d6ab293b248fcd2b": "3772e2739090838e",
       "28e7123037565de08717": "aeaf125fc62f8750"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -304,14 +304,15 @@
       "3a003b09903d323c02f8": "ac580a49a8ed957f",
       "d2d305783edc2e6426c4": "156e4039aad71191",
       "7cd9d7e092f9ffe3698e": "5ac3ea078d1a7eb9",
-      "19d1ce0915183baaa160": "61fc9e8facb6f936"
+      "19d1ce0915183baaa160": "61fc9e8facb6f936",
+      "5ed86c8bd6f0dfdf7b25": "91ac8218be887978"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
-    "item_count": 4,
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
+    "item_count": 5,
     "hash_version": 3,
     "consecutive_failures": 0,
     "last_error": "",
-    "feed_updated": 1794356297
+    "feed_updated": 1794597311
   },
   "Copilot Studio — What's new": {
     "config_hash": "53f55ce2b9e55904",
@@ -329,7 +330,7 @@
       "bec61b2ff9a7ce3ee8f5": "7b644c0cd07fb929",
       "fbe5bd4dc286f8a9d836": "060ebf94c1192696"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 12,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -343,7 +344,7 @@
       "8053b037488b31691f08": "be168ebcf45efcef",
       "6145104670ca53a407f0": "5bcf9e746aba8d7d"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 4,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -361,7 +362,7 @@
       "7f1cb7d6b40e730ed982": "6444b63987e424f2",
       "1e01bb623eef5e1bca19": "adfa81023eabbda5"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 8,
     "hash_version": 3,
     "consecutive_failures": 0,
@@ -374,7 +375,7 @@
       "290693a3c87acbc0553a": "efda7f8545477379",
       "45834d243b1022a585ea": "07e45d14543730fc"
     },
-    "last_checked": "2026-11-12T20:34:04.167509+00:00",
+    "last_checked": "2026-11-13T20:11:56.961404+00:00",
     "item_count": 2,
     "hash_version": 3,
     "consecutive_failures": 0,
