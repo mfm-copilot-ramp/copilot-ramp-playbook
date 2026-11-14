@@ -1,15 +1,1 @@
-[
-  {
-    "id": "5ed86c8bd6f0dfdf7b25",
-    "source": "GitHub changelog — Copilot app & billing",
-    "category": "autopilots",
-    "title": "GitHub Enterprise Server support in the GitHub Copilot app",
-    "url": "https://github.blog/changelog/2026-11-13-github-enterprise-server-support-in-the-github-copilot-app",
-    "summary": "You can now bring your work on GitHub Enterprise Server (GHES) into the GitHub Copilot app. Add your GHES account to work with remote repositories, issues, and pull requests. This…",
-    "published": "Fri, 13 Nov 2026 18:27:13 +0000",
-    "published_ts": 1794594433,
-    "content_hash": "91ac8218be887978",
-    "change_type": "new",
-    "retrieved_at": "2026-11-13T20:11:56.961404+00:00"
-  }
-]
+[]
