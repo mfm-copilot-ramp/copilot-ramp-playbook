@@ -1,1 +1,41 @@
-[]
+[
+  {
+    "id": "9aa825b5c07d19577927",
+    "source": "Microsoft Copilot blog",
+    "category": "cross-journey",
+    "title": "What AI at work really costs",
+    "url": "https://www.microsoft.com/en-us/copilot/blog/2026/11/16/what-ai-at-work-really-costs/",
+    "summary": "What does AI at work really cost? New research compares the total cost of leading enterprise AI options and explores the factors that can shape the cost of everyday and advanced AI work.",
+    "published": "Mon, 16 Nov 2026 16:00:00 +0000",
+    "published_ts": 1794844800,
+    "content_hash": "1b6301725a640d99",
+    "change_type": "new",
+    "retrieved_at": "2026-11-16T22:40:31.930494+00:00"
+  },
+  {
+    "id": "059738b3439172c787cd",
+    "source": "Copilot Cowork — What's new",
+    "category": "cowork",
+    "title": "November 2026",
+    "display_title": "Copilot Cowork — What's new: November 2026",
+    "url": "https://learn.microsoft.com/en-us/copilot/cowork/whats-new#november-2026",
+    "summary": "New features Feature Description Learn more Planner Plugin for Copilot Cowork The Planner Plugin connects Planner to Cowork. What is the Planner Plugin? OneNote support Read OneNote notebooks and, when editing is available, update pages with your approval. Work with OneNote notebooks Enhancements Ad",
+    "published": "",
+    "content_hash": "a86beafdf3499ac0",
+    "change_type": "changed",
+    "retrieved_at": "2026-11-16T22:40:31.930494+00:00"
+  },
+  {
+    "id": "52b5bc84e66010831650",
+    "source": "GitHub changelog — Copilot app & billing",
+    "category": "autopilots",
+    "title": "GitHub Copilot weekly releases — November 9",
+    "url": "https://github.blog/changelog/2026-11-16-github-copilot-weekly-releases-november-9",
+    "summary": "This week, bring GitHub Enterprise Server repositories into the Copilot app and see which agent sessions need you first in VS Code. You can also try two new models, Claude…",
+    "published": "Mon, 16 Nov 2026 21:34:53 +0000",
+    "published_ts": 1794864893,
+    "content_hash": "cf6c9325d78c9e86",
+    "change_type": "new",
+    "retrieved_at": "2026-11-16T22:40:31.930494+00:00"
+  }
+]
